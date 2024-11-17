@@ -1,0 +1,31 @@
+/* Profile.css */
+
+.profile-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info p {
+    font-size: 16px;
+}
+
+.profile-info img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+
+
+}
+
+.profile-info button {
+    position: absolute;
+    top: 120px;
+    right: 10px;
+    padding: 2px 10px;
+}
+
+.profile-form .form-group input {
+    font-size: 14px;
+}

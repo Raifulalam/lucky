@@ -1,0 +1,258 @@
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f957;
+    color: #333;
+}
+
+h1,
+h3 {
+    color: #333;
+
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #333;
+
+    margin-bottom: 2px;
+}
+
+
+
+.service-page {
+    display: grid;
+    grid-template-columns: 1.75fr 1fr;
+    gap: 25px;
+
+}
+
+/* Service Page Container */
+.service-page-container {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.service-page-container h1 {
+    text-align: center;
+    padding-top: 8px;
+}
+
+/* Service Info Section */
+.service-info {
+
+    margin-bottom: 40px;
+    padding: 20px;
+
+    border-radius: 8px;
+}
+
+.service-info p {
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: justify;
+}
+
+.our-services {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.our-services .col-md-8 {
+    background-color: #f4f4f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Complaint Section */
+.complaint-section {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+}
+
+.personal-details-form,
+.product-details-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.personal-details-form input,
+.personal-details-form select,
+.personal-details-form textarea,
+.product-details-form input,
+.product-details-form select,
+.product-details-form textarea {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.personal-details-form textarea,
+.product-details-form textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+}
+
+.nextBtn {
+    margin-top: 20px !important;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
+
+button[type="button"] {
+    background-color: #6c757d;
+    margin-right: 10px;
+}
+
+button[type="button"]:hover {
+    background-color: #5a6268;
+}
+
+/* Form Navigation */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.form-actions button {
+    width: 48%;
+}
+
+/* Reviews Section */
+.reviews-section {
+    margin-top: 40px;
+}
+
+.reviews-section ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 20px;
+}
+
+.reviews-section ul li {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.reviews-section h3 {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.audioBtn {
+    display: flex;
+    gap: 60px;
+    align-items: baseline;
+
+}
+
+.reviews-section form textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+}
+
+.reviews-section form button {
+    margin-top: 10px;
+}
+
+/* Success Message */
+.complaint-success {
+    background-color: #28a745;
+    color: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.complaint-success p {
+    margin: 0;
+}
+
+/* Step Indicator */
+h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.step-button {
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.step-button button {
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .service-info p {
+        font-size: 14px;
+    }
+
+    .our-services {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .service-page-container {
+        padding: 20px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+}

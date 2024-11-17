@@ -1,0 +1,143 @@
+.container {
+    display: flex;
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+    flex-wrap: wrap;
+    margin-top: 80px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    /* Allow wrapping for smaller screens */
+}
+
+/* body {
+
+    background: url('C:\Users\DELL\OneDrive\Desktop\Foodies\foodie\public\SIGNup.jpg') no-repeat center center/cover;
+} */
+
+.login-form {
+    flex: 1;
+    padding: 20px 40px;
+
+
+    max-width: 100%;
+    /* Allow full width on smaller screens */
+    box-sizing: border-box;
+    /* Include padding in width calculation */
+}
+
+.login-form h2 {
+    margin-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+}
+
+.submit-button {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+.forgot-password {
+    display: block;
+    margin-top: 10px;
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.sidebar {
+    flex: 0 0 30%;
+    padding: 20px;
+    color: #fffcfc;
+    background: url('C:\Users\DELL\OneDrive\Desktop\Foodies\foodie\public\SIGNup.jpg') no-repeat center center/cover;
+    border-radius: 8px;
+    /* Optional: add rounded corners */
+}
+
+.get-started-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.get-started-button:hover {
+    background-color: #218838;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        margin-top: auto;
+        /* Stack items on small screens */
+    }
+
+    .login-form {
+        max-width: 100%;
+        /* Full width for login form */
+        padding: 20px;
+        /* Reduce padding on smaller screens */
+    }
+
+    .sidebar {
+        flex: 0 0 100%;
+        /* Full width for sidebar */
+        margin-top: 20px;
+        /* Add margin to separate from the form */
+    }
+}
+
+.error-message {
+    display: inline;
+    margin: 0%;
+    background-color: red;
+    color: white;
+    padding: 4px 8px;
+
+}
+
+.success-message {
+    background-color: green;
+    display: inline;
+    margin: 0%;
+    color: white;
+    padding: 4px 8px;
+}

@@ -1,0 +1,144 @@
+/* ContactComponent.css .contact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+    background-color: #f7f7f7;
+    font-family: 'Arial', sans-serif;
+}
+
+.contact-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.contact-header h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.contact-header p {
+    color: #666;
+    font-size: 1rem;
+}
+
+.contact-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    gap: 40px;
+}
+
+.contact-left {
+    width: 40%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.contact-left h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.contact-left p {
+    color: #777;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.contact-left ul {
+    list-style: none;
+    padding: 0;
+    color: #555;
+}
+
+.contact-left ul li {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.contact-left ul li strong {
+    color: #333;
+}
+
+.contact-right {
+    width: 55%;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    transition: border 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border: 1px solid #007bff;
+}
+
+textarea.form-control {
+    resize: vertical;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .contact-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-left,
+    .contact-right {
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-header h1 {
+        font-size: 2rem;
+    }
+
+    .contact-left h2 {
+        font-size: 1.8rem;
+    }
+} */
