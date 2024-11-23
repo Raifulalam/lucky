@@ -3,7 +3,8 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
-const User = require('../models/user.model');  // Ensure correct model import
+const User = require('../Models/user.model')
+// const User = require('../models/user.model');  // Ensure correct model import
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../authMiddleware');  // Import the JWT authentication middleware
@@ -83,6 +84,8 @@ router.post('/loginUser', [
         const data = {
             id: user._id,
             name: user.name,
+            email: user.email,
+            role: user.role,
         };
 
         // Sign the token with an expiry time (optional)

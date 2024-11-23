@@ -27,7 +27,7 @@ function LoginComponent() {
         // Set loading to true
 
         try {
-            const response = await fetch("http://localhost:3000/api/loginUser", {
+            const response = await fetch("https://lucky-back-2.onrender.com/api/loginUser", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

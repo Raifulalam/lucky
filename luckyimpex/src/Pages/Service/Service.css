@@ -10,23 +10,17 @@ body {
 h1,
 h3 {
     color: #333;
-
     margin-bottom: 20px;
 }
 
 h2 {
     color: #333;
-
     margin-bottom: 2px;
 }
 
-
-
+/* Service Page Layout */
 .service-page {
-    display: grid;
-    grid-template-columns: 1.75fr 1fr;
-    gap: 25px;
-
+    display: flex;
 }
 
 /* Service Page Container */
@@ -42,10 +36,8 @@ h2 {
 
 /* Service Info Section */
 .service-info {
-
     margin-bottom: 40px;
     padding: 20px;
-
     border-radius: 8px;
 }
 
@@ -73,6 +65,13 @@ h2 {
 .complaint-section {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     padding: 10px;
+    background-color: #c9302c;
+    margin-left: 20px;
+
+}
+
+.complaint-section:hover {
+    background-color: #c9312ce6;
 }
 
 .personal-details-form,
@@ -127,8 +126,6 @@ button:hover {
     background-color: #0056b3;
 }
 
-
-
 button[type="button"] {
     background-color: #6c757d;
     margin-right: 10px;
@@ -178,7 +175,6 @@ button[type="button"]:hover {
     display: flex;
     gap: 60px;
     align-items: baseline;
-
 }
 
 .reviews-section form textarea {
@@ -226,14 +222,66 @@ h3 {
     width: 100%;
 }
 
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Styling */
+.modal {
+
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 95%;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+
+}
+
+/* Close Button */
+.modal-close-btn {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+
+    position: absolute;
+    top: 80px;
+    right: 30%;
+}
+
+.modal-close-btn:hover {
+    background-color: #c9302c;
+}
+
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+    .service-page {
+        grid-template-columns: 1fr;
+        /* Stack layout on smaller devices */
+    }
+
     .service-info p {
         font-size: 14px;
+        /* Adjust text size for smaller screens */
     }
 
     .our-services {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        /* Two columns on tablets */
     }
 
     .form-actions {
@@ -244,15 +292,89 @@ h3 {
         width: 100%;
         margin-bottom: 10px;
     }
+
+    .reviews-section ul li {
+        padding: 10px;
+        /* Smaller padding on tablet */
+    }
+}
+
+@media (max-width: 768px) {
+    .service-page {
+        grid-template-columns: 1fr;
+        /* Single column layout for mobile devices */
+    }
+
+    .service-info p {
+        font-size: 14px;
+        /* Adjust text size for readability */
+    }
+
+    .our-services {
+        grid-template-columns: 1fr;
+        /* Stack the service items on smaller screens */
+    }
+
+    .form-actions button {
+        width: 100%;
+        /* Full-width buttons */
+        margin-bottom: 10px;
+    }
+
+    .button,
+    .reviews-section form button {
+        font-size: 14px;
+        /* Slightly smaller button font size */
+    }
+
+    .reviews-section ul li {
+        padding: 12px;
+        /* Adjust padding to fit smaller screens */
+    }
 }
 
 @media (max-width: 480px) {
     .service-page-container {
-        padding: 20px;
+        padding: 15px;
+        /* Add padding for better spacing on small screens */
+    }
+
+    h1 {
+        font-size: 24px;
+        /* Reduce heading size */
     }
 
     button {
         font-size: 14px;
         padding: 10px 15px;
+        /* Smaller buttons */
+    }
+
+    .service-info p {
+        font-size: 12px;
+        /* Further reduce text size on very small screens */
+    }
+
+    .reviews-section ul li {
+        padding: 10px;
+        /* Adjust padding for mobile */
+    }
+
+    .form-actions button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .modal-close-btn {
+        background-color: #d9534f;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+
+        position: absolute;
+        top: 60px;
+        right: -8px;
     }
 }

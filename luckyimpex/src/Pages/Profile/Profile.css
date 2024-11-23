@@ -1,31 +1,163 @@
 /* Profile.css */
-
 .profile-container {
     background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 20px auto;
+    transition: all 0.3s ease;
+}
+
+.profile-container h2 {
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.info-self {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.profile-info img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid #007bff;
+    padding: 2px;
+}
+
+.profile-info button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.profile-info button:hover {
+    background-color: #0056b3;
 }
 
 .profile-info p {
     font-size: 16px;
+    margin: 8px 0;
 }
 
-.profile-info img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-
-
+.profile-info p strong {
+    color: #007bff;
 }
 
-.profile-info button {
-    position: absolute;
-    top: 120px;
-    right: 10px;
-    padding: 2px 10px;
+.profile-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-form .form-group {
+    margin-bottom: 20px;
 }
 
 .profile-form .form-group input {
+    padding: 12px;
     font-size: 14px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.profile-form .form-group input:focus {
+    border-color: #007bff;
+}
+
+.profile-form .form-group label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.profile-form button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.profile-form button:hover {
+    background-color: #218838;
+}
+
+.logout {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.logout:hover {
+    background-color: #c82333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 15px;
+    }
+
+    .profile-info p {
+        font-size: 14px;
+    }
+
+    .profile-info button,
+    .dropbtn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    .profile-container {
+        padding: 10px;
+    }
+
+    .profile-info img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-info p {
+        font-size: 14px;
+    }
+
+    .profile-form .form-group input {
+        font-size: 14px;
+    }
 }

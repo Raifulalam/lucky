@@ -25,7 +25,7 @@ const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/updateUser', {
+            const response = await fetch('https://lucky-back-2.onrender.com/api/updateUser', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

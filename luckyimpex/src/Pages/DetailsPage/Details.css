@@ -1,0 +1,128 @@
+/* Main container for the entire page */
+.product-detail-container {
+    padding: 2rem;
+
+    min-height: 100vh;
+}
+
+/* Flexbox container for aligning the image and details side by side */
+.product-details-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2rem;
+
+}
+
+/* Left side: Image styling */
+.product-image-containers {
+    display: flex;
+    flex: 2;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.product-images {
+    padding-top: 40px;
+    max-width: 120%;
+    height: 100%;
+    transition: transform 0.4s ease-in-out;
+    display: block;
+    margin: 0% auto;
+
+
+}
+
+.product-images:hover {
+    transform: scale(1.2);
+    transition-duration: 0.4s ease-in-out;
+
+}
+
+/* Right side: Product details styling */
+.product-info-container {
+    flex: 2.5;
+    max-width: 55%;
+
+    padding: 2rem;
+    border-radius: 8px;
+
+    text-align: left;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title styling */
+.product-name0 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Price styling */
+.product-price {
+    font-size: 1.5rem;
+    color: #e91e63;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+/* Category and Brand styling */
+.product-category,
+.product-brand {
+    font-size: 1rem;
+    color: #555;
+    margin: 0.25rem 0;
+}
+
+/* Description and MRP styling */
+.product-description,
+.product-mrp {
+    font-size: 1rem;
+    color: #333;
+    margin: 1rem 0;
+}
+
+/* Loading and Error States */
+.loading,
+.error {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 2rem;
+    color: #f44336;
+}
+
+/* Responsive Design: Stack layout on smaller screens */
+@media (max-width: 768px) {
+    .product-details-content {
+        flex-direction: column;
+
+    }
+
+    .product-detail-container {
+        padding: 0;
+    }
+
+    .product-image-containers {
+        width: 100%;
+        height: 40vh;
+    }
+
+    .product-info-container {
+        max-width: 100%;
+    }
+
+    .product-images {
+        height: 35;
+        width: 100%;
+        margin: auto;
+        background-size: cover;
+    }
+
+    .product-images img {
+        width: 100%;
+
+    }
+}

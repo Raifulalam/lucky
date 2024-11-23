@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import './products.css';
 import Header from '../../Components/Header';
 import { useCartDispatch, useCartState } from '../../Components/CreateReducer';
@@ -9,20 +9,25 @@ import backimg from '../../Images/backimg.jpg';
 import back01 from '../../Images/back01.png';
 import back02 from '../../Images/back04.jpg';
 import back03 from '../../Images/back03.jpg';
+import { UserContext } from '../../Components/UserContext';
+import EditProductModal from './EditProductModal'; // Import the modal
 
 const Products = () => {
-    const [products, setProducts] = useState([]); // Store products data
-    const [loading, setLoading] = useState(true); // Track loading state
-    const [error, setError] = useState(null); // Store any error message
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [searchTerm, setSearchTerm] = useState(''); // Search term state
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false); // State to handle modal visibility
+    const [selectedProduct, setSelectedProduct] = useState(null); // Selected product for editing
     const Navigate = useNavigate();
+    const { user } = useContext(UserContext);
+    const userRole = user?.role || 'user';
 
-    // Fetch products data on component mount
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/products', {
+                const response = await fetch('https://lucky-back-2.onrender.com/api/products', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -34,24 +39,22 @@ const Products = () => {
                 }
 
                 const data = await response.json();
-                setProducts(data); // Store fetched products in state
+                setProducts(data);
             } catch (err) {
-                setError(err.message); // Set error message in case of failure
+                setError(err.message);
             } finally {
-                setLoading(false); // Set loading to false after data is fetched
+                setLoading(false);
             }
         };
 
-        fetchProducts(); // Call the fetchProducts function when component mounts
-    }, []); // Empty dependency array ensures this effect runs once on mount
+        fetchProducts();
+    }, []);
 
-    // Filter products based on search term (memoized to optimize performance)
     const filteredProducts = useMemo(() =>
         products.filter(item =>
             item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())
         ), [products, searchTerm]);
 
-    // Images for the slider
     const images = [
         backimg,
         back01,
@@ -60,24 +63,47 @@ const Products = () => {
         luckyImage,
     ];
 
-    // Slide functions
     const nextSlide = () => {
         setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
     };
 
-    const prevSlide = () => {
-        setCurrentSlide((prevSlide) => (prevSlide - 1 + images.length) % images.length);
-    };
-
-    // Automatic slide change every 8 seconds
     useEffect(() => {
         const intervalId = setInterval(nextSlide, 8000);
-        return () => clearInterval(intervalId); // Cleanup on unmount
+        return () => clearInterval(intervalId);
     }, []);
 
-    // Handle adding a product to the cart
     const dispatch = useCartDispatch();
-    const cartState = useCartState();
+
+    const handleEdit = (product) => {
+        setSelectedProduct(product);
+        setIsModalOpen(true); // Open the modal for editing
+    };
+
+    const handleSave = async (updatedProduct) => {
+        // Call API to save the updated product
+        const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${updatedProduct._id}`, {
+            method: 'PUT',  // Assuming PUT is used to update the product
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedProduct),
+        });
+
+        if (response.ok) {
+            setProducts((prev) =>
+                prev.map((prod) =>
+                    prod._id === updatedProduct._id ? updatedProduct : prod
+                )
+            );
+        } else {
+            alert('Failed to update product');
+        }
+    };
+
+    const handleDelete = (productId) => {
+        // Handle delete functionality
+        console.log('Deleting product', productId);
+    };
 
     const handleAddToCart = async (product) => {
         await dispatch({
@@ -90,17 +116,15 @@ const Products = () => {
         });
     };
 
-    // If the app is loading, show a loading message
     if (loading) {
         return (
             <div className="loading-container">
-                <div className="spinner"></div> {/* Add a CSS spinner */}
+                <div className="spinner"></div>
                 Loading products...
             </div>
         );
     }
 
-    // If there's an error, display the error message
     if (error) {
         return (
             <div className="error-container">
@@ -111,7 +135,6 @@ const Products = () => {
     }
 
     const handleDetails = (productId) => {
-        // Navigate to the product details page with the product ID
         Navigate(`/productdetails/${productId}`);
     };
 
@@ -120,7 +143,6 @@ const Products = () => {
             <Header />
             <div className="home-main">
                 <div className="image">
-                    {/* Search Bar */}
                     <input
                         type="text"
                         placeholder="Search for items..."
@@ -128,50 +150,52 @@ const Products = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="search-bar"
                     />
-
-                    {/* Image Slider */}
-                    <button onClick={prevSlide} className="slider-button1" aria-label="Previous slide">◀</button>
                     <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
-                    <button onClick={nextSlide} className="slider-button" aria-label="Next slide">▶</button>
                 </div>
             </div>
 
-            {/* Products Grid */}
             <div className="product-grid">
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                         <div key={product._id} className="product-container">
-                            <div className="product-image-container">
+                            <div className="product-image-container" onClick={() => handleDetails(product._id)}>
                                 <img className="product-image" src={product.image} alt={product.name} />
                             </div>
 
-                            <div className="product-name limit-text-to-2-lines" onClick={() => handleDetails(product._id)}>
+                            <div className='product-name limit-text-to-2-lines' onClick={() => handleDetails(product._id)}>
                                 {product.name}
-                            </div>
-
-                            <div className="product-rating-container">
-                                <img className="product-rating-stars" src={product.starsUrl} alt="Rating" />
-                                <div className="product-rating-count link-primary">
-                                    {product.rating ? `${product.rating.count} reviews` : 'No reviews yet'}
-                                </div>
                             </div>
 
                             <div className="product-mrp">MRP: {product.mrp}</div>
                             <div className="product-discount">Discount: {product.mrp - product.price}</div>
                             <div className="product-price">Best Buy: {product.price}</div>
 
-                            <button
-                                className="add-to-cart-button button-primary"
-                                onClick={() => handleAddToCart(product)}
-                            >
-                                Add to Cart
-                            </button>
+                            {
+                                userRole === 'admin' ? (
+                                    <div className="product-actions">
+                                        <button className="edit-btn" onClick={() => handleEdit(product)}>Edit</button>
+                                        <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
+                                    </div>
+                                ) : (
+                                    <button className="add-to-cart-button button-primary" onClick={() => handleAddToCart(product)}>
+                                        Add to Cart
+                                    </button>
+                                )
+                            }
                         </div>
                     ))
                 ) : (
                     <div className="no-products-found">No products found for your search.</div>
                 )}
             </div>
+
+            {/* Modal for editing */}
+            <EditProductModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                product={selectedProduct}
+                onSave={handleSave}
+            />
         </>
     );
 };
