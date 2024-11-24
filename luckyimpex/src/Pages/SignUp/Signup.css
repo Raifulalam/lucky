@@ -10,10 +10,7 @@
     /* Allow wrapping for smaller screens */
 }
 
-/* body {
 
-    background: url('C:\Users\DELL\OneDrive\Desktop\Foodies\foodie\public\SIGNup.jpg') no-repeat center center/cover;
-} */
 
 .login-form {
     flex: 1;
@@ -26,12 +23,17 @@
     /* Include padding in width calculation */
 }
 
+.login-form form {
+
+    margin-bottom: 0%;
+}
+
 .login-form h2 {
     margin-bottom: 10px;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 8px;
 }
 
 .form-group label {

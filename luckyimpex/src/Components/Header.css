@@ -171,6 +171,7 @@ body {
 .right {
     display: flex;
 
+
 }
 
 .dropbtn:hover {
@@ -179,11 +180,11 @@ body {
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.right:active {
-    color: #ddd;
+.middle:active {
+    color: #8dc723;
 }
 
-.right button {
+.middle button {
     background-color: transparent;
     padding: 4px 10px;
     color: #ffff;
@@ -206,7 +207,9 @@ body {
     }
 
     .right button {
-        font-size: 8px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
         padding: 0px 5px;
     }
 
@@ -237,13 +240,15 @@ body {
     .middle {
         margin: 0%;
         padding: 0%;
-        gap: 15px;
+        gap: 9px;
         align-items: center;
+        justify-content: center;
         font-size: 8px;
     }
 
     .right {
-        font-size: small;
+        font-size: 9px;
+        gap: 11px;
     }
 
 

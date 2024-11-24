@@ -1,41 +1,112 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './AdminDashboard.css';
+import Modal from '../../Components/Modal';
 
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Delete modal state
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit modal state
+    const [userIdToDelete, setUserIdToDelete] = useState(null); // Track user ID for deletion
+    const [userToEdit, setUserToEdit] = useState(null); // Track user data for editing
 
-    // Fetching users, products, and orders from the server (mocked here)
+    // Fetch users from the server
     useEffect(() => {
-        const fetchAdminData = async () => {
+        const fetchUsers = async () => {
             try {
-                // Mock data fetch
-                setUsers([
-                    { id: 1, name: 'John Doe', email: 'john@example.com' },
-                    { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
-                ]);
-
-                setProducts([
-                    { id: 1, name: 'Samsung TV', price: '$500' },
-                    { id: 2, name: 'LG Refrigerator', price: '$800' }
-                ]);
-
-                setOrders([
-                    { id: 1, product: 'Samsung TV', status: 'Pending' },
-                    { id: 2, product: 'LG Refrigerator', status: 'Shipped' }
-                ]);
+                const response = await fetch('https://lucky-back-2.onrender.com/api/users');
+                const data = await response.json();
+                setUsers(data); // Set fetched users in state
             } catch (error) {
-                console.error('Error fetching admin data:', error);
+                console.error('Error fetching users:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchAdminData();
+        fetchUsers();
     }, []);
+
+    // Function to handle user deletion
+    const handleDeleteUser = async () => {
+        try {
+            const response = await fetch(`https://lucky-back-2.onrender.com/api/users/${userIdToDelete}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Deleted user:', data.user);
+
+                // Remove the user from the state after successful deletion
+                setUsers(prevUsers => prevUsers.filter(user => user._id !== userIdToDelete));
+                setIsDeleteModalOpen(false);  // Close the delete modal
+            } else {
+                console.error('Error deleting user');
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
+
+    // Open the delete confirmation modal
+    const openDeleteModal = (userId) => {
+        setUserIdToDelete(userId);
+        setIsDeleteModalOpen(true);
+    };
+
+    // Close the delete modal
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setUserIdToDelete(null); // Clear the user ID for deletion
+    };
+
+    // Open the edit modal and prefill the user data
+    const openEditModal = (user) => {
+        setUserToEdit({ ...user }); // Make sure to copy the user data to avoid mutating the original state
+        setIsEditModalOpen(true);
+    };
+
+    // Close the edit modal
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+        setUserToEdit(null); // Clear the user data
+    };
+
+    const handleUpdateUser = async (updatedUser) => {
+        try {
+
+
+            const response = await fetch(`https://lucky-back-2.onrender.com/api/users/${updatedUser._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+
+                },
+                body: JSON.stringify(updatedUser),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Updated user:', data);
+
+                // Update the user in the local state
+                setUsers(prevUsers => prevUsers.map(user => (user._id === updatedUser._id ? data : user)));
+                setIsEditModalOpen(false); // Close the edit modal
+            } else {
+                const errorData = await response.json();
+                console.error('Failed to update user:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error updating user:', error);
+        }
+    };
+
+
 
     if (loading) {
         return <div>Loading...</div>;
@@ -52,17 +123,21 @@ const AdminDashboard = () => {
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Role</th>
+                            <th>User Id</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map(user => (
-                            <tr key={user.id}>
+                            <tr key={user._id}>
                                 <td>{user.name}</td>
                                 <td>{user.email}</td>
+                                <td>{user.role}</td>
+                                <td>{user._id}</td>
                                 <td>
-                                    <button>Edit</button>
-                                    <button>Delete</button>
+                                    <button onClick={() => openEditModal(user)}>Edit</button>
+                                    <button onClick={() => openDeleteModal(user._id)}>Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -71,57 +146,52 @@ const AdminDashboard = () => {
                 <Link to="/manage-users" className="link">View All Users</Link>
             </div>
 
-            <div className="section">
-                <h3>Manage Products</h3>
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.map(product => (
-                            <tr key={product.id}>
-                                <td>{product.name}</td>
-                                <td>{product.price}</td>
-                                <td>
-                                    <button>Edit</button>
-                                    <button>Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <Link to="/manage-products" className="link">View All Products</Link>
-            </div>
+            {/* Delete Confirmation Modal */}
+            <Modal show={isDeleteModalOpen} onClose={closeDeleteModal}>
+                <h3>Are you sure you want to delete this user?</h3>
+                <button onClick={handleDeleteUser}>Yes, Delete</button>
+                <button onClick={closeDeleteModal}>Cancel</button>
+            </Modal>
 
-            <div className="section">
-                <h3>Manage Orders</h3>
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orders.map(order => (
-                            <tr key={order.id}>
-                                <td>{order.product}</td>
-                                <td>{order.status}</td>
-                                <td>
-                                    <button>Update Status</button>
-                                    <button>Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <Link to="/manage-orders" className="link">View All Orders</Link>
-            </div>
+            {/* Edit User Modal */}
+            {isEditModalOpen && userToEdit && (
+                <Modal show={isEditModalOpen} onClose={closeEditModal}>
+                    <h3>Edit User</h3>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleUpdateUser(userToEdit); // Pass the updated user data
+                        }}
+                    >
+                        <div className="form-group">
+                            <label>Name</label>
+                            <input
+                                type="text"
+                                value={userToEdit.name}
+                                onChange={(e) => setUserToEdit({ ...userToEdit, name: e.target.value })}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Email</label>
+                            <input
+                                type="email"
+                                value={userToEdit.email}
+                                onChange={(e) => setUserToEdit({ ...userToEdit, email: e.target.value })}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Role</label>
+                            <input
+                                type="text"
+                                value={userToEdit.role}
+                                onChange={(e) => setUserToEdit({ ...userToEdit, role: e.target.value })}
+                            />
+                        </div>
+                        <button type="submit">Save Changes</button>
+                    </form>
+                    <button onClick={closeEditModal}>Cancel</button>
+                </Modal>
+            )}
         </div>
     );
 };

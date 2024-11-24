@@ -64,17 +64,11 @@ function SignupComponent() {
         }
     };
 
-    const handleLogin = () => {
-        navigate('/login');
-    };
+
 
     return (
         <div className="login-container">
-            <div className="sidebar">
-                <h2>Already have an account?</h2>
-                <p>Let's get you started!</p>
-                <button className="get-started-button" onClick={handleLogin}>Log in</button>
-            </div>
+
             <div className="login-form">
                 <h2>Sign Up</h2>
                 <p>Please enter your details.</p>
@@ -120,6 +114,12 @@ function SignupComponent() {
                         <button type="submit" className="submit-button" disabled={loading}>
                             {loading ? 'Registering...' : 'Register'}
                         </button>
+
+
+                        <a href="#" className="forgot-password">Already have an account?</a>
+
+
+
                     </div>
                 </form>
                 {error && <p className="error-message">{error}</p>}

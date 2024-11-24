@@ -22,18 +22,10 @@ const Home = () => {
         back03,
     ];
 
-    const nextSlide = () => {
-        setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
+    // Handle radio button click
+    const handleRadioChange = (index) => {
+        setCurrentSlide(index);
     };
-
-    const prevSlide = () => {
-        setCurrentSlide((prevSlide) => (prevSlide - 1 + images.length) % images.length);
-    };
-
-    // useEffect(() => {
-    //     const intervalId = setInterval(nextSlide, 3000);
-    //     return () => clearInterval(intervalId);
-    // }, []);
 
     return (
         <div>
@@ -47,9 +39,24 @@ const Home = () => {
                         <p className="lucky-para">Make dreams come true.</p>
                     </div>
 
-                    <button onClick={prevSlide} className="slider-button1" aria-label="Previous slide">◀</button>
+                    {/* Slider Image */}
                     <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
-                    <button onClick={nextSlide} className="slider-button" aria-label="Next slide">▶</button>
+
+                    {/* Radio Buttons for Slide Navigation */}
+                    <div className="slider-radio-buttons">
+                        {images.map((_, index) => (
+                            <label key={index}>
+                                <input
+                                    type="radio"
+                                    name="slider"
+                                    checked={currentSlide === index}
+                                    onChange={() => handleRadioChange(index)}
+                                    className="slider-radio"
+                                    aria-label={`Slide ${index + 1}`}
+                                />
+                            </label>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -123,7 +130,7 @@ const Home = () => {
                         </div>
                     </div>
                     <div className="image-container">
-                        <img src={mainbranch} alt="Main Branch" />
+                        <img src={mainbranch} alt="Simra Branch" />
                     </div>
                 </div>
             </div>

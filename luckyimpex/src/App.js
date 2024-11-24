@@ -13,6 +13,7 @@ import ProductDetails from './Pages/DetailsPage/Details';
 import AdminDashboard from './Pages/Admin/AdminDashboard';
 import { UserProvider } from './Components/UserContext'; // Make sure it's correctly imported
 
+
 function App() {
   return (
     <UserProvider> {/* Make sure UserProvider is the outermost context */}
@@ -29,6 +30,7 @@ function App() {
             <Route path='/contact' element={<ContactComponent />} />
             <Route path='/productdetails/:id' element={<ProductDetails />} />
             <Route path='/admindashboard' element={<AdminDashboard />} />
+
           </Routes>
         </BrowserRouter>
       </CartProvider>

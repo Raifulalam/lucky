@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { UserContext } from '../../Components/UserContext';
 import ProfileForm from "./ProfileForm";
 import './Profile.css';
@@ -6,12 +6,16 @@ import Header from "../../Components/Header";
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-    const [userDataState, setUserDataState] = useState(null);  // Initialize state to store user data
-    const [isEditing, setIsEditing] = useState(false);    // Manage the edit form state
-    const navigate = useNavigate();
     const { user, error, loading } = useContext(UserContext); // Use 'user' from context
+    const [isEditing, setIsEditing] = useState(false);    // Manage the edit form state
+    const [userDataState, setUserDataState] = useState(user);  // Store user data in state
+    const navigate = useNavigate();
 
-    // Fetch user data when the component mounts
+    // Set user data when the context user data changes
+    useEffect(() => {
+        setUserDataState(user);
+    }, [user]);
+
     if (loading) {
         return <div>Loading...</div>; // Show loading message while data is being fetched
     }
@@ -30,9 +34,10 @@ const Profile = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole'); // Clear role on logout
-        navigate('/login'); // Navigate to login page after logout
+        navigate('/'); // Redirect to home after logout
     };
+
+    const isAdmin = user.role === 'admin'; // Check if the user is an admin
 
     return (
         <>
@@ -50,7 +55,6 @@ const Profile = () => {
                             <p><strong>UserId:</strong> {user.id}</p>
                             <p><strong>Role:</strong> {user.role}</p>
                             <p><strong>Created At:</strong> {user.created}</p>
-                            {/* You can add more details here, like cart, orders, etc. */}
                             <p>Cart</p>
                             <p>Your Orders</p>
                             <p>Location</p>
@@ -58,11 +62,17 @@ const Profile = () => {
                     </div>
                 ) : (
                     <ProfileForm
-                        userData={user} // Pass user data to ProfileForm
+                        userData={userDataState} // Pass user data to ProfileForm
                         setUserData={setUserDataState} // Update user data state if needed
-                        setIsEditing={setIsEditing} // Close editing state
+                        setIsEditing={setIsEditing}
                     />
                 )}
+
+                {/* Render Admin Dashboard link if user is admin */}
+                {isAdmin && (
+                    <button onClick={() => navigate('/admindashboard')}>Go to Admin Dashboard</button>
+                )}
+
                 <button onClick={handleLogout} className='logout'>Logout</button>
             </div>
         </>
