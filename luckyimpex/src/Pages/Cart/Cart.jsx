@@ -1,6 +1,7 @@
-import React from 'react';
+import { React, useContext, useState } from 'react';
 import { useCartDispatch, useCartState } from '../../Components/CreateReducer';
 import './Cart.css';
+import { UserContext } from '../../Components/UserContext';
 
 // Helper function to format dates
 const formatDate = (date) => {
@@ -9,6 +10,8 @@ const formatDate = (date) => {
 };
 
 const CartComponent = () => {
+    const { user, error, loading } = useContext(UserContext);
+
     const cart = useCartState();
     const dispatch = useCartDispatch();
 
@@ -62,6 +65,48 @@ const CartComponent = () => {
         return formatDate(deliveryDate);
     };
 
+    const handleOrder = async () => {
+        const orderData = {
+            items: cart,
+            totalPrice: calculateTotal(),
+            tax: calculateTax(totalPrice()),
+            deliveryDate: estimateDeliveryDate(),
+
+        };
+
+        try {
+
+
+            // Send order data to the backend using fetch
+            const response = await fetch('https://lucky-back-2.onrender.com/api/createOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Success: Show success message or update the UI
+                alert('Order placed successfully!');
+                dispatch({ type: 'CLEAR_CART' }); // Clear cart after successful order
+
+                // You can also reset loading state here (if you are showing a spinner or button disable)
+
+            } else {
+                // Handle failure scenario: Show error message
+                alert(`Failed to place order: ${data.message || 'Something went wrong.'}`);
+
+            }
+        } catch (error) {
+            // Handle unexpected errors (e.g., network issues)
+            console.error('Error placing order:', error);
+            alert('Error placing order');
+
+        }
+    };
     const total = totalPrice();
     const tax = calculateTax(total);
     const priceExcludingTax = calculateExcludingTax(total, tax);
@@ -145,7 +190,7 @@ const CartComponent = () => {
                         <span>₹{calculateTotal().toFixed(2)}</span>
                     </div>
 
-                    <button className="place-order" >Place Your Order</button>
+                    <button className="place-order" onClick={handleOrder} >Place Your Order</button>
                 </div>
             </div>
         </>

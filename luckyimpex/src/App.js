@@ -11,7 +11,10 @@ import CartComponent from './Pages/Cart/Cart';
 import { ContactComponent } from './Pages/Contact/Contact';
 import ProductDetails from './Pages/DetailsPage/Details';
 import AdminDashboard from './Pages/Admin/AdminDashboard';
-import { UserProvider } from './Components/UserContext'; // Make sure it's correctly imported
+import { UserProvider } from './Components/UserContext';
+import OrderComponent from './Pages/Admin/Orders';
+import ComplaintsComponent from './Pages/Admin/Complaints';
+
 
 
 function App() {
@@ -30,6 +33,9 @@ function App() {
             <Route path='/contact' element={<ContactComponent />} />
             <Route path='/productdetails/:id' element={<ProductDetails />} />
             <Route path='/admindashboard' element={<AdminDashboard />} />
+            <Route path='/orders' element={<OrderComponent />} />
+            <Route path='/complaints' element={<ComplaintsComponent />} />
+
 
           </Routes>
         </BrowserRouter>

@@ -3,13 +3,16 @@ import { UserContext } from '../../Components/UserContext';
 import ProfileForm from "./ProfileForm";
 import './Profile.css';
 import Header from "../../Components/Header";
+import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
+
 
 const Profile = () => {
     const { user, error, loading } = useContext(UserContext); // Use 'user' from context
     const [isEditing, setIsEditing] = useState(false);    // Manage the edit form state
     const [userDataState, setUserDataState] = useState(user);  // Store user data in state
     const navigate = useNavigate();
+    const [isdotOpen, setIsdotOpen] = useState(false)
 
     // Set user data when the context user data changes
     useEffect(() => {
@@ -17,7 +20,13 @@ const Profile = () => {
     }, [user]);
 
     if (loading) {
-        return <div>Loading...</div>; // Show loading message while data is being fetched
+        return (
+            <div className="loading-container">
+                <div className="spinner"></div>
+                <img className="spinner-gif" src="spinner.gif" alt="loading products..." />
+
+            </div>
+        );
     }
 
     if (error) {
@@ -31,6 +40,9 @@ const Profile = () => {
     const handleEditClick = () => {
         setIsEditing(true);
     };
+    const handleDotClick = () => {
+        setIsdotOpen(!isdotOpen)
+    }
 
     const handleLogout = () => {
         localStorage.removeItem('authToken');
@@ -41,14 +53,46 @@ const Profile = () => {
 
     return (
         <>
+            <Helmet>
+                <title>Your Profile - Lucky Impex</title>
+                <meta name="description" content="Manage your account and view your orders at Lucky Impex." />
+            </Helmet>
             <Header />
             <div className="profile-container">
                 <h2>Hey! {user.name.split(" ")[0]} 🙋‍♂️</h2>
+                <span className='three-dot'>
+                    {/* Three dots button */}
+                    <button onClick={handleDotClick} aria-label="More options">
+                        &#x22EE; {/* Unicode for three dots */}
+                    </button>
+
+                    {/* Conditional rendering of the menu */}
+                    {isdotOpen && (
+                        <div className="menu">
+                            <button onClick={handleEditClick}>Edit Profile</button>
+
+
+                            {isAdmin && (
+                                <>
+                                    <button onClick={() => navigate('/admindashboard')}>Go to Admin Dashboard</button>
+                                    <button onClick={() => navigate('/add-product')}>Add Product</button>
+                                    <button onClick={() => navigate('/manage-orders')}>Manage Orders</button>
+                                    <button onClick={() => navigate('/manage-users')}>Manage Users</button>
+                                    <button onClick={() => navigate('/manage-categories')}>Manage Categories</button>
+                                    <button onClick={() => navigate('/manage-coupons')}>Manage Coupons</button>
+                                    <button onClick={() => navigate('/manage-discounts')}>Manage Discounts</button>
+                                    <button onClick={() => navigate('/manage-promotions')}>Manage Promotions</button>
+
+                                </>
+                            )}
+                            <button onClick={handleLogout} className="logout">Logout</button>
+                        </div>
+                    )}
+                </span>
 
                 {!isEditing ? (
                     <div className="profile-info">
                         <img src={user.avatar || "default-avatar.png"} alt={user.name} />
-                        <button onClick={handleEditClick}>Edit Profile</button>
                         <div className="info-self">
                             <p><strong>Username:</strong> {user.name}</p>
                             <p><strong>Email:</strong> {user.email}</p>
@@ -69,11 +113,9 @@ const Profile = () => {
                 )}
 
                 {/* Render Admin Dashboard link if user is admin */}
-                {isAdmin && (
-                    <button onClick={() => navigate('/admindashboard')}>Go to Admin Dashboard</button>
-                )}
 
-                <button onClick={handleLogout} className='logout'>Logout</button>
+
+
             </div>
         </>
     );

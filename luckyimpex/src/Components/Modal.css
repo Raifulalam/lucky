@@ -60,3 +60,13 @@
 .form-container button:hover {
     background-color: #45a049;
 }
+
+.success-message {
+    color: green;
+    font-size: 18px;
+}
+
+.error-message {
+    color: red;
+    font-size: 18px;
+}

@@ -1,5 +1,6 @@
 /* Profile.css */
 .profile-container {
+    position: relative;
     background-color: #fff;
     border-radius: 10px;
     padding: 30px;
@@ -24,6 +25,13 @@
     text-align: center;
 }
 
+.profile-container span {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transition: all 0.3s ease;
+}
+
 .info-self {
     display: flex;
     flex-direction: column;
@@ -44,6 +52,7 @@
     background-color: #007bff;
     color: #fff;
     padding: 8px 20px;
+    width: fit-content;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -113,14 +122,37 @@
 .logout {
     background-color: #dc3545;
     color: white;
-    padding: 10px 20px;
+
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    margin-top: 20px;
-    width: 100%;
+
+
     transition: background-color 0.3s ease;
+    width: fit-content;
+}
+
+button {
+    margin: 5px;
+}
+
+.menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+}
+
+.menu button {
+    display: block;
+    margin: 5px 0;
+    width: 200px;
 }
 
 .logout:hover {
@@ -137,8 +169,7 @@
         font-size: 14px;
     }
 
-    .profile-info button,
-    .dropbtn {
+    .profile-info button {
         width: 100%;
     }
 }

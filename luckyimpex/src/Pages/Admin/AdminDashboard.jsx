@@ -125,7 +125,9 @@ const AdminDashboard = () => {
                             <th>Email</th>
                             <th>Role</th>
                             <th>User Id</th>
+                            <th>Created At</th>
                             <th>Actions</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -135,6 +137,7 @@ const AdminDashboard = () => {
                                 <td>{user.email}</td>
                                 <td>{user.role}</td>
                                 <td>{user._id}</td>
+                                <td>{new Date(user.created_at).toLocaleDateString()}</td>
                                 <td>
                                     <button onClick={() => openEditModal(user)}>Edit</button>
                                     <button onClick={() => openDeleteModal(user._id)}>Delete</button>

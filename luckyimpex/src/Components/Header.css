@@ -7,11 +7,22 @@ body {
 }
 
 .nav {
+    transform: translateX(100%);
+    /* Hide it initially off-screen */
+    transition: transform 0.4s ease;
+    /* Smooth transition */
+    position: absolute;
+    top: 78px;
+    /* Adjust based on your header height */
+    left: 0;
+    width: 100%;
+    /* Take full width of the screen */
+    background-color: rgb(2, 112, 152);
     display: flex;
-    align-items: center;
-    transition: transform 0.3s ease;
-    justify-content: space-between;
-
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    z-index: 999;
 
 }
 
@@ -58,39 +69,29 @@ body {
     transform: rotate(180deg);
 }
 
+
+
+
+
 @media (max-width: 768px) {
-    .nav {
-        width: 100%;
-
-
-        /* Adjust based on header height */
-        position: absolute;
-        background-color: #ff7043;
-        flex-direction: column;
-
-        align-items: flex-start;
-        display: none;
-        padding: 0%;
-
-
-
-    }
 
     .header {
         display: flex;
         justify-content: space-between;
     }
 
-    .nav.open {
-        position: absolute;
-        transform: translateY(100%);
-        display: block;
-        transition: transform 0.4s ease;
-        padding: 0%;
-        margin: 0%;
-        top: 30px;
 
+
+    .nav.open {
+        display: flex;
+        /* Show the menu */
+        transform: translateX(0);
+        /* Slide it in */
+        transition: transform 0.4s ease-in-out;
+        /* Smooth sliding transition */
     }
+
+
 
 
 
@@ -104,6 +105,17 @@ body {
         display: flex;
         flex-direction: column;
     }
+
+    .middle {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        max-width: max-content;
+        text-align: left;
+    }
+
+
+
 }
 
 .header-link {
@@ -158,26 +170,18 @@ body {
 }
 
 .middle {
-    flex: 1;
-    max-width: 850px;
-    margin-left: 10px;
-    margin-right: 10px;
     display: flex;
-    gap: 45px;
-    padding-left: 20px;
+    justify-content: space-between;
     align-items: center;
 }
 
-.right {
-    display: flex;
 
-
-}
 
 .dropbtn:hover {
     background-color: #dddddd42;
     border-radius: 2px;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+
 }
 
 .middle:active {
@@ -186,7 +190,7 @@ body {
 
 .middle button {
     background-color: transparent;
-    padding: 4px 10px;
+    padding: 10px 10px;
     color: #ffff;
     font-size: large;
     border: none;
@@ -238,18 +242,17 @@ body {
 
 
     .middle {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
         margin: 0%;
-        padding: 0%;
-        gap: 9px;
-        align-items: center;
-        justify-content: center;
+        padding: 0% 20px;
+        text-align: left;
         font-size: 8px;
+        align-items: start;
     }
 
-    .right {
-        font-size: 9px;
-        gap: 11px;
-    }
+
 
 
     .lucky-logo {
@@ -260,23 +263,13 @@ body {
     }
 }
 
-
-
-
-
-.products {
-    float: left;
-    overflow: hidden;
-
-}
-
 /* Dropdown button */
-.products .dropbtn {
-    font-size: larger;
+.right .dropbtn {
+    font-size: medium;
     border: none;
     outline: none;
     color: white;
-    background-color: inherit;
+
     font-family: inherit;
     margin: 0;
 }
@@ -284,14 +277,14 @@ body {
 
 
 
-.products .dropbtn:hover {
+.right .dropbtn:hover {
     cursor: pointer;
 
 }
 
-.products:hover,
-.services:hover,
-.contact-details:hover,
+
+
+
 .dropbtn:hover {
     cursor: pointer;
 
@@ -299,12 +292,13 @@ body {
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.8);
 }
 
+
 /* Dropdown content (hidden by default) */
 .dropdown-content {
     display: none;
     position: absolute;
     background-color: #f9f9f9;
-    min-width: 160px;
+    min-width: 90px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
 }
@@ -325,7 +319,7 @@ body {
 }
 
 /* Show the dropdown menu on hover */
-.products:hover .dropdown-content {
+.right:hover .dropdown-content {
     display: block;
 }
 
@@ -337,14 +331,4 @@ body {
 .image {
     position: relative;
     overflow: visible;
-}
-
-.services a,
-.contact-details a {
-    padding: 8px;
-    display: block;
-    color: white;
-    outline: none;
-    text-decoration-line: none;
-    font-size: larger;
 }

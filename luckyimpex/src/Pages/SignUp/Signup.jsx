@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Signup.css'; // Import the CSS for styling
+import './Signup.css';
+import Header from '../../Components/Header';
+import { Helmet } from 'react-helmet';
 
 function SignupComponent() {
     const [email, setEmail] = useState('');
@@ -10,17 +12,21 @@ function SignupComponent() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false); // New loading state
+    const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
     const navigate = useNavigate();
 
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
     };
+
     const handleNameChange = (event) => {
         setName(event.target.value);
     };
+
     const handlePasswordChange = (event) => {
         setPassword(event.target.value);
     };
+
     const handleLocationChange = (event) => {
         setLocation(event.target.value);
     };
@@ -43,14 +49,20 @@ function SignupComponent() {
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Password must be at least 8 characters!');
+                setIsModalOpen(true);
+
+                throw new Error(data.message || 'Invalid password or Email');
+
             }
 
-            setSuccess('User created successfully!');
+            // On successful signup, open the modal
+            setIsModalOpen(true);
+            setSuccess(" you have successfully signed up redirect to login page");
+
             // Optionally, redirect to login page after a successful signup
             setTimeout(() => {
                 navigate('/login');
-            }, 2000); // Redirect after 2 seconds
+            }, 3000); // Redirect after 2 seconds
 
             // Optionally, reset form fields
             setEmail('');
@@ -58,7 +70,7 @@ function SignupComponent() {
             setName('');
             setLocation('');
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'Invalid password or Email');
         } finally {
             setLoading(false); // Reset loading state
         }
@@ -67,65 +79,73 @@ function SignupComponent() {
 
 
     return (
-        <div className="login-container">
+        <div>
+            <Helmet>
+                <title>Sign Up</title>
+                <meta name="description" content="
+    Sign up for an account"/>
 
-            <div className="login-form">
-                <h2>Sign Up</h2>
-                <p>Please enter your details.</p>
-
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="name">Full Name</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={name}
-                            onChange={handleNameChange}
-                            required
-                            placeholder="Enter your full name"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="email">Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={email}
-                            onChange={handleEmailChange}
-                            required
-                            placeholder="Enter your email"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={password}
-                            onChange={handlePasswordChange}
-                            required
-                            placeholder="Enter your password"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <button type="submit" className="submit-button" disabled={loading}>
-                            {loading ? 'Registering...' : 'Register'}
-                        </button>
+            </Helmet>
+            <Header />
+            <div className="login-container">
 
 
-                        <a href="#" className="forgot-password">Already have an account?</a>
+                <div className="login-form">
+                    <h2>Sign Up</h2>
+                    <p>Please enter your details.</p>
 
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="name">Full Name</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={name}
+                                onChange={handleNameChange}
+                                required
+                                placeholder="Enter your full name"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="email">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={email}
+                                onChange={handleEmailChange}
+                                required
+                                placeholder="Enter your email"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="password">Password</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                value={password}
+                                onChange={handlePasswordChange}
+                                required
+                                placeholder="Enter your password"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <button type="submit" className="submit-button" disabled={loading}>
+                                {loading ? 'Registering...' : 'Register'}
+                            </button>
 
+                            <a href="/login" className="forgot-password">Already have an account?</a>
+                        </div>
+                        {error && <div className="error-message">{error}</div>} {/* Show error message */}
+                        {success && <div className="success-message">{success}</div>} {/* Show success message */}
+                    </form>
 
-                    </div>
-                </form>
-                {error && <p className="error-message">{error}</p>}
-                {success && <p className="success-message">{success}</p>}
+                </div>
             </div>
         </div>
+
     );
 }
 

@@ -1,9 +1,9 @@
-ContactComponent.css .contact {
+/* Base styling */
+.contact {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px;
-    background-color: #f7f7f7;
+
     font-family: 'Arial', sans-serif;
 }
 
@@ -23,6 +23,7 @@ ContactComponent.css .contact {
     font-size: 1rem;
 }
 
+/* Container for left and right contact sections */
 .contact-container {
     display: flex;
     flex-direction: row;
@@ -32,21 +33,31 @@ ContactComponent.css .contact {
     gap: 40px;
 }
 
-.contact-left {
-    width: 40%;
+.contact-left,
+.contact-right {
     padding: 20px;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.contact-left h2 {
+.contact-left {
+    width: 40%;
+}
+
+.contact-right {
+    width: 55%;
+}
+
+.contact-left h2,
+.contact-right h2 {
     font-size: 2rem;
     color: #333;
     margin-bottom: 10px;
 }
 
-.contact-left p {
+.contact-left p,
+.contact-right p {
     color: #777;
     font-size: 1rem;
     margin-bottom: 20px;
@@ -67,14 +78,7 @@ ContactComponent.css .contact {
     color: #333;
 }
 
-.contact-right {
-    width: 55%;
-    padding: 30px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
+/* Form and Input Styles */
 .form-group {
     margin-bottom: 20px;
 }
@@ -93,18 +97,21 @@ ContactComponent.css .contact {
     color: #333;
     border: 1px solid #ddd;
     border-radius: 6px;
-    transition: border 0.3s ease;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-control:focus {
     outline: none;
     border: 1px solid #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    /* Adding a shadow effect for better focus visibility */
 }
 
 textarea.form-control {
     resize: vertical;
 }
 
+/* Button Styles */
 .btn-submit {
     width: 100%;
     padding: 12px;
@@ -121,6 +128,33 @@ textarea.form-control {
     background-color: #0056b3;
 }
 
+.btn-submit:focus {
+    outline: none;
+    background-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    /* Focus effect for better accessibility */
+}
+
+/* Success/Failure message styles */
+.status-message {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.status-message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Media Queries for responsive design */
 @media (max-width: 768px) {
     .contact-container {
         flex-direction: column;

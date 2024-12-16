@@ -132,9 +132,8 @@
 
 .left-section {
   padding: 10px;
-  box-shadow: 3px 3px 8px rgb(0, 0, 0);
-  border-radius: 10px;
-  margin-top: 15px;
+
+
 }
 
 @media (max-width: 600px) {
@@ -163,7 +162,7 @@
 
   .left-section {
     padding: 10px;
-    box-shadow: 3px 3px 8px rgb(0, 0, 0);
+
     border-radius: 10px;
     margin-top: 15px;
     width: 100%;
@@ -223,17 +222,24 @@
   text-transform: capitalize;
   margin: 0%;
   color: #FFC107;
+  text-align: justify;
 }
 
+.lef {
+  display: flex;
+
+}
+
+
 .left-section img {
-  width: 30px;
-  margin: 10px;
+  width: 20px;
+  margin: 5px;
 }
 
 .right-section {
   padding: 10px;
-  box-shadow: 3px 3px 8px rgb(0, 0, 0);
-  border-radius: 10px;
+  border-left: 2px solid black;
+
   margin-top: 15px;
 }
 
@@ -251,6 +257,8 @@
 
 .email {
   display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .email img {
@@ -258,8 +266,15 @@
   height: 20px;
 }
 
+.email a {
+  text-decoration: none;
+  color: #fff;
+}
+
 .phone {
   display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .phone img {
@@ -269,6 +284,8 @@
 
 .whatsapp {
   display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .whatsaap img {
@@ -284,6 +301,7 @@
   color: aqua;
   text-transform: capitalize;
   font-size: 24px;
+  margin: 0%;
 }
 
 .foot {

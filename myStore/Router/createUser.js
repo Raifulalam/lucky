@@ -171,6 +171,7 @@ router.put('/users/:id', async (req, res) => {
 });
 
 
+
 // Update User Profile Data (Protected Route)
 router.put('/userData', authenticateToken, async (req, res) => {
     try {
@@ -183,6 +184,40 @@ router.put('/userData', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+router.post('/addUserInfo/:userId', async (req, res) => {
+    const { userId } = req.params;  // Extract the userId from the URL parameter
+    const { name, email, phone, address } = req.body;  // Extract user info from the request body
+
+    // Validate required fields
+    if (!name || !email || !phone || !address) {
+        return res.status(400).json({ message: 'All fields (name, email, phone, address) are required' });
+    }
+
+    try {
+        // Find the user by userId and update the userinfo array
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,  // Find user by userId
+            {
+                $push: {  // $push is used to add to an array
+                    userinfo: { name, email, phone, address }
+                }
+            },
+            { new: true }  // Return the updated user document
+        );
+
+        // If user is not found
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Respond with the updated user data
+        res.status(200).json({ message: 'User info added successfully', user: updatedUser });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error adding user info', error: err.message });
     }
 });
 

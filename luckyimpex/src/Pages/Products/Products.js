@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import './products.css';
 import Header from '../../Components/Header';
-import { useCartDispatch, useCartState } from '../../Components/CreateReducer';
+import { useCartDispatch } from '../../Components/CreateReducer';
 import { useNavigate } from 'react-router-dom';
 import '../../App.css';
 import luckyImage from '../../Images/lucky.png';
@@ -10,7 +10,8 @@ import back01 from '../../Images/back01.png';
 import back02 from '../../Images/back04.jpg';
 import back03 from '../../Images/back03.jpg';
 import { UserContext } from '../../Components/UserContext';
-import EditProductModal from './EditProductModal'; // Import the modal
+import EditProductModal from './EditProductModal';
+import Modal from '../../Components/Modal';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
@@ -18,8 +19,12 @@ const Products = () => {
     const [error, setError] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to handle modal visibility
-    const [selectedProduct, setSelectedProduct] = useState(null); // Selected product for editing
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [capacityFilter, setCapacityFilter] = useState('');
+    const [priceFilter, setPriceFilter] = useState('');
+    const [isNewFilter, setIsNewFilter] = useState(false);
     const Navigate = useNavigate();
     const { user } = useContext(UserContext);
     const userRole = user?.role || 'user';
@@ -50,18 +55,18 @@ const Products = () => {
         fetchProducts();
     }, []);
 
-    const filteredProducts = useMemo(() =>
-        products.filter(item =>
-            item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        ), [products, searchTerm]);
+    const filteredProducts = useMemo(() => {
+        return products.filter((item) => {
+            const matchesSearchTerm = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesCapacity = capacityFilter ? item.capacity === capacityFilter : true;
+            const matchesPrice = priceFilter === 'low' ? item.price <= 500 : priceFilter === 'high' ? item.price >= 500 : true;
+            const matchesNew = isNewFilter ? item.isNew === true : true;
 
-    const images = [
-        backimg,
-        back01,
-        back02,
-        back03,
-        luckyImage,
-    ];
+            return matchesSearchTerm && matchesCapacity && matchesPrice && matchesNew;
+        });
+    }, [products, searchTerm, capacityFilter, priceFilter, isNewFilter]);
+
+    const images = [backimg, back01, back02, back03, luckyImage];
 
     const nextSlide = () => {
         setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
@@ -76,13 +81,12 @@ const Products = () => {
 
     const handleEdit = (product) => {
         setSelectedProduct(product);
-        setIsModalOpen(true); // Open the modal for editing
+        setIsModalOpen(true);
     };
 
     const handleSave = async (updatedProduct) => {
-        // Call API to save the updated product
         const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${updatedProduct._id}`, {
-            method: 'PUT',  // Assuming PUT is used to update the product
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -101,8 +105,30 @@ const Products = () => {
     };
 
     const handleDelete = (productId) => {
-        // Handle delete functionality
-        console.log('Deleting product', productId);
+        setIsDeleteModalOpen(true);
+        setSelectedProduct(products.find(product => product._id === productId));
+    };
+
+    const confirmDelete = async (productId) => {
+        try {
+            const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                setProducts((prev) =>
+                    prev.filter((prod) => prod._id !== productId)
+                );
+                dispatch({ type: 'DELETE_PRODUCT', payload: productId });
+            } else {
+                alert('Failed to delete product');
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleAddToCart = async (product) => {
@@ -116,11 +142,16 @@ const Products = () => {
         });
     };
 
+    const handleDetails = (productId) => {
+        Navigate(`/productdetails/${productId}`);
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
                 <div className="spinner"></div>
-                Loading products...
+                <img className="spinner-gif" src="spinner.gif" alt="loading products..." />
+
             </div>
         );
     }
@@ -133,10 +164,6 @@ const Products = () => {
             </div>
         );
     }
-
-    const handleDetails = (productId) => {
-        Navigate(`/productdetails/${productId}`);
-    };
 
     return (
         <>
@@ -152,6 +179,31 @@ const Products = () => {
                     />
                     <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
                 </div>
+            </div>
+
+            {/* Filter Options */}
+            <div className="filter-container">
+                <select onChange={(e) => setCapacityFilter(e.target.value)} value={capacityFilter}>
+                    <option value="">Select Capacity</option>
+                    <option value="256GB">256GB</option>
+                    <option value="512GB">512GB</option>
+                    <option value="1TB">1TB</option>
+                </select>
+
+                <select onChange={(e) => setPriceFilter(e.target.value)} value={priceFilter}>
+                    <option value="">Select Price Range</option>
+                    <option value="low">Low to High</option>
+                    <option value="high">High to Low</option>
+                </select>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={isNewFilter}
+                        onChange={(e) => setIsNewFilter(e.target.checked)}
+                    />
+                    New Products
+                </label>
             </div>
 
             <div className="product-grid">
@@ -170,18 +222,16 @@ const Products = () => {
                             <div className="product-discount">Discount: {product.mrp - product.price}</div>
                             <div className="product-price">Best Buy: {product.price}</div>
 
-                            {
-                                userRole === 'admin' ? (
-                                    <div className="product-actions">
-                                        <button className="edit-btn" onClick={() => handleEdit(product)}>Edit</button>
-                                        <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
-                                    </div>
-                                ) : (
-                                    <button className="add-to-cart-button button-primary" onClick={() => handleAddToCart(product)}>
-                                        Add to Cart
-                                    </button>
-                                )
-                            }
+                            {userRole === 'admin' ? (
+                                <div className="product-actions">
+                                    <button className="edit-btn" onClick={() => handleEdit(product)}>Edit</button>
+                                    <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
+                                </div>
+                            ) : (
+                                <button className="add-to-cart-button button-primary" onClick={() => handleAddToCart(product)}>
+                                    Add to Cart
+                                </button>
+                            )}
                         </div>
                     ))
                 ) : (
@@ -196,6 +246,25 @@ const Products = () => {
                 product={selectedProduct}
                 onSave={handleSave}
             />
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                <h2>Are you sure you want to delete this product?</h2>
+                <div className="modal-actions">
+                    <button className="cancel-btn" onClick={() => setIsDeleteModalOpen(false)}>
+                        Cancel
+                    </button>
+                    <button
+                        className="delete-btn"
+                        onClick={() => {
+                            confirmDelete(selectedProduct._id);
+                            setIsDeleteModalOpen(false);
+                        }}
+                    >
+                        Confirm Delete
+                    </button>
+                </div>
+            </Modal>
         </>
     );
 };

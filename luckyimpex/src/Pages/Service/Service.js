@@ -52,13 +52,64 @@ const LuckyImpexServicePage = () => {
     };
 
     // Handle form submission for complaint
-    const handleComplaintSubmit = (e) => {
+    const handleComplaintSubmit = async (e) => {
         e.preventDefault();
-        // Handle complaint submission logic (API call or form processing)
-        alert('Complaint Submitted! We will get back to you shortly.');
-        setPersonalDetails('');
-        setProductDetails('');
-        setShowModal(false);  // Close the modal after submission
+
+        // Check if all required fields are filled
+        if (!productDetails.product || !productDetails.model || !productDetails.issue || !productDetails.image) {
+            alert('Please fill out all fields before submitting.');
+            return;
+        }
+
+        // Prepare the data to send to the backend
+        const formData = new FormData();
+        formData.append("name", personalDetails.name);
+        formData.append("address", personalDetails.address);
+        formData.append("phone", personalDetails.phone);
+        formData.append("province", personalDetails.province);
+        formData.append("district", personalDetails.district);
+        formData.append("product", productDetails.product);
+        formData.append("model", productDetails.model);
+        formData.append("warranty", productDetails.warranty);
+        formData.append("issue", productDetails.issue);
+        formData.append("image", productDetails.image);
+
+        try {
+            const response = await fetch('https://lucky-back.onrender.com/api/submitComplaint', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // If response is not OK, log error
+                alert(`Error: ${data.message || 'Something went wrong'}`);
+                return;
+            }
+
+            alert('Complaint Submitted! We will get back to you shortly.');
+            // Reset form fields
+            setPersonalDetails({
+                name: '',
+                address: '',
+                phone: '',
+                province: '',
+                district: '',
+            });
+            setProductDetails({
+                product: '',
+                model: '',
+                warranty: '',
+                issue: '',
+                image: null,
+            });
+            document.getElementById("image").value = "";  // Reset file input
+            setShowModal(false); // Close the modal after submission
+        } catch (error) {
+            console.error('Error during submission:', error);
+            alert('An error occurred while submitting the complaint.');
+        }
     };
 
     // Handle opening and closing of the complaint modal
@@ -124,9 +175,6 @@ const LuckyImpexServicePage = () => {
                             </form>
                         </div>
                     </div>
-
-                    {/* Complaint Button */}
-
 
                     {/* Complaint Modal */}
                     {showModal && (
@@ -200,51 +248,12 @@ const LuckyImpexServicePage = () => {
                                                 <label htmlFor="district">Select District:</label>
                                                 <select
                                                     id="district"
-
                                                     name="district"
                                                     value={personalDetails.district}
                                                     onChange={handlePersonalDetailsChange}
                                                     required
                                                 >
                                                     <option>Select District</option>
-                                                    <option value="achham">Achham</option>
-                                                    <option value="arghakhanchi">Arghakhanchi</option>
-                                                    <option value="argakhanchi">Argakhanchi</option>
-                                                    <option value="baglung">Baglung</option>
-                                                    <option value="bagmati">Bagmati</option>
-                                                    <option value="bajhang">Bajhang</option>
-                                                    <option value="bajura">Bajura</option>
-                                                    <option value="banke">Banke</option>
-                                                    <option value="bara">Bara</option>
-                                                    <option value="bardiya">Bardiya</option>
-                                                    <option value="bhaktapur">Bhaktapur</option>
-                                                    <option value="bhojpur">Bhojpur</option>
-                                                    <option value="chandrapur">Chandrapur</option>
-                                                    <option value="chitwan">Chitwan</option>
-                                                    <option value="darchula">Darchula</option>
-                                                    <option value="dailekh">Dailekh</option>
-                                                    <option value="dang">Dang</option>
-                                                    <option value="dhanusa">Dhanusa</option>
-                                                    <option value="dholkha">Dholkha</option>
-                                                    <option value="dolakha">Dolakha</option>
-                                                    <option value="dolpa">Dolpa</option>
-                                                    <option value="doti">Doti</option>
-                                                    <option value="eastern">Eastern</option>
-                                                    <option value="gulmi">Gulmi</option>
-                                                    <option value="gorkha">Gorkha</option>
-                                                    <option value="hadiya">Hadiya</option>
-                                                    <option value="himalaya">Himalaya</option>
-                                                    <option value="illam">Ilam</option>
-                                                    <option value="jajarkot">Jajarkot</option>
-                                                    <option value="jakhar">Jakhar</option>
-                                                    <option value="jajarkot">Jajarkot</option>
-                                                    <option value="janakpur">Janakpur</option>
-                                                    <option value="japdi">Japdi</option>
-                                                    <option value="kailali">Kailali</option>
-                                                    <option value="kaski">Kaski</option>
-                                                    <option value="kathmandu">Kathmandu</option>
-                                                    <option value="kavre">Kavre</option>
-                                                    <option value="khotang">Khotang</option>
                                                     <option value="lamjung">Lamjung</option>
                                                     <option value="mahottari">Mahottari</option>
                                                     <option value="makawanpur">Makawanpur</option>
@@ -369,7 +378,6 @@ const LuckyImpexServicePage = () => {
                                     </div>
                                 )}
                             </div>
-
 
                             <span className="modal-close-btn" onClick={toggleModal}>
                                 X

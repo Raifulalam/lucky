@@ -23,17 +23,12 @@
     /* Include padding in width calculation */
 }
 
-.login-form form {
-
-    margin-bottom: 0%;
-}
-
 .login-form h2 {
     margin-bottom: 10px;
 }
 
 .form-group {
-    margin-bottom: 8px;
+    margin-bottom: 15px;
 }
 
 .form-group label {
@@ -80,29 +75,9 @@
     text-decoration: underline;
 }
 
-.sidebar {
-    flex: 0 0 30%;
-    padding: 20px;
-    color: #fffcfc;
-    background: url('C:\Users\DELL\OneDrive\Desktop\Foodies\foodie\public\SIGNup.jpg') no-repeat center center/cover;
-    border-radius: 8px;
-    /* Optional: add rounded corners */
-}
 
-.get-started-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
 
-.get-started-button:hover {
-    background-color: #218838;
-}
+
 
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
@@ -130,16 +105,16 @@
 .error-message {
     display: inline;
     margin: 0%;
-    background-color: red;
-    color: white;
+
+    color: rgb(171, 20, 20);
     padding: 4px 8px;
 
 }
 
 .success-message {
-    background-color: green;
+
     display: inline;
     margin: 0%;
-    color: white;
+    color: rgb(65, 224, 30);
     padding: 4px 8px;
 }

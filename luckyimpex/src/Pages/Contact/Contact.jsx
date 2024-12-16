@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import './ContactComponent.css';
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import Header from "../../Components/Header";
+import Leaflet from '../../Components/Leaflet';
 
 export const ContactComponent = () => {
     const [formData, setFormData] = useState({
@@ -8,6 +11,7 @@ export const ContactComponent = () => {
         email: '',
         message: '',
     });
+    const [status, setStatus] = useState(null); // To handle success/error messages
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -15,18 +19,30 @@ export const ContactComponent = () => {
         setFormData({ ...formData, [id]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle form submission (e.g., send form data to an API or email)
-        console.log(formData);
+        try {
+            // Handle form submission (e.g., send form data to an API or email)
+            console.log(formData);
+            // Example API request can go here (like `await sendMessage(formData);`)
+
+            // On success:
+            setStatus('Message sent successfully!');
+        } catch (error) {
+            setStatus('Failed to send message. Please try again later.');
+        }
     };
-    const handleBack = () => {
-        navigate('/')
-    }
+
+
 
     return (
         <div className="contact">
-            <button onClick={handleBack}>go back</button>
+            <Helmet>
+                <title>Contact Us</title>
+                <meta name="description" content="Contact us at Lucky Impex" />
+            </Helmet>
+            <Header />
+
             <div className="contact-header">
                 <h1>Contact Us</h1>
                 <p>We'd love to hear from you! Please fill out the form below.</p>
@@ -37,10 +53,11 @@ export const ContactComponent = () => {
                     <h2>Get in Touch</h2>
                     <p>If you have any questions, feel free to reach out to us!</p>
                     <ul>
-                        <li><strong>Email:</strong> support@example.com</li>
-                        <li><strong>Phone:</strong> +1 (800) 123-4567</li>
-                        <li><strong>Address:</strong> 123 Street, City, Country</li>
+                        <li><strong>Email:</strong> luckyimpex4u@gmail.com</li>
+                        <li><strong>Phone:</strong> 051531789</li>
+                        <li><strong>Address:</strong> Ghantaghar linkroad, Birgunj, Nepal</li>
                     </ul>
+                    <Leaflet />
                 </div>
 
                 <div className="contact-right">
@@ -55,6 +72,7 @@ export const ContactComponent = () => {
                                 value={formData.name}
                                 onChange={handleChange}
                                 required
+                                aria-label="Name"
                             />
                         </div>
 
@@ -68,6 +86,7 @@ export const ContactComponent = () => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
+                                aria-label="Email"
                             />
                         </div>
 
@@ -81,11 +100,13 @@ export const ContactComponent = () => {
                                 value={formData.message}
                                 onChange={handleChange}
                                 required
+                                aria-label="Message"
                             ></textarea>
                         </div>
 
                         <button type="submit" className="btn-submit">Send Message</button>
                     </form>
+                    {status && <div className="status-message">{status}</div>}
                 </div>
             </div>
         </div>
