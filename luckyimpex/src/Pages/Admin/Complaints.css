@@ -69,7 +69,7 @@ h3 {
 
     /* Adjusting container width */
     .complaints-container {
-        width: 95%;
+        width: 100%;
         padding: 15px;
     }
 
@@ -120,7 +120,7 @@ h3 {
 /* Desktop view: Keep the layout as is for larger screens */
 @media screen and (min-width: 769px) {
     .complaints-container {
-        width: 80%;
+        width: 100%;
     }
 
     .complaints-table th {

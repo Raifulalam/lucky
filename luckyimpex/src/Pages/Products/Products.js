@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useContext } from 'react';
 import './products.css';
 import Header from '../../Components/Header';
 import { useCartDispatch } from '../../Components/CreateReducer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../../App.css';
 import luckyImage from '../../Images/lucky.png';
 import backimg from '../../Images/backimg.jpg';
@@ -13,7 +13,9 @@ import { UserContext } from '../../Components/UserContext';
 import EditProductModal from './EditProductModal';
 import Modal from '../../Components/Modal';
 
+
 const Products = () => {
+    const { category } = useParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -22,17 +24,25 @@ const Products = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [capacityFilter, setCapacityFilter] = useState('');
-    const [priceFilter, setPriceFilter] = useState('');
-    const [isNewFilter, setIsNewFilter] = useState(false);
+
     const Navigate = useNavigate();
     const { user } = useContext(UserContext);
     const userRole = user?.role || 'user';
 
+
     useEffect(() => {
         const fetchProducts = async () => {
+            setLoading(true); // Start loading
+            setError(null); // Reset previous error
+
             try {
-                const response = await fetch('https://lucky-back-2.onrender.com/api/products', {
+                let url = 'https://lucky-back-2.onrender.com/api/products';
+                if (category) {
+                    // If category is provided, include it in the URL
+                    url += `?category=${category}`;
+                }
+
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -44,27 +54,28 @@ const Products = () => {
                 }
 
                 const data = await response.json();
-                setProducts(data);
+                setProducts(data); // Set products from the API response
+                console.log(data);
             } catch (err) {
-                setError(err.message);
+                setError(err.message); // Handle errors
             } finally {
-                setLoading(false);
+                setLoading(false); // Stop loading
             }
         };
 
         fetchProducts();
-    }, []);
+    }, [category]);
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
             const matchesSearchTerm = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-            const matchesCapacity = capacityFilter ? item.capacity === capacityFilter : true;
-            const matchesPrice = priceFilter === 'low' ? item.price <= 500 : priceFilter === 'high' ? item.price >= 500 : true;
-            const matchesNew = isNewFilter ? item.isNew === true : true;
 
-            return matchesSearchTerm && matchesCapacity && matchesPrice && matchesNew;
+
+
+
+            return matchesSearchTerm;
         });
-    }, [products, searchTerm, capacityFilter, priceFilter, isNewFilter]);
+    }, [products, searchTerm]);
 
     const images = [backimg, back01, back02, back03, luckyImage];
 
@@ -181,40 +192,17 @@ const Products = () => {
                 </div>
             </div>
 
-            {/* Filter Options */}
-            <div className="filter-container">
-                <select onChange={(e) => setCapacityFilter(e.target.value)} value={capacityFilter}>
-                    <option value="">Select Capacity</option>
-                    <option value="256GB">256GB</option>
-                    <option value="512GB">512GB</option>
-                    <option value="1TB">1TB</option>
-                </select>
-
-                <select onChange={(e) => setPriceFilter(e.target.value)} value={priceFilter}>
-                    <option value="">Select Price Range</option>
-                    <option value="low">Low to High</option>
-                    <option value="high">High to Low</option>
-                </select>
-
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={isNewFilter}
-                        onChange={(e) => setIsNewFilter(e.target.checked)}
-                    />
-                    New Products
-                </label>
-            </div>
 
             <div className="product-grid">
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                         <div key={product._id} className="product-container">
                             <div className="product-image-container" onClick={() => handleDetails(product._id)}>
-                                <img className="product-image" src={product.image} alt={product.name} />
+                                <img className="product-image" src={`/${product.image}`} alt={product.name} />
+
                             </div>
 
-                            <div className='product-name limit-text-to-2-lines' onClick={() => handleDetails(product._id)}>
+                            <div className='product-name' onClick={() => handleDetails(product._id)}>
                                 {product.name}
                             </div>
 

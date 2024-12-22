@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
-const Product = require('../Models/products')
+const Product = require('../Models/products');
 
 // Create multiple products
 router.post('/products', async (req, res) => {
@@ -14,11 +13,21 @@ router.post('/products', async (req, res) => {
     }
 });
 
-// Get all products
+// Get all products or filter by category
 router.get('/products', async (req, res) => {
     try {
-        const products = await Product.find();  // Retrieve all products from DB
-        res.status(200).json(products); // Send products to client
+        const { category } = req.query;  // Get the category from query parameters
+        let products;
+
+        if (category) {
+            // If category is provided, filter products by category
+            products = await Product.find({ category: category });
+        } else {
+            // Otherwise, get all products
+            products = await Product.find();
+        }
+
+        res.status(200).json(products);  // Send products to client
     } catch (err) {
         res.status(500).json({ message: err.message });
     }

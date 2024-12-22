@@ -80,15 +80,7 @@ const Header = () => {
             <nav className={`nav ${isMenuOpen ? 'open' : ''}`} id="nav-element" aria-hidden={!isMenuOpen}>
                 <div className="middle">
 
-                    <button className="dropbtn">Products</button>
-                    <div className="dropdown-content">
-                        <Link to="/products">SAMSUNG</Link>
-                        <Link to="/products">HAIER</Link>
-                        <Link to="/products">LG</Link>
-                        <Link to="/products">WHIRLPOOL</Link>
-                        <Link to="/products">CG</Link>
 
-                    </div>
 
 
                     <button onClick={handleVisitUs} className="dropbtn">Visit Us</button>

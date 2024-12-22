@@ -4,7 +4,7 @@ import LoginComponent from './Pages/LoginPage/LoginPage';
 import SignUpcomponent from './Pages/SignUp/Signup';
 import HomePage from './Pages/HomePage/Home';
 import LuckyImpexServicePage from './Pages/Service/Service';
-import Products from './Pages/Products/Products';
+import Products from './Pages/Products/Products';  // Ensure this component handles category-based routing
 import Profile from './Pages/Profile/Profile';
 import { CartProvider } from './Components/CreateReducer';
 import CartComponent from './Pages/Cart/Cart';
@@ -14,8 +14,7 @@ import AdminDashboard from './Pages/Admin/AdminDashboard';
 import { UserProvider } from './Components/UserContext';
 import OrderComponent from './Pages/Admin/Orders';
 import ComplaintsComponent from './Pages/Admin/Complaints';
-
-
+import FeedbackList from './Pages/Admin/FeedbackMessage/Feedback';
 
 function App() {
   return (
@@ -23,19 +22,35 @@ function App() {
       <CartProvider> {/* CartProvider wraps all components that need cart context */}
         <BrowserRouter>
           <Routes>
+            {/* Route for Home page */}
             <Route path='/' element={<HomePage />} />
+
+            {/* Route for Login */}
             <Route path="/login" element={<LoginComponent />} />
+
+            {/* Route for Signup */}
             <Route path="/signup" element={<SignUpcomponent />} />
+
+            {/* Route for Service Page */}
             <Route path="/service" element={<LuckyImpexServicePage />} />
-            <Route path='/products' element={<Products />} />
+
+            {/* Category-based Routes */}
+            <Route path='/products' element={<Products />} />  {/* All products page */}
+            <Route path='/products/:category' element={<Products />} />  {/* Category-based products */}
+
+            {/* Route for Profile page */}
             <Route path='/profile' element={<Profile />} />
+
+            {/* Cart Route */}
             <Route path='/cart' element={<CartComponent />} />
+
+            {/* Contact Route */}
             <Route path='/contact' element={<ContactComponent />} />
             <Route path='/productdetails/:id' element={<ProductDetails />} />
             <Route path='/admindashboard' element={<AdminDashboard />} />
             <Route path='/orders' element={<OrderComponent />} />
             <Route path='/complaints' element={<ComplaintsComponent />} />
-
+            <Route path='/feedback' element={<FeedbackList />} />
 
           </Routes>
         </BrowserRouter>

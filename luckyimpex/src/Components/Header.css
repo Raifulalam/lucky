@@ -1,29 +1,9 @@
 body {
-    margin: 0%;
-    padding: 0%;
+    margin: 0;
+    padding: 0;
     background-color: #fff;
     font-family: Arial, sans-serif;
     position: relative;
-}
-
-.nav {
-    transform: translateX(100%);
-    /* Hide it initially off-screen */
-    transition: transform 0.4s ease;
-    /* Smooth transition */
-    position: absolute;
-    top: 78px;
-    /* Adjust based on your header height */
-    left: 0;
-    width: 100%;
-    /* Take full width of the screen */
-    background-color: rgb(2, 112, 152);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0;
-    z-index: 999;
-
 }
 
 .header {
@@ -34,11 +14,21 @@ body {
     display: flex;
     align-items: center;
     position: sticky;
+    top: 0;
+    /* Ensures the header sticks to the top of the viewport */
     width: 100%;
     justify-content: space-between;
-
     box-shadow: 0px 1px 3px skyblue;
-    z-index: 1;
+    z-index: 1000;
+    /* Ensures the header stays on top of other elements */
+    background-color: rgb(39, 59, 66);
+    /* Repeating to ensure background color stays */
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    max-width: 60%;
 }
 
 .hamburger {
@@ -69,10 +59,6 @@ body {
     transform: rotate(180deg);
 }
 
-
-
-
-
 @media (max-width: 768px) {
 
     .header {
@@ -80,21 +66,34 @@ body {
         justify-content: space-between;
     }
 
-
+    .nav {
+        transform: translateX(120%);
+        /* Hide it initially off-screen */
+        transition: transform 0.4s ease;
+        /* Smooth transition */
+        position: absolute;
+        top: 78px;
+        /* Adjust based on your header height */
+        left: 0;
+        width: 100%;
+        /* Take full width of the screen */
+        background-color: rgb(2, 112, 152);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0;
+        display: none;
+    }
 
     .nav.open {
         display: flex;
         /* Show the menu */
-        transform: translateX(0);
+        transform: translateX(216px);
+        width: auto;
         /* Slide it in */
         transition: transform 0.4s ease-in-out;
         /* Smooth sliding transition */
     }
-
-
-
-
-
 
     .hamburger {
         display: flex;
@@ -113,9 +112,6 @@ body {
         max-width: max-content;
         text-align: left;
     }
-
-
-
 }
 
 .header-link {
@@ -131,14 +127,11 @@ body {
     border: 1px solid white;
 }
 
-
-
 .left {
     display: flex;
     align-items: center;
     height: 80px;
     color: rgb(21, 54, 82);
-
 }
 
 .lucky-name {
@@ -155,18 +148,15 @@ body {
     color: transparent;
     background-clip: text;
     cursor: pointer;
-
 }
 
 .lucky-name:hover {
     background-image: linear-gradient(rgb(7, 31, 59), rgb(250, 21, 82));
     transition: 0.1ms;
-
 }
 
 .lucky-logo {
     height: 60px;
-
 }
 
 .middle {
@@ -175,13 +165,10 @@ body {
     align-items: center;
 }
 
-
-
 .dropbtn:hover {
     background-color: #dddddd42;
     border-radius: 2px;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-
 }
 
 .middle:active {
@@ -201,8 +188,6 @@ body {
     width: 35px;
     height: 35px;
     margin-right: 10px;
-
-
 }
 
 @media (max-width: 768px) {
@@ -239,8 +224,6 @@ body {
         display: inline;
     }
 
-
-
     .middle {
         display: flex;
         flex-direction: column;
@@ -252,14 +235,10 @@ body {
         align-items: start;
     }
 
-
-
-
     .lucky-logo {
         height: 50px;
         padding: 0%;
         margin: 0%;
-
     }
 }
 
@@ -269,29 +248,19 @@ body {
     border: none;
     outline: none;
     color: white;
-
     font-family: inherit;
     margin: 0;
 }
 
-
-
-
 .right .dropbtn:hover {
     cursor: pointer;
-
 }
-
-
-
 
 .dropbtn:hover {
     cursor: pointer;
-
     background-color: rgba(39, 59, 66, 0.864);
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.8);
 }
-
 
 /* Dropdown content (hidden by default) */
 .dropdown-content {

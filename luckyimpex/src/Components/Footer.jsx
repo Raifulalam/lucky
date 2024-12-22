@@ -8,7 +8,7 @@ const Footer = () => {
 
 
         <div className="foot">
-            <div>
+            <div className='footer-p'>
                 <p>@2024 All rights reserved to Lucky Impex</p>
             </div>
         </div>

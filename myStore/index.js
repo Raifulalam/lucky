@@ -3,10 +3,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
+const Product = require('./Models/products');
+const ProductCategory = require('./Models/ProductsCategoryModel');
 
 const cors = require('cors');
 
 const productData = require('./productsData');
+const productCategories = require('./productsCategories');
 
 
 
@@ -38,7 +41,11 @@ mongoose.connect(mongoURI)
 //     .catch(err => console.log("Error inserting products:", err));
 
 
-// Get product details by ID
+// insert productCategory
+ProductCategory.insertMany(productCategories)
+    .then(() => console.log("Product Categories inserted"))
+    .catch(err => console.log("Error inserting product categories:", err));
+
 
 
 // Sample route
@@ -51,6 +58,9 @@ app.use('/api', require('./Router/createUser'));
 app.use('/api', require('./Router/createProducts'));
 app.use('/api', require('./Router/createOrder'));
 app.use('/api', require('./Router/complaints'));
+app.use('/api', require('./Router/productcategory'));
+app.use('/api', require('./Router/contactMessage'));
+
 
 // Get all products
 

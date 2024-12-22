@@ -22,16 +22,33 @@ export const ContactComponent = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Handle form submission (e.g., send form data to an API or email)
-            console.log(formData);
-            // Example API request can go here (like `await sendMessage(formData);`)
+            const response = await fetch("https://lucky-back-2.onrender.com/api/contactMessage", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
 
-            // On success:
-            setStatus('Message sent successfully!');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+
+            // Assuming the backend returns a message, not a success field.
+            if (result.message === 'Contact message saved successfully!') {
+                setStatus('Message sent successfully');
+                setFormData({ name: '', email: '', message: '' }); // Reset form on success
+            } else {
+                setStatus('Failed to send message');
+            }
         } catch (error) {
             setStatus('Failed to send message. Please try again later.');
+            console.error('Error during message submission:', error);
         }
     };
+
 
 
 
