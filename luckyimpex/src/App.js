@@ -15,6 +15,7 @@ import { UserProvider } from './Components/UserContext';
 import OrderComponent from './Pages/Admin/Orders';
 import ComplaintsComponent from './Pages/Admin/Complaints';
 import FeedbackList from './Pages/Admin/FeedbackMessage/Feedback';
+import ManageProducts from './Pages/Admin/ManageProducts';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
             <Route path='/orders' element={<OrderComponent />} />
             <Route path='/complaints' element={<ComplaintsComponent />} />
             <Route path='/feedback' element={<FeedbackList />} />
+            <Route path='/manageproducts' element={<ManageProducts />} />
 
           </Routes>
         </BrowserRouter>

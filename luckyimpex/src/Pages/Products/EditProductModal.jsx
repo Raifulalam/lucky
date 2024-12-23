@@ -29,33 +29,48 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
         <div className="modal-overlay">
             <div className="modal-content">
                 <h2>Edit Product</h2>
-                <label>Product Name:</label>
                 <input
                     type="text"
                     name="name"
                     value={editedProduct.name || ''}
                     onChange={handleChange}
+                    placeholder='Name of product'
                 />
-                <label>Price:</label>
+                <input
+                    type="text"
+                    name="description"
+                    value={editedProduct.description || ''}
+                    onChange={handleChange}
+                    placeholder='description of product'
+
+                />
+                <input
+                    type="text"
+                    name="brand"
+                    value={editedProduct.brand || ''}
+                    onChange={handleChange}
+                    placeholder='Brand Name'
+                />
                 <input
                     type="number"
                     name="price"
                     value={editedProduct.price || ''}
                     onChange={handleChange}
+                    placeholder='Price of product'
                 />
-                <label>MRP:</label>
                 <input
                     type="number"
                     name="mrp"
                     value={editedProduct.mrp || ''}
                     onChange={handleChange}
+                    placeholder='MRP of product'
                 />
-                <label>Image URL:</label>
                 <input
                     type="text"
                     name="image"
                     value={editedProduct.image || ''}
                     onChange={handleChange}
+                    placeholder='Image URL of product'
                 />
                 <div className="modal-buttons">
                     <button onClick={onClose}>Cancel</button>

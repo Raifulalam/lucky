@@ -6,10 +6,10 @@ import Modal from '../../Components/Modal';
 const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Delete modal state
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit modal state
-    const [userIdToDelete, setUserIdToDelete] = useState(null); // Track user ID for deletion
-    const [userToEdit, setUserToEdit] = useState(null); // Track user data for editing
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [userIdToDelete, setUserIdToDelete] = useState(null);
+    const [userToEdit, setUserToEdit] = useState(null);
 
     // Fetch users from the server
     useEffect(() => {
@@ -67,25 +67,22 @@ const AdminDashboard = () => {
 
     // Open the edit modal and prefill the user data
     const openEditModal = (user) => {
-        setUserToEdit({ ...user }); // Make sure to copy the user data to avoid mutating the original state
+        setUserToEdit({ ...user });
         setIsEditModalOpen(true);
     };
 
     // Close the edit modal
     const closeEditModal = () => {
         setIsEditModalOpen(false);
-        setUserToEdit(null); // Clear the user data
+        setUserToEdit(null);
     };
 
     const handleUpdateUser = async (updatedUser) => {
         try {
-
-
             const response = await fetch(`https://lucky-back-2.onrender.com/api/users/${updatedUser._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-
                 },
                 body: JSON.stringify(updatedUser),
             });
@@ -106,96 +103,102 @@ const AdminDashboard = () => {
         }
     };
 
-
-
     if (loading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <div className="admin-dashboard">
-            <h2>Admin Dashboard</h2>
+        <>
+            <title>Admin Dashboard</title> {/* Add the page title */}
 
-            <div className="section">
-                <h3>Manage Users</h3>
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>User Id</th>
-                            <th>Created At</th>
-                            <th>Actions</th>
+            <div className="admin-dashboard">
+                <header>
+                    <h2>Admin Dashboard</h2>
+                </header>
 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map(user => (
-                            <tr key={user._id}>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.role}</td>
-                                <td>{user._id}</td>
-                                <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                                <td>
-                                    <button onClick={() => openEditModal(user)}>Edit</button>
-                                    <button onClick={() => openDeleteModal(user._id)}>Delete</button>
-                                </td>
+                <section className="section">
+                    <h3>Manage Users</h3>
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>User Id</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <Link to="/manage-users" className="link">View All Users</Link>
-            </div>
+                        </thead>
+                        <tbody>
+                            {users.map(user => (
+                                <tr key={user._id}>
+                                    <td>{user.name}</td>
+                                    <td>{user.email}</td>
+                                    <td>{user.role}</td>
+                                    <td>{user._id}</td>
+                                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <button type="button" onClick={() => openEditModal(user)}>Edit</button>
+                                        <button type="button" onClick={() => openDeleteModal(user._id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <Link to="/manage-users" className="link">View All Users</Link>
+                </section>
 
-            {/* Delete Confirmation Modal */}
-            <Modal show={isDeleteModalOpen} onClose={closeDeleteModal}>
-                <h3>Are you sure you want to delete this user?</h3>
-                <button onClick={handleDeleteUser}>Yes, Delete</button>
-                <button onClick={closeDeleteModal}>Cancel</button>
-            </Modal>
-
-            {/* Edit User Modal */}
-            {isEditModalOpen && userToEdit && (
-                <Modal show={isEditModalOpen} onClose={closeEditModal}>
-                    <h3>Edit User</h3>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            handleUpdateUser(userToEdit); // Pass the updated user data
-                        }}
-                    >
-                        <div className="form-group">
-                            <label>Name</label>
-                            <input
-                                type="text"
-                                value={userToEdit.name}
-                                onChange={(e) => setUserToEdit({ ...userToEdit, name: e.target.value })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Email</label>
-                            <input
-                                type="email"
-                                value={userToEdit.email}
-                                onChange={(e) => setUserToEdit({ ...userToEdit, email: e.target.value })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Role</label>
-                            <input
-                                type="text"
-                                value={userToEdit.role}
-                                onChange={(e) => setUserToEdit({ ...userToEdit, role: e.target.value })}
-                            />
-                        </div>
-                        <button type="submit">Save Changes</button>
-                    </form>
-                    <button onClick={closeEditModal}>Cancel</button>
+                {/* Delete Confirmation Modal */}
+                <Modal show={isDeleteModalOpen} onClose={closeDeleteModal}>
+                    <h3>Are you sure you want to delete this user?</h3>
+                    <button type="button" onClick={handleDeleteUser}>Yes, Delete</button>
+                    <button type="button" onClick={closeDeleteModal}>Cancel</button>
                 </Modal>
-            )}
-        </div>
+
+                {/* Edit User Modal */}
+                {isEditModalOpen && userToEdit && (
+                    <Modal show={isEditModalOpen} onClose={closeEditModal}>
+                        <h3>Edit User</h3>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault();
+                                handleUpdateUser(userToEdit);
+                            }}
+                        >
+                            <div className="form-group">
+                                <label htmlFor="name">Name</label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    value={userToEdit.name}
+                                    onChange={(e) => setUserToEdit({ ...userToEdit, name: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="email">Email</label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={userToEdit.email}
+                                    onChange={(e) => setUserToEdit({ ...userToEdit, email: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="role">Role</label>
+                                <input
+                                    type="text"
+                                    id="role"
+                                    value={userToEdit.role}
+                                    onChange={(e) => setUserToEdit({ ...userToEdit, role: e.target.value })}
+                                />
+                            </div>
+                            <button type="submit">Save Changes</button>
+                        </form>
+                        <button type="button" onClick={closeEditModal}>Cancel</button>
+                    </Modal>
+                )}
+            </div>
+        </>
     );
 };
 

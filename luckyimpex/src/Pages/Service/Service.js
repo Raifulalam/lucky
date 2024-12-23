@@ -10,43 +10,37 @@ const sampleReviews = [
 ];
 
 const LuckyImpexServicePage = () => {
-    // State to handle personal details form
+    // Initialize with provided data
     const [personalDetails, setPersonalDetails] = useState({
-        name: '',
-        address: '',
-        phone: '',
-        province: '',
-        district: '',
+        name: 'Marin',
+        address: '1234 Elm Street, Kathmandu, Nepal',
+        phone: '+977 1 234 5678',
+        province: 'Bagmati Pradesh',
+        district: 'Kathmandu',
     });
 
-    // State to handle product details form
     const [productDetails, setProductDetails] = useState({
-        product: '',
-        model: '',
-        warranty: '',
-        issue: '',
+        product: 'Washing Machine',
+        model: 'LG TWINWash',
+        warranty: 'yes',
+        issue: 'The washing machine is not starting.',
         image: null,
     });
 
-    // State to handle customer review form
     const [review, setReview] = useState('');
     const [reviews, setReviews] = useState(sampleReviews);
 
-    // State to control modal visibility
     const [showModal, setShowModal] = useState(false);
-    const [currentStep, setCurrentStep] = useState(1); // Step management in the modal
+    const [currentStep, setCurrentStep] = useState(1);
 
-    // Handle personal details input changes
     const handlePersonalDetailsChange = (e) => {
         setPersonalDetails({ ...personalDetails, [e.target.name]: e.target.value });
     };
 
-    // Handle product details input changes
     const handleProductDetailsChange = (e) => {
         setProductDetails({ ...productDetails, [e.target.name]: e.target.value });
     };
 
-    // Handle file input (product image)
     const handleFileChange = (e) => {
         setProductDetails({ ...productDetails, image: e.target.files[0] });
     };
@@ -55,13 +49,11 @@ const LuckyImpexServicePage = () => {
     const handleComplaintSubmit = async (e) => {
         e.preventDefault();
 
-        // Check if all required fields are filled
         if (!productDetails.product || !productDetails.model || !productDetails.issue || !productDetails.image) {
             alert('Please fill out all fields before submitting.');
             return;
         }
 
-        // Prepare the data to send to the backend
         const formData = new FormData();
         formData.append("name", personalDetails.name);
         formData.append("address", personalDetails.address);
@@ -80,55 +72,56 @@ const LuckyImpexServicePage = () => {
                 body: formData,
             });
 
-            const data = await response.json();
-
+            // Check if the response is not ok (status not in the 200-299 range)
             if (!response.ok) {
-                // If response is not OK, log error
-                alert(`Error: ${data.message || 'Something went wrong'}`);
+                const textResponse = await response.text();
+                console.error('Response error:', textResponse); // Log the HTML error response
+                alert('Something went wrong with the server. Please try again.');
                 return;
             }
 
-            alert('Complaint Submitted! We will get back to you shortly.');
-            // Reset form fields
-            setPersonalDetails({
-                name: '',
-                address: '',
-                phone: '',
-                province: '',
-                district: '',
-            });
-            setProductDetails({
-                product: '',
-                model: '',
-                warranty: '',
-                issue: '',
-                image: null,
-            });
-            document.getElementById("image").value = "";  // Reset file input
-            setShowModal(false); // Close the modal after submission
+            // Check if the response is JSON
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Complaint Submitted! We will get back to you shortly.');
+                    setPersonalDetails({ name: '', address: '', phone: '', province: '', district: '' });
+                    setProductDetails({ product: '', model: '', warranty: '', issue: '', image: null });
+                    document.getElementById("image").value = "";
+                    setShowModal(false);
+                } else {
+                    alert(`Error: ${result.message}`);
+                }
+            } else {
+                alert('Expected JSON, but received a non-JSON response.');
+                console.error('Unexpected response content:', contentType);
+            }
         } catch (error) {
             console.error('Error during submission:', error);
             alert('An error occurred while submitting the complaint.');
         }
     };
 
-    // Handle opening and closing of the complaint modal
+
+
+
+
+
     const toggleModal = () => {
         setShowModal(!showModal);
-        setCurrentStep(1); // Reset to the first step when opening the modal
+        setCurrentStep(1);
     };
 
-    // Handle "Next" step in the modal form
     const handleNextStep = () => {
         setCurrentStep(currentStep + 1);
     };
 
-    // Handle "Previous" step in the modal form
     const handlePreviousStep = () => {
         setCurrentStep(currentStep - 1);
     };
 
-    // Handle review submission
     const handleReviewSubmit = (e) => {
         e.preventDefault();
         setReviews([...reviews, { id: reviews.length + 1, name: 'Anonymous', review }]);
@@ -144,7 +137,6 @@ const LuckyImpexServicePage = () => {
                 <button className="complaint-section" onClick={toggleModal}>Register a Complaint</button>
 
                 <div className="service-page">
-                    {/* Service Information */}
                     <div className="service-info">
                         <p>
                             Lucky Impex is a trusted and authorized dealer based in Birgunj, Nepal. We offer top-quality home appliances
@@ -152,7 +144,6 @@ const LuckyImpexServicePage = () => {
                             TVs, refrigerators, and much more. We are committed to providing you with fast, efficient, and reliable service.
                         </p>
 
-                        {/* Customer Reviews */}
                         <div className="reviews-section">
                             <h2>Customer Reviews</h2>
                             <ul>
@@ -176,14 +167,12 @@ const LuckyImpexServicePage = () => {
                         </div>
                     </div>
 
-                    {/* Complaint Modal */}
                     {showModal && (
                         <div className="modal-overlay">
                             <div className="modal">
                                 <h2>Register a Complaint</h2>
                                 <hr />
 
-                                {/* Step 1: Personal Details Form */}
                                 {currentStep === 1 && (
                                     <div className="personal-details-form">
                                         <h3>Step 1: Personal Details</h3>
@@ -199,7 +188,6 @@ const LuckyImpexServicePage = () => {
                                                     required
                                                 />
                                             </div>
-
                                             <div>
                                                 <label htmlFor="address">Full Address:</label>
                                                 <input
@@ -211,7 +199,6 @@ const LuckyImpexServicePage = () => {
                                                     required
                                                 />
                                             </div>
-
                                             <div>
                                                 <label htmlFor="phone">Phone Number:</label>
                                                 <input
@@ -223,7 +210,6 @@ const LuckyImpexServicePage = () => {
                                                     required
                                                 />
                                             </div>
-
                                             <div>
                                                 <label htmlFor="province">Select Province:</label>
                                                 <select
@@ -233,17 +219,10 @@ const LuckyImpexServicePage = () => {
                                                     onChange={handlePersonalDetailsChange}
                                                     required
                                                 >
-                                                    <option value="">--Select Province--</option>
-                                                    <option value="Koshi Pradesh">Koshi Pradesh</option>
-                                                    <option value="Madhesh Pradesh">Madhesh Pradesh</option>
                                                     <option value="Bagmati Pradesh">Bagmati Pradesh</option>
-                                                    <option value="Gandaki Pradesh">Gandaki Pradesh</option>
-                                                    <option value="Lumbini Pradesh">Lumbini Pradesh</option>
-                                                    <option value="Karnali Pradesh">Karnali Pradesh</option>
-                                                    <option value="Sudurpaschim Pradesh">Sudurpaschim Pradesh</option>
+                                                    {/* Add other options as needed */}
                                                 </select>
                                             </div>
-
                                             <div>
                                                 <label htmlFor="district">Select District:</label>
                                                 <select
@@ -253,34 +232,8 @@ const LuckyImpexServicePage = () => {
                                                     onChange={handlePersonalDetailsChange}
                                                     required
                                                 >
-                                                    <option>Select District</option>
-                                                    <option value="lamjung">Lamjung</option>
-                                                    <option value="mahottari">Mahottari</option>
-                                                    <option value="makawanpur">Makawanpur</option>
-                                                    <option value="manang">Manang</option>
-                                                    <option value="morang">Morang</option>
-                                                    <option value="mugu">Mugu</option>
-                                                    <option value="nawalparasi">Nawalparasi</option>
-                                                    <option value="nepalgunj">Nepalgunj</option>
-                                                    <option value="okhaldhunga">Okhaldhunga</option>
-                                                    <option value="palpa">Palpa</option>
-                                                    <option value="parbat">Parbat</option>
-                                                    <option value="parsa">Parsa</option>
-                                                    <option value="rukum">Rukum</option>
-                                                    <option value="rupandehi">Rupandehi</option>
-                                                    <option value="saptari">Saptari</option>
-                                                    <option value="sarlahi">Sarlahi</option>
-                                                    <option value="sindhuli">Sindhuli</option>
-                                                    <option value="sindhupalchok">Sindhupalchok</option>
-                                                    <option value="siraha">Siraha</option>
-                                                    <option value="solukhumbu">Solukhumbu</option>
-                                                    <option value="sunsari">Sunsari</option>
-                                                    <option value="surkhet">Surkhet</option>
-                                                    <option value="syangja">Syangja</option>
-                                                    <option value="taplejung">Taplejung</option>
-                                                    <option value="terhathum">Terhathum</option>
-                                                    <option value="udayapur">Udayapur</option>
-                                                    <option value="kaski">Kaski</option>
+                                                    <option value="Kathmandu">Kathmandu</option>
+                                                    {/* Add other options as needed */}
                                                 </select>
                                             </div>
 
@@ -291,7 +244,6 @@ const LuckyImpexServicePage = () => {
                                     </div>
                                 )}
 
-                                {/* Step 2: Product Details Form */}
                                 {currentStep === 2 && (
                                     <div className="product-details-form">
                                         <h3>Step 2: Product Details</h3>
@@ -328,6 +280,7 @@ const LuckyImpexServicePage = () => {
                                                             type="radio"
                                                             name="warranty"
                                                             value="yes"
+                                                            checked={productDetails.warranty === 'yes'}
                                                             onChange={handleProductDetailsChange}
                                                             required
                                                         />{' '}
@@ -338,6 +291,7 @@ const LuckyImpexServicePage = () => {
                                                             type="radio"
                                                             name="warranty"
                                                             value="no"
+                                                            checked={productDetails.warranty === 'no'}
                                                             onChange={handleProductDetailsChange}
                                                         />{' '}
                                                         No
@@ -379,9 +333,7 @@ const LuckyImpexServicePage = () => {
                                 )}
                             </div>
 
-                            <span className="modal-close-btn" onClick={toggleModal}>
-                                X
-                            </span>
+                            <span className="modal-close-btn" onClick={toggleModal}>X</span>
                         </div>
                     )}
                 </div>

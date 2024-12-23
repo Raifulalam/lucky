@@ -24,13 +24,13 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+
 }
 
 /* Modal Title */
 .modal-content h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 16px;
     font-weight: bold;
     text-align: center;
 }
@@ -41,7 +41,6 @@
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 15px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -49,7 +48,6 @@
 /* Labels */
 .modal-content label {
     font-size: 14px;
-    margin-bottom: 5px;
     font-weight: bold;
 }
 

@@ -8,6 +8,7 @@ const ProductDetails = () => {
     const [productData, setProduct] = useState(null); // Renamed product to productData
     const [error, setError] = useState(null); // State to hold error message
     const [loading, setLoading] = useState(true); // Loading state
+    const [addedToCart, setAddedToCart] = useState(false); // State to handle cart addition
 
     useEffect(() => {
         const fetchProductDetails = async () => {
@@ -32,24 +33,27 @@ const ProductDetails = () => {
         fetchProductDetails();
     }, [id]);
 
+    const handleAddToCart = () => {
+        setAddedToCart(true);
+        setTimeout(() => setAddedToCart(false), 2000); // Reset after 2 seconds
+    };
 
     if (loading) {
         return (
             <div className="loading-container">
                 <div className="spinner"></div>
                 <img className="spinner-gif" src="/spinner.gif" alt="loading products..." />
-                <p>Loading....</p>
+
             </div>
         );
     }
-
 
     if (error) {
         return <div className="error">{error}</div>; // Display error message if product is not found or any other error occurs
     }
 
     // Construct the full image path from the relative path
-    const imageUrl = productData?.image ? `/${productData.image}` : 'https://via.placeholder.com/150';
+    const imageUrl = productData?.image ? `${productData.image}` : 'https://via.placeholder.com/150';
 
     return (
         <div className="product-detail-container">
@@ -58,9 +62,9 @@ const ProductDetails = () => {
                 <meta name="description" content={`Buy ${productData.name} from Lucky Impex.`} />
             </Helmet>
             <div className="product-details-content">
-                <div className="product-image-containers">
+                <div className="product-image-container">
                     <img
-                        className="product-images"
+                        className="detailsProduct-image"
                         src={imageUrl}
                         alt={productData?.name || 'Product Image'}
                         onError={(e) => {
@@ -70,21 +74,27 @@ const ProductDetails = () => {
                     />
                 </div>
 
-                <div className="product-info-container">
+                <div className="detailsProduct-info-container">
                     <h3>{productData.name}</h3>
                     <p className="product-price">Price: ₹{productData.price}</p>
                     <p className="product-category">Category: {productData.category}</p>
                     <p className="product-brand">Brand: {productData.brand}</p>
-                    <p className="product-description">Description: {productData.details}</p>
+                    <p className="product-warranty">Warranty: {productData.warranty || 'N/A'}</p>
+                    <p className="product-capacity">Capacity: {productData.capacity || 'N/A'}</p>
+                    <p className="product-description">Description: {productData.description}</p>
                     <p className="product-mrp">MRP: ₹{productData.mrp}</p>
-                    <p className="product-discount">Discount: {((productData.mrp - productData.price) / productData.mrp) * 100}%</p>
                     <p className="product-discount-price">Discount Price: ₹{productData.mrp - productData.price}</p>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dolorum magni corrupti perferendis saepe eos qui pariatur repellat dolor id repellendus reprehenderit corporis eum aspernatur tempore, dicta laudantium laboriosam vel porro eligendi, maiores harum! Minima delectus rem quibusdam. </p>
-                    <p>
-                        <button>
-                            Add to Cart
+
+
+                    {/* <div className="product-action-buttons">
+                        <button
+                            className="btn-add-to-cart"
+                            onClick={handleAddToCart}
+                            disabled={addedToCart}
+                        >
+                            {addedToCart ? 'Added to Cart' : 'Add to Cart'}
                         </button>
-                    </p>
+                    </div> */}
                 </div>
             </div>
         </div>

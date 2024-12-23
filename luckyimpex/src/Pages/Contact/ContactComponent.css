@@ -3,8 +3,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-
     font-family: 'Arial', sans-serif;
+
 }
 
 .contact-header {
@@ -31,6 +31,8 @@
     width: 100%;
     max-width: 1200px;
     gap: 40px;
+    margin-bottom: 50px;
+    /* Adding bottom margin for spacing */
 }
 
 .contact-left,
@@ -104,7 +106,6 @@
     outline: none;
     border: 1px solid #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    /* Adding a shadow effect for better focus visibility */
 }
 
 textarea.form-control {
@@ -132,7 +133,6 @@ textarea.form-control {
     outline: none;
     background-color: #0056b3;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    /* Focus effect for better accessibility */
 }
 
 /* Success/Failure message styles */
@@ -154,6 +154,35 @@ textarea.form-control {
     color: #721c24;
 }
 
+/* Social Media Icons Section */
+.social-media {
+    text-align: center;
+    margin-top: 40px;
+    width: 100%;
+}
+
+.social-media h3 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 2rem;
+}
+
+.social-icons a {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #007bff;
+}
+
 /* Media Queries for responsive design */
 @media (max-width: 768px) {
     .contact-container {
@@ -165,6 +194,10 @@ textarea.form-control {
     .contact-right {
         width: 90%;
     }
+
+    .social-icons {
+        font-size: 1.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -174,5 +207,14 @@ textarea.form-control {
 
     .contact-left h2 {
         font-size: 1.8rem;
+    }
+
+    .contact-left ul li {
+        font-size: 0.9rem;
+    }
+
+    .social-icons {
+        font-size: 1.3rem;
+        gap: 10px;
     }
 }

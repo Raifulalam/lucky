@@ -3,9 +3,14 @@ import React from 'react';
 const FeedbackCard = ({ name, email, message }) => {
     return (
         <div className="feedback-card">
-            <h3>{name}</h3>
-            <p><strong>Email:</strong> {email}</p>
-            <p><strong>Message:</strong> {message}</p>
+            <div className="feedback-header">
+                <h3>{name}</h3>
+                <p className="feedback-email"><strong>Email:</strong> {email}</p>
+            </div>
+            <div className="feedback-body">
+                <p><strong>Message:</strong></p>
+                <p>{message}</p>
+            </div>
         </div>
     );
 };

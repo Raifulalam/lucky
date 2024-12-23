@@ -1,75 +1,72 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import luckyLogo from '../Images/lucky-logo.png';
 import cart from '../Images/shopping-cart.png';
 import './Header.css';
 import { UserContext } from './UserContext';
+import { Helmet } from 'react-helmet'; // Import Helmet
 
 const Header = () => {
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [modalType, setModalType] = useState('');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
     const isAdmin = user?.role === 'admin';
     const isLoggedIn = !!user;
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const toggleMenu = useCallback(() => {
+        setIsMenuOpen((prevState) => !prevState);
+    }, []);
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
+    const handleNavigation = useCallback((path) => {
+        navigate(path);
+    }, [navigate]);
 
-    // Handle navigation actions
-    const handleProfile = () => {
-        navigate('/profile');
-    };
-    const handleService = () => {
-        navigate('/service');
-    };
-    const handleVisitUs = () => {
-        navigate('/contact');
-    };
-    const handleOrder = () => {
-        navigate('/orders');
-    };
-    const handleCart = () => {
-        navigate('/cart');
-    };
-    const handleAdminDashboard = () => {
-        navigate('/admindashboard');
-    };
-    const handleComplaints = () => {
-        navigate('/complaints');
-    }
-    const handleFeedback = () => {
-        navigate('/feedback');
-    }
-    const handleLogin = () => {
-        navigate('/login');
-    };
-
-    const handleSignup = () => {
-        navigate('/signup');
-    };
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         localStorage.removeItem('authToken');
         navigate('/login');
-    };
+        window.location.reload();
 
-    // Modal functions
-    const openModal = (type) => {
-        setModalType(type);
-        setModalVisible(true);
-    };
+    }, [navigate]);
 
-    const closeModal = () => {
-        setModalVisible(false);
-        setModalType('');
-    };
+    // Define the buttons for logged-in users and admins
+    const adminButtons = (
+        <>
+            <button onClick={() => handleNavigation('/admindashboard')} className="dropbtn">Users <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/orders')} className="dropbtn">Order <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/complaints')} className="dropbtn">Complaints <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/feedback')} className="dropbtn">Feedback <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
+            <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
+        </>
+    );
+
+    const userButtons = (
+        <>
+            <button onClick={() => handleNavigation('/service')} className="dropbtn">Service <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
+            <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
+        </>
+    );
+
+    const guestButtons = (
+        <>
+            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/login')} className="dropbtn">Login <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/signup')} className="dropbtn">Sign Up <p>&#10148;</p></button>
+        </>
+    );
 
     return (
         <div className="header">
+            {/* Add Helmet for dynamic title and meta tags */}
+            <Helmet>
+                <title>{isLoggedIn ? (isAdmin ? 'Admin Dashboard - Lucky Impex' : 'Welcome - Lucky Impex') : 'Lucky Impex'}</title>
+                <meta name="description" content={isLoggedIn ? (isAdmin ? 'Admin Dashboard - Manage Users and Orders' : 'Your Profile - Lucky Impex') : 'Lucky Impex - Your Trusted Online Store'} />
+            </Helmet>
+
             <div className="left">
                 <Link to="/" className="header-link">
                     <img className="lucky-logo" src={luckyLogo} alt="Lucky Impex Logo" />
@@ -79,57 +76,7 @@ const Header = () => {
 
             <nav className={`nav ${isMenuOpen ? 'open' : ''}`} id="nav-element" aria-hidden={!isMenuOpen}>
                 <div className="middle">
-
-
-
-
-                    <button onClick={handleVisitUs} className="dropbtn">Visit Us</button>
-
-                    {isLoggedIn ? (
-                        // If logged in, check if the user is an admin or not
-                        isAdmin ? (
-                            <>
-                                <button onClick={handleProfile} className='dropbtn'>
-                                    Profile
-                                </button>
-                                <button onClick={handleAdminDashboard} className='dropbtn'>Dashboard</button>
-                                <button onClick={handleLogout} className='dropbtn'>Logout</button>
-                                <button onClick={handleOrder} className='dropbtn' >
-                                    Order
-                                </button>
-                                <button onClick={handleComplaints} className='dropbtn'>Complaints</button>
-                                <button onClick={handleFeedback} className='dropbtn'> Feedback</button>
-
-                            </>
-                        ) : (
-                            <>
-                                <div className="right">
-                                    <button onClick={handleService} className="dropbtn">Service</button>
-                                </div>
-                                <button onClick={handleCart} className="dropbtn">
-                                    <img src={cart} alt="Cart" />
-                                </button>
-
-                                <button onClick={handleProfile} >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" className="bi bi-person-circle" viewBox="0 0 16 16">
-                                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0" />
-                                        <path fillRule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1" />
-                                    </svg>
-                                </button>
-                                <button onClick={handleLogout}>Logout</button>
-                            </>
-                        )
-                    ) : (
-                        // If not logged in, show login and signup options
-                        <>
-                            <div className="right">
-                                <button className="dropbtn" onClick={handleLogin}>Login</button>
-                            </div>
-                            <div className="right">
-                                <button className="dropbtn" onClick={handleSignup}>Sign Up</button>
-                            </div>
-                        </>
-                    )}
+                    {isLoggedIn ? (isAdmin ? adminButtons : userButtons) : guestButtons}
                 </div>
             </nav>
 

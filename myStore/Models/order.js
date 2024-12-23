@@ -17,7 +17,14 @@ const Orderschema = new Schema(
         totalPrice: { type: Number, required: true },
         tax: { type: Number, required: true },
         deliveryDate: { type: String, required: true },
+        name: { type: String, required: true },
         address: { type: String, required: true },
+        phone: { type: String, required: true },
+        postalCode: { type: String, required: true },  // Added postal code
+        country: { type: String, required: true },     // Added country
+        deliveryInstructions: { type: String },       // Optional delivery instructions
+        additionalPhone: { type: String },             // Optional additional phone number
+        status: { type: String, default: 'pending' },
 
     },
     { timestamps: true }

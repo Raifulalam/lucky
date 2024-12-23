@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import Header from "../../Components/Header";
 import Leaflet from '../../Components/Leaflet';
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa'; // You can import more social icons if needed
 
 export const ContactComponent = () => {
     const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export const ContactComponent = () => {
         message: '',
     });
     const [status, setStatus] = useState(null); // To handle success/error messages
+    const [loading, setLoading] = useState(false); // To handle loading state
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -21,6 +23,15 @@ export const ContactComponent = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Set loading state to true when submitting
+
+        // Basic email validation
+        if (!formData.email.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)) {
+            setStatus("Please enter a valid email address.");
+            setLoading(false);
+            return;
+        }
+
         try {
             const response = await fetch("https://lucky-back-2.onrender.com/api/contactMessage", {
                 method: 'POST',
@@ -36,7 +47,6 @@ export const ContactComponent = () => {
 
             const result = await response.json();
 
-            // Assuming the backend returns a message, not a success field.
             if (result.message === 'Contact message saved successfully!') {
                 setStatus('Message sent successfully');
                 setFormData({ name: '', email: '', message: '' }); // Reset form on success
@@ -46,11 +56,10 @@ export const ContactComponent = () => {
         } catch (error) {
             setStatus('Failed to send message. Please try again later.');
             console.error('Error during message submission:', error);
+        } finally {
+            setLoading(false); // Reset loading state
         }
     };
-
-
-
 
     return (
         <div className="contact">
@@ -121,9 +130,35 @@ export const ContactComponent = () => {
                             ></textarea>
                         </div>
 
-                        <button type="submit" className="btn-submit">Send Message</button>
+                        <button type="submit" className="btn-submit" disabled={loading}>
+                            {loading ? 'Sending...' : 'Send Message'}
+                        </button>
                     </form>
-                    {status && <div className="status-message">{status}</div>}
+
+                    {status && (
+                        <div className={`status-message ${status.includes('successfully') ? 'success' : 'error'}`}>
+                            {status}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Social Media Section */}
+            <div className="social-media">
+                <h3>Follow Us</h3>
+                <div className="social-icons">
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <FaFacebook />
+                    </a>
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                        <FaTwitter />
+                    </a>
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                        <FaInstagram />
+                    </a>
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                        <FaLinkedin />
+                    </a>
                 </div>
             </div>
         </div>

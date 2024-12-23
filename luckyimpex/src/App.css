@@ -147,15 +147,19 @@ h3 {
 /* Hero Section */
 .hero-section {
   position: relative;
+  padding-top: 90px;
   height: 80vh;
   background-image: url('./Images/backimg.jpg');
   background-size: cover;
   background-position: center;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   color: white;
+
+
 }
 
 .hero-overlay {
@@ -203,6 +207,11 @@ h3 {
   margin-bottom: 10px;
 }
 
+.promo-banner h1 {
+  color: #0000007b;
+  font-size: 32px;
+}
+
 .promo-button {
   padding: 10px 20px;
   background-color: #FFC107;
@@ -216,6 +225,45 @@ h3 {
 .promo-button:hover {
   background-color: #ff9f00;
 }
+
+.brands {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  margin-top: 18%;
+}
+
+.brands span {
+
+  width: max-content;
+  display: inline-block;
+
+  font-weight: bold;
+  padding-left: 50px;
+  background-image: linear-gradient(rgb(126, 178, 237), rgb(228, 92, 128));
+
+
+
+  /* Add some space between the brand names */
+  animation: moveLeft 20s linear infinite;
+  /* Apply the animation */
+}
+
+/* Keyframes to create the left-to-right movement */
+@keyframes moveLeft {
+  0% {
+    transform: translateX(100%);
+    /* Start off-screen on the right */
+  }
+
+  100% {
+    transform: translateX(-100%);
+    /* End off-screen on the left */
+  }
+}
+
 
 /* Testimonials Section */
 .testimonials {
@@ -376,6 +424,10 @@ h3 {
   .category-item {
     width: 100%;
     padding: 6px;
+  }
+
+  .brands {
+    margin-top: 69%;
   }
 
   .slider-button,

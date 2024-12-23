@@ -8,10 +8,11 @@ import { Link } from 'react-router-dom';
 function LoginComponent() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false); // Loading state
+    const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleEmailChange = (event) => {
@@ -24,13 +25,17 @@ function LoginComponent() {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-    }
+    };
+
+    const handlePasswordVisibilityToggle = () => {
+        setShowPassword((prevState) => !prevState);
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError('');
         setSuccess('');
-        setLoading(true); // Set loading to true when submitting
+        setLoading(true);
 
         try {
             const response = await fetch("https://lucky-back-2.onrender.com/api/loginUser", {
@@ -55,11 +60,9 @@ function LoginComponent() {
                 setLoading(false);
                 setIsModalOpen(true);
 
-                // Redirect after 2 seconds
-                setTimeout(() => {
-                    navigate('/', { state: { email } });
-                    window.location.reload();
-                }, 2000);
+                // Redirect after login success
+                navigate('/', { state: { email } });
+                window.location.reload();
             }
         } catch (err) {
             setError(err.message);
@@ -90,19 +93,32 @@ function LoginComponent() {
                                 onChange={handleEmailChange}
                                 required
                                 placeholder="Enter your email"
+                                aria-label="Enter your email address"
                             />
                         </div>
+
                         <div className="form-group">
                             <label htmlFor="password">Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={password}
-                                onChange={handlePasswordChange}
-                                required
-                                placeholder="Enter your password"
-                            />
+                            <div className="password-container">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    name="password"
+                                    value={password}
+                                    onChange={handlePasswordChange}
+                                    required
+                                    placeholder="Enter your password"
+                                    aria-label="Enter your password"
+                                />
+                                <button
+                                    type="button"
+                                    className="toggle-password"
+                                    onClick={handlePasswordVisibilityToggle}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? "Hide" : "Show"}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="form-group-submit">
@@ -112,8 +128,16 @@ function LoginComponent() {
                             <a href="#" className="forgot-password">Forgot password?</a>
                         </div>
 
-                        {error && <div className="error-message">{error}</div>} {/* Show error message */}
-                        {success && <div className="success-message">{success}</div>} {/* Show success message */}
+                        {error && (
+                            <div className="error-message" aria-live="assertive">
+                                {error}
+                            </div>
+                        )}
+                        {success && (
+                            <div className="success-message" aria-live="assertive">
+                                {success}
+                            </div>
+                        )}
 
                         <div className="form-group-register">
                             <h5>Don't have an account? <Link to="/signup">Register</Link></h5>
@@ -121,6 +145,16 @@ function LoginComponent() {
                     </form>
                 </div>
             </div>
+
+            {/* Modal for Success/Failure */}
+            {isModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>{success || error}</h3>
+                        <button onClick={handleCloseModal}>Close</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

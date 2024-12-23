@@ -1,31 +1,40 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import { useNavigate } from "react-router-dom";
 
+// Refactor navigation handling into a utility function
+const navigateTo = (navigate, path) => {
+    navigate(path);
+};
 
-// Reusable Product Category Component (Simplified)
+// Reusable Product Category Component (Memoized)
 const ProductCategory = React.memo(({ category }) => {
     const { name, description, icon } = category;
     const navigate = useNavigate();
 
-    const handleCategoryVisitor = () => {
-        navigate(`/products/${category.name}`); // Corrected string interpolation
+    const handleCategoryVisit = () => {
+        navigateTo(navigate, `/products/${category.name}`);
     };
 
     return (
         <div className="category-item">
             <div className="category-content">
+                {icon && <img src={icon} alt={`${name} icon`} className="category-icon" />}
                 <h3>{name}</h3>
                 <p>{description}</p>
-                <button className="category-button" aria-label={`Explore ${name}`} onClick={handleCategoryVisitor}>Explore</button>
+                <button
+                    className="category-button"
+                    aria-label={`Explore ${name}`}
+                    onClick={handleCategoryVisit}
+                >
+                    Explore
+                </button>
             </div>
         </div>
     );
 });
-
 
 const Home = () => {
     const [categories, setCategories] = useState([]);
@@ -34,40 +43,44 @@ const Home = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Define the async function inside useEffect
+        // Fetch Categories with error handling
         const fetchCategories = async () => {
             try {
-                const response = await fetch('https://lucky-back.onrender.com/api/productCategories');
-                // Check if the response is OK before parsing it
+                const response = await fetch('https://lucky-back-2.onrender.com/api/productCategories');
                 if (!response.ok) {
                     throw new Error('Failed to fetch categories');
                 }
                 const data = await response.json();
-                setCategories(data);  // Assuming data is an array of categories
+                setCategories(data);
                 setLoading(false);
             } catch (err) {
-                setError('Failed to fetch categories');
+                setError('Failed to fetch categories. Please try again.');
                 setLoading(false);
             }
         };
 
         fetchCategories();
-
     }, []);
 
+    const handleContact = () => navigateTo(navigate, '/contact');
+    const handleShop = () => navigateTo(navigate, '/products');
+
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="loading-spinner">
+                <div className="spinner"></div>
+                <p>Loading categories...</p>
+            </div>
+        );
     }
 
     if (error) {
-        return <div>{error}</div>;
-    }
-
-    const handleContact = () => {
-        navigate('/contact')
-    }
-    const handleShop = () => {
-        navigate('/products')
+        return (
+            <div className="error-message">
+                <p>{error}</p>
+                <button onClick={() => window.location.reload()}>Retry</button>
+            </div>
+        );
     }
 
     return (
@@ -76,19 +89,31 @@ const Home = () => {
                 <title>Home - Lucky Impex</title>
                 <meta name="description" content="Your one-stop shop for amazing products!" />
             </Helmet>
+
             <Header />
 
             {/* Hero Section */}
             <section className="hero-section">
+
+
                 <div className="promo-banner">
                     <h1>Welcome to Lucky Impex</h1>
-                    <div className="promo-banner">
+                    <div className="promo-banner-details">
                         <p>Get the best deals on top brands!</p>
                         <p>🔥 Flash Sale: 20% OFF on all electronics! Don't miss out!</p>
-                        <button className="promo-button" aria-label="Shop Now" onClick={handleShop}>Shop Now</button>
+                        <button className="promo-button" onClick={handleShop}>Shop Now</button>
                     </div>
                 </div>
+                <div className="brands">
+
+                    <span>We deal in a wide range of brands like LG, CG, WHIRLPOOL, SAMSUNG, HAIER, VIDEOCON , HYUNDAI and more.... </span>
+
+
+                </div>
             </section>
+
+
+
 
             {/* About Us Section */}
             <section className="about-us">
@@ -116,8 +141,8 @@ const Home = () => {
             <div className="app-container">
                 <h1>Our Products</h1>
                 <div className="category-list">
-                    {categories.map((category, index) => (
-                        <ProductCategory key={index} category={category} />
+                    {categories.map((category) => (
+                        <ProductCategory key={category.name} category={category} />
                     ))}
                 </div>
             </div>
@@ -141,7 +166,7 @@ const Home = () => {
             <section className="customer-support">
                 <h2>Need Help?</h2>
                 <p>Our customer service team is available to assist you with any questions, issues, or inquiries you may have. Whether you need help with a product, shipping details, or returns, we’re here for you!</p>
-                <button className="contact-button" aria-label="Contact Us" onClick={handleContact}>Contact Us</button>
+                <button className="contact-button" onClick={handleContact}>Contact Us</button>
             </section>
 
             <Footer />

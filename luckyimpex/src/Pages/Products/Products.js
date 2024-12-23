@@ -12,7 +12,12 @@ import back03 from '../../Images/back03.jpg';
 import { UserContext } from '../../Components/UserContext';
 import EditProductModal from './EditProductModal';
 import Modal from '../../Components/Modal';
+import { debounce } from 'lodash'; // Importing debounce function from lodash
 
+// Utility function for handling image errors
+const getImageSrc = (src, fallbackSrc) => {
+    return src ? `${src}` : fallbackSrc;
+};
 
 const Products = () => {
     const { category } = useParams();
@@ -23,43 +28,41 @@ const Products = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Modal for adding products
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [newProduct, setNewProduct] = useState({
+        name: '',
+        price: '',
+        description: '',
+        image: ''
+    });
 
     const Navigate = useNavigate();
     const { user } = useContext(UserContext);
     const userRole = user?.role || 'user';
 
+    const placeholderImage = '/path/to/placeholder-image.jpg'; // Placeholder image
 
+    // Fetch products from API
     useEffect(() => {
         const fetchProducts = async () => {
-            setLoading(true); // Start loading
-            setError(null); // Reset previous error
+            setLoading(true);
+            setError(null);
 
             try {
                 let url = 'https://lucky-back-2.onrender.com/api/products';
-                if (category) {
-                    // If category is provided, include it in the URL
-                    url += `?category=${category}`;
-                }
+                if (category) url += `?category=${category}`;
 
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
+                const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
+                if (!response.ok) throw new Error('Failed to fetch products');
 
                 const data = await response.json();
-                setProducts(data); // Set products from the API response
-                console.log(data);
+                setProducts(data);
             } catch (err) {
-                setError(err.message); // Handle errors
+                setError(err.message);
             } finally {
-                setLoading(false); // Stop loading
+                setLoading(false);
             }
         };
 
@@ -68,20 +71,15 @@ const Products = () => {
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
-            const matchesSearchTerm = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-
-
-
-            return matchesSearchTerm;
+            const itemName = item.name || '';  // Handle undefined names
+            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();  // Handle undefined search term
+            return itemName.toLowerCase().includes(lowercasedSearchTerm);
         });
     }, [products, searchTerm]);
 
+    // Image slider logic
     const images = [backimg, back01, back02, back03, luckyImage];
-
-    const nextSlide = () => {
-        setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
-    };
+    const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
 
     useEffect(() => {
         const intervalId = setInterval(nextSlide, 8000);
@@ -90,49 +88,43 @@ const Products = () => {
 
     const dispatch = useCartDispatch();
 
+    // Handle product editing
     const handleEdit = (product) => {
         setSelectedProduct(product);
         setIsModalOpen(true);
     };
 
+    // Save edited product
     const handleSave = async (updatedProduct) => {
         const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${updatedProduct._id}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedProduct),
         });
 
         if (response.ok) {
-            setProducts((prev) =>
-                prev.map((prod) =>
-                    prod._id === updatedProduct._id ? updatedProduct : prod
-                )
-            );
+            setProducts((prev) => prev.map((prod) => (prod._id === updatedProduct._id ? updatedProduct : prod)));
         } else {
             alert('Failed to update product');
         }
     };
 
+    // Handle product deletion
     const handleDelete = (productId) => {
         setIsDeleteModalOpen(true);
-        setSelectedProduct(products.find(product => product._id === productId));
+        setSelectedProduct(products.find((product) => product._id === productId));
     };
 
+    // Confirm product deletion
     const confirmDelete = async (productId) => {
         try {
             const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${productId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
             });
 
             if (response.ok) {
-                setProducts((prev) =>
-                    prev.filter((prod) => prod._id !== productId)
-                );
+                setProducts((prev) => prev.filter((prod) => prod._id !== productId));
                 dispatch({ type: 'DELETE_PRODUCT', payload: productId });
             } else {
                 alert('Failed to delete product');
@@ -142,6 +134,7 @@ const Products = () => {
         }
     };
 
+    // Add product to cart
     const handleAddToCart = async (product) => {
         await dispatch({
             type: "ADD_ITEM",
@@ -153,20 +146,98 @@ const Products = () => {
         });
     };
 
+    // Navigate to product details page
     const handleDetails = (productId) => {
         Navigate(`/productdetails/${productId}`);
     };
 
+    // Debounced search handler
+    const handleSearchChange = debounce((e) => {
+        setSearchTerm(e.target.value);
+    }, 500); // Debounce search by 500ms
+
+    // Handle new product input change
+    const handleNewProductChange = (e) => {
+        const { name, value } = e.target;
+        setNewProduct((prev) => ({ ...prev, [name]: value }));
+    };
+
+
+    const handleAddNewProduct = async (e) => {
+        e.preventDefault();
+
+        // Destructure new product data
+        const { name, mrp, bestBuyPrice, category, modalNumber, description, image, keywords, brand, capacity } = newProduct;
+
+        // Validate that all fields are filled
+        if (!name || !mrp || !bestBuyPrice || !category || !modalNumber || !description || !image || !keywords) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        // Prepare the product data to send to the backend
+        const productData = {
+            name,
+            mrp,
+            price: bestBuyPrice,   // Renaming 'bestBuyPrice' to 'price' for backend compatibility
+            category,
+            modalNumber,
+            description,
+            image,
+            keywords: keywords.split(',').map(keyword => keyword.trim()),
+            brand,
+            capacity,
+
+        };
+
+        try {
+            // Send the data to the backend
+            const response = await fetch('https://lucky-back-2.onrender.com/api/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(productData), // Send data in JSON format
+            });
+
+            if (response.ok) {
+                // If successful, add the new product to the state and reset the form
+                const addedProduct = await response.json();
+                setProducts((prev) => [...prev, addedProduct]);  // Update state with the newly added product
+                setNewProduct({
+                    name: '',
+                    mrp: '',
+                    bestBuyPrice: '',
+                    category: '',
+                    modalNumber: '',
+                    description: '',
+                    image: '',
+                    keywords: '',
+                    brand: '',
+                    capacity: ''
+                }); // Reset the form
+                setIsAddModalOpen(false); // Close the modal
+            } else {
+                alert('Failed to add product');
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    };
+
+
+
+    // Loading state
     if (loading) {
         return (
             <div className="loading-container">
                 <div className="spinner"></div>
                 <img className="spinner-gif" src="spinner.gif" alt="loading products..." />
-
             </div>
         );
     }
 
+    // Error state
     if (error) {
         return (
             <div className="error-container">
@@ -184,25 +255,35 @@ const Products = () => {
                     <input
                         type="text"
                         placeholder="Search for items..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={handleSearchChange}
                         className="search-bar"
                     />
                     <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
                 </div>
             </div>
 
+            {/* Add Product Button for Admin */}
+            {userRole === 'admin' && (
+                <div className="add-product-button-container">
+                    <button onClick={() => setIsAddModalOpen(true)} className="button-primary">
+                        Add New Product
+                    </button>
+                </div>
+            )}
 
             <div className="product-grid">
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                         <div key={product._id} className="product-container">
                             <div className="product-image-container" onClick={() => handleDetails(product._id)}>
-                                <img className="product-image" src={`/${product.image}`} alt={product.name} />
-
+                                <img
+                                    className="product-image"
+                                    src={getImageSrc(product.image, placeholderImage)}
+                                    alt="image not found"
+                                />
                             </div>
 
-                            <div className='product-name' onClick={() => handleDetails(product._id)}>
+                            <div className="product-name" onClick={() => handleDetails(product._id)}>
                                 {product.name}
                             </div>
 
@@ -227,32 +308,105 @@ const Products = () => {
                 )}
             </div>
 
-            {/* Modal for editing */}
+            {/* Modal for adding a new product */}
+            <Modal show={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+                <h2>Add New Product</h2>
+                <form onSubmit={handleAddNewProduct}>
+                    <input
+                        type="text"
+                        name="name"
+                        value={newProduct.name}
+                        onChange={handleNewProductChange}
+                        placeholder="Product Name"
+                        required
+                    />
+                    <input
+                        type="number"
+                        name="mrp"
+                        value={newProduct.mrp}
+                        onChange={handleNewProductChange}
+                        placeholder="MRP"
+                        required
+                    />
+                    <input
+                        type="number"
+                        name="bestBuyPrice"
+                        value={newProduct.bestBuyPrice}
+                        onChange={handleNewProductChange}
+                        placeholder="Best Buy Price"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="category"
+                        value={newProduct.category}
+                        onChange={handleNewProductChange}
+                        placeholder="Category"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="modalNumber"
+                        value={newProduct.modalNumber}
+                        onChange={handleNewProductChange}
+                        placeholder="Modal Number"
+                        required
+                    />
+                    <textarea
+                        name="description"
+                        value={newProduct.description}
+                        onChange={handleNewProductChange}
+                        placeholder="Description"
+                        required
+                    />
+                    <input
+                        type="url"
+                        name="image"
+                        value={newProduct.image}
+                        onChange={handleNewProductChange}
+                        placeholder="Image URL"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="keywords"
+                        value={newProduct.keywords}
+                        onChange={handleNewProductChange}
+                        placeholder="Keywords (separated by commas)"
+                        required
+                    />
+                    <button type="submit">Add Product</button>
+                </form>
+            </Modal>
+
+
+
+            {/* Edit Product Modal */}
             <EditProductModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
                 product={selectedProduct}
                 onSave={handleSave}
+                onClose={() => setIsModalOpen(false)}
+                isOpen={isModalOpen}
             />
 
             {/* Delete Confirmation Modal */}
             <Modal show={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
-                <h2>Are you sure you want to delete this product?</h2>
+                <h3>Are you sure you want to delete this product?</h3>
                 <div className="modal-actions">
-                    <button className="cancel-btn" onClick={() => setIsDeleteModalOpen(false)}>
-                        Cancel
-                    </button>
                     <button
-                        className="delete-btn"
                         onClick={() => {
-                            confirmDelete(selectedProduct._id);
+                            confirmDelete(selectedProduct?._id);
                             setIsDeleteModalOpen(false);
                         }}
                     >
-                        Confirm Delete
+                        Yes
                     </button>
+
+                    {/* No button to cancel deletion */}
+                    <button onClick={() => setIsDeleteModalOpen(false)}>No</button>
                 </div>
             </Modal>
+
         </>
     );
 };

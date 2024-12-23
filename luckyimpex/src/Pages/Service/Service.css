@@ -116,7 +116,6 @@ button {
     color: white;
     padding: 12px 20px;
     border: none;
-    border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -237,14 +236,16 @@ h3 {
 }
 
 /* Modal Styling */
-.modal {
+.modal-overlay .modal {
 
-    background-color: #fff;
+    background: #fff;
     padding: 30px;
     border-radius: 10px;
     width: 95%;
     max-width: 600px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 
 
 }
