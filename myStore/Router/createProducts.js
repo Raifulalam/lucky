@@ -13,7 +13,9 @@ router.post('/products', async (req, res) => {
             modalNumber,
             description,
             image,
-            keywords
+            keywords,
+            brand,
+            capacity,
         } = req.body;
 
         // Create a new product using the incoming data
@@ -25,7 +27,9 @@ router.post('/products', async (req, res) => {
             modalNumber,
             description,
             image,
-            keywords
+            keywords,
+            brand,
+            capacity,
         });
 
         // Save the new product to the database
@@ -41,22 +45,42 @@ router.post('/products', async (req, res) => {
 // Get all products or filter by category
 router.get('/products', async (req, res) => {
     try {
-        const { category } = req.query;  // Get the category from query parameters
+        const { category } = req.query;
         let products;
+        const matchCriteria = category ? { category: category } : {};
+        products = await Product.aggregate([
+            {
+                $match: matchCriteria  // Match by category if specified
+            },
+            {
+                $group: {
+                    _id: "$model",
+                    productDetails: { $first: "$$ROOT" }
+                }
+            },
+            {
+                $replaceRoot: { newRoot: "$productDetails" }
+            }
+        ]);
 
-        if (category) {
-            // If category is provided, filter products by category
-            products = await Product.find({ category: category });
-        } else {
-            // Otherwise, get all products
-            products = await Product.find();
-        }
-
-        res.status(200).json(products);  // Send products to client
+        res.status(200).json(products);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
+
+//get products by brand
+router.get('/products/:brand', async (req, res) => {
+    try {
+        const { brand } = req.params;  // Get the brand from URL parameters
+        const products = await Product.find({ brand: brand });  // Find products by brand
+        res.status(200).json(products);  // Send products to the client
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
 
 // Get a product by ID
 router.get('/productsDetails/:id', async (req, res) => {

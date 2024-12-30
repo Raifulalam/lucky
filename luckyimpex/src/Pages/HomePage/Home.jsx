@@ -4,12 +4,16 @@ import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import { useNavigate } from "react-router-dom";
 
-// Refactor navigation handling into a utility function
+import lucky1 from '../../Images/lucky1.png';
+import lucky2 from '../../Images/lucky2.png';
+import lucky3 from '../../Images/lucky3.png';
+import lucky4 from '../../Images/lucky4.png';
+import lucky5 from '../../Images/lucky5.png';
+
+
 const navigateTo = (navigate, path) => {
     navigate(path);
 };
-
-// Reusable Product Category Component (Memoized)
 const ProductCategory = React.memo(({ category }) => {
     const { name, description, icon } = category;
     const navigate = useNavigate();
@@ -36,53 +40,37 @@ const ProductCategory = React.memo(({ category }) => {
     );
 });
 
+
 const Home = () => {
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const navigate = useNavigate();
+    const [currentSlide, setCurrentSlide] = useState(0);
 
-    useEffect(() => {
-        // Fetch Categories with error handling
-        const fetchCategories = async () => {
-            try {
-                const response = await fetch('https://lucky-back-2.onrender.com/api/productCategories');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch categories');
-                }
-                const data = await response.json();
-                setCategories(data);
-                setLoading(false);
-            } catch (err) {
-                setError('Failed to fetch categories. Please try again.');
-                setLoading(false);
-            }
-        };
+    const categories = [
+        { name: 'AirConditioners', description: 'Keep your space cool and comfortable with our energy-efficient air conditioners from trusted brands.' },
+        { name: 'Refrigerators', description: 'High-performance refrigerators designed to preserve your food fresh for longer, with sleek designs.' },
+        { name: 'WashingMachines', description: 'Efficient and durable washing machines to make laundry easier and faster, with modern features.' },
+        { name: 'LEDTelevisions', description: 'Experience stunning visuals and immersive sound with our range of high-quality LED televisions.' },
+        { name: 'KitchenAppliances', description: 'Innovative and practical kitchen gadgets to help you prepare delicious meals with ease.' },
+        { name: 'HomeAppliances', description: 'A wide variety of home appliances that bring convenience and efficiency to your daily life.' },
+        { name: 'Music&HomeTheater', description: 'A wide variety of home appliances that bring convenience and efficiency to your daily life.' },
+        { name: 'AirCooler', description: 'Find a variety of air coolers from different brands, types and capacities and make your life esay' },
+        { name: 'ChestFreezer', description: 'Keep your food safe helthy and make your day better' }
 
-        fetchCategories();
-    }, []);
+    ]
 
+
+    const handleBrandSearch = (brand) => {
+        navigateTo(navigate, `/products/brand/${brand}`);
+    }
     const handleContact = () => navigateTo(navigate, '/contact');
     const handleShop = () => navigateTo(navigate, '/products');
 
-    if (loading) {
-        return (
-            <div className="loading-spinner">
-                <div className="spinner"></div>
-                <p>Loading categories...</p>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="error-message">
-                <p>{error}</p>
-                <button onClick={() => window.location.reload()}>Retry</button>
-            </div>
-        );
-    }
-
+    const images = [lucky1, lucky2, lucky3, lucky4, lucky5];
+    const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
+    useEffect(() => {
+        const intervalId = setInterval(nextSlide, 8000);
+        return () => clearInterval(intervalId);
+    }, []);
     return (
         <div>
             <Helmet>
@@ -106,36 +94,12 @@ const Home = () => {
                 </div>
                 <div className="brands">
 
-                    <span>We deal in a wide range of brands like LG, CG, WHIRLPOOL, SAMSUNG, HAIER, VIDEOCON , HYUNDAI and more.... </span>
+                    <span> We offer a wide range of top-quality products from trusted brands like LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Hyundai, Symphony, Bajaj and Maharaja.</span>
 
 
                 </div>
             </section>
 
-
-
-
-            {/* About Us Section */}
-            <section className="about-us">
-                <h2>About Lucky Impex</h2>
-                <p>
-                    At Lucky Impex, we are committed to providing our customers with top-quality products that bring convenience, comfort, and innovation to their homes and businesses. Whether you're upgrading your living room, kitchen, or office, we offer a diverse selection of electronics and home appliances that meet your needs and exceed your expectations.
-                </p>
-                <p>
-                    With years of experience in the industry, we strive to deliver exceptional customer service and value, offering both affordable and premium products. Explore our wide variety of categories, and discover why Lucky Impex is the best place to find your next home or tech upgrade.
-                </p>
-            </section>
-
-            {/* Why Choose Us Section */}
-            <section className="why-choose-us">
-                <h2>Why Choose Lucky Impex?</h2>
-                <ul>
-                    <li><strong>Wide Selection:</strong> Choose from a wide range of electronics and home appliances, handpicked for their quality and value.</li>
-                    <li><strong>Fast Shipping:</strong> Get your orders delivered quickly and securely with our fast shipping options.</li>
-                    <li><strong>Customer Satisfaction:</strong> Enjoy excellent customer service with easy returns, support, and warranties on many products.</li>
-                    <li><strong>Exclusive Offers:</strong> Take advantage of special promotions, discounts, and flash sales that are available only to our customers.</li>
-                </ul>
-            </section>
 
             {/* Product Categories Section */}
             <div className="app-container">
@@ -147,19 +111,41 @@ const Home = () => {
                 </div>
             </div>
 
+            <div className="home-main">
+                <div className="image">
+                    <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
+                </div>
+            </div>
+
             {/* Testimonials Section */}
             <section className="testimonials">
-                <h2>What Our Customers Say</h2>
-                <div className="testimonial-list">
-                    <div className="testimonial">
-                        <p>"Great products, fast delivery, and excellent customer service. Highly recommend!"</p>
-                        <h4>- John Doe</h4>
-                    </div>
-                    <div className="testimonial">
-                        <p>"I've bought multiple appliances from Lucky Impex, and each one exceeded my expectations."</p>
-                        <h4>- Jane Smith</h4>
-                    </div>
+                <h2>Our Top Deal Brands</h2>
+                <div className="brand-list">
+                    <ul className="brand-list-items">
+                        <button className="brand-logo" onClick={() => handleBrandSearch("LG")}><img src="/lg.png" alt="LG"></img></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("Samsung")}><img src="/samsung.png" alt="samsung" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("Whirlpool")}><img src="/whirlpool.png" alt="Whirlpool" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("Haier")}><img src="/haier.svg" alt="haier" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("CG")}><img src="/cg.png" alt="cg" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("Videocon")}><img src="/videocon.png" alt="videocon" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("Skyworth")}><img src="/skyworth.png" alt="skyworth" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("Symphony")}><img src="/symphony.png" alt="symphony" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("Bajaj")}><img src="/bajaj.png" alt="bajaj" /></button>
+
+                    </ul>
                 </div>
+            </section>
+
+
+            {/* Why Choose Us Section */}
+            <section className="why-choose-us">
+                <h2>Why Choose Lucky Impex?</h2>
+                <ul>
+                    <li><strong>Wide Selection:</strong> Choose from a wide range of electronics and home appliances, handpicked for their quality and value.</li>
+                    <li><strong>Fast Shipping:</strong> Get your orders delivered quickly and securely with our fast shipping options.</li>
+                    <li><strong>Customer Satisfaction:</strong> Enjoy excellent customer service with easy returns, support, and warranties on many products.</li>
+                    <li><strong>Exclusive Offers:</strong> Take advantage of special promotions, discounts, and flash sales that are available only to our customers.</li>
+                </ul>
             </section>
 
             {/* Customer Support Section */}

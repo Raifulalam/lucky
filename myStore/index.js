@@ -8,7 +8,8 @@ const ProductCategory = require('./Models/ProductsCategoryModel');
 
 const cors = require('cors');
 
-// const productData = require('./productsData');
+const productData = require('./productsData');
+
 // const productCategories = require('./productsCategories');
 
 
@@ -36,9 +37,9 @@ mongoose.connect(mongoURI)
 
 // Post the data to the database
 
-// Product.insertMany(productData)
-//     .then(() => console.log("Products inserted"))
-//     .catch(err => console.log("Error inserting products:", err));
+Product.insertMany(productData)
+    .then(() => console.log("Products inserted"))
+    .catch(err => console.log("Error inserting products:", err));
 
 
 // // insert productCategory

@@ -38,6 +38,13 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
                 />
                 <input
                     type="text"
+                    name="category"
+                    value={editedProduct.category || ''}
+                    onChange={handleChange}
+                    placeholder='Category of product'
+                />
+                <input
+                    type="text"
                     name="description"
                     value={editedProduct.description || ''}
                     onChange={handleChange}
@@ -50,6 +57,14 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
                     value={editedProduct.brand || ''}
                     onChange={handleChange}
                     placeholder='Brand Name'
+                />
+                <input
+                    type='text'
+                    name='model'
+                    value={editedProduct.model}
+                    onChange={handleChange}
+                    placeholder='Model'
+                    required
                 />
                 <input
                     type="number"

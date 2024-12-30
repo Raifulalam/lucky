@@ -103,6 +103,37 @@ body {
     color: var(--text-color);
 }
 
+/* Loading Container Styles */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* Full height of the viewport */
+    background-color: rgba(0, 0, 0, 0.1);
+    /* Light background overlay */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    /* Ensures the loader appears above other content */
+}
+
+/* Spinner Style */
+
+
+/* Spinner GIF Style */
+.spinner-gif {
+    width: 50px;
+    /* Adjust size if necessary */
+    height: 50px;
+}
+
+/* Keyframe Animation for Spinner */
+
+
 .product-mrp {
     text-decoration: line-through;
     color: #999;
@@ -236,6 +267,14 @@ body {
 
     .product-name {
         font-size: 1rem;
+
+    }
+
+    .product-mrp,
+    .product-price,
+    .product-discount {
+        font-size: 1rem;
+        font-weight: 500;
     }
 
     .add-to-cart-button {
@@ -246,6 +285,19 @@ body {
     .search-bar {
         width: 90%;
         font-size: 0.9rem;
+
         padding: 8px 15px;
+    }
+
+    .product-actions {
+        display: flex;
+        max-width: fit-content;
+        padding: 0%;
+        margin: 0px;
+    }
+
+    .product-actions button {
+        margin: 6px;
+        padding: 6px 6px;
     }
 }

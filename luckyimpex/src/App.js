@@ -4,7 +4,7 @@ import LoginComponent from './Pages/LoginPage/LoginPage';
 import SignUpcomponent from './Pages/SignUp/Signup';
 import HomePage from './Pages/HomePage/Home';
 import LuckyImpexServicePage from './Pages/Service/Service';
-import Products from './Pages/Products/Products';  // Ensure this component handles category-based routing
+import Products from './Pages/Products/Products';
 import Profile from './Pages/Profile/Profile';
 import { CartProvider } from './Components/CreateReducer';
 import CartComponent from './Pages/Cart/Cart';
@@ -16,6 +16,9 @@ import OrderComponent from './Pages/Admin/Orders';
 import ComplaintsComponent from './Pages/Admin/Complaints';
 import FeedbackList from './Pages/Admin/FeedbackMessage/Feedback';
 import ManageProducts from './Pages/Admin/ManageProducts';
+import BrandSearch from './Pages/Products/Brandserch';
+import EMI from './Pages/EMI/EMI';
+import Exchange from './Pages/Exchange/Exchange';
 
 function App() {
   return (
@@ -38,6 +41,7 @@ function App() {
             {/* Category-based Routes */}
             <Route path='/products' element={<Products />} />  {/* All products page */}
             <Route path='/products/:category' element={<Products />} />  {/* Category-based products */}
+            <Route path='/products/brand/:brand' element={<BrandSearch />} />
 
             {/* Route for Profile page */}
             <Route path='/profile' element={<Profile />} />
@@ -53,6 +57,8 @@ function App() {
             <Route path='/complaints' element={<ComplaintsComponent />} />
             <Route path='/feedback' element={<FeedbackList />} />
             <Route path='/manageproducts' element={<ManageProducts />} />
+            <Route path='/emi' element={<EMI />} />
+            <Route path='/exchange' element={<Exchange />} />
 
           </Routes>
         </BrowserRouter>

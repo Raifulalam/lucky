@@ -19,8 +19,8 @@ const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
 };
 
-const Products = () => {
-    const { category } = useParams();
+const BrandSearch = () => {
+    const { brand } = useParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -43,27 +43,26 @@ const Products = () => {
 
     const placeholderImage = '/path/to/placeholder-image.jpg'; // Placeholder image
 
-    // Fetch products from API
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
             setError(null);
 
             try {
-                let url = 'https://lucky-back-2.onrender.com/api/products';
+                // Construct the URL by directly embedding the brand in the path
+                let url = `https://lucky-back-2.onrender.com/api/products/${brand}`;
 
-                // Append category if it exists
-                if (category) {
-                    url += `?category=${category}`;
-                }
-
+                console.log("Fetching URL:", url);  // Log the URL to debug
 
                 const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
 
-                if (!response.ok) throw new Error('Failed to fetch products');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
 
                 const data = await response.json();
                 setProducts(data);
+
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -71,8 +70,17 @@ const Products = () => {
             }
         };
 
-        fetchProducts();
-    }, [category]); // Trigger fetch when category or brand changes
+        // Only fetch when brand changes
+        if (brand) {
+            fetchProducts();
+        }
+    }, [brand]);  // Dependency on brand
+    // Trigger effect when 'brand' changes
+
+
+
+
+
 
 
     const filteredProducts = useMemo(() => {
@@ -88,7 +96,7 @@ const Products = () => {
     const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
 
     useEffect(() => {
-        const intervalId = setInterval(nextSlide, 4000);
+        const intervalId = setInterval(nextSlide, 8000);
         return () => clearInterval(intervalId);
     }, []);
 
@@ -293,9 +301,9 @@ const Products = () => {
                                 {product.name}
                             </div>
 
-                            <div className="product-mrp">MRP: {product.mrp}</div>
-                            <div className="product-discount">Save: {product.mrp - product.price}</div>
-                            <div className="product-price">Best Buy: {product.price}</div>
+                            <div className="product-mrp">MRP: {product.mrp.toFixed(0)}</div>
+                            <div className="product-discount">Save: {(product.mrp - product.price).toFixed(0)}</div>
+                            <div className="product-price">Best Buy: {product.price.toFixed(0)}</div>
 
                             {userRole === 'admin' ? (
                                 <div className="product-actions">
@@ -427,4 +435,4 @@ const Products = () => {
     );
 };
 
-export default Products;
+export default BrandSearch;

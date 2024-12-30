@@ -95,10 +95,7 @@
 
 /* Responsive Design: Stack layout on smaller screens */
 @media (max-width: 768px) {
-    .product-details-content {
-        flex-direction: column;
 
-    }
 
     .product-detail-container {
         padding: 0;
@@ -111,6 +108,10 @@
 
     .product-info-container {
         max-width: 100%;
+    }
+
+    .product-details-content {
+        grid-template-columns: 1fr;
     }
 
     .product-images {

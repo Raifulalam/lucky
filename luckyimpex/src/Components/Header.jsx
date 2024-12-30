@@ -1,7 +1,6 @@
 import React, { useState, useContext, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import luckyLogo from '../Images/lucky-logo.png';
-import cart from '../Images/shopping-cart.png';
 import './Header.css';
 import { UserContext } from './UserContext';
 import { Helmet } from 'react-helmet'; // Import Helmet
@@ -24,7 +23,7 @@ const Header = () => {
 
     const handleLogout = useCallback(() => {
         localStorage.removeItem('authToken');
-        navigate('/login');
+        navigate('/');
         window.location.reload();
 
     }, [navigate]);
@@ -47,15 +46,23 @@ const Header = () => {
             <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/emi')} className="dropbtn">EMI</button>
+            <button onClick={() => handleNavigation('/exchange')} className="dropbtn">Exchange ⇆</button>
+
+
             <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
         </>
     );
 
     const guestButtons = (
         <>
+            <button className="dropbtn">Stores</button>
             <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/login')} className="dropbtn">Login <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/signup')} className="dropbtn">Sign Up <p>&#10148;</p></button>
+
+
+
         </>
     );
 
@@ -63,8 +70,8 @@ const Header = () => {
         <div className="header">
             {/* Add Helmet for dynamic title and meta tags */}
             <Helmet>
-                <title>{isLoggedIn ? (isAdmin ? 'Admin Dashboard - Lucky Impex' : 'Welcome - Lucky Impex') : 'Lucky Impex'}</title>
-                <meta name="description" content={isLoggedIn ? (isAdmin ? 'Admin Dashboard - Manage Users and Orders' : 'Your Profile - Lucky Impex') : 'Lucky Impex - Your Trusted Online Store'} />
+                <title>{isLoggedIn ? (isAdmin ? 'Lucky Impex' : 'Welcome - Lucky Impex') : 'Lucky Impex'}</title>
+                <meta name="description" content={isLoggedIn ? (isAdmin ? ' Manage Users and Orders' : 'Your Profile - Lucky Impex') : 'Lucky Impex - Your Trusted Online Store'} />
             </Helmet>
 
             <div className="left">

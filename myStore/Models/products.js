@@ -5,11 +5,7 @@ const productSchema = new Schema({
     image: String,
     name: String,
     description: String,
-    modleNumber: String,
-    rating: {
-        stars: Number,
-        count: Number
-    },
+    model: String,
     mrp: Number,
     price: Number,
     keywords: [String],
