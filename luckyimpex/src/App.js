@@ -19,6 +19,7 @@ import ManageProducts from './Pages/Admin/ManageProducts';
 import BrandSearch from './Pages/Products/Brandserch';
 import EMI from './Pages/EMI/EMI';
 import Exchange from './Pages/Exchange/Exchange';
+import StoreComponent from './Pages/HomePage/StorePage';
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
             <Route path='/manageproducts' element={<ManageProducts />} />
             <Route path='/emi' element={<EMI />} />
             <Route path='/exchange' element={<Exchange />} />
+            <Route path='/store' element={<StoreComponent />} />
 
           </Routes>
         </BrowserRouter>

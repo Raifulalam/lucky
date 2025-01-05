@@ -1,0 +1,303 @@
+.main-branch {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.store-container {
+    background-color: #d9d4d49c;
+}
+
+.header-shop {
+    display: flex;
+    flex-direction: column;
+    background-color: #4d4949;
+    align-items: center;
+    justify-content: center;
+}
+
+.shop-span {
+    display: flex;
+    height: 20px;
+    width: 2px;
+    background-color: #ecf0f1;
+    color: aqua;
+    transform: rotate(16deg);
+    border-top: 2px solid #2980b9;
+}
+
+
+.shop-off {
+    display: flex;
+
+    align-items: center;
+}
+
+
+.home-btn,
+.shop-btn {
+    background-color: transparent;
+    border-radius: 5%;
+
+
+}
+
+/* Slider Section */
+.slider-section {
+    text-align: center;
+}
+
+.slider-image {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+}
+
+.slider-image:hover {
+    transform: scale(1.05);
+}
+
+/* Branches Section */
+.branches-section {
+    margin-top: 40px;
+}
+
+.branches-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.branch-card {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.branch-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.branch-card h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+
+.branch-card p {
+    color: #7f8c8d;
+}
+
+.branch-images {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.branch-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Contact Us Section */
+.contact-us-section {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    background-color: #ecf0f1;
+    border-radius: 10px;
+}
+
+.social-media-links {
+    margin-top: 20px;
+}
+
+.social-media-links a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #2980b9;
+    font-weight: bold;
+}
+
+.social-media-links a:hover {
+    text-decoration: underline;
+}
+
+/* Map container for responsive design */
+.map-container {
+    width: 100%;
+    height: 300px;
+    margin-top: 20px;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+
+
+    .branches-list {
+        grid-template-columns: 1fr;
+        /* Single column for smaller screens */
+    }
+
+    .branch-card {
+        padding: 15px;
+    }
+
+    .branch-images {
+        flex-direction: column;
+    }
+}
+
+/* Container for the awards section */
+.awards-container {
+    padding: 40px;
+    background-color: #f8f8f8;
+    text-align: center;
+}
+
+/* Header for the awards section */
+.awards-container h1 {
+    font-size: 36px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* The list container holding all awards */
+.awards-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    justify-items: center;
+}
+
+/* Individual award card */
+.award-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 300px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.award-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Image inside the award card */
+.award-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+/* Award name styling */
+.award-card h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+/* Description text for each award */
+.award-card p {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .awards-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .award-card {
+        padding: 15px;
+    }
+
+    .award-card img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .awards-container h1 {
+        font-size: 28px;
+    }
+
+    .award-card h2 {
+        font-size: 18px;
+    }
+}
+
+.promotion-container {
+    padding: 40px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    background-color: #1a0a0aa7;
+    /* Light background for all promotion containers */
+}
+
+.promotion {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid rgb(20, 236, 67);
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+
+}
+
+
+.promotion:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 0, 0.397);
+}
+
+.promotion p {
+    font-size: 0.8rem;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Prevent text from overflowing */
+}
+
+.promotion h2 {
+    padding: 0;
+    margin: 0;
+    font-size: 1.2rem;
+    color: white;
+
+}
+
+/* Styling for the first .promotion-container */
+.promotion:first-child {
+    background-color: #7b16168f;
+
+}
+
+/* Responsive styling */
+@media (max-width: 600px) {
+    .promotion-container {
+        flex-direction: column;
+        gap: 10px;
+
+    }
+
+}

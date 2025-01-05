@@ -1,4 +1,184 @@
+/* General Styling for the Whole Page */
+.exc-container {
+    font-family: 'Arial', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f4f7fb;
+}
+
+/* Header Section */
+.exc-header h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #333;
+}
+
+.exc-header p {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #777;
+}
+
+/* Products Selection Section */
 .exc-products {
     display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
 
+.exc-product {
+    text-align: center;
+    background-color: #fff;
+    padding: 15px;
+    width: 150px;
+    height: 200px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.exc-product img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.exc-product h4 {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.exc-product.selected {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.exc-product:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Old Product Selection */
+.old-product-info {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.old-product-info p {
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.selected-product {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Product Info Form */
+.product-info {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-info h2 {
+    font-size: 1.8rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.product-info-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-item {
+    margin-bottom: 20px;
+}
+
+.form-item label {
+    display: block;
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.options {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.options input {
+    margin-right: 8px;
+}
+
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+input[type="number"]:focus,
+textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Textarea Styling */
+textarea {
+    min-height: 100px;
+}
+
+/* Responsive Design for Mobile Devices */
+@media (max-width: 768px) {
+    .exc-products {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .exc-product {
+        width: 80%;
+        margin: 10px 0;
+    }
+
+    .product-info {
+        padding: 15px;
+    }
+
+    .form-item {
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 500px) {
+    .exc-header h1 {
+        font-size: 2rem;
+    }
+
+    .exc-header p {
+        font-size: 1rem;
+    }
+
+    .product-info h2 {
+        font-size: 1.5rem;
+    }
+
+    .form-item label {
+        font-size: 0.9rem;
+    }
 }

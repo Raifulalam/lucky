@@ -46,8 +46,8 @@ const Header = () => {
             <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/emi')} className="dropbtn">EMI</button>
-            <button onClick={() => handleNavigation('/exchange')} className="dropbtn">Exchange ⇆</button>
+            <button onClick={() => handleNavigation('/emi')} className="dropbtn">EMI <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/exchange')} className="dropbtn">Exchange ⇆ <p>&#10148;</p></button>
 
 
             <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
@@ -56,7 +56,7 @@ const Header = () => {
 
     const guestButtons = (
         <>
-            <button className="dropbtn">Stores</button>
+            <button onClick={() => handleNavigation('/store')} className="dropbtn">Stores <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/login')} className="dropbtn">Login <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/signup')} className="dropbtn">Sign Up <p>&#10148;</p></button>

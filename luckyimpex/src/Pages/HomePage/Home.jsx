@@ -3,17 +3,18 @@ import { Helmet } from "react-helmet";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import { useNavigate } from "react-router-dom";
+import NewYear from "../../Components/Newyear";
 
-import lucky1 from '../../Images/lucky1.png';
-import lucky2 from '../../Images/lucky2.png';
-import lucky3 from '../../Images/lucky3.png';
-import lucky4 from '../../Images/lucky4.png';
-import lucky5 from '../../Images/lucky5.png';
-
+import luckyImage from '../../Images/lucky.png';
+import backimg from '../../Images/backimg.jpg';
+import back01 from '../../Images/back01.png';
+import back02 from '../../Images/back04.jpg';
+import back03 from '../../Images/back03.jpg';
 
 const navigateTo = (navigate, path) => {
     navigate(path);
 };
+
 const ProductCategory = React.memo(({ category }) => {
     const { name, description, icon } = category;
     const navigate = useNavigate();
@@ -40,10 +41,32 @@ const ProductCategory = React.memo(({ category }) => {
     );
 });
 
-
 const Home = () => {
     const navigate = useNavigate();
+    const [isNewYear, setIsNewYear] = useState(false);
     const [currentSlide, setCurrentSlide] = useState(0);
+
+
+    const images = [backimg, back01, back02, back03, luckyImage];
+    const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
+
+    useEffect(() => {
+        const intervalId = setInterval(nextSlide, 4000);
+        return () => clearInterval(intervalId);
+    }, []);
+
+    // Check if today is New Year's Day (January 1st)
+    useEffect(() => {
+        const today = new Date();
+        const month = today.getMonth(); // January is month 0
+        const day = today.getDate();
+
+        if (month === 0 && day === 1) {
+            setIsNewYear(true); // Set state to true if it's January 1st
+        } else {
+            setIsNewYear(false); // Otherwise, set it to false
+        }
+    }, []);
 
     const categories = [
         { name: 'AirConditioners', description: 'Keep your space cool and comfortable with our energy-efficient air conditioners from trusted brands.' },
@@ -53,24 +76,17 @@ const Home = () => {
         { name: 'KitchenAppliances', description: 'Innovative and practical kitchen gadgets to help you prepare delicious meals with ease.' },
         { name: 'HomeAppliances', description: 'A wide variety of home appliances that bring convenience and efficiency to your daily life.' },
         { name: 'Music&HomeTheater', description: 'A wide variety of home appliances that bring convenience and efficiency to your daily life.' },
-        { name: 'AirCooler', description: 'Find a variety of air coolers from different brands, types and capacities and make your life esay' },
-        { name: 'ChestFreezer', description: 'Keep your food safe helthy and make your day better' }
-
-    ]
-
+        { name: 'AirCooler', description: 'Find a variety of air coolers from different brands, types and capacities and make your life easy.' },
+        { name: 'ChestFreezer', description: 'Keep your food safe, healthy, and make your day better.' }
+    ];
 
     const handleBrandSearch = (brand) => {
         navigateTo(navigate, `/products/brand/${brand}`);
-    }
+    };
+
     const handleContact = () => navigateTo(navigate, '/contact');
     const handleShop = () => navigateTo(navigate, '/products');
 
-    const images = [lucky1, lucky2, lucky3, lucky4, lucky5];
-    const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
-    useEffect(() => {
-        const intervalId = setInterval(nextSlide, 8000);
-        return () => clearInterval(intervalId);
-    }, []);
     return (
         <div>
             <Helmet>
@@ -79,26 +95,31 @@ const Home = () => {
             </Helmet>
 
             <Header />
+            <div className="home-main">
+                <div className="image">
 
-            {/* Hero Section */}
-            <section className="hero-section">
-
-
-                <div className="promo-banner">
-                    <h1>Welcome to Lucky Impex</h1>
-                    <div className="promo-banner-details">
-                        <p>Get the best deals on top brands!</p>
-                        <p>🔥 Flash Sale: 20% OFF on all electronics! Don't miss out!</p>
-                        <button className="promo-button" onClick={handleShop}>Shop Now</button>
-                    </div>
+                    <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
                 </div>
-                <div className="brands">
-
-                    <span> We offer a wide range of top-quality products from trusted brands like LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Hyundai, Symphony, Bajaj and Maharaja.</span>
-
-
-                </div>
-            </section>
+                <section className="hero-section">
+                    {isNewYear ? (
+                        <NewYear /> // Render the NewYear component if it's New Year's Day
+                    ) : (
+                        <>
+                            <div className="promo-banner">
+                                <h1>Welcome to Lucky Impex</h1>
+                                <div className="promo-banner-details">
+                                    <p>Get the best deals on top brands!</p>
+                                    <p>🔥 Flash Sale: 20% OFF on all electronics! Don't miss out!</p>
+                                    <button className="promo-button" onClick={handleShop}>Shop Now</button>
+                                </div>
+                            </div>
+                            <div className="brands">
+                                <span> We offer a wide range of top-quality products from trusted brands like LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Hyundai, Symphony, Bajaj and Maharaja.</span>
+                            </div>
+                        </>
+                    )}
+                </section>
+            </div>
 
 
             {/* Product Categories Section */}
@@ -111,18 +132,12 @@ const Home = () => {
                 </div>
             </div>
 
-            <div className="home-main">
-                <div className="image">
-                    <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
-                </div>
-            </div>
-
             {/* Testimonials Section */}
             <section className="testimonials">
                 <h2>Our Top Deal Brands</h2>
                 <div className="brand-list">
                     <ul className="brand-list-items">
-                        <button className="brand-logo" onClick={() => handleBrandSearch("LG")}><img src="/lg.png" alt="LG"></img></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("LG")}><img src="/lg.png" alt="LG" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Samsung")}><img src="/samsung.png" alt="samsung" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Whirlpool")}><img src="/whirlpool.png" alt="Whirlpool" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Haier")}><img src="/haier.svg" alt="haier" /></button>
@@ -131,11 +146,9 @@ const Home = () => {
                         <button className="brand-logo" onClick={() => handleBrandSearch("Skyworth")}><img src="/skyworth.png" alt="skyworth" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Symphony")}><img src="/symphony.png" alt="symphony" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Bajaj")}><img src="/bajaj.png" alt="bajaj" /></button>
-
                     </ul>
                 </div>
             </section>
-
 
             {/* Why Choose Us Section */}
             <section className="why-choose-us">

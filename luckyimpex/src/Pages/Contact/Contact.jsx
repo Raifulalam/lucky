@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import './ContactComponent.css';
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import Header from "../../Components/Header";
-import Leaflet from '../../Components/Leaflet';
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa'; // You can import more social icons if needed
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
+
+
 
 export const ContactComponent = () => {
     const [formData, setFormData] = useState({
@@ -67,7 +67,7 @@ export const ContactComponent = () => {
                 <title>Contact Us</title>
                 <meta name="description" content="Contact us at Lucky Impex" />
             </Helmet>
-            <Header />
+
 
             <div className="contact-header">
                 <h1>Contact Us</h1>
@@ -83,7 +83,7 @@ export const ContactComponent = () => {
                         <li><strong>Phone:</strong> 051531789</li>
                         <li><strong>Address:</strong> Ghantaghar linkroad, Birgunj, Nepal</li>
                     </ul>
-                    <Leaflet />
+
                 </div>
 
                 <div className="contact-right">
@@ -146,6 +146,7 @@ export const ContactComponent = () => {
             {/* Social Media Section */}
             <div className="social-media">
                 <h3>Follow Us</h3>
+                <p>If you need more information, feel free to contact any of our branches listed above.</p>
                 <div className="social-icons">
                     <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                         <FaFacebook />

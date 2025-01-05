@@ -75,7 +75,7 @@ const BrandSearch = () => {
             fetchProducts();
         }
     }, [brand]);  // Dependency on brand
-    // Trigger effect when 'brand' changes
+
 
 
 
@@ -301,9 +301,9 @@ const BrandSearch = () => {
                                 {product.name}
                             </div>
 
-                            <div className="product-mrp">MRP: {product.mrp.toFixed(0)}</div>
+                            <div className="product-mrp">MRP: {product.mrp}</div>
                             <div className="product-discount">Save: {(product.mrp - product.price).toFixed(0)}</div>
-                            <div className="product-price">Best Buy: {product.price.toFixed(0)}</div>
+                            <div className="product-price">Best Buy: {product.price}</div>
 
                             {userRole === 'admin' ? (
                                 <div className="product-actions">
