@@ -4,6 +4,7 @@ import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import { useNavigate } from "react-router-dom";
 import NewYear from "../../Components/Newyear";
+import { Link } from "react-router-dom";
 
 import luckyImage from '../../Images/lucky.png';
 import backimg from '../../Images/backimg.jpg';
@@ -74,8 +75,9 @@ const Home = () => {
         { name: 'WashingMachines', description: 'Efficient and durable washing machines to make laundry easier and faster, with modern features.' },
         { name: 'LEDTelevisions', description: 'Experience stunning visuals and immersive sound with our range of high-quality LED televisions.' },
         { name: 'KitchenAppliances', description: 'Innovative and practical kitchen gadgets to help you prepare delicious meals with ease.' },
+        { name: 'Chimney', description: 'Kitchen Chimney makes your daily life easy, comfortable, and promotes healthy living. Choose your desired chimney today.' },
         { name: 'HomeAppliances', description: 'A wide variety of home appliances that bring convenience and efficiency to your daily life.' },
-        { name: 'Music&HomeTheater', description: 'A wide variety of home appliances that bring convenience and efficiency to your daily life.' },
+        { name: 'HomeTheater', description: 'A wide variety of home appliances that bring convenience and efficiency to your daily life.' },
         { name: 'AirCooler', description: 'Find a variety of air coolers from different brands, types and capacities and make your life easy.' },
         { name: 'ChestFreezer', description: 'Keep your food safe, healthy, and make your day better.' }
     ];
@@ -100,30 +102,12 @@ const Home = () => {
 
                     <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
                 </div>
-                <section className="hero-section">
-                    {isNewYear ? (
-                        <NewYear /> // Render the NewYear component if it's New Year's Day
-                    ) : (
-                        <>
-                            <div className="promo-banner">
-                                <h1>Welcome to Lucky Impex</h1>
-                                <div className="promo-banner-details">
-                                    <p>Get the best deals on top brands!</p>
-                                    <p>🔥 Flash Sale: 20% OFF on all electronics! Don't miss out!</p>
-                                    <button className="promo-button" onClick={handleShop}>Shop Now</button>
-                                </div>
-                            </div>
-                            <div className="brands">
-                                <span> We offer a wide range of top-quality products from trusted brands like LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Hyundai, Symphony, Bajaj and Maharaja.</span>
-                            </div>
-                        </>
-                    )}
-                </section>
+
             </div>
 
 
             {/* Product Categories Section */}
-            <div className="app-container">
+            <div className="card-container">
                 <h1>Our Products</h1>
                 <div className="category-list">
                     {categories.map((category) => (
@@ -132,6 +116,36 @@ const Home = () => {
                 </div>
             </div>
 
+
+            <section className="hero-section">
+                {isNewYear ? (
+                    <NewYear /> // Render the NewYear component if it's New Year's Day
+                ) : (
+                    <>
+                        <div className="promo-banner">
+                            <h1>Our Exciting Offers!</h1>
+                            <div className="promo-banner-details">
+                                <p>Get the best deals on top brands!</p>
+                                <p>🔥 Flash Sale: 20% OFF on all electronics! Don't miss out!</p>
+                                <button className="promo-button" onClick={handleShop}>Shop Now</button>
+                            </div>
+                            <div className="offers">
+
+                                <div className="offers-list">
+                                    <Link to="/emi" className="offer">EMI Available</Link>
+                                    <Link to="/exchange" className="offer">Exchange Available</Link>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div className="brands">
+                            <span> We offer a wide range of top-quality products from trusted brands like LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Hyundai, Symphony, Bajaj and Maharaja.</span>
+                        </div>
+                    </>
+                )}
+            </section>
             {/* Testimonials Section */}
             <section className="testimonials">
                 <h2>Our Top Deal Brands</h2>
@@ -141,7 +155,7 @@ const Home = () => {
                         <button className="brand-logo" onClick={() => handleBrandSearch("Samsung")}><img src="/samsung.png" alt="samsung" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Whirlpool")}><img src="/whirlpool.png" alt="Whirlpool" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Haier")}><img src="/haier.svg" alt="haier" /></button>
-                        <button className="brand-logo" onClick={() => handleBrandSearch("CG")}><img src="/cg.png" alt="cg" /></button>
+                        <button className="brand-logo" onClick={() => handleBrandSearch("CG")}><img src="/cg.svg" alt="cg" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Videocon")}><img src="/videocon.png" alt="videocon" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Skyworth")}><img src="/skyworth.png" alt="skyworth" /></button>
                         <button className="brand-logo" onClick={() => handleBrandSearch("Symphony")}><img src="/symphony.png" alt="symphony" /></button>
@@ -149,7 +163,6 @@ const Home = () => {
                     </ul>
                 </div>
             </section>
-
             {/* Why Choose Us Section */}
             <section className="why-choose-us">
                 <h2>Why Choose Lucky Impex?</h2>

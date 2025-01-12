@@ -29,28 +29,13 @@ function App() {
           <Routes>
             {/* Route for Home page */}
             <Route path='/' element={<HomePage />} />
-
-            {/* Route for Login */}
             <Route path="/login" element={<LoginComponent />} />
-
-            {/* Route for Signup */}
             <Route path="/signup" element={<SignUpcomponent />} />
-
-            {/* Route for Service Page */}
             <Route path="/service" element={<LuckyImpexServicePage />} />
-
-            {/* Category-based Routes */}
-            <Route path='/products' element={<Products />} />  {/* All products page */}
-            <Route path='/products/:category' element={<Products />} />  {/* Category-based products */}
+            <Route path='/products' element={<Products />} />
+            <Route path='/products/:category' element={<Products />} />
             <Route path='/products/brand/:brand' element={<BrandSearch />} />
-
-            {/* Route for Profile page */}
-            <Route path='/profile' element={<Profile />} />
-
-            {/* Cart Route */}
             <Route path='/cart' element={<CartComponent />} />
-
-            {/* Contact Route */}
             <Route path='/contact' element={<ContactComponent />} />
             <Route path='/productdetails/:id' element={<ProductDetails />} />
             <Route path='/admindashboard' element={<AdminDashboard />} />

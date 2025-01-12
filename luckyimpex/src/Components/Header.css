@@ -244,13 +244,15 @@ body {
     display: block;
 }
 
-/* Image Container */
-.image img {
-    width: 100%;
-    height: auto;
-}
+
 
 .image {
     position: relative;
-    overflow: visible;
+    overflow: hidden;
+}
+
+.slideImages:hover {
+    cursor: pointer;
+
+
 }

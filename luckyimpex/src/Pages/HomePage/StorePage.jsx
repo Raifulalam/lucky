@@ -16,31 +16,31 @@ const StoreComponent = () => {
         {
             name: "Lucky Impex Birgunj (Main)",
             location: [27.0138387, 84.8803044],
-            contact: "Phone: +977-1-1234567, Email: luckyimpex4u@gmail.com",
+            contact: "Phone: +977-9807286786, Tel: 051531789, Email: luckyimpex4u@gmail.com",
             address: "Link Road Ghantaghar, Birgunj, Nepal",
             hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:AM - 3:00 PM",
             description: "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
-            images: ["lucky1.jpg", "lucky2.jpg"],
+            images: ["lucky1.jpg", "guest6.jpg", "lucky2.jpg", "lucky3.jpg"],
 
         },
         {
             name: "Lucky Impex Birgunj",
             location: [27.01211, 84.8770902],
-            contact: "Phone: +977-61-1234567, Email: luckyimpexmainroad@gmial.com",
+            contact: "Phone: +977-9807216321, Email: luckyimpexmainroad@gmial.com",
             address: "Main Road Maisthan, Birguj, Nepal",
             hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:AM - 3:00 PM",
             description: "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
-            images: ["lucky1.jpg", "lucky2.jpg"], // Providing default empty array
+            images: ["lucky3.jpg", "lucky4.jpg"],
 
         },
         {
             name: "Lucky Impex Simra",
             location: [27.161434, 84.975124],
-            contact: "Phone: +977-21-1234567, Email: luckyimpexsimra@gmial.com",
+            contact: "Phone: +977-9810818276, Email: luckyimpexsimra@gmial.com",
             address: "Simra Main Road (infront of Surya Nepal Udhyog), Nepal",
             hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:AM - 3:00 PM",
             description: "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
-            images: ["lucky1.jpg", "lucky2.jpg"],
+            images: ["guest5.jpg", "lucky5.jpg"],
 
         }
     ];

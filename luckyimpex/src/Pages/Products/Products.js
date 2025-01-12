@@ -3,7 +3,6 @@ import './products.css';
 import Header from '../../Components/Header';
 import { useCartDispatch } from '../../Components/CreateReducer';
 import { useNavigate, useParams } from 'react-router-dom';
-import '../../App.css';
 import luckyImage from '../../Images/lucky.png';
 import backimg from '../../Images/backimg.jpg';
 import back01 from '../../Images/back01.png';
@@ -25,7 +24,7 @@ const Products = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Modal for adding products
@@ -43,41 +42,63 @@ const Products = () => {
 
     const placeholderImage = '/path/to/placeholder-image.jpg'; // Placeholder image
 
-    // Fetch products from API
+    // Function to fetch products from API
     useEffect(() => {
-        const fetchProducts = async () => {
-            setLoading(true);
-            setError(null);
-
-            try {
-                let url = 'https://lucky-back-2.onrender.com/api/products';
-
-                // Append category if it exists
-                if (category) {
-                    url += `?category=${category}`;
-                }
-
-
-                const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
-
-                if (!response.ok) throw new Error('Failed to fetch products');
-
-                const data = await response.json();
-                setProducts(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
+        const storedProducts = localStorage.getItem('products');
+        if (category) {
+            const storedCategoryProducts = localStorage.getItem(`products-${category}`);
+            if (storedCategoryProducts) {
+                setProducts(JSON.parse(storedCategoryProducts));
                 setLoading(false);
+            } else {
+                fetchProducts();
             }
-        };
+        } else if (storedProducts) {
+            setProducts(JSON.parse(storedProducts)); // Use stored products
+            setLoading(false);
+        }
+        else {
+            fetchProducts();
 
-        fetchProducts();
-    }, [category]); // Trigger fetch when category or brand changes
+        }
+    }, [category]);
+
+    const fetchProducts = async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            let url = 'https://lucky-back-2.onrender.com/api/products';
+
+            if (category) {
+                url += `?category=${category}`;
+            }
+
+            const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+
+            if (!response.ok) throw new Error('Failed to fetch products');
+            const data = await response.json();
+
+            if (category) {
+                // Store products in localStorage with category-specific key
+                localStorage.setItem(`products-${category}`, JSON.stringify(data));
+            } else {
+                // Store all products in localStorage when no category is selected
+                localStorage.setItem('products', JSON.stringify(data));
+            }
+
+            setProducts(data); // Set products to state
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
-            const itemName = item.name || '';  // Handle undefined names
+            const itemName = item.name || item.brand || item.model || '';  // Handle undefined names
             const lowercasedSearchTerm = (searchTerm || '').toLowerCase();  // Handle undefined search term
             return itemName.toLowerCase().includes(lowercasedSearchTerm);
         });
@@ -155,12 +176,27 @@ const Products = () => {
     // Navigate to product details page
     const handleDetails = (productId) => {
         Navigate(`/productdetails/${productId}`);
+        window.history.pushState(null, null, window.location.href);
     };
 
+    useEffect(() => {
+        const preventBackNavigation = () => {
+            window.history.pushState(null, null, window.location.href);
+        };
+
+        // Add the onpopstate listener
+        window.onpopstate = preventBackNavigation;
+
+        // Cleanup when the component unmounts
+        return () => {
+            window.onpopstate = null;
+        };
+    }, []);
+
     // Debounced search handler
-    const handleSearchChange = debounce((e) => {
+    const handleSearchChange = ((e) => {
         setSearchTerm(e.target.value);
-    }, 500); // Debounce search by 500ms
+    }); // Debounce search by 500ms
 
     // Handle new product input change
     const handleNewProductChange = (e) => {
@@ -168,15 +204,14 @@ const Products = () => {
         setNewProduct((prev) => ({ ...prev, [name]: value }));
     };
 
-
     const handleAddNewProduct = async (e) => {
         e.preventDefault();
 
         // Destructure new product data
-        const { name, mrp, bestBuyPrice, category, modalNumber, description, image, keywords, brand, capacity } = newProduct;
+        const { name, mrp, bestBuyPrice, category, model, description, image, keywords, brand, capacity } = newProduct;
 
         // Validate that all fields are filled
-        if (!name || !mrp || !bestBuyPrice || !category || !modalNumber || !description || !image || !keywords) {
+        if (!name || !mrp || !bestBuyPrice || !category || !model || !description || !image || !keywords) {
             alert('Please fill all fields');
             return;
         }
@@ -187,13 +222,12 @@ const Products = () => {
             mrp,
             price: bestBuyPrice,   // Renaming 'bestBuyPrice' to 'price' for backend compatibility
             category,
-            modalNumber,
+            model,
             description,
             image,
             keywords: keywords.split(',').map(keyword => keyword.trim()),
             brand,
             capacity,
-
         };
 
         try {
@@ -215,7 +249,7 @@ const Products = () => {
                     mrp: '',
                     bestBuyPrice: '',
                     category: '',
-                    modalNumber: '',
+                    model: '',
                     description: '',
                     image: '',
                     keywords: '',
@@ -230,8 +264,6 @@ const Products = () => {
             alert('Error: ' + err.message);
         }
     };
-
-
 
     // Loading state
     if (loading) {
@@ -261,9 +293,11 @@ const Products = () => {
                     <input
                         type="text"
                         placeholder="Search for items..."
+                        value={searchTerm}
                         onChange={handleSearchChange}
                         className="search-bar"
                     />
+
                     <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
                 </div>
             </div>
@@ -293,9 +327,10 @@ const Products = () => {
                                 {product.name}
                             </div>
 
+                            <div className="product-model">Size: {product.capacity}</div>
                             <div className="product-mrp">MRP: {product.mrp}</div>
-                            <div className="product-discount">Save: {product.mrp - product.price}</div>
-                            <div className="product-price">Best Buy: {product.price}</div>
+                            <div className="product-discount"> <p>Save: {product.mrp - product.price}</p></div>
+                            <div className="product-price">   <p>Best Buy: {product.price}</p></div>
 
                             {userRole === 'admin' ? (
                                 <div className="product-actions">
@@ -353,18 +388,26 @@ const Products = () => {
 
                     <input
                         type="text"
-                        name="category"
-                        value={newProduct.category}
+                        name="brand"
+                        value={newProduct.brand}
                         onChange={handleNewProductChange}
-                        placeholder="Category"
+                        placeholder="Brand Name"
                         required
                     />
                     <input
                         type="text"
-                        name="modalNumber"
-                        value={newProduct.modalNumber}
+                        name="capacity"
+                        value={newProduct.capacity}
                         onChange={handleNewProductChange}
-                        placeholder="Modal Number"
+                        placeholder="Capacity or Size"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="model"
+                        value={newProduct.model}
+                        onChange={handleNewProductChange}
+                        placeholder="Model Number"
                         required
                     />
                     <textarea
@@ -395,8 +438,6 @@ const Products = () => {
                 </form>
             </Modal>
 
-
-
             {/* Edit Product Modal */}
             <EditProductModal
                 product={selectedProduct}
@@ -422,7 +463,6 @@ const Products = () => {
                     <button onClick={() => setIsDeleteModalOpen(false)}>No</button>
                 </div>
             </Modal>
-
         </>
     );
 };

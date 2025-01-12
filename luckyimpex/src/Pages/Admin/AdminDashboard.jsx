@@ -112,12 +112,11 @@ const AdminDashboard = () => {
             <title>Admin Dashboard</title> {/* Add the page title */}
 
             <div className="admin-dashboard">
-                <header>
-                    <h2>Admin Dashboard</h2>
-                </header>
+
 
                 <section className="section">
                     <h3>Manage Users</h3>
+                    <h4>Total Users:{users.length}</h4>
                     <table className="admin-table">
                         <thead>
                             <tr>

@@ -103,8 +103,8 @@
 /* Success/Error Message Styling */
 .error-message,
 .success-message {
-    color: white;
-    background-color: #f44336;
+    color: rgb(241, 28, 28);
+
     /* Red for error */
     padding: 10px;
     margin-top: 10px;
@@ -113,7 +113,7 @@
 }
 
 .success-message {
-    background-color: #4CAF50;
+    color: #4CAF50;
     /* Green for success */
 }
 

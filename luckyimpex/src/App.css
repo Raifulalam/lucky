@@ -37,32 +37,7 @@ h3 {
   display: none;
 }
 
-/* Slider Button Styles */
-.slider-button,
-.slider-button1 {
-  position: absolute;
-  top: 50%;
-  border-radius: 50%;
-  background-color: rgb(21, 54, 82);
-  height: 48px;
-  width: 48px;
-  transform: translateY(-50%);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
 
-.slider-button {
-  right: 4%;
-}
-
-.slider-button1 {
-  left: 4%;
-}
-
-.slider-button:hover,
-.slider-button1:hover {
-  background-color: rgb(0, 38, 64);
-}
 
 /* Button Row (navigation) */
 .button-row {
@@ -192,9 +167,8 @@ h3 {
 
 }
 
-
 .promo-banner p {
-  font-size: 0.6rem;
+  font-size: 1.2rem;
   margin-bottom: 10px;
 }
 
@@ -435,6 +409,11 @@ button.brand-logo:hover {
   height: 20px;
 }
 
+.hero-section {
+  display: flex;
+  flex-direction: column;
+}
+
 .footer .foot {
   background-color: #140e0e;
   padding: 20px;
@@ -470,6 +449,11 @@ button.brand-logo:hover {
 
 .brand-list {
   overflow: hidden;
+}
+
+.card-container h1 {
+  margin: 0%;
+  font-size: 1.6rem;
 }
 
 /* Responsive Design */
@@ -532,12 +516,6 @@ button.brand-logo:hover {
   }
 
 
-
-  .slider-button,
-  .slider-button1 {
-    width: 40px;
-    height: 40px;
-  }
 
   .slider-radio-buttons {
     bottom: 10px;
@@ -615,7 +593,7 @@ button.brand-logo:hover {
     margin-bottom: 2px;
   }
 
-  .promo-banner {}
+
 
   .category-item {
     width: 100%;
@@ -646,6 +624,10 @@ button.brand-logo:hover {
 
   }
 
+  .promo-banner p {
+    font-size: .8rem;
+  }
+
   .left-section {
     width: 100%;
     padding: 10px;
@@ -653,5 +635,37 @@ button.brand-logo:hover {
 
   .about-section {
     padding: 30px;
+  }
+}
+
+.offers-list {
+  display: flex;
+  justify-content: space-around;
+
+
+
+}
+
+.offers-list .offer {
+
+  text-decoration: none;
+  width: auto;
+  padding: 5px 5px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  background-color: #25fa3e;
+  transform: 0.5s linear;
+}
+
+.offers-list .offer:hover {
+  background-color: #31f43ec8;
+}
+
+@media (max-width: 600px) {
+  .offers-list .offer {
+    width: 100%;
+    padding: 4px;
+    font-size: 0.7rem;
   }
 }

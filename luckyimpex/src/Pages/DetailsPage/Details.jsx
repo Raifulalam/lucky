@@ -3,12 +3,13 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';  // Import Helmet
 import './Details.css';
 
+
 const ProductDetails = () => {
     const { id } = useParams(); // Get the product ID from URL
     const [productData, setProduct] = useState(null); // Renamed product to productData
     const [error, setError] = useState(null); // State to hold error message
     const [loading, setLoading] = useState(true); // Loading state
-    const [addedToCart, setAddedToCart] = useState(false); // State to handle cart addition
+
 
     useEffect(() => {
         const fetchProductDetails = async () => {
@@ -33,10 +34,7 @@ const ProductDetails = () => {
         fetchProductDetails();
     }, [id]);
 
-    const handleAddToCart = () => {
-        setAddedToCart(true);
-        setTimeout(() => setAddedToCart(false), 2000); // Reset after 2 seconds
-    };
+
 
     if (loading) {
         return (
@@ -61,7 +59,9 @@ const ProductDetails = () => {
                 <title>{productData.name} - Lucky Impex</title>
                 <meta name="description" content={`Buy ${productData.name} from Lucky Impex.`} />
             </Helmet>
+
             <div className="product-details-content">
+
                 <div className="product-image-container">
                     <img
                         className="detailsProduct-image"
@@ -76,25 +76,17 @@ const ProductDetails = () => {
 
                 <div className="detailsProduct-info-container">
                     <h3>{productData.name}</h3>
+                    <p>Model: {productData.model}</p>
+                    <p className="product-mrp">MRP: ₹{productData.mrp}</p>
                     <p className="product-price">Price: ₹{productData.price}</p>
                     <p className="product-category">Category: {productData.category}</p>
                     <p className="product-brand">Brand: {productData.brand}</p>
-                    <p className="product-warranty">Warranty: {productData.warranty || 'N/A'}</p>
-                    <p className="product-capacity">Capacity: {productData.capacity || 'N/A'}</p>
+                    <p className="product-capacity">Capacity/Size: {productData.capacity || 'N/A'}</p>
                     <p className="product-description">Description: {productData.description}</p>
-                    <p className="product-mrp">MRP: ₹{productData.mrp}</p>
-                    <p className="product-discount-price">Discount Price: ₹{productData.mrp - productData.price}</p>
 
 
-                    {/* <div className="product-action-buttons">
-                        <button
-                            className="btn-add-to-cart"
-                            onClick={handleAddToCart}
-                            disabled={addedToCart}
-                        >
-                            {addedToCart ? 'Added to Cart' : 'Add to Cart'}
-                        </button>
-                    </div> */}
+
+
                 </div>
             </div>
         </div>

@@ -87,15 +87,13 @@ const OrderComponent = () => {
                                     <tr key={item.id}>
                                         {/* Order ID should be the same for each item */}
                                         <td>{order._id}</td>
-                                        <td>{item.id}</td>
+                                        <td>{item._id}</td>
                                         <td>{item.name}</td>
                                         <td>{item.quantity}</td>
                                         <td>₹{item.price}</td>
-                                        {/* Total price for each order will be displayed after all items */}
                                         {index === 0 && (
                                             <td rowSpan={order.items.length}>₹{order.totalPrice}</td>
                                         )}
-                                        {/* Order Date */}
                                         {index === 0 && (
                                             <td rowSpan={order.items.length}>
                                                 {new Date(order.createdAt).toLocaleDateString('en-US', {

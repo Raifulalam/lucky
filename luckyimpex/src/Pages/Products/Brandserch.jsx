@@ -181,10 +181,10 @@ const BrandSearch = () => {
         e.preventDefault();
 
         // Destructure new product data
-        const { name, mrp, bestBuyPrice, category, modalNumber, description, image, keywords, brand, capacity } = newProduct;
+        const { name, mrp, bestBuyPrice, category, model, description, image, keywords, brand, capacity } = newProduct;
 
         // Validate that all fields are filled
-        if (!name || !mrp || !bestBuyPrice || !category || !modalNumber || !description || !image || !keywords) {
+        if (!name || !mrp || !bestBuyPrice || !category || !model || !description || !image || !keywords) {
             alert('Please fill all fields');
             return;
         }
@@ -195,7 +195,7 @@ const BrandSearch = () => {
             mrp,
             price: bestBuyPrice,   // Renaming 'bestBuyPrice' to 'price' for backend compatibility
             category,
-            modalNumber,
+            model,
             description,
             image,
             keywords: keywords.split(',').map(keyword => keyword.trim()),
@@ -223,7 +223,7 @@ const BrandSearch = () => {
                     mrp: '',
                     bestBuyPrice: '',
                     category: '',
-                    modalNumber: '',
+                    model: '',
                     description: '',
                     image: '',
                     keywords: '',
@@ -300,7 +300,7 @@ const BrandSearch = () => {
                             <div className="product-name" onClick={() => handleDetails(product._id)}>
                                 {product.name}
                             </div>
-
+                            <div className='product-model'>Size: {product.capacity}</div>
                             <div className="product-mrp">MRP: {product.mrp}</div>
                             <div className="product-discount">Save: {(product.mrp - product.price).toFixed(0)}</div>
                             <div className="product-price">Best Buy: {product.price}</div>
@@ -361,16 +361,24 @@ const BrandSearch = () => {
 
                     <input
                         type="text"
-                        name="category"
-                        value={newProduct.category}
+                        name="brand"
+                        value={newProduct.brand}
                         onChange={handleNewProductChange}
-                        placeholder="Category"
+                        placeholder="Brand Name"
                         required
                     />
                     <input
                         type="text"
-                        name="modalNumber"
-                        value={newProduct.modalNumber}
+                        name="capacity"
+                        value={newProduct.capacity}
+                        onChange={handleNewProductChange}
+                        placeholder="Capacity or Size"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="model"
+                        value={newProduct.model}
                         onChange={handleNewProductChange}
                         placeholder="Modal Number"
                         required

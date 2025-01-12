@@ -44,7 +44,7 @@ router.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Post endpoint to submit a complaint with image
 router.post('/submitComplaint', upload.single('image'), async (req, res) => {
-    // Handle Multer errors
+
     if (req.fileValidationError) {
         return res.status(400).json({ success: false, message: req.fileValidationError });
     }
