@@ -1,170 +1,58 @@
-/* Main container for orders */
+/* OrderComponent.css */
 .order-container {
-    display: contents;
-    margin: 20px auto;
     padding: 20px;
-    width: 90%;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Table styles */
 .orders-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
 }
 
-/* Table header */
-.orders-table th {
-    background-color: #4CAF50;
-    color: white;
-    padding: 12px;
-    text-align: left;
-    font-size: 16px;
-}
-
-/* Table cells */
+.orders-table th,
 .orders-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
+    padding: 10px;
     text-align: left;
-    font-size: 14px;
+    border: 1px solid #ddd;
 }
 
-/* Hover effect on rows */
-.orders-table tr:hover {
-    background-color: #f1f1f1;
+button {
+    padding: 8px 12px;
+    margin: 5px;
+    cursor: pointer;
 }
 
-/* Loading spinner styles */
+button:hover {
+    background-color: #f0f0f0;
+}
+
 .loading-container {
-    text-align: center;
-}
-
-
-
-/* No orders found message */
-.no-orders {
-    text-align: center;
-    font-size: 18px;
-    color: #888;
-}
-
-/* --- RESPONSIVE STYLES --- */
-
-/* Mobile view: Stack the table content vertically on small screens */
-@media screen and (max-width: 600px) {
-
-    /* Adjusting the container for smaller screens */
-    .order-container {
-        width: 95%;
-        padding: 15px;
-    }
-
-    /* Table styling for mobile */
-    .orders-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    /* Table header for mobile */
-    .orders-table th {
-        font-size: 14px;
-        padding: 10px;
-    }
-
-    /* Table cell adjustments for smaller screens */
-    .orders-table td {
-        font-size: 12px;
-        padding: 8px;
-    }
-
-    /* Adjusting heading sizes for mobile */
-    h1 {
-        font-size: 20px;
-    }
-}
-
-/* Tablet view: Adjust layout for medium-sized screens (up to 768px) */
-@media screen and (max-width: 768px) {
-    .order-container {
-        width: 95%;
-    }
-
-    .orders-table th {
-        font-size: 15px;
-    }
-
-    .orders-table td {
-        font-size: 13px;
-        padding: 10px;
-    }
-
-    h1 {
-        font-size: 22px;
-    }
-}
-
-/* Desktop view: Keep the layout as is for larger screens */
-@media screen and (min-width: 769px) {
-    .order-container {
-        width: 80%;
-    }
-
-    .orders-table th {
-        font-size: 16px;
-    }
-
-    .orders-table td {
-        font-size: 14px;
-        padding: 12px;
-    }
-
-    h1 {
-        font-size: 24px;
-    }
-}
-
-
-
-
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
 }
 
-.modal-content {
-    background: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    width: 300px;
-    height: 80vh;
-    overflow: auto;
-    top: 40px;
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
 }
 
-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
-.modal-buttons button {
-    padding: 10px 15px;
-    margin-right: 10px;
-}
-
-.error {
+.error-message {
     color: red;
-    margin-bottom: 10px;
+    font-size: 18px;
+    text-align: center;
 }

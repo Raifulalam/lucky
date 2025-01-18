@@ -20,7 +20,9 @@ import BrandSearch from './Pages/Products/Brandserch';
 import EMI from './Pages/EMI/EMI';
 import Exchange from './Pages/Exchange/Exchange';
 import StoreComponent from './Pages/HomePage/StorePage';
-
+import ReviewPage from './Pages/Admin/ReviewComponent';
+import PhoneShop from './Pages/Products/PhoneShop';
+import PhoneDetails from './Pages/DetailsPage/PhoneDetails';
 function App() {
   return (
     <UserProvider> {/* Make sure UserProvider is the outermost context */}
@@ -46,6 +48,10 @@ function App() {
             <Route path='/emi' element={<EMI />} />
             <Route path='/exchange' element={<Exchange />} />
             <Route path='/store' element={<StoreComponent />} />
+            <Route path="/review/:orderId" element={<ReviewPage />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path='/phones' element={<PhoneShop />} />
+            <Route path='/phonedetails/:id' element={<PhoneDetails />} />
 
           </Routes>
         </BrowserRouter>

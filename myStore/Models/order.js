@@ -13,6 +13,11 @@ const Orderschema = new Schema(
                 image: { type: String },
             },
         ],
+        user: {
+            name: { type: String, required: true },
+            email: { type: String, required: true },
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', required: true }
+        },
 
         totalPrice: { type: Number, required: true },
         tax: { type: Number, required: true },
@@ -20,10 +25,10 @@ const Orderschema = new Schema(
         name: { type: String, required: true },
         address: { type: String, required: true },
         phone: { type: String, required: true },
-        postalCode: { type: String, required: true },  // Added postal code
-        country: { type: String, required: true },     // Added country
-        deliveryInstructions: { type: String },       // Optional delivery instructions
-        additionalPhone: { type: String },             // Optional additional phone number
+        postalCode: { type: String, required: true },
+        country: { type: String, required: true },
+        deliveryInstructions: { type: String },
+        additionalPhone: { type: String },
         status: { type: String, default: 'pending' },
 
     },

@@ -8,9 +8,9 @@ const ProductCategory = require('./Models/ProductsCategoryModel');
 
 const cors = require('cors');
 
-const productData = require('./productsData');
 
-// const productCategories = require('./productsCategories');
+
+
 
 
 
@@ -37,21 +37,10 @@ mongoose.connect(mongoURI)
 
 // Post the data to the database
 
-Product.insertMany(productData)
-    .then(() => console.log("Products inserted"))
-    .catch(err => console.log("Error inserting products:", err));
-
-
-// // insert productCategory
-// ProductCategory.insertMany(productCategories)
-//     .then(() => console.log("Product Categories inserted"))
-//     .catch(err => console.log("Error inserting product categories:", err));
-
-
 
 // Sample route
 app.get('/', (req, res) => {
-    res.send('Hello World! 001120000');
+    res.send('Sucess ');
 });
 
 // User router (if applicable)
@@ -61,9 +50,9 @@ app.use('/api', require('./Router/createOrder'));
 app.use('/api', require('./Router/complaints'));
 app.use('/api', require('./Router/productcategory'));
 app.use('/api', require('./Router/contactMessage'));
+app.use('/api', require('./Router/MobileRouter'));
 
 
-// Get all products
 
 
 // Start the server

@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react'; // Import React, hooks, and UserContext
 import './OrderComponent.css';
-import { UserContext } from '../../Components/UserContext'; // Assuming UserContext provides user details
-
+import { UserContext } from '../../Components/UserContext';
+import { useNavigate } from 'react-router-dom';
 const OrderComponent = () => {
     const { user } = useContext(UserContext); // Access the user from context
     const [orders, setOrders] = useState([]); // State to store fetched orders
     const [loading, setLoading] = useState(true); // State to handle loading status
     const [error, setError] = useState(null); // State to handle errors
-    const [loggedIn, setLoggedIn] = useState("localStorage.getAuthToken()"); // 
+    const Navigate = useNavigate();
 
     // Fetch orders data when the component mounts
     const handleOrderData = async () => {
@@ -28,6 +28,59 @@ const OrderComponent = () => {
         }
     };
 
+
+    const handleApprove = async (orderId) => {
+        try {
+            const response = await fetch(`https://lucky-back-2.onrender.com/api/orders/${orderId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: 'Approved' }), // Update the status to "Approved"
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to approve the order');
+            }
+
+            const updatedOrder = await response.json();
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order._id === updatedOrder._id ? updatedOrder : order
+                )
+            );
+            alert('Order approved successfully');
+        } catch (error) {
+            console.error('Error approving order:', error);
+            alert('Error approving order');
+        }
+    };
+    const handleReviewClick = (orderId) => {
+        Navigate(`/review/${orderId}`); // Navigate to Review page with order ID
+    };
+
+
+    // Delete order (DELETE request)
+    const handleDelete = async (orderId) => {
+        if (window.confirm('Are you sure you want to delete this order?')) {
+            try {
+                const response = await fetch(`https://lucky-back-2.onrender.com/api/orders/${orderId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete the order');
+                }
+
+                setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
+                alert('Order deleted successfully');
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                alert('Error deleting order');
+            }
+        }
+    };
+
     // Fetch orders on component mount
     useEffect(() => {
         handleOrderData();
@@ -42,7 +95,7 @@ const OrderComponent = () => {
     if (loading) {
         return (
             <div className="loading-container">
-                <div className="spinner"></div> {/* Only use a CSS spinner for simplicity */}
+                <div className="spinner"></div>
             </div>
         );
     }
@@ -65,73 +118,29 @@ const OrderComponent = () => {
                     <thead>
                         <tr>
                             <th scope="col">Order ID</th>
-                            <th scope="col">Products ID</th>
-                            <th scope="col">Item Name</th>
-
-                            <th scope="col">Quantity</th>
-                            <th scope="col">Rate</th>
-                            <th scope="col">Total Price</th>
-                            <th scope="col">Order Date</th>
-
-                            <th scope="col">Delivery Date</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Delivery Date</th>
                             <th scope="col">Shipping Address</th>
                             <th scope="col">User Name</th>
                             <th scope="col">User Phone</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {orders.map(order => (
-                            order.items && order.items.length > 0 ? (
-                                order.items.map((item, index) => (
-                                    <tr key={item.id}>
-                                        {/* Order ID should be the same for each item */}
-                                        <td>{order._id}</td>
-                                        <td>{item._id}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>₹{item.price}</td>
-                                        {index === 0 && (
-                                            <td rowSpan={order.items.length}>₹{order.totalPrice}</td>
-                                        )}
-                                        {index === 0 && (
-                                            <td rowSpan={order.items.length}>
-                                                {new Date(order.createdAt).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                })}
-                                            </td>
-                                        )}
-
-
-                                        {/* Delivery Date */}
-                                        {index === 0 && (
-                                            <td rowSpan={order.items.length}>{order.deliveryDate}</td>
-                                        )}
-                                        {/* Status */}
-                                        {index === 0 && (
-                                            <td rowSpan={order.items.length}>{order.status}</td>
-                                        )}
-                                        {/* Shipping Address */}
-                                        {index === 0 && (
-                                            <td rowSpan={order.items.length}>{order.address}</td>
-                                        )}
-                                        {/* User Name */}
-                                        {index === 0 && (
-                                            <td rowSpan={order.items.length}>{order.name}</td>
-                                        )}
-                                        {/* User Phone */}
-                                        {index === 0 && (
-                                            <td rowSpan={order.items.length}>{order.phone}</td>
-                                        )}
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="11">No items in this order.</td>
-                                </tr>
-                            )
+                        {orders.map((order) => (
+                            <tr key={order._id}>
+                                <td>{order._id}</td>
+                                <td>{order.status}</td>
+                                <td>{order.deliveryDate}</td>
+                                <td>{order.address}</td>
+                                <td>{order.name}</td>
+                                <td>{order.phone}</td>
+                                <td>
+                                    <button onClick={() => handleApprove(order._id)}>Approve</button>
+                                    <button onClick={() => handleDelete(order._id)}>Delete</button>
+                                    <button onClick={() => handleReviewClick(order._id)}>Review</button>
+                                </td>
+                            </tr>
                         ))}
                     </tbody>
                 </table>

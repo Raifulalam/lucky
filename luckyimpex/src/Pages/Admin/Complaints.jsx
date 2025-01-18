@@ -24,6 +24,7 @@ const ComplaintsComponent = () => {
         }
     };
 
+
     useEffect(() => {
         handleComplaintsData();
     }, []); // Run once when the component is mounted

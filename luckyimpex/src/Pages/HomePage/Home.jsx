@@ -97,10 +97,15 @@ const Home = () => {
             </Helmet>
 
             <Header />
-            <div className="home-main">
-                <div className="image">
+            <div className="image-move">
+                <div className="image-wrapper">
 
-                    <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
+                    <img src={backimg} alt="image03 background" />
+                    <img src={back01} alt="image04background" />
+                    <img src={back02} alt="image02 background" />
+                    <img src={back03} alt="image01 background" />
+                    <img src={luckyImage} alt="imagebackground" />
+
                 </div>
 
             </div>

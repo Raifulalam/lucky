@@ -37,6 +37,135 @@ h3 {
   display: none;
 }
 
+/* Container that holds the image wrapper */
+.image-move {
+  display: flex;
+  width: 100%;
+  height: auto;
+
+  overflow: hidden;
+}
+
+/* Wrapper that holds all the images */
+.image-wrapper {
+
+  display: flex;
+  animation: moveImage 35s linear infinite;
+  /* Increased duration to accommodate pauses */
+}
+
+/* Adjust the images to be responsive */
+.image-wrapper img {
+  width: 100%;
+
+  height: auto;
+
+
+
+}
+
+/* Pause the animation when hovering over the container */
+.image-move:hover .image-wrapper {
+  animation-play-state: paused;
+}
+
+/* Keyframes to move the images with pauses between moves */
+@keyframes moveImage {
+  0% {
+    transform: translateX(0);
+    /* First image visible */
+  }
+
+  15% {
+    transform: translateX(0);
+    /* Pause for the first image */
+  }
+
+  20% {
+    transform: translateX(-100%);
+    /* Second image visible */
+  }
+
+  35% {
+    transform: translateX(-100%);
+    /* Pause for the second image */
+  }
+
+  40% {
+    transform: translateX(-200%);
+    /* Third image visible */
+  }
+
+  55% {
+    transform: translateX(-200%);
+    /* Pause for the third image */
+  }
+
+  60% {
+    transform: translateX(-300%);
+    /* Fourth image visible */
+  }
+
+  75% {
+    transform: translateX(-300%);
+    /* Pause for the fourth image */
+  }
+
+  80% {
+    transform: translateX(-400%);
+    /* Fifth image visible */
+  }
+
+  95% {
+    transform: translateX(-400%);
+    /* Reset to the first image */
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .image-move {
+    height: auto;
+
+  }
+
+  .image-wrapper {
+    width: 500%;
+    /* The width still remains the same, but images adjust within it */
+  }
+
+  .image-wrapper img {
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-move {
+    height: auto;
+  }
+
+  .image-wrapper {
+    margin-top: 80px;
+    width: 500%;
+    /* Keep the same width */
+  }
+
+
+}
+
+
+
+
+
+
 
 
 /* Button Row (navigation) */

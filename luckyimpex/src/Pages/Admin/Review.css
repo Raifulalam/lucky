@@ -1,0 +1,113 @@
+/* General Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+.review-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+}
+
+h1 {
+    font-size: 2rem;
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.review-details {
+    font-size: 1rem;
+    color: #333;
+}
+
+.order-table,
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.order-table th,
+.order-table td,
+.items-table th,
+.items-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-table th,
+.items-table th {
+    background-color: #f7f7f7;
+}
+
+.order-table tr:nth-child(even),
+.items-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.items-table img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+}
+
+.items-table th,
+.order-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+section {
+    margin-bottom: 20px;
+}
+
+.loading-message {
+    font-size: 1.2rem;
+    text-align: center;
+    color: #888;
+}
+
+@media (max-width: 768px) {
+
+    .order-table,
+    .items-table {
+        font-size: 0.9rem;
+    }
+
+    .items-table img {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Styling for responsiveness */
+@media (max-width: 600px) {
+    .review-container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .order-table,
+    .items-table {
+        font-size: 0.8rem;
+    }
+
+    .order-table th,
+    .order-table td,
+    .items-table th,
+    .items-table td {
+        padding: 8px;
+    }
+}

@@ -48,9 +48,24 @@ body {
 
 .item-image {
     width: 100px;
-    height: 221px;
+
     object-fit: cover;
     margin-right: 20px;
+}
+
+.image-cart {
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+}
+
+.delivery-date {
+    font-size: 14px;
+    color: green;
 }
 
 /* Product Details Section */
@@ -67,6 +82,7 @@ body {
     display: flex;
     align-items: center;
     margin-top: 10px;
+    max-width: 30%;
 }
 
 .quantity button {

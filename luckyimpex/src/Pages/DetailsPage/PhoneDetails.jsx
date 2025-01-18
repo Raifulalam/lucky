@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';  // Import Helmet
 import './Details.css';
+import '../../Components/Modal.css'
 
 
-const ProductDetails = () => {
+const PhoneDetails = () => {
     const { id } = useParams(); // Get the product ID from URL
     const [productData, setProduct] = useState(null); // Renamed product to productData
     const [error, setError] = useState(null); // State to hold error message
@@ -14,7 +15,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`https://lucky-back-2.onrender.com/api/productsDetails/${id}`);
+                const response = await fetch(`https://lucky-back-2.onrender.com/api/mobile/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('Product not found');
@@ -76,13 +77,23 @@ const ProductDetails = () => {
 
                 <div className="detailsProduct-info-container">
                     <h3>{productData.brand}{productData.name}</h3>
-                    <p>Model: {productData.model}</p>
-                    <p className="product-mrp">MRP: ₹{productData.mrp}</p>
-                    <p className="product-price">Price: ₹{productData.price}</p>
-                    <p className="product-category">Category: {productData.category}</p>
-                    <p className="product-brand">Brand: {productData.brand}</p>
-                    <p className="product-capacity">Capacity/Size: {productData.capacity || 'N/A'}</p>
-                    <p className="product-description">Description: {productData.description}</p>
+                    <p><strong>Model:</strong> {productData.model}</p>
+                    <p><strong>RAM:</strong> {productData.ram} GB</p>
+                    <p><strong>Storage:</strong> {productData.storage} GB</p>
+                    <p><strong>Battery:</strong> {productData.battery}</p>
+                    <p><strong>Camera:</strong> {productData.camera} MP</p>
+                    <p><strong>Processor:</strong> {productData.processor}</p>
+                    <p><strong>Display:</strong> {productData.display}</p>
+                    <p><strong>Operating System:</strong> {productData.operatingSystem || 'N/A'}</p>
+                    <p><strong>Release Date:</strong> {productData.releaseDate || 'N/A'}</p>
+                    <p><strong>Category:</strong> {productData.category}</p>
+                    <p><strong>Brand:</strong> {productData.brand}</p>
+
+                    <p><strong>Description:</strong> {productData.description}</p>
+                    <p><strong>Charging:</strong> {productData.charging}</p>
+                    <p className="product-mrp"><strong>MRP:</strong> ₹{productData.mrp}</p>
+                    <p className="product-price"><strong>Price:</strong> ₹{productData.price}</p>
+                    <p className="product-color"><strong>Color:</strong> {productData.color || 'N/A'}</p>
 
 
 
@@ -93,4 +104,4 @@ const ProductDetails = () => {
     );
 };
 
-export default ProductDetails;
+export default PhoneDetails;

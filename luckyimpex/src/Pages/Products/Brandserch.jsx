@@ -246,7 +246,7 @@ const BrandSearch = () => {
         return (
             <div className="loading-container">
                 <div className="spinner"></div>
-                <img className="spinner-gif" src="spinner.gif" alt="loading products..." />
+
             </div>
         );
     }

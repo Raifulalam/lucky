@@ -3,20 +3,21 @@ import './products.css';
 import Header from '../../Components/Header';
 import { useCartDispatch } from '../../Components/CreateReducer';
 import { useNavigate, useParams } from 'react-router-dom';
-import luckyImage from '../../Images/lucky.png';
-import backimg from '../../Images/backimg.jpg';
-import back01 from '../../Images/back01.png';
-import back02 from '../../Images/back04.jpg';
-import back03 from '../../Images/back03.jpg';
+import luckyImage from '../../Images/mobiles/download (1).jpg';
+import backimg from '../../Images/mobiles/download.jpg';
+import back01 from '../../Images/mobiles/HONOR 20 PROMO _ WONDER.jpg';
+import back02 from '../../Images/mobiles/Samsung Galaxy A24.jpg';
+import back03 from '../../Images/mobiles/Samsung Galaxy S12.jpg';
+import back04 from '../../Images/mobiles/Samsung Leak Reveals.jpg';
 import { UserContext } from '../../Components/UserContext';
-import EditProductModal from './EditProductModal';
+import EditMobileModal from './EditMobile';
 import Modal from '../../Components/Modal';
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
 };
 
-const Products = () => {
+const PhoneShop = () => {
     const { category } = useParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -52,7 +53,7 @@ const Products = () => {
         setError(null);
 
         try {
-            let url = 'https://lucky-back-2.onrender.com/api/products';
+            let url = 'https://lucky-back-2.onrender.com/api/mobile';
 
             if (category) {
                 url += `?category=${category}`;
@@ -79,7 +80,7 @@ const Products = () => {
     }, [products, searchTerm]);
 
     // Image slider logic
-    const images = [backimg, back01, back02, back03, luckyImage];
+    const images = [backimg, back01, back02, back03, luckyImage, back04];
     const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
 
     useEffect(() => {
@@ -97,7 +98,7 @@ const Products = () => {
 
     // Save edited product
     const handleSave = async (updatedProduct) => {
-        const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${updatedProduct._id}`, {
+        const response = await fetch(`https://lucky-back-2.onrender.com/api/mobile/${updatedProduct._id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedProduct),
@@ -119,20 +120,25 @@ const Products = () => {
     // Confirm product deletion
     const confirmDelete = async (productId) => {
         try {
-            const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${productId}`, {
+            const response = await fetch(`https://lucky-back-2.onrender.com/api/mobile/${productId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             });
 
             if (response.ok) {
+
                 setProducts((prev) => prev.filter((prod) => prod._id !== productId));
+
                 dispatch({ type: 'DELETE_PRODUCT', payload: productId });
+                setIsDeleteModalOpen(false)
+
             } else {
                 alert('Failed to delete product');
             }
         } catch (error) {
             console.error(error);
         }
+
     };
 
     // Add product to cart
@@ -149,7 +155,7 @@ const Products = () => {
 
     // Navigate to product details page
     const handleDetails = (productId) => {
-        Navigate(`/productdetails/${productId}`);
+        Navigate(`/phonedetails/${productId}`);
         window.history.pushState(null, null, window.location.href);
     };
 
@@ -182,31 +188,40 @@ const Products = () => {
         e.preventDefault();
 
         // Destructure new product data
-        const { name, mrp, bestBuyPrice, category, model, description, image, keywords, brand, capacity } = newProduct;
+        const { name, price, category, model, description, image, brand, color, ram, storage, battery, camera, processor, display, operatingSystem, releaseDate, charging } = newProduct;
 
         // Validate that all fields are filled
-        if (!name || !mrp || !bestBuyPrice || !category || !model || !description || !image || !keywords) {
+        if (!name || !category || !model || !description || !image) {
             alert('Please fill all fields');
             return;
         }
 
         // Prepare the product data to send to the backend
         const productData = {
+
+
             name,
-            mrp,
-            price: bestBuyPrice,   // Renaming 'bestBuyPrice' to 'price' for backend compatibility
-            category,
+            price,
+            brand,
             model,
+            color,
+            ram,
+            storage,
+            battery,
+            camera,
+            processor,
+            display,
+            operatingSystem,
+            releaseDate,
+            category,
             description,
             image,
-            keywords: keywords.split(',').map(keyword => keyword.trim()),
-            brand,
-            capacity,
+            charging,
         };
 
         try {
             // Send the data to the backend
-            const response = await fetch('https://lucky-back-2.onrender.com/api/products', {
+            const response = await fetch('https://lucky-back-2.onrender.com/api/mobile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -220,15 +235,22 @@ const Products = () => {
                 setProducts((prev) => [...prev, addedProduct]);  // Update state with the newly added product
                 setNewProduct({
                     name: '',
-                    mrp: '',
-                    bestBuyPrice: '',
-                    category: '',
+                    price: '',
+                    brand: '',
                     model: '',
+                    color: '',
+                    ram: '',
+                    storage: '',
+                    battery: '',
+                    camera: '',
+                    processor: '',
+                    display: '',
+                    operatingSystem: '',
+                    releaseDate: '',
+                    category: '',
                     description: '',
                     image: '',
-                    keywords: '',
-                    brand: '',
-                    capacity: ''
+                    charging: '',
                 }); // Reset the form
                 setIsAddModalOpen(false); // Close the modal
             } else {
@@ -262,20 +284,26 @@ const Products = () => {
     return (
         <>
             <Header />
-            <div className="home-main">
-                <div className="image">
-                    <input
-                        type="text"
-                        placeholder="Search for items..."
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        className="search-bar"
-                    />
+            <div className="image-move">
+                <input
+                    type="text"
+                    placeholder="Search for items..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="search-bar"
+                />
+                <div className="image-wrapper">
 
-                    <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="slider-image" />
+                    <img src={luckyImage} alt="imagebackground" />
+                    <img src={backimg} alt="image03 background" />
+                    <img src={back01} alt="image04background" />
+                    <img src={back02} alt="image02 background" />
+                    <img src={back03} alt="image01 background" />
+                    <img src={back04} alt="image01 background" />
+
                 </div>
-            </div>
 
+            </div>
             {/* Add Product Button for Admin */}
             {userRole === 'admin' && (
                 <div className="add-product-button-container">
@@ -298,14 +326,12 @@ const Products = () => {
                             </div>
 
                             <div className="product-name" onClick={() => handleDetails(product._id)}>
-                                {product.name}
+                                {product.brand} {product.name}
                             </div>
 
-                            <div className="product-model">Size: {product.capacity} </div>
-                            <div className="product-model">Model: {product.model} </div>
-                            <div className="product-mrp">MRP: {product.mrp}</div>
-                            <div className="product-discount"> <p>Save: {product.mrp - product.price}</p></div>
-                            <div className="product-price">   <p>Best Buy: {product.price}</p></div>
+                            <div className="product-model">Display: {product.display}</div>
+                            <div className="product-model">Model: {product.model}</div>
+                            <div className="product-price">   <p>MRP: {product.price}</p></div>
 
                             {userRole === 'admin' ? (
                                 <div className="product-actions">
@@ -346,49 +372,10 @@ const Products = () => {
                     />
                     <input
                         type="number"
-                        name="mrp"
-                        value={newProduct.mrp}
+                        name="price"
+                        value={newProduct.price}
                         onChange={handleNewProductChange}
-                        placeholder="MRP"
-                        required
-                    />
-                    <input
-                        type="number"
-                        name="bestBuyPrice"
-                        value={newProduct.bestBuyPrice}
-                        onChange={handleNewProductChange}
-                        placeholder="Best Buy Price"
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="model"
-                        value={newProduct.model}
-                        onChange={handleNewProductChange}
-                        placeholder="Model"
-                        required
-                    />
-                    <textarea
-                        name="description"
-                        value={newProduct.description}
-                        onChange={handleNewProductChange}
-                        placeholder="Description"
-                        required
-                    ></textarea>
-                    <input
-                        type="text"
-                        name="image"
-                        value={newProduct.image}
-                        onChange={handleNewProductChange}
-                        placeholder="Image URL"
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="keywords"
-                        value={newProduct.keywords}
-                        onChange={handleNewProductChange}
-                        placeholder="Keywords (comma separated)"
+                        placeholder="Price"
                         required
                     />
                     <input
@@ -400,11 +387,99 @@ const Products = () => {
                     />
                     <input
                         type="text"
-                        name="capacity"
-                        value={newProduct.capacity}
+                        name="model"
+                        value={newProduct.model}
                         onChange={handleNewProductChange}
-                        placeholder="Capacity"
+                        placeholder="Model"
+                        required
                     />
+                    <input
+                        type="text"
+                        name="color"
+                        value={newProduct.color}
+                        onChange={handleNewProductChange}
+                        placeholder="Color"
+                    />
+                    <input
+                        type="number"
+                        name="ram"
+                        value={newProduct.ram}
+                        onChange={handleNewProductChange}
+                        placeholder="RAM (GB)"
+                        required
+                    />
+                    <input
+                        type="number"
+                        name="storage"
+                        value={newProduct.storage}
+                        onChange={handleNewProductChange}
+                        placeholder="Storage (GB)"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="battery"
+                        value={newProduct.battery}
+                        onChange={handleNewProductChange}
+                        placeholder="Battery"
+                    />
+                    <input
+                        type="text"
+                        name="camera"
+                        value={newProduct.camera}
+                        onChange={handleNewProductChange}
+                        placeholder="Camera (MP)"
+                    />
+                    <input
+                        type="text"
+                        name="processor"
+                        value={newProduct.processor}
+                        onChange={handleNewProductChange}
+                        placeholder="Processor"
+                    />
+                    <input
+                        type="text"
+                        name="display"
+                        value={newProduct.display}
+                        onChange={handleNewProductChange}
+                        placeholder="Display"
+                    />
+                    <input
+                        type="text"
+                        name="operatingSystem"
+                        value={newProduct.operatingSystem}
+                        onChange={handleNewProductChange}
+                        placeholder="Operating System"
+                    />
+                    <input
+                        type="text"
+                        name="releaseDate"
+                        value={newProduct.releaseDate}
+                        onChange={handleNewProductChange}
+                        placeholder="Release Date"
+                    />
+                    <textarea
+                        name="description"
+                        value={newProduct.description}
+                        onChange={handleNewProductChange}
+                        placeholder="Description"
+                    />
+                    <input
+                        type="text"
+                        name="image"
+                        value={newProduct.image}
+                        onChange={handleNewProductChange}
+                        placeholder="Image URL"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="charging"
+                        value={newProduct.charging}
+                        onChange={handleNewProductChange}
+                        placeholder="Charging"
+                    />
+
 
                     <button type="submit" className="button-primary">
                         Add Product
@@ -413,7 +488,7 @@ const Products = () => {
             </Modal>
 
             {/* Modal for editing products */}
-            <EditProductModal
+            <EditMobileModal
                 product={selectedProduct}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -436,4 +511,4 @@ const Products = () => {
     );
 };
 
-export default Products;
+export default PhoneShop;

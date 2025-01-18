@@ -99,9 +99,9 @@ const CartComponent = () => {
             deliveryInstructions: deliveryDetails.deliveryInstructions, // Delivery instructions
             additionalPhone: deliveryDetails.additionalPhone, // Additional contact number
             user: {
-                name: user.name, // Logged-in user's name
-                email: user.email, // Logged-in user's email
-                userId: user.id, // Logged-in user's ID
+                name: user.name,
+                email: user.email,
+                userId: user.id,
             }
         };
 
@@ -124,7 +124,7 @@ const CartComponent = () => {
                 return;
             }
 
-            const data = await response.json();
+
             alert('Order placed successfully!');
             dispatch({ type: 'CLEAR_CART' });
             setIsModalOpen(false);
@@ -138,7 +138,10 @@ const CartComponent = () => {
     return (
         <>
             <div className="page-title">Review Your Order</div>
+            <p>{user.name}</p>
             <hr />
+
+
             <div className="cart-container">
                 <div className="cart-items">
                     <button className="clear-cart" onClick={handleClearCart}>Clear Cart</button>
@@ -152,13 +155,19 @@ const CartComponent = () => {
                                 </div>
 
                                 <div className="product-details">
-                                    <div className="image">
+                                    <div className="image-cart">
                                         <img className="item-image" src={item.image} alt={item.name} />
                                     </div>
 
                                     <div className="item-details">
-                                        <h3>{item.name}</h3>
-                                        <p>₹{item.price}</p>
+                                        <h4>{item.name}</h4>
+                                        <p>MRP:{item.mrp}</p>
+                                        <p>Price:{item.price}</p>
+                                        <p>Quantity:{item.quantity}</p>
+                                        <p>Subtotal:{item.price * item.quantity}</p>
+
+
+
                                         <div className="quantity">
                                             <button
                                                 aria-label="Decrease quantity"
@@ -219,7 +228,7 @@ const CartComponent = () => {
 
             {/* Modal for Delivery Details */}
             {isModalOpen && (
-                <div className="modal">
+                <div className="modal-overlay">
                     <div className="modal-content">
                         <h3>Enter Delivery Details</h3>
                         {errorMessage && <div className="error">{errorMessage}</div>}

@@ -144,7 +144,7 @@ const AdminDashboard = () => {
                             ))}
                         </tbody>
                     </table>
-                    <Link to="/manage-users" className="link">View All Users</Link>
+
                 </section>
 
                 {/* Delete Confirmation Modal */}
