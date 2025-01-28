@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 import Header from '../../Components/Header';
 import { Helmet } from 'react-helmet';
+import { useNotification } from '../../Components/NotificationContext';
 
 function SignupComponent() {
     const [email, setEmail] = useState('');
@@ -11,25 +12,14 @@ function SignupComponent() {
     const [location, setLocation] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [loading, setLoading] = useState(false); // New loading state
-    const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { addNotification } = useNotification();
 
-    const handleEmailChange = (event) => {
-        setEmail(event.target.value);
-    };
-
-    const handleNameChange = (event) => {
-        setName(event.target.value);
-    };
-
-    const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
-    };
-
-    const handleLocationChange = (event) => {
-        setLocation(event.target.value);
-    };
+    const handleEmailChange = (event) => setEmail(event.target.value);
+    const handleNameChange = (event) => setName(event.target.value);
+    const handlePasswordChange = (event) => setPassword(event.target.value);
+    const handleLocationChange = (event) => setLocation(event.target.value);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -49,20 +39,29 @@ function SignupComponent() {
             const data = await response.json();
 
             if (!response.ok) {
-                setIsModalOpen(true);
-
                 throw new Error(data.message || 'Invalid password or Email');
-
             }
 
-            // On successful signup, open the modal
-            setIsModalOpen(true);
-            setSuccess(" you have successfully signed up redirect to login page");
+            setSuccess("You have successfully signed up! Redirecting to login page...");
 
-            // Optionally, redirect to login page after a successful signup
+            // Trigger notification for success
+            addNotification({
+                title: 'Success!',
+                message: 'You have successfully signed up! Redirecting to login page...',
+                type: 'success',
+                container: 'top-right',
+                animationIn: ['animate__animated', 'animate__fadeIn'],
+                animationOut: ['animate__animated', 'animate__fadeOut'],
+                dismiss: {
+                    duration: 5000,
+                    onScreen: true,
+                },
+            });
+
+            // Redirect after 2 seconds
             setTimeout(() => {
                 navigate('/login');
-            }, 3000); // Redirect after 2 seconds
+            }, 3000); // Redirect after 3 seconds
 
             // Optionally, reset form fields
             setEmail('');
@@ -70,26 +69,20 @@ function SignupComponent() {
             setName('');
             setLocation('');
         } catch (err) {
-            setError(err.message || 'Invalid password or Email');
+            setError(err.message || 'An error occurred');
         } finally {
             setLoading(false); // Reset loading state
         }
     };
 
-
-
     return (
         <div>
             <Helmet>
                 <title>Sign Up</title>
-                <meta name="description" content="
-    Sign up for an account"/>
-
+                <meta name="description" content="Sign up for an account" />
             </Helmet>
             <Header />
-            <div className="login-container">
-
-
+            <div className="container">
                 <div className="login-form">
                     <h2>Sign Up</h2>
                     <p>Please enter your details.</p>
@@ -141,11 +134,9 @@ function SignupComponent() {
                         {error && <div className="error-message">{error}</div>} {/* Show error message */}
                         {success && <div className="success-message">{success}</div>} {/* Show success message */}
                     </form>
-
                 </div>
             </div>
         </div>
-
     );
 }
 

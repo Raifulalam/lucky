@@ -4,6 +4,7 @@ import './LoginPage.css';
 import Header from '../../Components/Header';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
+import { useNotification } from '../../Components/NotificationContext'; // Import notification context
 
 function LoginComponent() {
     const [email, setEmail] = useState('');
@@ -11,9 +12,8 @@ function LoginComponent() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { addNotification } = useNotification(); // Get addNotification function from the context
 
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
@@ -23,10 +23,6 @@ function LoginComponent() {
         setPassword(event.target.value);
     };
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-    };
-
     const handlePasswordVisibilityToggle = () => {
         setShowPassword((prevState) => !prevState);
     };
@@ -34,7 +30,6 @@ function LoginComponent() {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError('');
-        setSuccess('');
         setLoading(true);
 
         try {
@@ -49,24 +44,47 @@ function LoginComponent() {
             const data = await response.json();
 
             if (!response.ok) {
-                setIsModalOpen(true);
                 setLoading(false);
+                addNotification({
+                    title: 'Error!',
+                    message: data.message || 'Something went wrong!',
+                    type: 'error', // Notification type 'error'
+                    container: 'top-right',
+                    dismiss: { duration: 5000 },
+                });
                 throw new Error(data.message || 'Something went wrong!');
             }
 
             if (data.success) {
                 localStorage.setItem("authToken", data.authToken);
-                setSuccess('Login Successful');
                 setLoading(false);
-                setIsModalOpen(true);
+
+                // Show success notification
+                addNotification({
+                    title: 'Success!',
+                    message: 'Login successful. Redirecting...',
+                    type: 'success', // Notification type 'success'
+                    container: 'top-right',
+                    dismiss: { duration: 5000 },
+                });
 
                 // Redirect after login success
                 navigate('/', { state: { email } });
                 window.location.reload();
+
             }
         } catch (err) {
             setError(err.message);
             setLoading(false);
+
+            // Show error notification if exception occurs
+            addNotification({
+                title: 'Error!',
+                message: err.message || 'An unexpected error occurred.',
+                type: 'error', // Notification type 'error'
+                container: 'top-right',
+                dismiss: { duration: 5000 },
+            });
         }
     };
 
@@ -77,7 +95,7 @@ function LoginComponent() {
                 <meta name="description" content="Log in to your Lucky Impex account." />
             </Helmet>
             <Header />
-            <div className="login-container">
+            <div className="container">
                 <div className="login-form">
                     <h2>Log in</h2>
                     <p>Welcome back! Please enter your details.</p>
@@ -133,11 +151,6 @@ function LoginComponent() {
                                 {error}
                             </div>
                         )}
-                        {success && (
-                            <div className="success-message" aria-live="assertive">
-                                {success}
-                            </div>
-                        )}
 
                         <div className="form-group-register">
                             <h5>Don't have an account? <Link to="/signup">Register</Link></h5>
@@ -145,16 +158,6 @@ function LoginComponent() {
                     </form>
                 </div>
             </div>
-
-            {/* Modal for Success/Failure */}
-            {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h3>{success || error}</h3>
-                        <button onClick={handleCloseModal}>Close</button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

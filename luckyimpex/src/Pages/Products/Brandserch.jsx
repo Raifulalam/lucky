@@ -12,7 +12,8 @@ import back03 from '../../Images/back03.jpg';
 import { UserContext } from '../../Components/UserContext';
 import EditProductModal from './EditProductModal';
 import Modal from '../../Components/Modal';
-import { debounce } from 'lodash'; // Importing debounce function from lodash
+import { debounce } from 'lodash';
+
 
 // Utility function for handling image errors
 const getImageSrc = (src, fallbackSrc) => {
@@ -82,15 +83,16 @@ const BrandSearch = () => {
 
 
 
-
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
-            const itemName = item.name || '';  // Handle undefined names
-            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();  // Handle undefined search term
+            // Safely concatenate the fields, fallback to empty string if undefined or null
+            const itemName = (item.name || '') + (item.model || '') + (item.brand || '');
+
+            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();
+
             return itemName.toLowerCase().includes(lowercasedSearchTerm);
         });
     }, [products, searchTerm]);
-
     // Image slider logic
     const images = [backimg, back01, back02, back03, luckyImage];
     const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
@@ -289,6 +291,8 @@ const BrandSearch = () => {
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                         <div key={product._id} className="product-container">
+
+
                             <div className="product-image-container" onClick={() => handleDetails(product._id)}>
                                 <img
                                     className="product-image"
@@ -300,6 +304,8 @@ const BrandSearch = () => {
                             <div className="product-name" onClick={() => handleDetails(product._id)}>
                                 {product.name}
                             </div>
+                            <p className='stock'>Availability: <span className={`stock-status ${product.stock === 0 ? 'out-of-stock' : 'in-stock'}`}></span>{product.stock === 0 ? 'Out of stock' : 'In stock'}</p>
+
                             <div className='product-model'>Size: {product.capacity}</div>
                             <div className="product-mrp">MRP: {product.mrp}</div>
                             <div className="product-discount">Save: {(product.mrp - product.price).toFixed(0)}</div>
@@ -309,6 +315,7 @@ const BrandSearch = () => {
                                 <div className="product-actions">
                                     <button className="edit-btn" onClick={() => handleEdit(product)}>Edit</button>
                                     <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
+
                                 </div>
                             ) : (
                                 <button className="add-to-cart-button button-primary" onClick={() => handleAddToCart(product)}>

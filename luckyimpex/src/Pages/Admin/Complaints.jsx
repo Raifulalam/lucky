@@ -34,7 +34,7 @@ const ComplaintsComponent = () => {
             <h3>Complaint Details</h3>
 
             {/* Show loading message */}
-            {loading && <p className="loading-message">Loading complaints...</p>}
+            {loading && <p className="loading-message"></p>}
 
             {/* Show error message */}
             {error && <p className="error-message">Error: {error}</p>}

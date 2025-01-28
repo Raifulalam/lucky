@@ -2,6 +2,7 @@ import React, { useContext, useState, useMemo } from 'react';
 import { useCartDispatch, useCartState } from '../../Components/CreateReducer';
 import './Cart.css';
 import { UserContext } from '../../Components/UserContext';
+import { useNotification } from '../../Components/NotificationContext';
 
 // Helper function to format dates
 const formatDate = (date) => {
@@ -23,6 +24,7 @@ const CartComponent = () => {
     const { user, error, loading } = useContext(UserContext);
     const cart = useCartState();
     const dispatch = useCartDispatch();
+    const { addNotification } = useNotification();
 
     // State to manage user details for order
     const [deliveryDetails, setDeliveryDetails] = useState({
@@ -40,6 +42,13 @@ const CartComponent = () => {
     // Handle removing an item from the cart
     const handleRemove = (id) => {
         dispatch({ type: 'REMOVE_ITEM', payload: { id } });
+        addNotification({
+            title: 'Success!',
+            message: 'Item removed successfully ',
+            type: 'success', // Notification type 'success'
+            container: 'top-right',
+            dismiss: { duration: 5000 },
+        });
     };
 
     // Handle updating the quantity of an item in the cart
@@ -53,6 +62,13 @@ const CartComponent = () => {
     // Handle clearing all items in the cart
     const handleClearCart = () => {
         dispatch({ type: 'CLEAR_CART' });
+        addNotification({
+            title: 'Success!',
+            message: 'Sucessfully cleared all cart items',
+            type: 'success', // Notification type 'success'
+            container: 'top-right',
+            dismiss: { duration: 5000 },
+        });
     };
 
     // Estimate delivery date (for simplicity, let's assume 5 business days from now)
@@ -62,10 +78,25 @@ const CartComponent = () => {
         return formatDate(deliveryDate);
     }, []);
 
+    const handleOrderPlace = () => {
+        // Validate user details
+        if (!user) {
+            addNotification({
+                title: 'Error!',
+                message: 'Please Login to process your order !',
+                type: 'error', // Notification type 'success'
+                container: 'top-right',
+                dismiss: { duration: 5000 },
+            });
+        } else {
+            setIsModalOpen(true);
+        }
+    }
     // Calculate prices (without tax, tax, and with tax)
-    const { total, tax, priceExcludingTax, priceAfterTax } = useMemo(() => calculatePrices(cart), [cart]);
+    const { tax, priceExcludingTax, priceAfterTax } = useMemo(() => calculatePrices(cart), [cart]);
 
     const handleOrder = async () => {
+
         // Check if the name and other required fields are filled out
         if (!deliveryDetails.name || !deliveryDetails.address || !deliveryDetails.phone || !deliveryDetails.postalCode || !deliveryDetails.country) {
             setErrorMessage('Please fill in all required fields');
@@ -104,10 +135,6 @@ const CartComponent = () => {
                 userId: user.id,
             }
         };
-
-        // Log the order data for debugging purposes
-        console.log('Order Data:', JSON.stringify(orderData, null, 2));
-
         try {
             // Send the POST request to create the order
             const response = await fetch('https://lucky-back-2.onrender.com/api/createOrder', {
@@ -125,12 +152,20 @@ const CartComponent = () => {
             }
 
 
-            alert('Order placed successfully!');
+            addNotification({
+                title: 'Success!',
+                message: 'Order placed successfully ',
+                type: 'success', // Notification type 'success'
+                container: 'top-right',
+                dismiss: { duration: 5000 },
+            });
             dispatch({ type: 'CLEAR_CART' });
             setIsModalOpen(false);
         } catch (error) {
             setErrorMessage('Error placing order. Please try again.');
         }
+
+
     };
 
 
@@ -138,7 +173,6 @@ const CartComponent = () => {
     return (
         <>
             <div className="page-title">Review Your Order</div>
-            <p>{user.name}</p>
             <hr />
 
 
@@ -220,7 +254,7 @@ const CartComponent = () => {
                         <span>₹{priceAfterTax.toFixed(2)}</span>
                     </div>
 
-                    <button className="place-order" onClick={() => setIsModalOpen(true)} disabled={loading}>
+                    <button className="place-order" onClick={() => handleOrderPlace()} disabled={loading}>
                         {loading ? 'Placing Order...' : 'Place Your Order'}
                     </button>
                 </div>
@@ -234,7 +268,6 @@ const CartComponent = () => {
                         {errorMessage && <div className="error">{errorMessage}</div>}
                         <form>
                             <div className="user-info">
-                                <label>User Email</label>
                                 <input type="text" value={user.email} readOnly />
                             </div>
 

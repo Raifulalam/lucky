@@ -87,6 +87,13 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
                     onChange={handleChange}
                     placeholder='Image URL of product'
                 />
+                <input
+                    type="number"
+                    name="stock"
+                    value={editedProduct.stock}
+                    onChange={handleChange}
+                    placeholder="Stock"
+                />
                 <div className="modal-buttons">
                     <button onClick={onClose}>Cancel</button>
                     <button onClick={handleSave}>Save</button>

@@ -76,24 +76,19 @@ const PhoneDetails = () => {
                 </div>
 
                 <div className="detailsProduct-info-container">
-                    <h3>{productData.brand}{productData.name}</h3>
+                    <h3>{productData.name}</h3>
+                    <p className="mrp"><strong>MRP:</strong> {productData.price}</p>
                     <p><strong>Model:</strong> {productData.model}</p>
+                    <p><strong>Brand:</strong> {productData.brand}</p>
+                    <p><strong>Display:</strong> {productData.display}</p>
                     <p><strong>RAM:</strong> {productData.ram} GB</p>
                     <p><strong>Storage:</strong> {productData.storage} GB</p>
                     <p><strong>Battery:</strong> {productData.battery}</p>
-                    <p><strong>Camera:</strong> {productData.camera} MP</p>
                     <p><strong>Processor:</strong> {productData.processor}</p>
-                    <p><strong>Display:</strong> {productData.display}</p>
                     <p><strong>Operating System:</strong> {productData.operatingSystem || 'N/A'}</p>
-                    <p><strong>Release Date:</strong> {productData.releaseDate || 'N/A'}</p>
-                    <p><strong>Category:</strong> {productData.category}</p>
-                    <p><strong>Brand:</strong> {productData.brand}</p>
-
-                    <p><strong>Description:</strong> {productData.description}</p>
                     <p><strong>Charging:</strong> {productData.charging}</p>
-                    <p className="product-mrp"><strong>MRP:</strong> ₹{productData.mrp}</p>
-                    <p className="product-price"><strong>Price:</strong> ₹{productData.price}</p>
                     <p className="product-color"><strong>Color:</strong> {productData.color || 'N/A'}</p>
+                    <p><strong>Specifications:</strong> {productData.description}</p>
 
 
 

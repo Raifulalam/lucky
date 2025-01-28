@@ -57,7 +57,7 @@ const FeedbackList = () => {
             {loading ? (
                 <div className="loading">
                     <div className="spinner"></div>
-                    <p>Loading feedback messages...</p>
+
                 </div>
             ) : (
                 <>

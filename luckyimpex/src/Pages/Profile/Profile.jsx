@@ -5,7 +5,7 @@ import './Profile.css';
 import Header from "../../Components/Header";
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-
+import OrderPage from '../Customer/OrderPage';
 
 const Profile = () => {
     const { user, error, loading } = useContext(UserContext); // Use 'user' from context
@@ -28,7 +28,9 @@ const Profile = () => {
             </div>
         );
     }
-
+    const handleReviewClick = (orderId) => {
+        navigate(`/review/${orderId}`); // Navigate to Review page with order ID
+    };
     if (error) {
         return <div>Error: {error}</div>; // Show error message if fetch fails
     }
@@ -66,7 +68,7 @@ const Profile = () => {
                         &#x22EE; {/* Unicode for three dots */}
                     </button>
 
-                    {/* Conditional rendering of the menu */}
+
                     {isdotOpen && (
                         <div className="menu">
                             <button onClick={handleEditClick}>Edit Profile</button>
@@ -75,17 +77,16 @@ const Profile = () => {
                             {isAdmin && (
                                 <>
                                     <button onClick={() => navigate('/admindashboard')}>Go to Admin Dashboard</button>
-                                    <button onClick={() => navigate('/add-product')}>Add Product</button>
-                                    <button onClick={() => navigate('/manage-orders')}>Manage Orders</button>
-                                    <button onClick={() => navigate('/manage-users')}>Manage Users</button>
-                                    <button onClick={() => navigate('/manage-categories')}>Manage Categories</button>
-                                    <button onClick={() => navigate('/manage-coupons')}>Manage Coupons</button>
-                                    <button onClick={() => navigate('/manage-discounts')}>Manage Discounts</button>
+                                    <button onClick={() => navigate('/products')}>Add Product</button>
+                                    <button onClick={() => navigate('/orders')}>Manage Orders</button>
+                                    <button onClick={() => navigate('/admindashboard')}>Manage Users</button>
                                     <button onClick={() => navigate('/manage-promotions')}>Manage Promotions</button>
 
                                 </>
                             )}
+
                             <button onClick={handleLogout} className="logout">Logout</button>
+
                         </div>
                     )}
                 </span>
@@ -99,9 +100,7 @@ const Profile = () => {
                             <p><strong>UserId:</strong> {user.id}</p>
                             <p><strong>Role:</strong> {user.role}</p>
                             <p><strong>Created At:</strong> {user.created}</p>
-                            <p>Cart</p>
-                            <p>Your Orders</p>
-                            <p>Location</p>
+                            <button onClick={() => navigate('/orderpage')}>My Orders</button>
                         </div>
                     </div>
                 ) : (

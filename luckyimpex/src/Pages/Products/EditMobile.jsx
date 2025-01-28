@@ -20,7 +20,7 @@ const EditMobileModal = ({ isOpen, onClose, product, onSave }) => {
 
     const handleSave = () => {
         onSave(editedProduct);
-        onClose();  // Close modal after save
+        onClose();
     };
 
     if (!isOpen) return null;
@@ -96,6 +96,13 @@ const EditMobileModal = ({ isOpen, onClose, product, onSave }) => {
                 />
                 <input
                     type="text"
+                    name="color"
+                    value={editedProduct.color || ''}
+                    onChange={handleChange}
+                    placeholder="Color"
+                />
+                <input
+                    type="text"
                     name="battery"
                     value={editedProduct.battery || ''}
                     onChange={handleChange}
@@ -143,7 +150,13 @@ const EditMobileModal = ({ isOpen, onClose, product, onSave }) => {
                     onChange={handleChange}
                     placeholder="Charging"
                 />
-
+                <input
+                    type="number"
+                    name="stock"
+                    value={editedProduct.stock}
+                    onChange={handleChange}
+                    placeholder="Stock"
+                />
                 <div className="modal-buttons">
                     <button onClick={onClose}>Cancel</button>
                     <button onClick={handleSave}>Save</button>

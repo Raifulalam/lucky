@@ -56,19 +56,19 @@ router.get('/orders', async (req, res) => {
         res.status(500).json({ message: 'Error fetching orders', error: err.message });
     }
 });
-// router.get('/orders/:id', async (req, res) => {
-//     try {
-//         const order = await Order.findById(req.params.id);
-//         if (!order) {
-//             return res.status(404).json({ message: 'Order not found' });
-//         }
-//         res.json(order);
-//     }
-//     catch (err) {
-//         console.error('Error fetching order:', err);  // Log error for debugging
-//         res.status(500).json({ message: 'Error fetching order', error: err.message });
-//     }
-// });
+router.get('/orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        res.json(order);
+    }
+    catch (err) {
+        console.error('Error fetching order:', err);  // Log error for debugging
+        res.status(500).json({ message: 'Error fetching order', error: err.message });
+    }
+});
 
 router.get('/orders/:id', async (req, res) => {
     try {

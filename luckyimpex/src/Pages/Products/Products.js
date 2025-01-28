@@ -11,6 +11,7 @@ import back03 from '../../Images/back03.jpg';
 import { UserContext } from '../../Components/UserContext';
 import EditProductModal from './EditProductModal';
 import Modal from '../../Components/Modal';
+import ToggleButton from '../../Components/ToggleButton';
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -72,11 +73,16 @@ const Products = () => {
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
-            const itemName = item.name || item.brand || item.model || '';  // Handle undefined names
-            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();  // Handle undefined search term
+            // Safely concatenate the fields, fallback to empty string if undefined or null
+            const itemName = (item.name || '') + (item.model || '') + (item.brand || '');
+
+            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();
+
             return itemName.toLowerCase().includes(lowercasedSearchTerm);
         });
     }, [products, searchTerm]);
+
+
 
     // Image slider logic
     const images = [backimg, back01, back02, back03, luckyImage];
@@ -182,7 +188,7 @@ const Products = () => {
         e.preventDefault();
 
         // Destructure new product data
-        const { name, mrp, bestBuyPrice, category, model, description, image, keywords, brand, capacity } = newProduct;
+        const { name, mrp, bestBuyPrice, category, model, description, image, keywords, brand, capacity, stock } = newProduct;
 
         // Validate that all fields are filled
         if (!name || !mrp || !bestBuyPrice || !category || !model || !description || !image || !keywords) {
@@ -202,6 +208,7 @@ const Products = () => {
             keywords: keywords.split(',').map(keyword => keyword.trim()),
             brand,
             capacity,
+            stock,
         };
 
         try {
@@ -228,8 +235,9 @@ const Products = () => {
                     image: '',
                     keywords: '',
                     brand: '',
-                    capacity: ''
-                }); // Reset the form
+                    capacity: '',
+                    stock: '',
+                });
                 setIsAddModalOpen(false); // Close the modal
             } else {
                 alert('Failed to add product');
@@ -289,7 +297,9 @@ const Products = () => {
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                         <div key={product._id} className="product-container">
+
                             <div className="product-image-container" onClick={() => handleDetails(product._id)}>
+
                                 <img
                                     className="product-image"
                                     src={getImageSrc(product.image, placeholderImage)}
@@ -300,17 +310,28 @@ const Products = () => {
                             <div className="product-name" onClick={() => handleDetails(product._id)}>
                                 {product.name}
                             </div>
+                            <p className='stock'>Availability: <span className={`stock-status ${product.stock === 0 ? 'out-of-stock' : 'in-stock'}`}></span>{product.stock === 0 ? 'Out of stock' : 'In stock'}</p>
+                            <div className="product-size">Size: {product.capacity}
 
-                            <div className="product-model">Size: {product.capacity} </div>
-                            <div className="product-model">Model: {product.model} </div>
-                            <div className="product-mrp">MRP: {product.mrp}</div>
-                            <div className="product-discount"> <p>Save: {product.mrp - product.price}</p></div>
-                            <div className="product-price">   <p>Best Buy: {product.price}</p></div>
+                            </div>
+                            <div className="product-model">Model: {product.model}</div>
+                            <div className="product-mrp">MRP: {product.mrp ? product.mrp.toFixed(0) : 'N/A'}</div>
+                            <div className="product-discount">
+                                <p>Save: {product.mrp && product.price ? (product.mrp - product.price).toFixed(0) : 'N/A'}</p>
+                            </div>
+                            <div className="product-price">
+                                <p>Best Buy: {product.price ? product.price.toFixed(0) : 'N/A'}</p>
+                            </div>
+
+
+
+
 
                             {userRole === 'admin' ? (
                                 <div className="product-actions">
                                     <button className="edit-btn" onClick={() => handleEdit(product)}>Edit</button>
                                     <button className="delete-btn" onClick={() => handleDelete(product._id)}>Delete</button>
+
                                 </div>
                             ) : (
                                 <button className="add-to-cart-button button-primary" onClick={() => handleAddToCart(product)}>
@@ -404,6 +425,13 @@ const Products = () => {
                         value={newProduct.capacity}
                         onChange={handleNewProductChange}
                         placeholder="Capacity"
+                    />
+                    <input
+                        type="number"
+                        name="stock"
+                        value={newProduct.stock}
+                        onChange={handleNewProductChange}
+                        placeholder="Stock"
                     />
 
                     <button type="submit" className="button-primary">

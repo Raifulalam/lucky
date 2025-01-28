@@ -77,8 +77,8 @@ const ProductDetails = () => {
                 <div className="detailsProduct-info-container">
                     <h3>{productData.brand}{productData.name}</h3>
                     <p>Model: {productData.model}</p>
-                    <p className="product-mrp">MRP: ₹{productData.mrp}</p>
-                    <p className="product-price">Price: ₹{productData.price}</p>
+                    <p className="product-mrp">MRP: {productData.mrp}</p>
+                    <p className="product-price">Price: {productData.price}</p>
                     <p className="product-category">Category: {productData.category}</p>
                     <p className="product-brand">Brand: {productData.brand}</p>
                     <p className="product-capacity">Capacity/Size: {productData.capacity || 'N/A'}</p>

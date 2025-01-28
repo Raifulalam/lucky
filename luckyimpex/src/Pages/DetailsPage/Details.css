@@ -62,9 +62,9 @@
 /* Price styling */
 .product-price {
 
-    color: #419b18;
+    color: blue;
     font-weight: 600;
-    margin: 0.5rem 0;
+
 }
 
 /* Category and Brand styling */
@@ -83,15 +83,7 @@
     margin: 0;
 }
 
-/* Loading and Error States */
-.loading,
-.error {
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-top: 2rem;
-    color: #f44336;
-}
+
 
 /* Responsive Design: Stack layout on smaller screens */
 @media (max-width: 768px) {

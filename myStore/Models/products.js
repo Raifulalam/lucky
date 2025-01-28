@@ -12,6 +12,7 @@ const productSchema = new Schema({
     category: String,
     capacity: String,
     brand: String,
+    stock: Number,
 });
 
 module.exports = mongoose.model('Product', productSchema);

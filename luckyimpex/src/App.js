@@ -23,40 +23,45 @@ import StoreComponent from './Pages/HomePage/StorePage';
 import ReviewPage from './Pages/Admin/ReviewComponent';
 import PhoneShop from './Pages/Products/PhoneShop';
 import PhoneDetails from './Pages/DetailsPage/PhoneDetails';
+import OrderPage from './Pages/Customer/OrderPage';
+import { NotificationProvider } from './Components/NotificationContext';
 function App() {
   return (
-    <UserProvider> {/* Make sure UserProvider is the outermost context */}
-      <CartProvider> {/* CartProvider wraps all components that need cart context */}
-        <BrowserRouter>
-          <Routes>
-            {/* Route for Home page */}
-            <Route path='/' element={<HomePage />} />
-            <Route path="/login" element={<LoginComponent />} />
-            <Route path="/signup" element={<SignUpcomponent />} />
-            <Route path="/service" element={<LuckyImpexServicePage />} />
-            <Route path='/products' element={<Products />} />
-            <Route path='/products/:category' element={<Products />} />
-            <Route path='/products/brand/:brand' element={<BrandSearch />} />
-            <Route path='/cart' element={<CartComponent />} />
-            <Route path='/contact' element={<ContactComponent />} />
-            <Route path='/productdetails/:id' element={<ProductDetails />} />
-            <Route path='/admindashboard' element={<AdminDashboard />} />
-            <Route path='/orders' element={<OrderComponent />} />
-            <Route path='/complaints' element={<ComplaintsComponent />} />
-            <Route path='/feedback' element={<FeedbackList />} />
-            <Route path='/manageproducts' element={<ManageProducts />} />
-            <Route path='/emi' element={<EMI />} />
-            <Route path='/exchange' element={<Exchange />} />
-            <Route path='/store' element={<StoreComponent />} />
-            <Route path="/review/:orderId" element={<ReviewPage />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path='/phones' element={<PhoneShop />} />
-            <Route path='/phonedetails/:id' element={<PhoneDetails />} />
+    <NotificationProvider>
+      <UserProvider> {/* Make sure UserProvider is the outermost context */}
+        <CartProvider> {/* CartProvider wraps all components that need cart context */}
+          <BrowserRouter>
+            <Routes>
+              {/* Route for Home page */}
+              <Route path='/' element={<HomePage />} />
+              <Route path="/login" element={<LoginComponent />} />
+              <Route path="/signup" element={<SignUpcomponent />} />
+              <Route path="/service" element={<LuckyImpexServicePage />} />
+              <Route path='/products' element={<Products />} />
+              <Route path='/products/:category' element={<Products />} />
+              <Route path='/products/brand/:brand' element={<BrandSearch />} />
+              <Route path='/cart' element={<CartComponent />} />
+              <Route path='/contact' element={<ContactComponent />} />
+              <Route path='/productdetails/:id' element={<ProductDetails />} />
+              <Route path='/admindashboard' element={<AdminDashboard />} />
+              <Route path='/orders' element={<OrderComponent />} />
+              <Route path='/complaints' element={<ComplaintsComponent />} />
+              <Route path='/feedback' element={<FeedbackList />} />
+              <Route path='/manageproducts' element={<ManageProducts />} />
+              <Route path='/emi' element={<EMI />} />
+              <Route path='/exchange' element={<Exchange />} />
+              <Route path='/store' element={<StoreComponent />} />
+              <Route path="/review/:orderId" element={<ReviewPage />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path='/phones' element={<PhoneShop />} />
+              <Route path='/phonedetails/:id' element={<PhoneDetails />} />
+              <Route path='/orderpage' element={<OrderPage />} />
 
-          </Routes>
-        </BrowserRouter>
-      </CartProvider>
-    </UserProvider>
+            </Routes>
+          </BrowserRouter>
+        </CartProvider>
+      </UserProvider>
+    </NotificationProvider>
   );
 }
 

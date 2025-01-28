@@ -12,6 +12,7 @@ import back04 from '../../Images/mobiles/Samsung Leak Reveals.jpg';
 import { UserContext } from '../../Components/UserContext';
 import EditMobileModal from './EditMobile';
 import Modal from '../../Components/Modal';
+import { useNotification } from '../../Components/NotificationContext';
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -28,6 +29,7 @@ const PhoneShop = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Modal for adding products
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const { addNotification } = useNotification();
     const [newProduct, setNewProduct] = useState({
         name: '',
         price: '',
@@ -73,8 +75,11 @@ const PhoneShop = () => {
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
-            const itemName = item.name || item.brand || item.model || '';  // Handle undefined names
-            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();  // Handle undefined search term
+            // Safely concatenate the fields, fallback to empty string if undefined or null
+            const itemName = (item.name || '') + (item.model || '') + (item.brand || '');
+
+            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();
+
             return itemName.toLowerCase().includes(lowercasedSearchTerm);
         });
     }, [products, searchTerm]);
@@ -106,8 +111,21 @@ const PhoneShop = () => {
 
         if (response.ok) {
             setProducts((prev) => prev.map((prod) => (prod._id === updatedProduct._id ? updatedProduct : prod)));
+            addNotification({
+                title: 'Success!',
+                message: 'Product updated successfully',
+                type: 'success', // Notification type 'success'
+                container: 'top-right',
+                dismiss: { duration: 5000 },
+            });
         } else {
-            alert('Failed to update product');
+            addNotification({
+                title: 'Success!',
+                message: 'Something went wrong updating your product list ',
+                type: 'error', // Notification type 'success'
+                container: 'top-right',
+                dismiss: { duration: 5000 },
+            });
         }
     };
 
@@ -115,6 +133,7 @@ const PhoneShop = () => {
     const handleDelete = (productId) => {
         setIsDeleteModalOpen(true);
         setSelectedProduct(products.find((product) => product._id === productId));
+
     };
 
     // Confirm product deletion
@@ -131,9 +150,21 @@ const PhoneShop = () => {
 
                 dispatch({ type: 'DELETE_PRODUCT', payload: productId });
                 setIsDeleteModalOpen(false)
-
+                addNotification({
+                    title: 'Success!',
+                    message: 'Product deleted successfully',
+                    type: 'success', // Notification type 'success'
+                    container: 'top-right',
+                    dismiss: { duration: 5000 },
+                });
             } else {
-                alert('Failed to delete product');
+                addNotification({
+                    title: 'Success!',
+                    message: 'Failed to delete',
+                    type: 'error', // Notification type 'success'
+                    container: 'top-right',
+                    dismiss: { duration: 5000 },
+                });
             }
         } catch (error) {
             console.error(error);
@@ -150,6 +181,13 @@ const PhoneShop = () => {
             name: product.name,
             mrp: product.mrp,
             price: product.price,
+        });
+        addNotification({
+            title: 'Success!',
+            message: 'Item added successfully to Cart',
+            type: 'success', // Notification type 'success'
+            container: 'top-right',
+            dismiss: { duration: 5000 },
         });
     };
 
@@ -188,7 +226,7 @@ const PhoneShop = () => {
         e.preventDefault();
 
         // Destructure new product data
-        const { name, price, category, model, description, image, brand, color, ram, storage, battery, camera, processor, display, operatingSystem, releaseDate, charging } = newProduct;
+        const { name, price, category, model, description, image, brand, color, ram, storage, battery, camera, processor, display, operatingSystem, releaseDate, charging, stock } = newProduct;
 
         // Validate that all fields are filled
         if (!name || !category || !model || !description || !image) {
@@ -217,6 +255,7 @@ const PhoneShop = () => {
             description,
             image,
             charging,
+            stock,
         };
 
         try {
@@ -251,10 +290,24 @@ const PhoneShop = () => {
                     description: '',
                     image: '',
                     charging: '',
+                    stock: '',
                 }); // Reset the form
                 setIsAddModalOpen(false); // Close the modal
+                addNotification({
+                    title: 'Success!',
+                    message: 'Added a new product',
+                    type: 'success', // Notification type 'success'
+                    container: 'top-right',
+                    dismiss: { duration: 5000 },
+                });
             } else {
-                alert('Failed to add product');
+                addNotification({
+                    title: 'Success!',
+                    message: 'Something went wrong with the product creation process ',
+                    type: 'error', // Notification type 'success'
+                    container: 'top-right',
+                    dismiss: { duration: 5000 },
+                });
             }
         } catch (err) {
             alert('Error: ' + err.message);
@@ -317,6 +370,7 @@ const PhoneShop = () => {
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
                         <div key={product._id} className="product-container">
+
                             <div className="product-image-container" onClick={() => handleDetails(product._id)}>
                                 <img
                                     className="product-image"
@@ -328,10 +382,11 @@ const PhoneShop = () => {
                             <div className="product-name" onClick={() => handleDetails(product._id)}>
                                 {product.brand} {product.name}
                             </div>
-
+                            <p className='stock'>Availability: <span className={`stock-status ${product.stock === 0 ? 'out-of-stock' : 'in-stock'}`}></span>{product.stock === 0 ? 'Out of Stock' : 'In stock'}</p>
                             <div className="product-model">Display: {product.display}</div>
                             <div className="product-model">Model: {product.model}</div>
                             <div className="product-price">   <p>MRP: {product.price}</p></div>
+
 
                             {userRole === 'admin' ? (
                                 <div className="product-actions">
@@ -478,6 +533,13 @@ const PhoneShop = () => {
                         value={newProduct.charging}
                         onChange={handleNewProductChange}
                         placeholder="Charging"
+                    />
+                    <input
+                        type="number"
+                        name="stock"
+                        value={newProduct.stock}
+                        onChange={handleNewProductChange}
+                        placeholder="Stock Quantity"
                     />
 
 

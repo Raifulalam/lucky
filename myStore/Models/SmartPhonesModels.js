@@ -18,7 +18,8 @@ const MobileSchema = new Schema({
     category: String,
     description: String,
     image: String,
-    charging: String
+    charging: String,
+    stock: Number,
 
 })
 module.exports = mongoose.model('Mobile', MobileSchema);
