@@ -46,6 +46,7 @@ const Header = () => {
     // Define the buttons for logged-in users and admins
     const adminButtons = (
         <>
+            <button onClick={() => handleNavigation('/service')} className="dropbtn">Service <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/admindashboard')} className="dropbtn">Users <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/orders')} className="dropbtn">Order <p>&#10148;</p></button>
@@ -76,7 +77,8 @@ const Header = () => {
             <button onClick={() => handleNavigation('/products')} className='dropbtn'>All Prodcuts <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/service')} className="dropbtn">Service <p>&#10148;</p></button>            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/service')} className="dropbtn">Service <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/emi')} className="dropbtn">EMI <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/exchange')} className="dropbtn">Exchange ⇆ <p>&#10148;</p></button>

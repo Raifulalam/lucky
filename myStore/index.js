@@ -3,16 +3,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
-const Product = require('./Models/products');
-const ProductCategory = require('./Models/ProductsCategoryModel');
+
 
 const cors = require('cors');
-
-
-
-
-
-
 
 // Load environment variables from .env file
 require('dotenv').config();
@@ -22,6 +15,7 @@ const app = express();
 const port = 3000;
 app.use(bodyParser.json());
 app.use(cors());
+
 
 // MongoDB connection URI from environment variables
 const mongoURI = process.env.MONGO_URI;
@@ -54,7 +48,7 @@ app.use('/api', require('./Router/MobileRouter'));
 
 
 
-
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

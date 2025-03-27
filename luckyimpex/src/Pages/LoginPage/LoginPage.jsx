@@ -95,7 +95,7 @@ function LoginComponent() {
                 <meta name="description" content="Log in to your Lucky Impex account." />
             </Helmet>
             <Header />
-            <div className="container">
+            <div className="container-signup">
                 <div className="login-form">
                     <h2>Log in</h2>
                     <p>Welcome back! Please enter your details.</p>

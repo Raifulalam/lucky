@@ -3,56 +3,57 @@ import './Complaints.css'; // Import the CSS file
 
 const ComplaintsComponent = () => {
     const [complaints, setComplaints] = useState([]);
-    const [loading, setLoading] = useState(true); // Start loading state as true
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Handle data fetching
-    const handleComplaintsData = async () => {
+    // Function to fetch complaints data
+    const fetchComplaintsData = async () => {
         try {
-            const response = await fetch('https://lucky-back.onrender.com/api/getComplaints');
+            const response = await fetch('https://lucky-back-2.onrender.com/api/getComplaint');
             if (!response.ok) {
                 throw new Error('Failed to fetch complaints');
             }
             const data = await response.json();
-            console.log(data);  // Log the response to see the structure
-            setComplaints(data.complaints); // Access the complaints array in the response
+            setComplaints(data.complaints || []);  // Safely access complaints array
             setError(null); // Clear any previous errors
-        } catch (error) {
-            setError(error.message); // Set the error message if fetch fails
+        } catch (err) {
+            setError('Something went wrong. Please try again later.');
+            console.error(err);
         } finally {
             setLoading(false); // Stop loading once the fetch is done
         }
     };
 
-
+    // Fetch complaints data on component mount
     useEffect(() => {
-        handleComplaintsData();
-    }, []); // Run once when the component is mounted
+        fetchComplaintsData();
+    }, []); // Empty array ensures this runs only once when the component mounts
 
     return (
         <div className="complaints-container">
             <h3>Complaint Details</h3>
 
-            {/* Show loading message */}
-            {loading && <p className="loading-message"></p>}
+            {/* Show loading spinner or message */}
+            {loading && <p className="loading-message">Loading complaints...</p>}
 
-            {/* Show error message */}
-            {error && <p className="error-message">Error: {error}</p>}
+            {/* Show error message if any */}
+            {error && <p className="error-message">{error}</p>}
 
-            {/* Show complaints list in a table */}
+            {/* Display complaints if available */}
             {complaints.length > 0 ? (
                 <table className="complaints-table">
                     <thead>
                         <tr>
-                            <th scope="col">Complaint IDs</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Address</th>
-                            <th scope="col">Phone</th>
-                            <th scope="col">Product</th>
-                            <th scope="col">Model</th>
-                            <th scope="col">Warranty</th>
-                            <th scope="col">Issue</th>
-                            <th scope="col">Complaint Date</th>
+                            <th>Complaint ID</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Product</th>
+                            <th>Model</th>
+                            <th>Warranty</th>
+                            <th>Issue</th>
+                            <th>Complaint Date</th>
+                            <th>Image</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,13 +67,21 @@ const ComplaintsComponent = () => {
                                 <td>{complaint.model}</td>
                                 <td>{complaint.warranty}</td>
                                 <td>{complaint.issue}</td>
-                                <td>{new Date(complaint.date).toLocaleDateString()}</td>
+                                <td>{new Date(complaint.complaintdate).toLocaleDateString()}</td>
+                                <td>
+                                    {/* Render image with a fallback */}
+                                    {complaint.image ? (
+                                        <img src={complaint.image} alt="Complaint Image" width="100" height="100" />
+                                    ) : (
+                                        <span>No Image</span>
+                                    )}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             ) : (
-                <p className="no-complaints">No complaints available.</p>
+                !loading && <p className="no-complaints">No complaints available.</p> // Only show if no complaints and not loading
             )}
         </div>
     );

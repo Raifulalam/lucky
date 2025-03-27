@@ -67,7 +67,7 @@ const LuckyImpexServicePage = () => {
         formData.append("image", productDetails.image);
 
         try {
-            const response = await fetch('https://lucky-back.onrender.com/api/submitComplaint', {
+            const response = await fetch('https://lucky-back-2.onrender.com/api/submitComplaint', {
                 method: 'POST',
                 body: formData,
             });
@@ -85,12 +85,12 @@ const LuckyImpexServicePage = () => {
             if (contentType && contentType.includes("application/json")) {
                 const result = await response.json();
 
-                if (result.success) {
+                if (result.message) {
                     alert('Complaint Submitted! We will get back to you shortly.');
                     setPersonalDetails({ name: '', address: '', phone: '', province: '', district: '' });
                     setProductDetails({ product: '', model: '', warranty: '', issue: '', image: null });
-                    document.getElementById("image").value = "";
-                    setShowModal(false);
+                    document.getElementById("image").value = ""; // Clear the image input
+                    setShowModal(false); // Close the modal after submission
                 } else {
                     alert(`Error: ${result.message}`);
                 }
@@ -104,14 +104,9 @@ const LuckyImpexServicePage = () => {
         }
     };
 
-
-
-
-
-
     const toggleModal = () => {
         setShowModal(!showModal);
-        setCurrentStep(1);
+        setCurrentStep(1); // Reset the modal to step 1
     };
 
     const handleNextStep = () => {
@@ -220,7 +215,6 @@ const LuckyImpexServicePage = () => {
                                                     required
                                                 >
                                                     <option value="Bagmati Pradesh">Bagmati Pradesh</option>
-                                                    {/* Add other options as needed */}
                                                 </select>
                                             </div>
                                             <div>
@@ -233,7 +227,6 @@ const LuckyImpexServicePage = () => {
                                                     required
                                                 >
                                                     <option value="Kathmandu">Kathmandu</option>
-                                                    {/* Add other options as needed */}
                                                 </select>
                                             </div>
 

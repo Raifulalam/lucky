@@ -76,13 +76,13 @@ function SignupComponent() {
     };
 
     return (
-        <div>
+        <div >
             <Helmet>
                 <title>Sign Up</title>
                 <meta name="description" content="Sign up for an account" />
             </Helmet>
             <Header />
-            <div className="container">
+            <div className="container-signup">
                 <div className="login-form">
                     <h2>Sign Up</h2>
                     <p>Please enter your details.</p>
