@@ -2,30 +2,18 @@ const express = require('express');
 const router = express.Router();
 const Complaint = require('../Models/complaintsSchema');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const streamifier = require('streamifier');
 
-// Ensure the uploads directory exists
-const uploadsDir = path.join(__dirname, './uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true }); // Create the uploads directory if it doesn't exist
-    console.log('Uploads directory created');
-} else {
-    console.log('Uploads directory already exists');
-}
-
-// Set up multer storage and file validation
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        console.log("Uploads directory for multer: ", uploadsDir); // Log the uploads directory
-        cb(null, uploadsDir); // Save files in the 'uploads' folder
-    },
-    filename: (req, file, cb) => {
-        const fileName = Date.now() + path.extname(file.originalname); // Rename file to avoid conflicts
-        console.log('Saving file as: ', fileName); // Log the file name
-        cb(null, fileName);
-    }
+// Configure Cloudinary with your credentials
+cloudinary.config({
+    cloud_name: 'dntdemhtx', // Replace with your Cloudinary cloud name
+    api_key: '622972779869747',       // Replace with your Cloudinary API key
+    api_secret: 'your-api-secret'  // Replace with your Cloudinary API secret
 });
+
+// Set up multer memory storage (store file in memory before uploading to Cloudinary)
+const storage = multer.memoryStorage();
 
 // File size limit: 5MB; Allowed types: JPG, JPEG, PNG
 const upload = multer({
@@ -52,32 +40,46 @@ router.post('/submitComplaint', upload.single('image'), async (req, res) => {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
-        // Destructure the data from the request body
-        const { name, address, phone, province, district, product, model, warranty, issue } = req.body;
-        const imagePath = `/uploads/${req.file.filename}`;
+        // Upload the image to Cloudinary
+        const uploadStream = cloudinary.uploader.upload_stream(
+            { resource_type: 'image' },
+            async (error, result) => {
+                if (error) {
+                    console.error('Cloudinary upload error:', error);
+                    return res.status(500).json({ error: 'Error uploading image to Cloudinary' });
+                }
 
-        // Log the image path
-        console.log('Image saved to:', imagePath);
+                // Destructure the data from the request body
+                const { name, address, phone, province, district, product, model, warranty, issue } = req.body;
+                const imagePath = result.secure_url;  // Cloudinary URL
 
-        // Create a new complaint document
-        const newComplaint = new Complaint({
-            name,
-            address,
-            phone,
-            province,
-            district,
-            product,
-            model,
-            warranty,
-            issue,
-            image: imagePath
-        });
+                // Log the image URL
+                console.log('Image uploaded to Cloudinary:', imagePath);
 
-        // Save the complaint to the database
-        await newComplaint.save();
+                // Create a new complaint document
+                const newComplaint = new Complaint({
+                    name,
+                    address,
+                    phone,
+                    province,
+                    district,
+                    product,
+                    model,
+                    warranty,
+                    issue,
+                    image: imagePath // Save the Cloudinary URL instead of the local path
+                });
 
-        // Respond with success message and image path
-        res.status(201).json({ message: 'Complaint submitted successfully!', image: imagePath });
+                // Save the complaint to the database
+                await newComplaint.save();
+
+                // Respond with success message and image URL
+                res.status(201).json({ message: 'Complaint submitted successfully!', image: imagePath });
+            }
+        );
+
+        // Stream the file buffer to Cloudinary
+        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
 
     } catch (error) {
         console.error('Error uploading file and saving complaint:', error);
@@ -97,6 +99,7 @@ router.get('/getComplaint', async (req, res) => {
             return res.status(404).json({ success: false, message: 'No complaints found' });
         }
 
+        // Return the complaints along with the image URL
         res.status(200).json({ success: true, complaints });
     } catch (err) {
         console.error('Error fetching complaints:', err);

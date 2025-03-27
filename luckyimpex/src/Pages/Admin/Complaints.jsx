@@ -70,11 +70,12 @@ const ComplaintsComponent = () => {
                                 <td>{new Date(complaint.complaintdate).toLocaleDateString()}</td>
                                 <td>
                                     {/* Render image with a fallback */}
-                                    {complaint.image ? (
-                                        <img src={complaint.image} alt="Complaint Image" width="100" height="100" />
-                                    ) : (
-                                        <span>No Image</span>
-                                    )}
+                                    <img
+                                        src={complaint.image}  // This is the Cloudinary URL
+                                        alt="Complaint image"
+                                        width="200"
+                                        height="200"
+                                    />
                                 </td>
                             </tr>
                         ))}
