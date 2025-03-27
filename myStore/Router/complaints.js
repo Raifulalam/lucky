@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const router = express.Router();
 const Complaint = require('../Models/complaintsSchema');
@@ -49,12 +51,20 @@ router.post('/submitComplaint', upload.single('image'), async (req, res) => {
                     return res.status(500).json({ error: 'Error uploading image to Cloudinary' });
                 }
 
+                // Debug log for Cloudinary result
+                console.log('Cloudinary upload result:', result);
+
+                // Check if we got a valid result
+                if (!result || !result.secure_url) {
+                    console.error('Cloudinary did not return a valid image URL');
+                    return res.status(500).json({ error: 'Cloudinary upload failed, no image URL returned' });
+                }
+
+                const imagePath = result.secure_url;  // Cloudinary URL
+                console.log('Image uploaded to Cloudinary:', imagePath);
+
                 // Destructure the data from the request body
                 const { name, address, phone, province, district, product, model, warranty, issue } = req.body;
-                const imagePath = result.secure_url;  // Cloudinary URL
-
-                // Log the image URL
-                console.log('Image uploaded to Cloudinary:', imagePath);
 
                 // Create a new complaint document
                 const newComplaint = new Complaint({
