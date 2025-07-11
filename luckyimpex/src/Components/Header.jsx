@@ -46,7 +46,7 @@ const Header = () => {
     // Define the buttons for logged-in users and admins
     const adminButtons = (
         <>
-            <button onClick={() => handleNavigation('/service')} className="dropbtn">Service <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/dashboard')} className="dropbtn">Dashboard <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/admindashboard')} className="dropbtn">Users <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/orders')} className="dropbtn">Order <p>&#10148;</p></button>

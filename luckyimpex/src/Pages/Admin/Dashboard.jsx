@@ -16,11 +16,11 @@ const Sidebar = () => (
     <div className="sidebar">
         <h1 className="sidebar-title">Admin Panel</h1>
         <ul className="menus">
-            <li><a href="#"><FaTachometerAlt /> Dashboard</a></li>
-            <li><a href="#"><FaShoppingCart /> Orders</a></li>
-            <li><a href="#"><FaUsers /> Users</a></li>
-            <li><a href="#"><FaComments /> Complaints</a></li>
-            <li><a href="#"><FaStar /> Reviews</a></li>
+            <li><a href="/dashboard"><FaTachometerAlt /> Dashboard</a></li>
+            <li><a href="/orderpage"><FaShoppingCart /> Orders</a></li>
+            <li><a href="/admindashboard"><FaUsers /> Users</a></li>
+            <li><a href="/complaints"><FaComments /> Complaints</a></li>
+            <li><a href="/feedback"><FaStar /> Reviews</a></li>
             <li><a href="#"><FaCogs /> Settings</a></li>
             <li><a href="#"><FaSignOutAlt /> Logout</a></li>
         </ul>
