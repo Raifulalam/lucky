@@ -6,6 +6,7 @@ const path = require('path');
 
 
 const cors = require('cors');
+const dashboardRoutes = require('./Router/Dashboard');
 
 // Load environment variables from .env file
 require('dotenv').config();
@@ -45,6 +46,7 @@ app.use('/api', require('./Router/complaints'));
 app.use('/api', require('./Router/productcategory'));
 app.use('/api', require('./Router/contactMessage'));
 app.use('/api', require('./Router/MobileRouter'));
+app.use('/api/dashboard', dashboardRoutes)
 
 
 
