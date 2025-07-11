@@ -9,7 +9,7 @@ const ComplaintsComponent = () => {
     // Function to fetch complaints data
     const fetchComplaintsData = async () => {
         try {
-            const response = await fetch('https://lucky-back-2.onrender.com/api/getComplaint');
+            const response = await fetch('https://lucky-back.onrender.com/api/getComplaint');
             if (!response.ok) {
                 throw new Error('Failed to fetch complaints');
             }

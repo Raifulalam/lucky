@@ -50,7 +50,7 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch('https://lucky-back-2.onrender.com/api/dashboard/stats');
+                const res = await fetch('https://lucky-back.onrender.com/api/dashboard/stats');
                 if (!res.ok) throw new Error('Stats request failed');
                 const data = await res.json();
                 setStatsData(data);

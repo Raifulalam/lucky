@@ -25,7 +25,7 @@ const FeedbackList = () => {
         const fetchFeedbacks = async () => {
             setLoading(true);
             try {
-                const response = await fetch('https://lucky-back-2.onrender.com/api/contactMessages');
+                const response = await fetch('https://lucky-back.onrender.com/api/contactMessages');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

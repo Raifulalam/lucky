@@ -72,7 +72,7 @@ export default function EMI() {
             }).toString();
 
             // Replace with actual API endpoint
-            const response = await fetch(`https://lucky-back-2.onrender.com/api/products?${query}`, {
+            const response = await fetch(`https://lucky-back.onrender.com/api/products?${query}`, {
                 method: 'GET',
             });
 

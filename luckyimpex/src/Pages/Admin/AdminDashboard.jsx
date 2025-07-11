@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetch('https://lucky-back-2.onrender.com/api/users');
+                const response = await fetch('https://lucky-back.onrender.com/api/users');
                 const data = await response.json();
                 setUsers(data); // Set fetched users in state
             } catch (error) {
@@ -31,7 +31,7 @@ const AdminDashboard = () => {
     // Function to handle user deletion
     const handleDeleteUser = async () => {
         try {
-            const response = await fetch(`https://lucky-back-2.onrender.com/api/users/${userIdToDelete}`, {
+            const response = await fetch(`https://lucky-back.onrender.com/api/users/${userIdToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ const AdminDashboard = () => {
 
     const handleUpdateUser = async (updatedUser) => {
         try {
-            const response = await fetch(`https://lucky-back-2.onrender.com/api/users/${updatedUser._id}`, {
+            const response = await fetch(`https://lucky-back.onrender.com/api/users/${updatedUser._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

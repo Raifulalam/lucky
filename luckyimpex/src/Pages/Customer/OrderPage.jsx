@@ -16,7 +16,7 @@ export default function OrderPage() {
         const fetchOrders = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`https://lucky-back-2.onrender.com/api/orders/${user.id}`);
+                const response = await fetch(`https://lucky-back.onrender.com/api/orders/${user.id}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch orders');
                 }

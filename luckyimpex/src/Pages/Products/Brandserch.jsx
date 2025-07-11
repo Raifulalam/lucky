@@ -51,7 +51,7 @@ const BrandSearch = () => {
 
             try {
                 // Construct the URL by directly embedding the brand in the path
-                let url = `https://lucky-back-2.onrender.com/api/products/${brand}`;
+                let url = `https://lucky-back.onrender.com/api/products/${brand}`;
 
                 console.log("Fetching URL:", url);  // Log the URL to debug
 
@@ -112,7 +112,7 @@ const BrandSearch = () => {
 
     // Save edited product
     const handleSave = async (updatedProduct) => {
-        const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${updatedProduct._id}`, {
+        const response = await fetch(`https://lucky-back.onrender.com/api/products/${updatedProduct._id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedProduct),
@@ -134,7 +134,7 @@ const BrandSearch = () => {
     // Confirm product deletion
     const confirmDelete = async (productId) => {
         try {
-            const response = await fetch(`https://lucky-back-2.onrender.com/api/products/${productId}`, {
+            const response = await fetch(`https://lucky-back.onrender.com/api/products/${productId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -208,7 +208,7 @@ const BrandSearch = () => {
 
         try {
             // Send the data to the backend
-            const response = await fetch('https://lucky-back-2.onrender.com/api/products', {
+            const response = await fetch('https://lucky-back.onrender.com/api/products', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

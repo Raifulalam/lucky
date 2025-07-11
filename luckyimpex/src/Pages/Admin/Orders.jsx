@@ -12,7 +12,7 @@ const OrderComponent = () => {
     // Fetch orders data when the component mounts
     const handleOrderData = async () => {
         try {
-            const response = await fetch('https://lucky-back-2.onrender.com/api/orders');
+            const response = await fetch('https://lucky-back.onrender.com/api/orders');
 
             if (!response.ok) {
                 throw new Error('Failed to fetch orders');
@@ -31,7 +31,7 @@ const OrderComponent = () => {
 
     const handleApprove = async (orderId) => {
         try {
-            const response = await fetch(`https://lucky-back-2.onrender.com/api/orders/${orderId}`, {
+            const response = await fetch(`https://lucky-back.onrender.com/api/orders/${orderId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const OrderComponent = () => {
     const handleDelete = async (orderId) => {
         if (window.confirm('Are you sure you want to delete this order?')) {
             try {
-                const response = await fetch(`https://lucky-back-2.onrender.com/api/orders/${orderId}`, {
+                const response = await fetch(`https://lucky-back.onrender.com/api/orders/${orderId}`, {
                     method: 'DELETE',
                 });
 

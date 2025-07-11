@@ -10,7 +10,7 @@ const ReviewPage = () => {
     useEffect(() => {
         const fetchOrderData = async () => {
             try {
-                const response = await fetch(`https://lucky-back-2.onrender.com/api/orders/${orderId}`);
+                const response = await fetch(`https://lucky-back.onrender.com/api/orders/${orderId}`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch order details');
                 }

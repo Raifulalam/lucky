@@ -67,7 +67,7 @@ const LuckyImpexServicePage = () => {
         formData.append("image", productDetails.image);
 
         try {
-            const response = await fetch('https://lucky-back-2.onrender.com/api/submitComplaint', {
+            const response = await fetch('https://lucky-back.onrender.com/api/submitComplaint', {
                 method: 'POST',
                 body: formData,
             });
