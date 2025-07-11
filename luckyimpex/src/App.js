@@ -25,6 +25,7 @@ import PhoneShop from './Pages/Products/PhoneShop';
 import PhoneDetails from './Pages/DetailsPage/PhoneDetails';
 import OrderPage from './Pages/Customer/OrderPage';
 import { NotificationProvider } from './Components/NotificationContext';
+import Dashboard from './Pages/Admin/Dashboard';
 function App() {
   return (
     <NotificationProvider>
@@ -56,6 +57,7 @@ function App() {
               <Route path='/phones' element={<PhoneShop />} />
               <Route path='/phonedetails/:id' element={<PhoneDetails />} />
               <Route path='/orderpage' element={<OrderPage />} />
+              <Route path='/dashboard' element={<Dashboard />} />
 
             </Routes>
           </BrowserRouter>
