@@ -48,10 +48,10 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Replace with your actual backend URLs
         const fetchStats = async () => {
             try {
-                const res = await fetch('https://lucky-back.onrender.com/api/dashboard/stats');
+                const res = await fetch('https://lucky-back-2.onrender.com/api/dashboard/stats');
+                if (!res.ok) throw new Error('Stats request failed');
                 const data = await res.json();
                 setStatsData(data);
             } catch (err) {
@@ -59,18 +59,12 @@ export default function Dashboard() {
             }
         };
 
-        const fetchNotifications = async () => {
-            try {
-                const res = await fetch('https://lucky-back.onrender.com/api/dashboard/notifications');
-                const data = await res.json();
-                setNotifications(data);
-            } catch (err) {
-                console.error('Failed to fetch notifications:', err);
-            }
-        };
 
-        Promise.all([fetchStats(), fetchNotifications()]).finally(() => setLoading(false));
+
+        fetchStats();
+
     }, []);
+
 
     const statCards = [
         { title: 'Total Users', value: statsData.users, icon: <FaUsers /> },
@@ -81,7 +75,7 @@ export default function Dashboard() {
         { title: 'Brands', value: statsData.brands, icon: <FaTags /> },
     ];
 
-    if (loading) return <div className="loading">Loading Dashboard...</div>;
+
 
     return (
         <div className="dashboard-container">
@@ -102,18 +96,7 @@ export default function Dashboard() {
                     ))}
                 </div>
 
-                <div className="notifications">
-                    <h2>Recent Notifications</h2>
-                    <div className="notification-list">
-                        {notifications.length > 0 ? (
-                            notifications.map((n, i) => (
-                                <NotificationCard key={i} icon={<FaShoppingCart />} message={n.message} />
-                            ))
-                        ) : (
-                            <p>No notifications yet.</p>
-                        )}
-                    </div>
-                </div>
+
 
                 <div className="dashboard-right">
                     <button className="manage-products-btn">Manage Products</button>

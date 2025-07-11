@@ -6,7 +6,7 @@ const Order = require('../Models/order');
 const Complaint = require('../Models/complaintsSchema');
 const Review = require('../Models/contactMessage');
 const Product = require('../Models/products');
-const Brand = require('../Models/ProductsCategoryModel'); // If you have a Brand model
+
 
 // GET /api/dashboard/stats
 router.get('/stats', async (req, res) => {
@@ -17,7 +17,7 @@ router.get('/stats', async (req, res) => {
             Complaint.countDocuments(),
             Review.countDocuments(),
             Product.countDocuments(),
-            Brand.countDocuments()
+
         ]);
 
         res.json({
@@ -26,7 +26,7 @@ router.get('/stats', async (req, res) => {
             complaints,
             reviews,
             products,
-            brands
+
         });
     } catch (error) {
         console.error('Dashboard Stats Error:', error);
