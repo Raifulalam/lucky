@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const router = express.Router();
 const Complaint = require('../Models/complaintsSchema');
@@ -7,12 +5,14 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
-// Configure Cloudinary with your credentials
+require('dotenv').config();
+
 cloudinary.config({
-    cloud_name: 'dntdemhtx', // Replace with your Cloudinary cloud name
-    api_key: '622972779869747',       // Replace with your Cloudinary API key
-    api_secret: 'your-api-secret'  // Replace with your Cloudinary API secret
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET
 });
+
 
 // Set up multer memory storage (store file in memory before uploading to Cloudinary)
 const storage = multer.memoryStorage();
@@ -34,12 +34,11 @@ const upload = multer({
 // Endpoint to handle complaint submissions (with image upload)
 router.post('/submitComplaint', upload.single('image'), async (req, res) => {
     try {
-        // Log the request data for debugging
         console.log('Request received:', req.body);
         console.log('Uploaded file details:', req.file);
 
-        if (!req.file) {
-            return res.status(400).json({ error: 'No file uploaded' });
+        if (!req.file || !req.file.buffer) {
+            return res.status(400).json({ error: 'No file data available' });
         }
 
         // Upload the image to Cloudinary
@@ -47,18 +46,18 @@ router.post('/submitComplaint', upload.single('image'), async (req, res) => {
             { resource_type: 'image' },
             async (error, result) => {
                 if (error) {
-                    console.error('Cloudinary upload error:', error);
-                    return res.status(500).json({ error: 'Error uploading image to Cloudinary' });
+                    console.error('Cloudinary upload error:', error); // Log the error
+                    return res.status(500).json({ error: 'Error uploading image to Cloudinary', details: error });
                 }
 
-                // Debug log for Cloudinary result
-                console.log('Cloudinary upload result:', result);
-
-                // Check if we got a valid result
+                // Ensure result is valid
                 if (!result || !result.secure_url) {
                     console.error('Cloudinary did not return a valid image URL');
                     return res.status(500).json({ error: 'Cloudinary upload failed, no image URL returned' });
                 }
+
+                // Debug log for Cloudinary result
+                console.log('Cloudinary upload result:', result);
 
                 const imagePath = result.secure_url;  // Cloudinary URL
                 console.log('Image uploaded to Cloudinary:', imagePath);
@@ -109,7 +108,6 @@ router.get('/getComplaint', async (req, res) => {
             return res.status(404).json({ success: false, message: 'No complaints found' });
         }
 
-        // Return the complaints along with the image URL
         res.status(200).json({ success: true, complaints });
     } catch (err) {
         console.error('Error fetching complaints:', err);
