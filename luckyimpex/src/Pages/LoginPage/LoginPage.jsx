@@ -70,7 +70,7 @@ function LoginComponent() {
 
                 // Redirect after login success
                 navigate('/', { state: { email } });
-                window.location.reload();
+
 
             }
         } catch (err) {

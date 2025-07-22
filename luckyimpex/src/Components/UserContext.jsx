@@ -12,7 +12,7 @@ const UserProvider = ({ children }) => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await fetch('https://lucky-back-2.onrender.com/api/userData', {
+                const response = await fetch('https://lucky-back.onrender.com/api/userData', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('authToken')}`,  // Use JWT from local storage
                     }

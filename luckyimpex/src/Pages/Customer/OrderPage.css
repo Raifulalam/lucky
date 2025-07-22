@@ -1,122 +1,106 @@
-/* General container */
-.order-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f4f4f9;
+.order-page {
+    padding: 2rem;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f5f6fa;
+    min-height: 100vh;
 }
 
 .order-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.order-header h1 {
-    font-size: 2rem;
-    color: #333;
-}
-
-/* Each order item */
-.order-item-container {
-    border: 1px solid #ddd;
-    margin-bottom: 25px;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.order-summary {
-    margin-bottom: 20px;
-}
-
-/* Order overview styling */
-.order-overview h2 {
-    margin-top: 0;
-    font-size: 1.5rem;
-}
-
-.order-overview p {
-    font-size: 1rem;
-
-}
-
-/* Status tracker */
-.order-status-tracker {
     display: flex;
     justify-content: space-between;
-
+    align-items: center;
+    margin-bottom: 2rem;
 }
 
-.status-step {
-    padding: 3px;
-    background-color: #f0f0f0;
-    border-radius: 5px;
-    text-align: center;
-    flex-grow: 1;
-}
-
-.status-step.completed {
-    background-color: #4caf50;
+.print-btn {
+    background-color: #007bff;
     color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
 }
 
-/* Order Items Section */
-.order-items {
-    margin-top: 20px;
+.order-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
-.order-items h3 {
-    font-size: 1.25rem;
-    margin-bottom: 10px;
+.order-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 1rem;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.order-progress {
+    margin: 1rem 0;
+    display: flex;
+    gap: 1rem;
+}
+
+.step {
+    padding: 0.5rem 1rem;
+    background: #e4e6eb;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.step.active {
+    background: #28a745;
+    color: white;
+    font-weight: bold;
 }
 
 .order-items ul {
-    list-style-type: none;
-    padding-left: 0;
+    list-style: none;
+    padding: 0;
 }
 
-.order-item {
+.item {
     display: flex;
-    margin-bottom: 15px;
-    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    border-top: 1px dashed #ccc;
+    padding-top: 1rem;
 }
 
-.item-image {
-    width: 100px;
-    height: 100px;
+.item img {
+    width: 60px;
+    height: 60px;
     object-fit: cover;
-    margin-right: 15px;
+    border-radius: 4px;
 }
 
-.item-info {
-    flex-grow: 1;
-}
-
-.item-info h4 {
-    margin: 0;
-    font-size: 1rem;
-}
-
-.item-info p {
-    font-size: 0.9rem;
-    margin: 5px 0;
-}
-
-/* Shipping Information */
-.shipping-info {
-    margin-top: 25px;
-    padding: 15px;
-    background-color: #f9f9f9;
+.shipping-details {
+    margin-top: 1rem;
+    background-color: #f8f9fa;
+    padding: 1rem;
     border-radius: 5px;
+    font-size: 0.95rem;
 }
 
-.shipping-info h3 {
-    font-size: 1.25rem;
-    margin-bottom: 15px;
-}
-
-.shipping-info p {
-    font-size: 1rem;
-    margin: 5px 0;
+.loader,
+.error,
+.info {
+    padding: 1rem;
+    text-align: center;
+    color: #333;
+    font-size: 1.1rem;
 }

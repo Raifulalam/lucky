@@ -70,20 +70,25 @@ router.get('/orders/:id', async (req, res) => {
     }
 });
 
-router.get('/orders/:id', async (req, res) => {
+router.get('/Myorders/:id', async (req, res) => {
     try {
-        const userId = new ObjectId(req.params.id);
+        const userId = new mongoose.Types.ObjectId(req.params.id);
+        console.log('Looking for orders by userId:', userId);
+
         const orders = await Order.find({ 'user.userId': userId });
+        console.log('Found orders:', orders.length);
+
         if (!orders || orders.length === 0) {
             return res.status(404).json({ message: 'No orders found for this user' });
         }
-        res.json(orders); // Return all orders for the user
-    }
-    catch (err) {
-        console.error('Error fetching order:', err);  // Log error for debugging
+
+        res.json(orders);
+    } catch (err) {
+        console.error('Error fetching order:', err);
         res.status(500).json({ message: 'Error fetching order', error: err.message });
     }
 });
+
 
 // PUT: Update Order
 router.put('/orders/:id', async (req, res) => {

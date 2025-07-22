@@ -17,12 +17,12 @@ const Sidebar = () => (
         <h1 className="sidebar-title">Admin Panel</h1>
         <ul className="menus">
             <li><a href="/dashboard"><FaTachometerAlt /> Dashboard</a></li>
-            <li><a href="/orderpage"><FaShoppingCart /> Orders</a></li>
+            <li><a href="/orders"><FaShoppingCart /> Orders</a></li>
             <li><a href="/admindashboard"><FaUsers /> Users</a></li>
             <li><a href="/complaints"><FaComments /> Complaints</a></li>
             <li><a href="/feedback"><FaStar /> Reviews</a></li>
             <li><a href="#"><FaCogs /> Settings</a></li>
-            <li><a href="#"><FaSignOutAlt /> Logout</a></li>
+
         </ul>
     </div>
 );
