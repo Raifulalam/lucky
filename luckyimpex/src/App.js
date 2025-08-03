@@ -1,4 +1,5 @@
 import './App.css';
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import LoginComponent from './Pages/LoginPage/LoginPage';
 import SignUpcomponent from './Pages/SignUp/Signup';
@@ -26,42 +27,51 @@ import PhoneDetails from './Pages/DetailsPage/PhoneDetails';
 import OrderPage from './Pages/Customer/OrderPage';
 import { NotificationProvider } from './Components/NotificationContext';
 import Dashboard from './Pages/Admin/Dashboard';
+import { ProductProvider } from './Components/ProductContext';
 function App() {
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
   return (
     <NotificationProvider>
-      <UserProvider> {/* Make sure UserProvider is the outermost context */}
-        <CartProvider> {/* CartProvider wraps all components that need cart context */}
-          <BrowserRouter>
-            <Routes>
-              {/* Route for Home page */}
-              <Route path='/' element={<HomePage />} />
-              <Route path="/login" element={<LoginComponent />} />
-              <Route path="/signup" element={<SignUpcomponent />} />
-              <Route path="/service" element={<LuckyImpexServicePage />} />
-              <Route path='/products' element={<Products />} />
-              <Route path='/products/:category' element={<Products />} />
-              <Route path='/products/brand/:brand' element={<BrandSearch />} />
-              <Route path='/cart' element={<CartComponent />} />
-              <Route path='/contact' element={<ContactComponent />} />
-              <Route path='/productdetails/:id' element={<ProductDetails />} />
-              <Route path='/admindashboard' element={<AdminDashboard />} />
-              <Route path='/orders' element={<OrderComponent />} />
-              <Route path='/complaints' element={<ComplaintsComponent />} />
-              <Route path='/feedback' element={<FeedbackList />} />
-              <Route path='/manageproducts' element={<ManageProducts />} />
-              <Route path='/emi' element={<EMI />} />
-              <Route path='/exchange' element={<Exchange />} />
-              <Route path='/store' element={<StoreComponent />} />
-              <Route path="/review/:orderId" element={<ReviewPage />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path='/phones' element={<PhoneShop />} />
-              <Route path='/phonedetails/:id' element={<PhoneDetails />} />
-              <Route path='/orderpage' element={<OrderPage />} />
-              <Route path='/dashboard' element={<Dashboard />} />
+      <UserProvider>
+        <ProductProvider>
 
-            </Routes>
-          </BrowserRouter>
-        </CartProvider>
+
+          <CartProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path='/' element={<HomePage />} />
+                <Route path="/login" element={<LoginComponent />} />
+                <Route path="/signup" element={<SignUpcomponent />} />
+                <Route path="/service" element={<LuckyImpexServicePage />} />
+                <Route path='/products' element={<Products />} />
+                <Route path='/products/:category' element={<Products />} />
+                <Route path='/products/brand/:brand' element={<BrandSearch />} />
+                <Route path='/cart' element={<CartComponent />} />
+                <Route path='/contact' element={<ContactComponent />} />
+                <Route path='/productdetails/:id' element={<ProductDetails />} />
+                <Route path='/admindashboard' element={<AdminDashboard />} />
+                <Route path='/orders' element={<OrderComponent />} />
+                <Route path='/complaints' element={<ComplaintsComponent />} />
+                <Route path='/feedback' element={<FeedbackList />} />
+                <Route path='/manageproducts' element={<ManageProducts />} />
+                <Route path='/emi' element={<EMI />} />
+                <Route path='/exchange' element={<Exchange />} />
+                <Route path='/store' element={<StoreComponent />} />
+                <Route path="/review/:orderId" element={<ReviewPage />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path='/phones' element={<PhoneShop />} />
+                <Route path='/phonedetails/:id' element={<PhoneDetails />} />
+                <Route path='/orderpage' element={<OrderPage />} />
+                <Route path='/dashboard' element={<Dashboard />} />
+              </Routes>
+            </BrowserRouter>
+          </CartProvider>
+        </ProductProvider>
       </UserProvider>
     </NotificationProvider>
   );

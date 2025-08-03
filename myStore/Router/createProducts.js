@@ -51,9 +51,8 @@ router.get('/products', async (req, res) => {
         let products;
         const matchCriteria = category ? { category: category } : {};
         products = await Product.aggregate([
-            {
-                $match: matchCriteria  // Match by category if specified
-            },
+            { $match: matchCriteria },
+            { $sort: { createdAt: -1 } }, // <-- Add this to ensure latest comes first
             {
                 $group: {
                     _id: "$model",
@@ -62,8 +61,12 @@ router.get('/products', async (req, res) => {
             },
             {
                 $replaceRoot: { newRoot: "$productDetails" }
+            },
+            {
+                $sort: { createdAt: -1 } // optional: sort final result again
             }
         ]);
+
 
         res.status(200).json(products);
     } catch (err) {

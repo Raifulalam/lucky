@@ -11,15 +11,15 @@ import back03 from '../../Images/back03.jpg';
 import { UserContext } from '../../Components/UserContext';
 import EditProductModal from './EditProductModal';
 import Modal from '../../Components/Modal';
-import ToggleButton from '../../Components/ToggleButton';
-
+import { useProductContext } from '../../Components/ProductContext';
+import { useRef } from 'react';
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
 };
 
 const Products = () => {
     const { category } = useParams();
-    const [products, setProducts] = useState([]);
+    const { products, setProducts } = useProductContext();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -34,19 +34,23 @@ const Products = () => {
         description: '',
         image: ''
     });
-
+    const productRefs = useRef({});
     const Navigate = useNavigate();
     const { user } = useContext(UserContext);
     const userRole = user?.role || 'user';
 
     const placeholderImage = '/path/to/placeholder-image.jpg'; // Placeholder image
 
-    // Function to fetch products from API
     useEffect(() => {
-        setLoading(true);
-        setError(null);
-        fetchProducts();
-    }, [category]);
+        // Fetch only if products are not already fetched OR category has changed
+        if (!Array.isArray(products) || products.length === 0) {
+            fetchProducts();
+        } else {
+            setLoading(false);
+        }
+    }, [products, category]);
+
+
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -54,16 +58,18 @@ const Products = () => {
 
         try {
             let url = 'https://lucky-back.onrender.com/api/products';
+            if (category) url += `?category=${category}`;
 
-            if (category) {
-                url += `?category=${category}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to fetch products');
+
+            const data = await response.json();
+
+            // Only set products if no existing products are stored
+            if (!Array.isArray(products) || products.length === 0) {
+                setProducts(data);
             }
 
-            const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
-
-            if (!response.ok) throw new Error('Failed to fetch products');
-            const data = await response.json();
-            setProducts(data); // Set products to state
         } catch (err) {
             setError(err.message);
         } finally {
@@ -72,14 +78,14 @@ const Products = () => {
     };
 
     const filteredProducts = useMemo(() => {
-        return products.filter((item) => {
-            // Safely concatenate the fields, fallback to empty string if undefined or null
-            const itemName = (item.name || '') + (item.model || '') + (item.brand || '');
+        return Array.isArray(products)
+            ? products.filter((item) => {
+                const itemName = (item.name || '') + (item.model || '') + (item.brand || '');
+                const lowercasedSearchTerm = (searchTerm || '').toLowerCase();
+                return itemName.toLowerCase().includes(lowercasedSearchTerm);
+            })
+            : [];
 
-            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();
-
-            return itemName.toLowerCase().includes(lowercasedSearchTerm);
-        });
     }, [products, searchTerm]);
 
 
@@ -155,23 +161,30 @@ const Products = () => {
 
     // Navigate to product details page
     const handleDetails = (productId) => {
+        sessionStorage.setItem("scrollPos", window.scrollY);
+        sessionStorage.setItem("clickedProductId", productId);
         Navigate(`/productdetails/${productId}`);
-        window.history.pushState(null, null, window.location.href);
     };
 
     useEffect(() => {
-        const preventBackNavigation = () => {
-            window.history.pushState(null, null, window.location.href);
-        };
+        const productId = sessionStorage.getItem("clickedProductId");
 
-        // Add the onpopstate listener
-        window.onpopstate = preventBackNavigation;
+        if (productId && productRefs.current[productId]) {
+            productRefs.current[productId].scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+            sessionStorage.removeItem("clickedProductId");
+            sessionStorage.removeItem("scrollPos");
+        } else {
+            const scrollPos = sessionStorage.getItem("scrollPos");
+            if (scrollPos) {
+                window.scrollTo(0, parseInt(scrollPos));
+                sessionStorage.removeItem("scrollPos");
+            }
+        }
+    }, [products]); // <- Wait for products to be loaded
 
-        // Cleanup when the component unmounts
-        return () => {
-            window.onpopstate = null;
-        };
-    }, []);
 
     // Debounced search handler
     const handleSearchChange = ((e) => {
@@ -200,7 +213,7 @@ const Products = () => {
         const productData = {
             name,
             mrp,
-            price: bestBuyPrice,   // Renaming 'bestBuyPrice' to 'price' for backend compatibility
+            price: bestBuyPrice,
             category,
             model,
             description,
@@ -296,7 +309,9 @@ const Products = () => {
             <div className="product-grid">
                 {filteredProducts.length > 0 ? (
                     filteredProducts.map((product) => (
-                        <div key={product._id} className="product-container">
+                        <div key={product._id}
+                            ref={(el) => (productRefs.current[product._id] = el)}
+                            className="product-container">
 
                             <div className="product-image-container" onClick={() => handleDetails(product._id)}>
 

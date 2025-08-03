@@ -379,3 +379,17 @@ body {
         font-size: 11px;
     }
 }
+
+.highlighted {
+    animation: flash 1s ease-in-out;
+}
+
+@keyframes flash {
+    0% {
+        background-color: #fffa9e;
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
