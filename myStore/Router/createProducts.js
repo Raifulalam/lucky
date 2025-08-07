@@ -52,20 +52,25 @@ router.get('/products', async (req, res) => {
         const matchCriteria = category ? { category: category } : {};
         products = await Product.aggregate([
             { $match: matchCriteria },
-            { $sort: { createdAt: -1 } }, // <-- Add this to ensure latest comes first
+
+            // Step 1: Sort BEFORE grouping
+            { $sort: { createdAt: -1, _id: -1 } }, // Use _id as tie-breaker if needed
+
+            // Step 2: Group by model, keep the most recent product for each model
             {
                 $group: {
                     _id: "$model",
                     productDetails: { $first: "$$ROOT" }
                 }
             },
-            {
-                $replaceRoot: { newRoot: "$productDetails" }
-            },
-            {
-                $sort: { createdAt: -1 } // optional: sort final result again
-            }
+
+            // Step 3: Flatten
+            { $replaceRoot: { newRoot: "$productDetails" } },
+
+            // Step 4: Final sort — optional if you want grouped results also sorted
+            { $sort: { createdAt: -1 } }
         ]);
+
 
 
         res.status(200).json(products);

@@ -41,6 +41,14 @@ const Products = () => {
 
     const placeholderImage = '/path/to/placeholder-image.jpg'; // Placeholder image
 
+
+    useEffect(() => {
+        if (!sessionStorage.getItem("reloadedOnce")) {
+            sessionStorage.setItem("reloadedOnce", "true");
+            window.location.reload();
+        }
+    }, []);
+
     useEffect(() => {
         // Fetch only if products are not already fetched OR category has changed
         if (!Array.isArray(products) || products.length === 0) {
@@ -52,6 +60,10 @@ const Products = () => {
 
 
 
+    useEffect(() => {
+        fetchProducts();
+    }, [category]);
+
     const fetchProducts = async () => {
         setLoading(true);
         setError(null);
@@ -60,15 +72,16 @@ const Products = () => {
             let url = 'https://lucky-back.onrender.com/api/products';
             if (category) url += `?category=${category}`;
 
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    "Cache-Control": "no-cache",
+                }
+            });
             if (!response.ok) throw new Error('Failed to fetch products');
 
             const data = await response.json();
 
-            // Only set products if no existing products are stored
-            if (!Array.isArray(products) || products.length === 0) {
-                setProducts(data);
-            }
+            setProducts(data); // always update products
 
         } catch (err) {
             setError(err.message);
@@ -76,6 +89,7 @@ const Products = () => {
             setLoading(false);
         }
     };
+
 
     const filteredProducts = useMemo(() => {
         return Array.isArray(products)
