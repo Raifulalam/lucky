@@ -3,7 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
-
+const Product = require("./Models/products");
 
 const cors = require('cors');
 const dashboardRoutes = require('./Router/Dashboard');
@@ -48,6 +48,25 @@ app.use('/api', require('./Router/contactMessage'));
 app.use('/api', require('./Router/MobileRouter'));
 app.use('/api/dashboard', dashboardRoutes)
 
+
+
+// Ensure indexes on startup
+mongoose.connection.once("open", async () => {
+    try {
+        await Product.collection.createIndex({ category: 1 });
+        await Product.collection.createIndex({ brand: 1 });
+        await Product.collection.createIndex({ model: 1 });
+        await Product.collection.createIndex({ createdAt: -1 });
+        await Product.collection.createIndex({
+            name: "text",
+            description: "text",
+            keywords: "text"
+        });
+        console.log("Indexes created/ensured successfully ✅");
+    } catch (err) {
+        console.error("Error creating indexes:", err);
+    }
+});
 
 
 app.use('/uploads', express.static(path.join(__dirname, './uploads')));
