@@ -81,6 +81,7 @@ const Header = () => {
             <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/emi')} className="dropbtn">EMI <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/store')} className="dropbtn">EMI <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/exchange')} className="dropbtn">Exchange ⇆ <p>&#10148;</p></button>
             <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
         </>
