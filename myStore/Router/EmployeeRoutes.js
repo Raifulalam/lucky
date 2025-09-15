@@ -4,44 +4,74 @@ const Employee = require("../Models/Employee");
 const Attendance = require("../Models/Attendance");
 const Leave = require("../Models/Leave");
 const Salary = require("../Models/Salary");
-const authMiddleware = require("../authMiddleware");
+const { authenticateToken, authorizeRoles } = require("../authMiddleware");
+const jwt = require("jsonwebtoken");
 
+// ---------------- EMPLOYEE CRUD ----------------
 
-// ---------------- EMPLOYEE ----------------
-
-// ✅ Create Employee
-router.post("/create-employee", authMiddleware, async (req, res) => {
+// ✅ Create Employee (Admin Only)
+router.post("/create-employee", authenticateToken, authorizeRoles("admin"), async (req, res) => {
     try {
-        const { name, email, phone, department, designation, salary } = req.body;
+        const { name, email, password, phone, department, designation, salary } = req.body;
+
+        const existing = await Employee.findOne({ email });
+        if (existing) {
+            return res.status(400).json({ success: false, message: "Employee already exists" });
+        }
 
         const newEmployee = new Employee({
             name,
             email,
+            password, // hashed automatically
             phone,
             department,
             designation,
-            salary,
+            salary
         });
 
         await newEmployee.save();
-        res.status(201).json({ success: true, employee: newEmployee });
+
+        res.status(201).json({ success: true, message: "Employee created successfully" });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// ✅ Get All Employees
-router.get("/employees", authMiddleware, async (req, res) => {
+// ✅ Employee Login
+router.post("/login-employee", async (req, res) => {
     try {
-        const employees = await Employee.find();
+        const { email, password } = req.body;
+
+        const employee = await Employee.findOne({ email });
+        if (!employee) return res.status(400).json({ success: false, message: "Invalid email or password" });
+
+        const isMatch = await employee.comparePassword(password);
+        if (!isMatch) return res.status(400).json({ success: false, message: "Invalid email or password" });
+
+        const token = jwt.sign(
+            { id: employee._id, role: employee.role },
+            "your_jwt_secret_key",
+            { expiresIn: "1d" }
+        );
+
+        res.json({ success: true, token, employee: { id: employee._id, name: employee.name, email: employee.email, role: employee.role } });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// ✅ Get All Employees (Admin Only)
+router.get("/employees", authenticateToken, authorizeRoles("admin"), async (req, res) => {
+    try {
+        const employees = await Employee.find().select("-password");
         res.status(200).json({ success: true, employees });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// ✅ Update Employee
-router.put("/employee/:id", authMiddleware, async (req, res) => {
+// ✅ Update Employee (Admin Only)
+router.put("/employee/:id", authenticateToken, authorizeRoles("admin"), async (req, res) => {
     try {
         const employee = await Employee.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
@@ -51,8 +81,8 @@ router.put("/employee/:id", authMiddleware, async (req, res) => {
     }
 });
 
-// ✅ Delete Employee
-router.delete("/employee/:id", authMiddleware, async (req, res) => {
+// ✅ Delete Employee (Admin Only)
+router.delete("/employee/:id", authenticateToken, authorizeRoles("admin"), async (req, res) => {
     try {
         const employee = await Employee.findByIdAndDelete(req.params.id);
         if (!employee) return res.status(404).json({ success: false, message: "Employee not found" });
@@ -63,144 +93,63 @@ router.delete("/employee/:id", authMiddleware, async (req, res) => {
 });
 
 
-// ---------------- ATTENDANCE ----------------
+// ---------------- ADMIN DASHBOARD ----------------
 
-// ✅ Mark Attendance
-router.post("/attendance", authMiddleware, async (req, res) => {
+// ✅ Admin Dashboard Stats
+router.get("/admin-dashboard", authenticateToken, authorizeRoles("admin"), async (req, res) => {
     try {
-        const { employeeId, status, checkIn, checkOut } = req.body;
+        const totalEmployees = await Employee.countDocuments();
+        const activeEmployees = await Employee.countDocuments({ status: "Active" });
+        const totalLeaves = await Leave.countDocuments();
+        const pendingLeaves = await Leave.countDocuments({ status: "Pending" });
+        const totalAttendance = await Attendance.countDocuments();
+        const totalSalaryPaid = await Salary.aggregate([
+            { $group: { _id: null, total: { $sum: "$netSalary" } } }
+        ]);
 
-        const attendance = new Attendance({ employeeId, status, checkIn, checkOut });
-        await attendance.save();
-        res.status(201).json({ success: true, attendance });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// ✅ Get Attendance by Employee
-router.get("/attendance/:employeeId", authMiddleware, async (req, res) => {
-    try {
-        const records = await Attendance.find({ employeeId: req.params.employeeId });
-        res.json({ success: true, records });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// ✅ Update Attendance
-router.put("/attendance/:id", authMiddleware, async (req, res) => {
-    try {
-        const record = await Attendance.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!record) return res.status(404).json({ success: false, message: "Attendance not found" });
-        res.json({ success: true, record });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// ✅ Delete Attendance
-router.delete("/attendance/:id", authMiddleware, async (req, res) => {
-    try {
-        const record = await Attendance.findByIdAndDelete(req.params.id);
-        if (!record) return res.status(404).json({ success: false, message: "Attendance not found" });
-        res.json({ success: true, message: "Attendance deleted" });
+        res.json({
+            success: true,
+            stats: {
+                totalEmployees,
+                activeEmployees,
+                totalLeaves,
+                pendingLeaves,
+                totalAttendance,
+                totalSalaryPaid: totalSalaryPaid[0]?.total || 0
+            }
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
 
-// ---------------- LEAVE ----------------
+// ---------------- EMPLOYEE DASHBOARD ----------------
 
-// ✅ Apply Leave
-router.post("/leave", authMiddleware, async (req, res) => {
+// ✅ Employee Dashboard (self)
+router.get("/employee-dashboard/:id", authenticateToken, async (req, res) => {
     try {
-        const { employeeId, startDate, endDate, type, reason } = req.body;
-        const leave = new Leave({ employeeId, startDate, endDate, type, reason });
-        await leave.save();
-        res.status(201).json({ success: true, leave });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
+        const { id } = req.params;
 
-// ✅ Get Leave Requests
-router.get("/leave/:employeeId", authMiddleware, async (req, res) => {
-    try {
-        const leaves = await Leave.find({ employeeId: req.params.employeeId });
-        res.json({ success: true, leaves });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
+        if (req.user.role === "employee" && req.user.id !== id) {
+            return res.status(403).json({ message: "Access denied. You can only view your own stats." });
+        }
 
-// ✅ Update Leave (Approve/Reject)
-router.put("/leave/:id", authMiddleware, async (req, res) => {
-    try {
-        const leave = await Leave.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!leave) return res.status(404).json({ success: false, message: "Leave not found" });
-        res.json({ success: true, leave });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
+        const attendanceCount = await Attendance.countDocuments({ employeeId: id, status: "Present" });
+        const leaves = await Leave.find({ employeeId: id });
+        const salaries = await Salary.find({ employeeId: id });
 
-// ✅ Delete Leave
-router.delete("/leave/:id", authMiddleware, async (req, res) => {
-    try {
-        const leave = await Leave.findByIdAndDelete(req.params.id);
-        if (!leave) return res.status(404).json({ success: false, message: "Leave not found" });
-        res.json({ success: true, message: "Leave deleted" });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-
-// ---------------- SALARY ----------------
-
-// ✅ Generate Salary
-router.post("/salary", authMiddleware, async (req, res) => {
-    try {
-        const { employeeId, month, year, baseSalary, bonuses, deductions } = req.body;
-        const netSalary = baseSalary + (bonuses || 0) - (deductions || 0);
-
-        const salary = new Salary({ employeeId, month, year, baseSalary, bonuses, deductions, netSalary });
-        await salary.save();
-        res.status(201).json({ success: true, salary });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// ✅ Get Salary Records
-router.get("/salary/:employeeId", authMiddleware, async (req, res) => {
-    try {
-        const salaries = await Salary.find({ employeeId: req.params.employeeId });
-        res.json({ success: true, salaries });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// ✅ Update Salary (e.g., mark as Paid)
-router.put("/salary/:id", authMiddleware, async (req, res) => {
-    try {
-        const salary = await Salary.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!salary) return res.status(404).json({ success: false, message: "Salary record not found" });
-        res.json({ success: true, salary });
-    } catch (err) {
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// ✅ Delete Salary Record
-router.delete("/salary/:id", authMiddleware, async (req, res) => {
-    try {
-        const salary = await Salary.findByIdAndDelete(req.params.id);
-        if (!salary) return res.status(404).json({ success: false, message: "Salary record not found" });
-        res.json({ success: true, message: "Salary record deleted" });
+        res.json({
+            success: true,
+            stats: {
+                totalAttendance: attendanceCount,
+                totalLeaves: leaves.length,
+                approvedLeaves: leaves.filter(l => l.status === "Approved").length,
+                rejectedLeaves: leaves.filter(l => l.status === "Rejected").length,
+                totalSalaryReceived: salaries.reduce((sum, s) => sum + s.netSalary, 0),
+                lastSalary: salaries[salaries.length - 1] || null
+            }
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }

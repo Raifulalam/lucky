@@ -46,6 +46,7 @@ app.use('/api', require('./Router/complaints'));
 app.use('/api', require('./Router/productcategory'));
 app.use('/api', require('./Router/contactMessage'));
 app.use('/api', require('./Router/MobileRouter'));
+app.use('/api', require('./Router/EmployeeRoutes'))
 app.use('/api/dashboard', dashboardRoutes)
 
 
