@@ -1,0 +1,301 @@
+/* General Page Styling */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f6fa;
+    color: #333;
+}
+
+.p-6 {
+    padding: 1.5rem;
+}
+
+/* Tabs */
+button {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* Employee Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+thead th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+}
+
+tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Buttons */
+button,
+.action-btn {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.bg-blue-600 {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+.bg-red-600 {
+    background-color: #dc2626;
+    color: #fff;
+}
+
+.bg-green-600 {
+    background-color: #16a34a;
+    color: #fff;
+}
+
+.bg-gray-600 {
+    background-color: #4b5563;
+    color: #fff;
+}
+
+.bg-yellow-500 {
+    background-color: #eab308;
+    color: #fff;
+}
+
+.bg-gray-200 {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+button:disabled,
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Attendance / Leave / Salary Action Buttons */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+/* Attendance Modal */
+.attendance-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    z-index: 1000;
+}
+
+.attendance-modal h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.attendance-modal ul {
+    list-style-type: disc;
+    margin-left: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.attendance-modal button {
+    background-color: #2563eb;
+    color: #fff;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.35rem;
+    font-weight: 500;
+}
+
+/* Modal Overlay (for Add/Edit Employee) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Add/Edit Employee Modal Form */
+.modal-content {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.modal-content form input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.35rem;
+    margin-bottom: 0.75rem;
+    transition: border 0.2s;
+}
+
+.modal-content form input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.modal-content form button {
+    background-color: #2563eb;
+    color: #fff;
+    width: 100%;
+    padding: 0.5rem 0;
+    border-radius: 0.35rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.modal-content form button:hover:not(:disabled) {
+    background-color: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .flex {
+        flex-direction: column;
+    }
+
+    .space-x-4 {
+        gap: 0.5rem;
+    }
+
+    table,
+    th,
+    td {
+        font-size: 0.85rem;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
+}
+
+/* Employee / Attendance / Leave / Salary Cards */
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Buttons inside cards */
+.card-actions .action-btn {
+    flex: 1 1 calc(50% - 0.5rem);
+    justify-content: center;
+}
+
+/* Attendance Modal (unchanged) */
+.attendance-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    padding: 1.5rem;
+    z-index: 1000;
+}
+
+.attendance-modal h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.attendance-modal ul {
+    list-style-type: disc;
+    margin-left: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.attendance-modal button {
+    background-color: #2563eb;
+    color: #fff;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.35rem;
+    font-weight: 500;
+}
+
+/* Responsive Cards */
+@media (max-width: 768px) {
+    .card-actions .action-btn {
+        flex: 1 1 100%;
+    }
+}

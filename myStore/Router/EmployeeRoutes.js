@@ -1,35 +1,24 @@
 const express = require("express");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+
 const Employee = require("../Models/Employee");
 const Attendance = require("../Models/Attendance");
 const Leave = require("../Models/Leave");
 const Salary = require("../Models/Salary");
 const authMiddleware = require("../authMiddleware");
 
-
-// ---------------- EMPLOYEE ----------------
+// ---------------------------- EMPLOYEE ROUTES ----------------------------
 
 // ✅ Create Employee
 router.post("/create-employee", authMiddleware, async (req, res) => {
     try {
         const { name, email, password, phone, department, designation, salary } = req.body;
 
-        // check if employee exists
         const existing = await Employee.findOne({ email });
-        if (existing) {
-            return res.status(400).json({ success: false, message: "Employee already exists" });
-        }
+        if (existing) return res.status(400).json({ success: false, message: "Employee already exists" });
 
-        const newEmployee = new Employee({
-            name,
-            email,
-            password,  // hashed automatically
-            phone,
-            department,
-            designation,
-            salary
-        });
-
+        const newEmployee = new Employee({ name, email, password, phone, department, designation, salary });
         await newEmployee.save();
 
         res.status(201).json({ success: true, message: "Employee created successfully" });
@@ -37,32 +26,30 @@ router.post("/create-employee", authMiddleware, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
+// ✅ Employee Login
 router.post("/login-employee", async (req, res) => {
     try {
         const { email, password } = req.body;
 
         const employee = await Employee.findOne({ email });
-        if (!employee) {
-            return res.status(400).json({ success: false, message: "Invalid email or password" });
-        }
+        if (!employee) return res.status(400).json({ success: false, message: "Invalid email or password" });
 
         const isMatch = await employee.comparePassword(password);
-        if (!isMatch) {
-            return res.status(400).json({ success: false, message: "Invalid email or password" });
-        }
+        if (!isMatch) return res.status(400).json({ success: false, message: "Invalid email or password" });
 
-        // create JWT token
-        const token = jwt.sign(
-            { id: employee._id, role: "employee" },
-            "bcdjbsfnkndskdemlfwfkebfkw11",
-            { expiresIn: "1d" }
-        );
+        const token = jwt.sign({ id: employee._id, role: "employee" }, "bcdjbsfnkndskdemlfwfkebfkw11", { expiresIn: "1d" });
 
-        res.json({ success: true, token, employee: { id: employee._id, name: employee.name, email: employee.email } });
+        res.json({
+            success: true,
+            token,
+            employee: { id: employee._id, name: employee.name, email: employee.email }
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 // ✅ Get All Employees
 router.get("/employees", authMiddleware, async (req, res) => {
     try {
@@ -95,30 +82,35 @@ router.delete("/employee/:id", authMiddleware, async (req, res) => {
     }
 });
 
-
-// ---------------- ATTENDANCE ----------------
+// ---------------------------- ATTENDANCE ROUTES ----------------------------
 
 // ✅ Mark Attendance
 router.post("/attendance", authMiddleware, async (req, res) => {
     try {
         const { employeeId, status, checkIn, checkOut } = req.body;
 
-        // If employee is marking, force employeeId to their own id
-        if (req.user.role === "employee") {
-            if (req.user.id !== employeeId) {
-                return res.status(403).json({ message: "You can only mark your own attendance." });
-            }
+        // Employees can mark only their own attendance
+        if (req.user.role === "employee" && req.user.id !== employeeId) {
+            return res.status(403).json({ message: "You can only mark your own attendance." });
         }
 
-        const attendance = new Attendance({
+        // Check if attendance already marked today
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const existing = await Attendance.findOne({
             employeeId,
-            status,
-            checkIn,
-            checkOut,
+            date: { $gte: today, $lt: tomorrow }
         });
+
+        if (existing) return res.status(400).json({ success: false, message: "Attendance already marked for today!" });
+
+        const attendance = new Attendance({ employeeId, status, checkIn, checkOut, date: new Date() });
         await attendance.save();
 
-        res.status(201).json({ success: true, attendance });
+        res.status(201).json({ success: true, message: "Attendance marked", record: attendance });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -129,7 +121,6 @@ router.get("/attendance/:employeeId", authMiddleware, async (req, res) => {
     try {
         const { employeeId } = req.params;
 
-        // Employee can only view their own attendance
         if (req.user.role === "employee" && req.user.id !== employeeId) {
             return res.status(403).json({ message: "Access denied. You can only view your own attendance." });
         }
@@ -144,9 +135,7 @@ router.get("/attendance/:employeeId", authMiddleware, async (req, res) => {
 // ✅ Update Attendance (Admin only)
 router.put("/attendance/:id", authMiddleware, async (req, res) => {
     try {
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ message: "Only admin can update attendance." });
-        }
+        if (req.user.role !== "admin") return res.status(403).json({ message: "Only admin can update attendance." });
 
         const record = await Attendance.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!record) return res.status(404).json({ success: false, message: "Attendance not found" });
@@ -160,9 +149,7 @@ router.put("/attendance/:id", authMiddleware, async (req, res) => {
 // ✅ Delete Attendance (Admin only)
 router.delete("/attendance/:id", authMiddleware, async (req, res) => {
     try {
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ message: "Only admin can delete attendance." });
-        }
+        if (req.user.role !== "admin") return res.status(403).json({ message: "Only admin can delete attendance." });
 
         const record = await Attendance.findByIdAndDelete(req.params.id);
         if (!record) return res.status(404).json({ success: false, message: "Attendance not found" });
@@ -173,9 +160,7 @@ router.delete("/attendance/:id", authMiddleware, async (req, res) => {
     }
 });
 
-
-
-// ---------------- LEAVE ----------------
+// ---------------------------- LEAVE ROUTES ----------------------------
 
 // ✅ Apply Leave
 router.post("/leave", authMiddleware, async (req, res) => {
@@ -221,17 +206,17 @@ router.delete("/leave/:id", authMiddleware, async (req, res) => {
     }
 });
 
-
-// ---------------- SALARY ----------------
+// ---------------------------- SALARY ROUTES ----------------------------
 
 // ✅ Generate Salary
 router.post("/salary", authMiddleware, async (req, res) => {
     try {
-        const { employeeId, month, year, baseSalary, bonuses, deductions } = req.body;
-        const netSalary = baseSalary + (bonuses || 0) - (deductions || 0);
+        const { employeeId, month, year, baseSalary, bonuses = 0, deductions = 0 } = req.body;
+        const netSalary = baseSalary + bonuses - deductions;
 
         const salary = new Salary({ employeeId, month, year, baseSalary, bonuses, deductions, netSalary });
         await salary.save();
+
         res.status(201).json({ success: true, salary });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
@@ -269,22 +254,18 @@ router.delete("/salary/:id", authMiddleware, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
-// ---------------- DASHBOARD ----------------
 
-// ✅ Admin Dashboard
+// ---------------------------- DASHBOARD ROUTES ----------------------------
+
+// ✅ Admin Dashboard Stats
 router.get("/admin-dashboard", authMiddleware, async (req, res) => {
     try {
-        // Only admin can see this
-        if (req.user.role !== "admin") {
-            return res.status(403).json({ message: "Access denied. Admins only." });
-        }
+        if (req.user.role !== "admin") return res.status(403).json({ message: "Admins only." });
 
         const totalEmployees = await Employee.countDocuments();
         const totalAttendance = await Attendance.countDocuments();
         const totalLeaves = await Leave.countDocuments();
-        const totalSalaryPaid = await Salary.aggregate([
-            { $group: { _id: null, total: { $sum: "$netSalary" } } }
-        ]);
+        const totalSalaryPaid = await Salary.aggregate([{ $group: { _id: null, total: { $sum: "$netSalary" } } }]);
 
         res.json({
             success: true,
@@ -299,16 +280,89 @@ router.get("/admin-dashboard", authMiddleware, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+router.get("/admin-employeeStats", authMiddleware, async (req, res) => {
+    try {
+        // Only admin can see this
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied. Admins only." });
+        }
 
-// ✅ Employee Dashboard
+        // Fetch all employees
+        const employees = await Employee.find();
+
+        // Prepare detailed stats for each employee
+        const employeeStats = await Promise.all(
+            employees.map(async (emp) => {
+                // Calculate total days since joining
+                const joinDate = new Date(emp.joinDate);
+                const today = new Date();
+                const totalDays = Math.ceil(
+                    (today - joinDate) / (1000 * 60 * 60 * 24)
+                );
+
+                // Fetch attendance records for this employee
+                const attendanceRecords = await Attendance.find({ employeeId: emp._id });
+
+                const totalPresent = attendanceRecords.filter(
+                    (a) => a.status === "Present"
+                ).length;
+
+                const totalAbsent = attendanceRecords.filter(
+                    (a) => a.status === "Absent"
+                ).length;
+
+                const totalAttendance = totalPresent + totalAbsent;
+
+                // Fetch leaves for this employee
+                const leaves = await Leave.find({ employeeId: emp._id });
+                const totalLeaves = leaves.length;
+
+                // Fetch total salary paid
+                const salaryPaid = await Salary.aggregate([
+                    { $match: { employeeId: emp._id } },
+                    { $group: { _id: null, total: { $sum: "$netSalary" } } },
+                ]);
+
+
+                // Effective working days after excluding leaves
+                const effectiveDays = totalDays - totalLeaves;
+
+                return {
+                    empId: emp._id,
+                    name: emp.name,
+                    email: emp.email,
+                    phone: emp.phone,
+                    salary: emp.salary,
+                    status: emp.status,
+                    department: emp.department,
+                    designation: emp.designation,
+                    joinedDate: emp.joinDate,
+                    totalDays,
+                    totalPresent,
+                    totalAbsent,
+                    totalAttendance,
+                    totalLeaves,
+                    totalSalaryPaid: salaryPaid[0]?.total || 0,
+                    effectiveDays,
+                };
+            })
+        );
+
+        // Send response
+        res.json({
+            success: true,
+            employees: employeeStats,
+        });
+    } catch (err) {
+        console.error("Error in admin-dashboard:", err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+// ✅ Employee Dashboard Stats
 router.get("/employee-dashboard/:id", authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-
-        // Employee can only see their own stats
-        if (req.user.role === "employee" && req.user.id !== id) {
-            return res.status(403).json({ message: "Access denied. You can only view your own stats." });
-        }
+        if (req.user.role === "employee" && req.user.id !== id) return res.status(403).json({ message: "Access denied." });
 
         const attendanceCount = await Attendance.countDocuments({ employeeId: id, status: "Present" });
         const leaves = await Leave.find({ employeeId: id });
@@ -330,5 +384,7 @@ router.get("/employee-dashboard/:id", authMiddleware, async (req, res) => {
     }
 });
 
-
 module.exports = router;
+
+
+

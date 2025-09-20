@@ -28,6 +28,7 @@ import OrderPage from './Pages/Customer/OrderPage';
 import { NotificationProvider } from './Components/NotificationContext';
 import Dashboard from './Pages/Admin/Dashboard';
 import { ProductProvider } from './Components/ProductContext';
+import EmployeeManager from './Pages/Admin/ManageEmployee';
 function App() {
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -68,6 +69,8 @@ function App() {
                 <Route path='/phonedetails/:id' element={<PhoneDetails />} />
                 <Route path='/orderpage' element={<OrderPage />} />
                 <Route path='/dashboard' element={<Dashboard />} />
+                <Route path='/employee-manage' element={<EmployeeManager />} />
+
               </Routes>
             </BrowserRouter>
           </CartProvider>

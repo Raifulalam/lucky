@@ -39,6 +39,7 @@ const Sidebar = () => (
             <li><a href="/admindashboard"><FaUsers /> Users</a></li>
             <li><a href="/complaints"><FaComments /> Complaints</a></li>
             <li><a href="/feedback"><FaStar /> Reviews</a></li>
+            <li><a href="/employee-manage"><FaStar /> Manage Employee</a></li>
             <li><a href="#"><FaCogs /> Settings</a></li>
         </ul>
     </div>
