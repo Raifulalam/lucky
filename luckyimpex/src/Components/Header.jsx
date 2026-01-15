@@ -68,7 +68,7 @@ const Header = () => {
             >
                 Categories <p>&#10148;</p>
                 {isShopHovered && (
-                    <select className="dropdown-select">
+                    <select className="dropdown-select" onChange={handleCategoryChange}>
                         {categories.map(category =>
                             <option key={category.name} value={category.name}>{category.name}</option>
                         )}
