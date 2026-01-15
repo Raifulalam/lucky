@@ -51,7 +51,7 @@ export default function HRDashboard() {
         setLoading(true);
         try {
             const url = isEdit
-                ? `https://lucky-back.onrender.com/api/employee/${formData._id}`
+                ? `https://lucky-back.onrender.com/api/employee/${formData.empId}`
                 : "https://lucky-back.onrender.com/api/create-employee";
             const method = isEdit ? "PUT" : "POST";
 
@@ -188,10 +188,8 @@ export default function HRDashboard() {
                                         <td className="px-4 py-2">{emp.department}</td>
                                         <td className="px-4 py-2">{emp.designation}</td>
                                         <td className="px-4 py-2">₹{emp.salary}</td>
-
-
                                         <td className="px-4 py-2">
-                                            ({emp.totalPresent}/{emp.totalDays}){emp.totalDays > 0 ? ((emp.totalPresent / emp.totalDays) * 100).toFixed(2) : 0}%
+                                            ({emp.totalPresent}/{emp.totalAbsent}){emp.totalAttendance > 0 ? ((emp.totalPresent / emp.totalAttendance) * 100).toFixed(2) : 0}%
                                         </td>
                                         <td className="px-4 py-2">{emp.effectiveDays}</td>
                                         <td className="px-4 py-2">{new Date(emp.joinedDate).toLocaleDateString()}</td>

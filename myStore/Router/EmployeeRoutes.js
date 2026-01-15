@@ -286,8 +286,6 @@ router.get("/admin-employeeStats", authMiddleware, async (req, res) => {
         if (req.user.role !== "admin") {
             return res.status(403).json({ message: "Access denied. Admins only." });
         }
-
-        // Fetch all employees
         const employees = await Employee.find();
 
         // Prepare detailed stats for each employee
@@ -359,7 +357,7 @@ router.get("/admin-employeeStats", authMiddleware, async (req, res) => {
     }
 });
 // ✅ Employee Dashboard Stats
-router.get("/employee-dashboard/:id", authMiddleware, async (req, res) => {
+router.get("/employee-dashboard", authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         if (req.user.role === "employee" && req.user.id !== id) return res.status(403).json({ message: "Access denied." });

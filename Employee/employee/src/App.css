@@ -1,0 +1,56 @@
+/* Layout container */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  /* equivalent to w-60 */
+  background-color: #1f2937;
+  /* gray-800 */
+  color: white;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.sidebar .logo {
+  font-size: 1.25rem;
+  /* text-xl */
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.sidebar .menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar .menu li {
+  margin-bottom: 16px;
+  /* space-y-4 */
+}
+
+.sidebar .menu li a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.sidebar .menu li a:hover {
+  color: #60a5fa;
+  /* hover blue */
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  /* p-6 */
+  background-color: #f9fafb;
+  /* light gray background */
+  box-sizing: border-box;
+}

@@ -13,7 +13,7 @@ const PromoBanner = ({ isNewYear }) => {
             ) : (
                 <>
                     <h2>🔥 Flash Sale: 20% OFF on all electronics!</h2>
-                    <p>Get the best deals on top brands. Limited Time Offer.</p>
+                    <p>Grab exciting discounts on top electronics & home appliances</p>
                     <button className="btn-primary" onClick={() => navigate("/products")}>Shop Now</button>
                     <div className="offers">
                         <Link to="/emi" className="offer"><Percent /> EMI Available</Link>
@@ -24,5 +24,9 @@ const PromoBanner = ({ isNewYear }) => {
         </section>
     );
 };
+
+
+
+
 
 export default PromoBanner;

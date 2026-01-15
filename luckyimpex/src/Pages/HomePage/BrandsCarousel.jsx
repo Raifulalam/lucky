@@ -16,7 +16,7 @@ const BrandsCarousel = () => {
                         onClick={() => navigate(`/products/brand/${brand}`)}
                         aria-label={`View ${brand} products`}
                     >
-                        <img src={`/${brand.toLowerCase()}.png`} alt={`${brand} logo`} loading="lazy" />
+                        <img src={`/${brand.toLowerCase()}.png `} alt={`${brand} logo`} loading="lazy" />
                     </button>
                 ))}
             </div>

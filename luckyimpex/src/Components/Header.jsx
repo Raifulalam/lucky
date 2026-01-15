@@ -28,6 +28,7 @@ const Header = () => {
         window.location.reload();
     }, [navigate]);
     const categories = [
+        { name: 'Products' },
         { name: 'AirConditioners' },
         { name: 'Refrigerators' },
         { name: 'WashingMachines' },
@@ -37,7 +38,8 @@ const Header = () => {
         { name: 'HomeAppliances' },
         { name: 'HomeTheater' },
         { name: 'AirCooler' },
-        { name: 'ChestFreezer' }
+        { name: 'ChestFreezer' },
+
     ];
     const handleCategoryChange = (event) => {
         handleNavigation(`/products/${event.target.value}`)
@@ -107,9 +109,9 @@ const Header = () => {
             <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/store')} className="dropbtn">Our Stores <p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
+            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Contact Us<p>&#10148;</p></button>
             <button onClick={() => handleNavigation('/login')} className="dropbtn">Login <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/signup')} className="dropbtn">Sign Up <p>&#10148;</p></button>
+
         </>
     );
 

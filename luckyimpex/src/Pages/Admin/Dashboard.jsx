@@ -112,8 +112,6 @@ export default function Dashboard() {
 
         // Employee stats
         { title: "Employees", value: employeeStats.totalEmployees, icon: <FaUserTie /> },
-        { title: "Attendance Records", value: employeeStats.totalAttendance, icon: <FaCalendarCheck /> },
-        { title: "Total Leaves", value: employeeStats.totalLeaves, icon: <FaUmbrellaBeach /> },
         { title: "Salary Paid", value: `₹${employeeStats.totalSalaryPaid}`, icon: <FaMoneyBillWave /> },
     ];
 

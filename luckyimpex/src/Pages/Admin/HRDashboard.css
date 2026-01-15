@@ -218,11 +218,11 @@ button:disabled,
 }
 
 /* Employee / Attendance / Leave / Salary Cards */
-.card-container {
+/* .card-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
-}
+} */
 
 .card {
     background-color: #fff;
