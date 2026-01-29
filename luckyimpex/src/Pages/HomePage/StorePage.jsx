@@ -4,7 +4,7 @@ import './StoreComponent.css'; // Add this CSS file for styling
 // import { useNavigate } from 'react-router-dom';
 import { ContactComponent } from '../Contact/Contact';
 import Header from '../../Components/Header';
-
+import { useMemo } from 'react';
 const StoreComponent = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     // const navigaet = useNavigate();
@@ -12,38 +12,39 @@ const StoreComponent = () => {
     //     navigaet(path);
     // }
 
-    const branches = [
+    const branches = useMemo(() => [
         {
             name: "Lucky Impex Birgunj (Main)",
             location: [27.0138387, 84.8803044],
             contact: "Phone: +977-9807286786, Tel: 051531789, Email: luckyimpex4u@gmail.com",
             address: "Link Road Ghantaghar, Birgunj, Nepal",
-            hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:AM - 3:00 PM",
-            description: "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
+            hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:00 AM - 3:00 PM",
+            description:
+                "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
             images: ["lucky1.jpg", "guest6.jpg", "lucky2.jpg", "lucky3.jpg"],
-
         },
         {
             name: "Lucky Impex Birgunj",
             location: [27.01211, 84.8770902],
-            contact: "Phone: +977-9807216321, Email: luckyimpexmainroad@gmial.com",
-            address: "Main Road Maisthan, Birguj, Nepal",
-            hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:AM - 3:00 PM",
-            description: "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
+            contact: "Phone: +977-9807216321, Email: luckyimpexmainroad@gmail.com",
+            address: "Main Road Maisthan, Birgunj, Nepal",
+            hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:00 AM - 3:00 PM",
+            description:
+                "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
             images: ["lucky3.jpg", "lucky4.jpg"],
-
         },
         {
             name: "Lucky Impex Simra",
             location: [27.161434, 84.975124],
-            contact: "Phone: +977-9810818276, Email: luckyimpexsimra@gmial.com",
-            address: "Simra Main Road (infront of Surya Nepal Udhyog), Nepal",
-            hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:AM - 3:00 PM",
-            description: "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
+            contact: "Phone: +977-9810818276, Email: luckyimpexsimra@gmail.com",
+            address: "Simra Main Road (in front of Surya Nepal Udhyog), Nepal",
+            hours: "Sun-Fri: 10:00 AM - 8:00 PM, Sat: 10:00 AM - 3:00 PM",
+            description:
+                "Our flagship branch located in the heart of Birgunj offering a wide range of Electronics products.",
             images: ["guest5.jpg", "lucky5.jpg"],
+        },
+    ], []);
 
-        }
-    ];
 
     const awards = [
         {

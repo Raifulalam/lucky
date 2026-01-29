@@ -64,7 +64,7 @@ const PhoneShop = () => {
         } finally {
             setLoading(false);
         }
-    });
+    }, []);
     // Function to fetch products from API
     useEffect(() => {
         setLoading(true);
