@@ -1,14 +1,9 @@
 {
-    "plugins": [
-        "react",
-        "react-hooks"
-    ],
     "extends": [
         "react-app",
-        "react-app/jest",
-        "plugin:react-hooks/recommended"
+        "react-app/jest"
     ],
     "rules": {
-        "react-hooks/exhaustive-deps": "warn"
+        "no-unused-vars": "warn"
     }
 }
