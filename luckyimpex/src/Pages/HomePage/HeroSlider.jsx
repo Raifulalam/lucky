@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { images } from "./Constants";
-import { useNavigate } from "react-router-dom";
+
 
 const HeroSlider = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const navigate = useNavigate();
+
 
     useEffect(() => {
         const interval = setInterval(() => {
