@@ -19,7 +19,7 @@ function SignupComponent() {
     const handleEmailChange = (event) => setEmail(event.target.value);
     const handleNameChange = (event) => setName(event.target.value);
     const handlePasswordChange = (event) => setPassword(event.target.value);
-    const handleLocationChange = (event) => setLocation(event.target.value);
+    // const handleLocationChange = (event) => setLocation(event.target.value);
 
     const handleSubmit = async (event) => {
         event.preventDefault();

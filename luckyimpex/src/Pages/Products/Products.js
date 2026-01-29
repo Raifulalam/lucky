@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import "./products.css";
 import Header from "../../Components/Header";
 import { useCartDispatch } from "../../Components/CreateReducer";
@@ -24,7 +24,6 @@ const Products = () => {
     const [pages, setPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -64,33 +63,36 @@ const Products = () => {
     const dispatch = useCartDispatch();
 
     // ✅ Fetch products from backend with pagination + search + category
-    const fetchProducts = async (reset = false) => {
-        if (loading) return;
-        setLoading(true);
-        setError(null);
+    const fetchProducts = useCallback(
+        async (reset = false) => {
+            if (loading) return;
+            setLoading(true);
+            setError(null);
 
-        try {
-            let url = `https://lucky-back.onrender.com/api/products?page=${page}&limit=20`;
-            if (category) url += `&category=${category}`;
-            if (searchTerm) url += `&search=${searchTerm}`;
+            try {
+                let url = `https://lucky-back.onrender.com/api/products?page=${page}&limit=20`;
+                if (category) url += `&category=${category}`;
+                if (searchTerm) url += `&search=${searchTerm}`;
 
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Failed to fetch products");
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Failed to fetch products");
 
-            const data = await response.json();
+                const data = await response.json();
 
-            if (reset) {
-                setProducts(data.products);
-            } else {
-                setProducts((prev) => [...prev, ...data.products]);
+                if (reset) {
+                    setProducts(data.products);
+                } else {
+                    setProducts((prev) => [...prev, ...data.products]);
+                }
+                setPages(data.pages);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
             }
-            setPages(data.pages);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+        }, []
+    )
+
 
     // Initial load + when category/search changes
     useEffect(() => {

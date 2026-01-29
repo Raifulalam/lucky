@@ -319,7 +319,7 @@ const BrandSearch = () => {
                                 <img
                                     className="product-image"
                                     src={getImageSrc(product.image, placeholderImage)}
-                                    alt="image not found"
+                                    alt="imagenotfound"
                                 />
                             </div>
 

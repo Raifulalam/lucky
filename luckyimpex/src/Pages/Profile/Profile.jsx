@@ -5,7 +5,7 @@ import './Profile.css';
 import Header from "../../Components/Header";
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
-import OrderPage from '../Customer/OrderPage';
+//mport OrderPage from '../Customer/OrderPage';
 
 const Profile = () => {
     const { user, error, loading } = useContext(UserContext); // Use 'user' from context
@@ -28,16 +28,16 @@ const Profile = () => {
             </div>
         );
     }
-    const handleReviewClick = (orderId) => {
-        navigate(`/review/${orderId}`); // Navigate to Review page with order ID
-    };
-    if (error) {
-        return <div>Error: {error}</div>; // Show error message if fetch fails
-    }
+    // const handleReviewClick = (orderId) => {
+    //     navigate(`/review/${orderId}`); // Navigate to Review page with order ID
+    // };
+    // if (error) {
+    //     return <div>Error: {error}</div>; // Show error message if fetch fails
+    // }
 
-    if (!user) {
-        return <div>No user data found. Please log in.</div>; // Handle case where user data is unavailable
-    }
+    // if (!user) {
+    //     return <div>No user data found. Please log in.</div>; // Handle case where user data is unavailable
+    // }
 
     const handleEditClick = () => {
         setIsEditing(true);
