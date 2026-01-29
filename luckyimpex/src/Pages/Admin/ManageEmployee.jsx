@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Modal from "../../Components/Modal";
 import "./HRDashboard.css";
 import ActionButton from "./ActionButtons";
@@ -28,7 +28,7 @@ export default function HRDashboard() {
     const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
     // ------------------ Fetch Employees ------------------
-    const fetchEmployees = async () => {
+    const fetchEmployees = useCallback(async () => {
         try {
             const res = await fetch("https://lucky-back.onrender.com/api/admin-employeeStats", { headers });
             const data = await res.json();
@@ -36,11 +36,11 @@ export default function HRDashboard() {
         } catch (err) {
             console.error("Error fetching employees", err);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchEmployees();
-    }, [employees]);
+    }, [fetchEmployees]);
 
     // ------------------ Form Handlers ------------------
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });

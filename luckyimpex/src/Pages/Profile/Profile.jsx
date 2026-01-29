@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 //mport OrderPage from '../Customer/OrderPage';
 
 const Profile = () => {
-    const { user, error, loading } = useContext(UserContext); // Use 'user' from context
+    const { user, loading } = useContext(UserContext); // Use 'user' from context
     const [isEditing, setIsEditing] = useState(false);    // Manage the edit form state
     const [userDataState, setUserDataState] = useState(user);  // Store user data in state
     const navigate = useNavigate();

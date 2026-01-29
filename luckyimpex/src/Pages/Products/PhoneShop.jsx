@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react';
+import React, { useState, useEffect, useMemo, useContext, useCallback } from 'react';
 import './products.css';
 import Header from '../../Components/Header';
 import { useCartDispatch } from '../../Components/CreateReducer';
@@ -48,9 +48,9 @@ const PhoneShop = () => {
         setLoading(true);
         setError(null);
         fetchProducts();
-    }, [category]);
+    }, [fetchProducts]);
 
-    const fetchProducts = async () => {
+    const fetchProducts = useCallback(async () => {
         setLoading(true);
         setError(null);
 
@@ -71,7 +71,7 @@ const PhoneShop = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
@@ -91,7 +91,7 @@ const PhoneShop = () => {
     useEffect(() => {
         const intervalId = setInterval(nextSlide, 4000);
         return () => clearInterval(intervalId);
-    }, []);
+    }, [nextSlide]);
 
     const dispatch = useCartDispatch();
 

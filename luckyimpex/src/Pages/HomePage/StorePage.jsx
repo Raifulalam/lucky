@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import MapComponent from '../../Components/Leaflet'; // Assuming this is the map component
 import './StoreComponent.css'; // Add this CSS file for styling
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { ContactComponent } from '../Contact/Contact';
 import Header from '../../Components/Header';
 
 const StoreComponent = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const navigaet = useNavigate();
+    // const navigaet = useNavigate();
     // const handleNavigate = (path) => {
     //     navigaet(path);
     // }
@@ -106,7 +106,7 @@ const StoreComponent = () => {
             setInterval(() => NextSlide(index), 3000)
         );
         return () => intervalIds.forEach(clearInterval); // Cleanup on unmount
-    }, []);
+    }, [NextSlide]);
 
     return (
         <div className="store-container">

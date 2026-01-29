@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import './ContactComponent.css';
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 
