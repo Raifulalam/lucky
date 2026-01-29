@@ -40,7 +40,7 @@ export default function HRDashboard() {
 
     useEffect(() => {
         fetchEmployees();
-    }, []);
+    }, [employees]);
 
     // ------------------ Form Handlers ------------------
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });

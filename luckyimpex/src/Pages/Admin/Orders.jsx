@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { UserContext } from '../../Components/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { FaCheck, FaTrash, FaEye, FaTruck } from 'react-icons/fa';
+import { FaTrash, FaEye, FaTruck } from 'react-icons/fa';
 import './OrderComponent.css';
 
 const OrderComponent = () => {

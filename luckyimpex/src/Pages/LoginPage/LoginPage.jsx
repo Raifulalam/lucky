@@ -143,7 +143,8 @@ function LoginComponent() {
                             <button type="submit" className="submit-button" disabled={loading}>
                                 {loading ? 'Signing in...' : 'Sign in'}
                             </button>
-                            <a href="#" className="forgot-password">Forgot password?</a>
+
+                            <button className='forgot-password'>Forgot password</button>
                         </div>
 
                         {error && (

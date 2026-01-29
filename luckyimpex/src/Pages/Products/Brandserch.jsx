@@ -99,7 +99,7 @@ const BrandSearch = () => {
     useEffect(() => {
         const intervalId = setInterval(nextSlide, 8000);
         return () => clearInterval(intervalId);
-    }, []);
+    });
 
     const dispatch = useCartDispatch();
 

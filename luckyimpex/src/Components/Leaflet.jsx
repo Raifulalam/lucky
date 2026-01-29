@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'; // Import leaflet CSS
 import './MapComponent.css'; // Ensure you have this custom CSS
@@ -7,7 +7,7 @@ import './MapComponent.css'; // Ensure you have this custom CSS
 const MapComponent = ({ position }) => {
     const [address, setAddress] = useState('');
     const [loading, setLoading] = useState(true);
-    const [userLocation, setUserLocation] = useState(null);
+    // const [userLocation, setUserLocation] = useState(null);
 
     // Coordinates for Lucky Impex location
     const luckyImpexLocation = position;

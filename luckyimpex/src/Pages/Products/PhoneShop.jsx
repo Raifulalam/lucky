@@ -23,7 +23,7 @@ const PhoneShop = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [currentSlide, setCurrentSlide] = useState(0);
+    const [setCurrentSlide] = useState(0);
     const [searchTerm, setSearchTerm] = useState();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

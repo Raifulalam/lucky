@@ -14,7 +14,7 @@ export const ContactComponent = () => {
     });
     const [status, setStatus] = useState(null); // To handle success/error messages
     const [loading, setLoading] = useState(false); // To handle loading state
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { id, value } = e.target;

@@ -21,7 +21,7 @@ const calculatePrices = (cart) => {
 };
 
 const CartComponent = () => {
-    const { user, error, loading } = useContext(UserContext);
+    const { user, loading } = useContext(UserContext);
     const cart = useCartState();
     const dispatch = useCartDispatch();
     const { addNotification } = useNotification();

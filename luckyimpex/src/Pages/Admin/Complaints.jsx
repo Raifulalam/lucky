@@ -72,7 +72,7 @@ const ComplaintsComponent = () => {
                                     {/* Render image with a fallback */}
                                     <img
                                         src={complaint.image}  // This is the Cloudinary URL
-                                        alt="Complaint image"
+                                        alt="imgname"
                                         width="200"
                                         height="200"
                                     />

@@ -8,9 +8,9 @@ import Header from '../../Components/Header';
 const StoreComponent = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const navigaet = useNavigate();
-    const handleNavigate = (path) => {
-        navigaet(path);
-    }
+    // const handleNavigate = (path) => {
+    //     navigaet(path);
+    // }
 
     const branches = [
         {
@@ -106,7 +106,7 @@ const StoreComponent = () => {
             setInterval(() => NextSlide(index), 3000)
         );
         return () => intervalIds.forEach(clearInterval); // Cleanup on unmount
-    }, [branches]);
+    }, []);
 
     return (
         <div className="store-container">

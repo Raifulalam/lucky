@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     FaUsers,
     FaShoppingCart,
@@ -9,8 +10,6 @@ import {
     FaProductHunt,
     FaTags,
     FaUserTie,
-    FaCalendarCheck,
-    FaUmbrellaBeach,
     FaMoneyBillWave,
 } from "react-icons/fa";
 import {
@@ -30,22 +29,10 @@ import {
 } from "recharts";
 import "./Dashboard.css";
 
-const Sidebar = () => (
-    <div className="sidebar">
-        <h1 className="sidebar-title">Admin Panel</h1>
-        <ul className="menus">
-            <li><a href="/dashboard"><FaTachometerAlt /> Dashboard</a></li>
-            <li><a href="/orders"><FaShoppingCart /> Orders</a></li>
-            <li><a href="/admindashboard"><FaUsers /> Users</a></li>
-            <li><a href="/complaints"><FaComments /> Complaints</a></li>
-            <li><a href="/feedback"><FaStar /> Reviews</a></li>
-            <li><a href="/employee-manage"><FaStar /> Manage Employee</a></li>
-            <li><a href="#"><FaCogs /> Settings</a></li>
-        </ul>
-    </div>
-);
+
 
 export default function Dashboard() {
+    const navigate = useNavigate();
     const [statsData, setStatsData] = useState({
         users: 0,
         orders: 0,
@@ -54,7 +41,55 @@ export default function Dashboard() {
         products: 0,
         brands: 0,
     });
+    const Sidebar = () => (
+        <div className="sidebar">
+            <h1 className="sidebar-title">Admin Panel</h1>
 
+            <ul className="menus">
+                <li>
+                    <button onClick={() => navigate("/dashboard")}>
+                        <FaTachometerAlt /> Dashboard
+                    </button>
+                </li>
+
+                <li>
+                    <button onClick={() => navigate("/orders")}>
+                        <FaShoppingCart /> Orders
+                    </button>
+                </li>
+
+                <li>
+                    <button onClick={() => navigate("/admindashboard")}>
+                        <FaUsers /> Users
+                    </button>
+                </li>
+
+                <li>
+                    <button onClick={() => navigate("/complaints")}>
+                        <FaComments /> Complaints
+                    </button>
+                </li>
+
+                <li>
+                    <button onClick={() => navigate("/feedback")}>
+                        <FaStar /> Reviews
+                    </button>
+                </li>
+
+                <li>
+                    <button onClick={() => navigate("/employee-manage")}>
+                        <FaStar /> Manage Employee
+                    </button>
+                </li>
+
+                <li>
+                    <button onClick={() => navigate("/settings")}>
+                        <FaCogs /> Settings
+                    </button>
+                </li>
+            </ul>
+        </div>
+    );
     const [employeeStats, setEmployeeStats] = useState({
         totalEmployees: 0,
         totalAttendance: 0,

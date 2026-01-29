@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import './AdminDashboard.css';
 import Modal from '../../Components/Modal';
 
@@ -112,8 +112,6 @@ const AdminDashboard = () => {
             <title>Admin Dashboard</title> {/* Add the page title */}
 
             <div className="admin-dashboard">
-
-
                 <section className="section">
                     <h3>Manage Users</h3>
                     <h4>Total Users:{users.length}</h4>
