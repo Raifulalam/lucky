@@ -1,6 +1,7 @@
 import './App.css';
 import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import LoginComponent from './Pages/LoginPage/LoginPage';
 import SignUpcomponent from './Pages/SignUp/Signup';
 import HomePage from './Pages/HomePage/Home';
@@ -76,6 +77,7 @@ function App() {
           </CartProvider>
         </ProductProvider>
       </UserProvider>
+      <SpeedInsights />
     </NotificationProvider>
   );
 }
