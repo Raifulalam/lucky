@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Modal from "../../Components/Modal";
 import "./HRDashboard.css";
 import ActionButton from "./ActionButtons";
@@ -25,22 +25,32 @@ export default function HRDashboard() {
     });
 
     const token = localStorage.getItem("authToken");
-    const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+    const headers = useMemo(
+        () => ({
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        }),
+        [token]
+    );
 
     // ------------------ Fetch Employees ------------------
     const fetchEmployees = useCallback(async () => {
         try {
-            const res = await fetch("https://lucky-back.onrender.com/api/admin-employeeStats", { headers });
+            const res = await fetch(
+                "https://lucky-back.onrender.com/api/admin-employeeStats",
+                { headers }
+            );
             const data = await res.json();
             if (data.success) setEmployees(data.employees);
         } catch (err) {
             console.error("Error fetching employees", err);
         }
-    }, []);
+    }, [headers]); // ✅ FIX HERE
 
     useEffect(() => {
         fetchEmployees();
     }, [fetchEmployees]);
+
 
     // ------------------ Form Handlers ------------------
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
