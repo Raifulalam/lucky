@@ -48,30 +48,33 @@ const PhoneShop = () => {
         setError(null);
 
         try {
-            let url = 'https://lucky-back.onrender.com/api/mobile';
+            let url = "https://lucky-back.onrender.com/api/mobile";
 
             if (category) {
                 url += `?category=${category}`;
             }
 
-            const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+            const response = await fetch(url, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
 
-            if (!response.ok) throw new Error('Failed to fetch products');
+            if (!response.ok) {
+                throw new Error("Failed to fetch products");
+            }
+
             const data = await response.json();
-            setProducts(data); // Set products to state
+            setProducts(data);
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, []);
-    // Function to fetch products from API
+    }, [category]); // ✅ FIXED
+
     useEffect(() => {
-        setLoading(true);
-        setError(null);
         fetchProducts();
     }, [fetchProducts]);
-
 
 
     const filteredProducts = useMemo(() => {
