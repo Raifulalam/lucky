@@ -1,11 +1,12 @@
 /* General */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'poppins', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f9fafc;
     color: #222;
     line-height: 1.6;
+    background-color: #122f4e;
+
 }
 
 /* Buttons */
@@ -20,7 +21,7 @@ body {
 }
 
 .btn-primary {
-    background: #007bff;
+    background: #559ce7;
     color: white;
     border: none;
     padding: 12px 24px;
@@ -31,14 +32,15 @@ body {
 }
 
 .btn-secondary {
-    background: #f3f4f6;
-    color: #111;
-    border: 1px solid #ddd;
+    background: #36617b;
+    color: #ffffff;
+
     padding: 10px 20px;
 }
 
 .btn-secondary:hover {
-    background: #e5e7eb;
+    background: #1a4560;
+    box-shadow: 2px 2px 10px #7f8385;
 }
 
 /* Hero Slider */
@@ -54,55 +56,39 @@ body {
     width: 100%;
     height: 90vh;
     object-fit: cover;
-    filter: brightness(70%);
     transition: opacity 1s ease-in-out;
 }
 
-.hero-overlay {
-    background: linear-gradient(rgb(236, 235, 235), rgb(116, 116, 214));
-    opacity: 0.6;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    transition: all 0.3s ease-in-out;
-    text-align: center;
-    color: #3c3b3b;
-    padding: 15px;
-    box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.351);
-
-    border-radius: 8px;
-
-    margin: 8px auto 8px auto;
-
-}
-
-
-
 /* Categories */
 .card-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #07213c;
     padding: 40px 15px;
     text-align: center;
 }
 
-.card-container h1 {
+.card-container h1,
+h2 {
     margin-bottom: 25px;
     font-size: 1.75rem;
     font-weight: 600;
+    color: white;
 }
 
 .category-grid {
+    min-height: 60vh;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 15px;
 }
 
 .category-card {
-    background: #fff;
-    padding: 20px;
+    background: #cbd5e019;
     border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.08);
+    box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 20px;
 }
 
 .category-card:hover {
@@ -118,15 +104,42 @@ body {
 .category-card h3 {
     font-size: 1.1rem;
     margin: 8px 0;
+    color: #ffff;
+}
+
+.category-card p {
+    color: #d2d2d2;
+    font-size: 15px;
 }
 
 /* Promo Banner */
 .promo-banner {
-    background: linear-gradient(90deg, #ff512f, #dd2476);
-    color: white;
+    background: linear-gradient(200deg, #028f87, #18334f);
+    color: #b2b2b2;
     padding: 35px 15px;
     text-align: center;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+    animation: popup 4s ease-in-out infinite;
 }
+
+@keyframes popup {
+    0% {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translateY(-6px);
+    }
+
+    100% {
+        opacity: 0.9;
+        transform: translateY(0);
+    }
+}
+
 
 .promo-banner h2 {
     font-size: 1.6rem;
@@ -156,14 +169,15 @@ body {
 
 /* Brands */
 .brands {
-    display: contents;
+
     padding: 45px 15px;
     text-align: center;
+    background-color: #07213c;
 }
 
 .brands h2 {
-    margin-bottom: 25px;
-    font-size: 1.6rem;
+
+    font-size: 2.6rem;
 }
 
 .brand-carousel {
@@ -171,10 +185,12 @@ body {
     flex-wrap: wrap;
     justify-content: center;
     gap: 15px;
+    background-color: #07213c;
+    padding: 15px;
 }
 
 .brand-logo {
-    background: white;
+    background: #122f4ea6;
     border: 1px solid #eee;
     border-radius: 8px;
     padding: 10px;
@@ -196,7 +212,7 @@ body {
 /* Why Choose Us */
 .why-choose-us {
     padding: 50px 15px;
-    background: #f3f4f6;
+    background: #122f4e;
     text-align: center;
 }
 
@@ -232,7 +248,7 @@ body {
 .customer-support {
     text-align: center;
     padding: 50px 15px;
-    background: linear-gradient(120deg, #007bff, #00c6ff);
+    background: linear-gradient(120deg, #000000, #183681);
     color: white;
 }
 
@@ -252,8 +268,29 @@ body {
         margin-top: 70px;
     }
 
+    .category-grid {
+
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+
+        gap: 15px;
+        padding: 0%;
+    }
+
+    .card-container {
+        padding: 20px 8px;
+    }
+
+    .category-card {
+        padding: 8px;
+    }
+
+    .category-card p {
+        font-size: 12px;
+    }
+
     .hero-img {
-        height: 235px;
+        height: 50vh;
+        opacity: 1;
         object-fit: cover;
         width: 100%;
     }
@@ -274,6 +311,9 @@ body {
 
     }
 
+    .category-card h3 {
+        font: 0.9em sans-serif;
+    }
 
     .card-container h1,
     .promo-banner h2,
@@ -297,6 +337,7 @@ body {
     }
 
     .category-grid {
+
         gap: 25px;
     }
 

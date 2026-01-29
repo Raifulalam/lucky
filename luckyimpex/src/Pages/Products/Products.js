@@ -279,7 +279,7 @@ const Products = () => {
                                 {product.name}
                             </div>
                             <p className="stock">
-                                Availability:{" "}
+
                                 <span
                                     className={`stock-status ${product.stock === 0 ? "out-of-stock" : "in-stock"
                                         }`}
@@ -289,11 +289,11 @@ const Products = () => {
                             <div className="product-size">Size: {product.capacity}</div>
                             <div className="product-model">Model: {product.model}</div>
                             <div className="product-mrp">
-                                MRP: {product.mrp ? product.mrp.toFixed(0) : "N/A"}
+                                MRP:Rs {product.mrp ? product.mrp.toFixed(0) : "N/A"}
                             </div>
                             <div className="product-discount">
                                 <p>
-                                    Save:{" "}
+                                    Save Upto:{""}Rs
                                     {product.mrp && product.price
                                         ? (product.mrp - product.price).toFixed(0)
                                         : "N/A"}

@@ -251,13 +251,10 @@ body {
 }
 
 @media (max-width: 680px) {
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        padding: 5px;
-    }
+
 
     .product-container {
+        position: relative;
         max-width: 100%;
         padding: 10px;
     }
@@ -376,6 +373,9 @@ body {
     }
 
     .stock {
+        position: absolute;
+        top: 0;
+        left: 5%;
         font-size: 11px;
     }
 }
