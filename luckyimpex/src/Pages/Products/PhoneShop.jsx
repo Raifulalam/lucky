@@ -43,13 +43,6 @@ const PhoneShop = () => {
 
     const placeholderImage = '/path/to/placeholder-image.jpg'; // Placeholder image
 
-    // Function to fetch products from API
-    useEffect(() => {
-        setLoading(true);
-        setError(null);
-        fetchProducts();
-    }, [fetchProducts]);
-
     const fetchProducts = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -71,7 +64,15 @@ const PhoneShop = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    });
+    // Function to fetch products from API
+    useEffect(() => {
+        setLoading(true);
+        setError(null);
+        fetchProducts();
+    }, [fetchProducts]);
+
+
 
     const filteredProducts = useMemo(() => {
         return products.filter((item) => {
@@ -91,7 +92,7 @@ const PhoneShop = () => {
     useEffect(() => {
         const intervalId = setInterval(nextSlide, 4000);
         return () => clearInterval(intervalId);
-    }, [nextSlide]);
+    });
 
     const dispatch = useCartDispatch();
 

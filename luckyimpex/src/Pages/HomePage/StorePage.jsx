@@ -106,7 +106,7 @@ const StoreComponent = () => {
             setInterval(() => NextSlide(index), 3000)
         );
         return () => intervalIds.forEach(clearInterval); // Cleanup on unmount
-    }, [NextSlide]);
+    }, [NextSlide, branches]);
 
     return (
         <div className="store-container">

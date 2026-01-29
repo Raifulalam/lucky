@@ -58,7 +58,7 @@ const Products = () => {
             4000
         );
         return () => clearInterval(intervalId);
-    }, [currentSlide]);
+    }, [currentSlide, images.length]);
 
     const dispatch = useCartDispatch();
 
@@ -90,7 +90,7 @@ const Products = () => {
             } finally {
                 setLoading(false);
             }
-        }, [category]
+        }, [category, loading, page, searchTerm]
     )
 
 

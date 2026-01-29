@@ -36,7 +36,7 @@ export default function HRDashboard() {
         } catch (err) {
             console.error("Error fetching employees", err);
         }
-    }, []);
+    });
 
     useEffect(() => {
         fetchEmployees();
