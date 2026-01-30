@@ -68,7 +68,7 @@ function LoginComponent() {
                     dismiss: { duration: 5000 },
                 });
 
-                // Redirect after login success
+                // Redirect after login succe
                 navigate('/', { state: { email } });
 
 

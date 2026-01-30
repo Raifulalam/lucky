@@ -81,6 +81,11 @@ export default function Dashboard() {
                         <FaStar /> Manage Employee
                     </button>
                 </li>
+                <li>
+                    <button onClick={() => navigate("/manage-products")}>
+                        <FaStar /> Manage Products
+                    </button>
+                </li>
 
                 <li>
                     <button onClick={() => navigate("/settings")}>

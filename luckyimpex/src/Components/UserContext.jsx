@@ -1,6 +1,4 @@
-// src/contexts/UserContext.js
-
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const UserContext = createContext();
 
@@ -9,35 +7,71 @@ const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const token = localStorage.getItem("authToken");
+
+    const logout = () => {
+        localStorage.removeItem("authToken");
+        setUser(null);
+    };
+
     useEffect(() => {
         const fetchUserData = async () => {
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch('https://lucky-back.onrender.com/api/userData', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,  // Use JWT from local storage
+                const response = await fetch(
+                    "https://lucky-back.onrender.com/api/userData",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
                     }
-                });
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user data');
+                );
+
+                if (response.status === 401 || response.status === 403) {
+                    logout(); // auto logout on invalid/expired token
+                    return;
                 }
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch user data");
+                }
+
                 const data = await response.json();
-                setUser(data); // Update state with fetched data
+                setUser(data);
             } catch (err) {
-                setError(err.message); // Set error message if the fetch fails
+                setError(err.message);
             } finally {
-                setLoading(false); // Set loading to false when data is fetched or error occurs
+                setLoading(false);
             }
         };
 
-        fetchUserData(); // Call the fetch function when the component mounts
-    }, []);
+        fetchUserData();
+    }, [token]);
 
+    const value = {
+        user,
+        loading,
+        error,
+        isAuthenticated: !!user,
+        role: user?.role || null,
+        isAdmin: user?.role === "admin",
+        isEmployee: user?.role === "employee",
+        isUser: user?.role === "user",
+        logout,
+    };
 
     return (
-        <UserContext.Provider value={{ user, loading, error }}>
+        <UserContext.Provider value={value}>
             {children}
         </UserContext.Provider>
     );
 };
 
-export { UserProvider, UserContext };
+// custom hook (IMPORTANT)
+const useUser = () => useContext(UserContext);
+
+export { UserProvider, UserContext, useUser };
