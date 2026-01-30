@@ -223,7 +223,22 @@ const Products = () => {
     return (
         <>
             <Header />
-
+            <div className="home-main">
+                <div className="image">
+                    <input
+                        type="text"
+                        placeholder="Search for items..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-bar"
+                    />
+                    <img
+                        src={images[currentSlide]}
+                        alt={`Slide ${currentSlide + 1}`}
+                        className="slider-image"
+                    />
+                </div>
+            </div>
 
             {/* Add Product (Admin only) */}
             {userRole === "admin" && (
