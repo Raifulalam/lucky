@@ -33,7 +33,7 @@ export const ContactComponent = () => {
         }
 
         try {
-            const response = await fetch("https://lucky-back.onrender.com/api/contactMessage", {
+            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/contact/contact", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

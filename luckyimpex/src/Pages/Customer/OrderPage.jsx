@@ -15,7 +15,7 @@ const OrderPage = () => {
         const fetchOrders = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`https://lucky-back.onrender.com/api/Myorders/${user.id}`);
+                const res = await fetch(`https://lucky-1-6ma5.onrender.com/api/orders/orders/my/${user.id}`);
                 if (!res.ok) throw new Error('Failed to fetch orders');
                 const data = await res.json();
                 setOrders(data);
@@ -33,7 +33,7 @@ const OrderPage = () => {
         if (!window.confirm('Delete this order?')) return;
 
         try {
-            const res = await fetch(`https://lucky-back.onrender.com/api/orders/${orderId}`, {
+            const res = await fetch(`https://lucky-1-6ma5.onrender.com/api/orders/orders/${orderId}`, {
                 method: 'DELETE',
             });
             if (!res.ok) throw new Error('Failed to delete');

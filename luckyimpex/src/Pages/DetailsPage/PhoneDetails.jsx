@@ -15,7 +15,7 @@ const PhoneDetails = () => {
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`https://lucky-back.onrender.com/api/mobile/${id}`);
+                const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/mobiles/mobile/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('Product not found');

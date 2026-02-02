@@ -70,7 +70,7 @@ const Products = () => {
             setError(null);
 
             try {
-                let url = `https://lucky-back.onrender.com/api/products?page=${page}&limit=20`;
+                let url = `https://lucky-1-6ma5.onrender.com/api/products/products?page=${page}&limit=20`;
                 if (category) url += `&category=${category}`;
                 if (searchTerm) url += `&search=${searchTerm}`;
 
@@ -115,7 +115,7 @@ const Products = () => {
 
     const handleSave = async (updatedProduct) => {
         const res = await fetch(
-            `https://lucky-back.onrender.com/api/products/${updatedProduct._id}`,
+            `https://lucky-1-6ma5.onrender.com/api/products/products/${updatedProduct._id}`,
             {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -137,7 +137,7 @@ const Products = () => {
 
     const confirmDelete = async (productId) => {
         const res = await fetch(
-            `https://lucky-back.onrender.com/api/products/${productId}`,
+            `https://lucky-1-6ma5.onrender.com/api/products/products/${productId}`,
             { method: "DELETE" }
         );
         if (res.ok) {
@@ -178,7 +178,7 @@ const Products = () => {
                 ? newProduct.keywords.split(",").map((k) => k.trim())
                 : [],
         };
-        const res = await fetch("https://lucky-back.onrender.com/api/products", {
+        const res = await fetch("https://lucky-1-6ma5.onrender.com/api/products/products", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(productData),

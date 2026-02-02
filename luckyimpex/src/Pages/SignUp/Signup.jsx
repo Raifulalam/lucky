@@ -28,7 +28,7 @@ function SignupComponent() {
         setLoading(true); // Set loading to true
 
         try {
-            const response = await fetch("https://lucky-back.onrender.com/api/createUser", {
+            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/users/register", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

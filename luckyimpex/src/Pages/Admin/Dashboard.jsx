@@ -108,7 +108,7 @@ export default function Dashboard() {
         const fetchStats = async () => {
             try {
                 const res = await fetch(
-                    "https://lucky-back.onrender.com/api/dashboard/stats"
+                    "https://lucky-1-6ma5.onrender.com/api/dashboard/stats"
                 );
                 if (!res.ok) throw new Error("Stats request failed");
                 const data = await res.json();

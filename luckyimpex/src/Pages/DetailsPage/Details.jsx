@@ -14,7 +14,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`https://lucky-back.onrender.com/api/productsDetails/${id}`);
+                const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/products/productsDetails/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('Product not found');

@@ -93,7 +93,8 @@ router.post(
             );
 
             res.json({
-                token,
+                success: true,
+                authToken: token,
                 user: {
                     id: user._id,
                     name: user.name,
@@ -101,6 +102,7 @@ router.post(
                     role: user.role,
                 },
             });
+
         } catch {
             res.status(500).json({ message: "Login failed" });
         }

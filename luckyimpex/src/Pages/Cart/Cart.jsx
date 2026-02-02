@@ -137,7 +137,7 @@ const CartComponent = () => {
         };
         try {
             // Send the POST request to create the order
-            const response = await fetch('https://lucky-back.onrender.com/api/createOrder', {
+            const response = await fetch('https://lucky-1-6ma5.onrender.com/api/orders/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

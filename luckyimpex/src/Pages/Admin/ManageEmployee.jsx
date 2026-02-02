@@ -37,7 +37,7 @@ export default function HRDashboard() {
     const fetchEmployees = useCallback(async () => {
         try {
             const res = await fetch(
-                "https://lucky-back.onrender.com/api/admin-employeeStats",
+                "https://lucky-1-6ma5.onrender.com/api/employees/admin-employeeStats",
                 { headers }
             );
             const data = await res.json();
@@ -61,8 +61,8 @@ export default function HRDashboard() {
         setLoading(true);
         try {
             const url = isEdit
-                ? `https://lucky-back.onrender.com/api/employee/${formData.empId}`
-                : "https://lucky-back.onrender.com/api/create-employee";
+                ? `https://lucky-1-6ma5.onrender.com/api/employees/employee/${formData.empId}`
+                : "/employees/create-employee";
             const method = isEdit ? "PUT" : "POST";
 
             const res = await fetch(url, { method, headers, body: JSON.stringify(formData) });

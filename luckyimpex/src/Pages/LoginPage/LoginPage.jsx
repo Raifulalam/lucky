@@ -33,11 +33,13 @@ function LoginComponent() {
         setLoading(true);
 
         try {
-            const response = await fetch("https://lucky-back.onrender.com/api/loginUser", {
+            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/users/login", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+
                 },
+
                 body: JSON.stringify({ email, password }),
             });
 

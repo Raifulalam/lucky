@@ -16,6 +16,7 @@ const TableRow = ({ name, email, message }) => (
     </tr>
 );
 
+//add delete contact message
 const FeedbackList = () => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [status, setStatus] = useState('');
@@ -25,7 +26,7 @@ const FeedbackList = () => {
         const fetchFeedbacks = async () => {
             setLoading(true);
             try {
-                const response = await fetch('https://lucky-back.onrender.com/api/contactMessages');
+                const response = await fetch('https://lucky-1-6ma5.onrender.com/api/contact/contact');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

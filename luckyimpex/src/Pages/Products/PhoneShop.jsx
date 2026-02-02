@@ -48,7 +48,7 @@ const PhoneShop = () => {
         setError(null);
 
         try {
-            let url = "https://lucky-back.onrender.com/api/mobile";
+            let url = "https://lucky-1-6ma5.onrender.com/api/mobiles/mobile";
 
             if (category) {
                 url += `?category=${category}`;
@@ -107,7 +107,7 @@ const PhoneShop = () => {
 
     // Save edited product
     const handleSave = async (updatedProduct) => {
-        const response = await fetch(`https://lucky-back.onrender.com/api/mobile/${updatedProduct._id}`, {
+        const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/mobiles/mobile/${updatedProduct._id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedProduct),
@@ -143,7 +143,7 @@ const PhoneShop = () => {
     // Confirm product deletion
     const confirmDelete = async (productId) => {
         try {
-            const response = await fetch(`https://lucky-back.onrender.com/api/mobile/${productId}`, {
+            const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/mobiles/mobile/${productId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -264,7 +264,7 @@ const PhoneShop = () => {
 
         try {
             // Send the data to the backend
-            const response = await fetch('https://lucky-back.onrender.com/api/mobile', {
+            const response = await fetch('https://lucky-1-6ma5.onrender.com/api/mobiles/mobile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
