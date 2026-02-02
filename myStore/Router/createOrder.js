@@ -34,7 +34,6 @@ router.post("/orders", authenticateToken, async (req, res) => {
             items,
             user: {
                 userId: req.user._id,
-                name: req.user.name,
                 email: req.user.email,
             },
             totalPrice,
