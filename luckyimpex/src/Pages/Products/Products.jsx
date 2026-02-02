@@ -270,6 +270,14 @@ const Products = () => {
                                     src={getImageSrc(product.image, placeholderImage)}
                                     alt="Not found"
                                 />
+                                <div className="product-discount">
+                                    <p>
+                                        Save:Rs {""}
+                                        {product.mrp && product.price
+                                            ? (product.mrp - product.price).toFixed(0)
+                                            : "N/A"}
+                                    </p>
+                                </div>
                             </div>
 
                             <div
@@ -291,14 +299,7 @@ const Products = () => {
                             <div className="product-mrp">
                                 MRP:Rs {product.mrp ? product.mrp.toFixed(0) : "N/A"}
                             </div>
-                            <div className="product-discount">
-                                <p>
-                                    Save Upto:{""}Rs
-                                    {product.mrp && product.price
-                                        ? (product.mrp - product.price).toFixed(0)
-                                        : "N/A"}
-                                </p>
-                            </div>
+
                             <div className="product-price">
                                 <p>
                                     Best Buy: {product.price ? product.price.toFixed(0) : "N/A"}

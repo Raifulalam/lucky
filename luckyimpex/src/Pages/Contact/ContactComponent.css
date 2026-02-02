@@ -175,12 +175,13 @@ textarea.form-control {
 }
 
 .social-icons a {
-    color: #333;
+    color: #1677ff;
+
     transition: color 0.3s ease;
 }
 
 .social-icons a:hover {
-    color: #007bff;
+    color: #095db7;
 }
 
 /* Media Queries for responsive design */
