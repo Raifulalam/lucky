@@ -23,6 +23,7 @@ const authenticate = (req, res, next) => {
 
         req.user = {
             id: decoded.id,
+            name: decoded.name,
             role: decoded.role || "user",
             email: decoded.email,
         };
