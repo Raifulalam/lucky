@@ -23,7 +23,7 @@ const UserProvider = ({ children }) => {
 
             try {
                 const response = await fetch(
-                    "https://lucky-back.onrender.com/api/userData",
+                    "https://lucky-1-6ma5.onrender.com/api/users/me",
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

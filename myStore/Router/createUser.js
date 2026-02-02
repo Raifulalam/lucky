@@ -85,13 +85,13 @@ router.post(
             const token = jwt.sign(
                 {
                     id: user._id,
+                    name: user.name,   // ✅ ADD THIS
                     email: user.email,
                     role: user.role,
                 },
                 process.env.JWT_SECRET,
                 { expiresIn: process.env.JWT_EXPIRES_IN }
             );
-
             res.json({
                 success: true,
                 authToken: token,

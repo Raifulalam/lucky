@@ -26,6 +26,8 @@ const CartComponent = () => {
     const dispatch = useCartDispatch();
     const { addNotification } = useNotification();
 
+    const token = localStorage.getItem("authToken");
+    console.log(token)
     // State to manage user details for order
     const [deliveryDetails, setDeliveryDetails] = useState({
         name: '',
@@ -136,34 +138,39 @@ const CartComponent = () => {
             }
         };
         try {
-            // Send the POST request to create the order
-            const response = await fetch('https://lucky-1-6ma5.onrender.com/api/orders/orders', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(orderData),
-            });
+            const response = await fetch(
+                "https://lucky-1-6ma5.onrender.com/api/orders/orders",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`, // ✅ REQUIRED
+                    },
+                    body: JSON.stringify(orderData),
+                }
+            );
 
             if (!response.ok) {
                 const errorData = await response.json();
-                setErrorMessage(errorData.message || 'Something went wrong. Please try again later.');
+                setErrorMessage(errorData.message || "Something went wrong.");
                 return;
             }
 
-
             addNotification({
-                title: 'Success!',
-                message: 'Order placed successfully ',
-                type: 'success', // Notification type 'success'
-                container: 'top-right',
+                title: "Success!",
+                message: "Order placed successfully",
+                type: "success",
+                container: "top-right",
                 dismiss: { duration: 5000 },
             });
-            dispatch({ type: 'CLEAR_CART' });
+
+            dispatch({ type: "CLEAR_CART" });
             setIsModalOpen(false);
+
         } catch (error) {
-            setErrorMessage('Error placing order. Please try again.');
+            setErrorMessage("Error placing order. Please try again.");
         }
+
 
 
     };
