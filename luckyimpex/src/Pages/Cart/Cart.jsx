@@ -115,7 +115,7 @@ const CartComponent = () => {
         const orderData = {
             name: deliveryDetails.name, // Assuming 'name' field is filled in the modal
             items: cart.map(item => ({
-                itemId: String(item.id), // Ensure itemId is a valid MongoDB ObjectId string
+                itemId: String(item._id), // Ensure itemId is a valid MongoDB ObjectId string
                 name: item.name, // Product name
                 price: item.price, // Product price
                 quantity: item.quantity, // Quantity of the product
@@ -134,7 +134,7 @@ const CartComponent = () => {
             user: {
                 name: user.name,
                 email: user.email,
-                userId: user.id,
+                userId: user._id,
             }
         };
         try {
@@ -169,6 +169,7 @@ const CartComponent = () => {
 
         } catch (error) {
             setErrorMessage("Error placing order. Please try again.");
+            console.log(error);
         }
 
 

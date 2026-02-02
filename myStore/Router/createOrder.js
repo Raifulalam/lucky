@@ -33,7 +33,7 @@ router.post("/orders", authenticateToken, async (req, res) => {
         const newOrder = new Order({
             items,
             user: {
-                userId: req.user.id,
+                userId: req.user._id,
                 name: req.user.name,
                 email: req.user.email,
             },
