@@ -26,26 +26,47 @@ router.post("/orders", authenticateToken, async (req, res) => {
             additionalPhone,
         } = req.body;
 
-        if (!items || items.length === 0 || !totalPrice) {
-            return res.status(400).json({ message: "Invalid order data" });
+        // 1️⃣ Validate items array
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: "Cart items are required" });
+        }
+
+        for (const item of items) {
+            if (!mongoose.Types.ObjectId.isValid(item.itemId)) {
+                return res.status(400).json({ message: `Invalid itemId: ${item.itemId}` });
+            }
+            if (!item.name || !item.price || !item.quantity) {
+                return res.status(400).json({ message: "Each item must have name, price, and quantity" });
+            }
+        }
+
+        // 2️⃣ Validate user info
+        if (!req.user || !req.user.id || !req.user.name || !req.user.email) {
+            return res.status(401).json({ message: "Invalid user info" });
+        }
+
+        // 3️⃣ Validate required order fields
+        if (!totalPrice || !tax || !deliveryDate || !address || !phone || !name || !postalCode || !country) {
+            return res.status(400).json({ message: "All required fields must be provided" });
         }
 
         const newOrder = new Order({
             items,
             user: {
-                userId: req.user._id,
-                email: req.user.email,
+                userId: req.user.id,
+                name: req.user.name,
+                email: req.user.email
             },
             totalPrice,
             tax,
             deliveryDate,
+            name,
             address,
             phone,
-            name,
             postalCode,
             country,
             deliveryInstructions,
-            additionalPhone,
+            additionalPhone
         });
 
         await newOrder.save();
@@ -55,11 +76,13 @@ router.post("/orders", authenticateToken, async (req, res) => {
             message: "Order created successfully",
             order: newOrder,
         });
+
     } catch (error) {
         console.error("Create Order Error:", error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: error.message || "Server error" });
     }
 });
+
 
 /**
  * GET MY ORDERS (USER)
