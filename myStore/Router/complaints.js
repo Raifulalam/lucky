@@ -1,118 +1,127 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Complaint = require('../Models/complaintsSchema');
-const multer = require('multer');
-const cloudinary = require('cloudinary').v2;
-const streamifier = require('streamifier');
+const Complaint = require("../Models/complaintsSchema");
+const authenticateToken = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
+const upload = require("../middlewares/uploadComplaints");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
+const { body, validationResult } = require("express-validator");
 
-require('dotenv').config();
-
-cloudinary.config({
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.API_KEY,
-    api_secret: process.env.API_SECRET
-});
-
-
-// Set up multer memory storage (store file in memory before uploading to Cloudinary)
-const storage = multer.memoryStorage();
-
-// File size limit: 5MB; Allowed types: JPG, JPEG, PNG
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Invalid file type. Only JPEG, PNG, and JPG are allowed.'), false);
-        }
-    }
-});
-
-// Endpoint to handle complaint submissions (with image upload)
-router.post('/submitComplaint', upload.single('image'), async (req, res) => {
-    try {
-        console.log('Request received:', req.body);
-        console.log('Uploaded file details:', req.file);
-
-        if (!req.file || !req.file.buffer) {
-            return res.status(400).json({ error: 'No file data available' });
+/**
+ * SUBMIT COMPLAINT (PUBLIC / USER)
+ */
+router.post(
+    "/complaints",
+    upload.single("image"),
+    [
+        body("name").notEmpty(),
+        body("phone").notEmpty(),
+        body("product").notEmpty(),
+        body("issue").notEmpty(),
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
 
-        // Upload the image to Cloudinary
-        const uploadStream = cloudinary.uploader.upload_stream(
-            { resource_type: 'image' },
-            async (error, result) => {
-                if (error) {
-                    console.error('Cloudinary upload error:', error); // Log the error
-                    return res.status(500).json({ error: 'Error uploading image to Cloudinary', details: error });
-                }
-
-                // Ensure result is valid
-                if (!result || !result.secure_url) {
-                    console.error('Cloudinary did not return a valid image URL');
-                    return res.status(500).json({ error: 'Cloudinary upload failed, no image URL returned' });
-                }
-
-                // Debug log for Cloudinary result
-                console.log('Cloudinary upload result:', result);
-
-                const imagePath = result.secure_url;  // Cloudinary URL
-                console.log('Image uploaded to Cloudinary:', imagePath);
-
-                // Destructure the data from the request body
-                const { name, address, phone, province, district, product, model, warranty, issue } = req.body;
-
-                // Create a new complaint document
-                const newComplaint = new Complaint({
-                    name,
-                    address,
-                    phone,
-                    province,
-                    district,
-                    product,
-                    model,
-                    warranty,
-                    issue,
-                    image: imagePath // Save the Cloudinary URL instead of the local path
-                });
-
-                // Save the complaint to the database
-                await newComplaint.save();
-
-                // Respond with success message and image URL
-                res.status(201).json({ message: 'Complaint submitted successfully!', image: imagePath });
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: "Image is required" });
             }
-        );
 
-        // Stream the file buffer to Cloudinary
-        streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+            const uploadStream = cloudinary.uploader.upload_stream(
+                { folder: "complaints" },
+                async (error, result) => {
+                    if (error) {
+                        return res.status(500).json({ message: "Image upload failed" });
+                    }
 
-    } catch (error) {
-        console.error('Error uploading file and saving complaint:', error);
-        if (error instanceof multer.MulterError) {
-            return res.status(400).json({ error: `Multer Error: ${error.message}` });
+                    const complaint = new Complaint({
+                        ...req.body,
+                        image: result.secure_url,
+                        status: "pending",
+                    });
+
+                    await complaint.save();
+
+                    res.status(201).json({
+                        success: true,
+                        message: "Complaint submitted successfully",
+                    });
+                }
+            );
+
+            streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+        } catch (error) {
+            console.error("Complaint Error:", error);
+            res.status(500).json({ message: "Server error" });
         }
-        res.status(500).json({ error: 'Something went wrong' });
     }
-});
+);
 
-// Endpoint to retrieve complaints from the database
-router.get('/getComplaint', async (req, res) => {
-    try {
-        const complaints = await Complaint.find();
-
-        if (complaints.length === 0) {
-            return res.status(404).json({ success: false, message: 'No complaints found' });
+/**
+ * GET ALL COMPLAINTS (ADMIN)
+ */
+router.get(
+    "/complaints",
+    authenticateToken,
+    isAdmin,
+    async (req, res) => {
+        try {
+            const complaints = await Complaint.find().sort({ createdAt: -1 });
+            res.json(complaints);
+        } catch (error) {
+            res.status(500).json({ message: "Server error" });
         }
-
-        res.status(200).json({ success: true, complaints });
-    } catch (err) {
-        console.error('Error fetching complaints:', err);
-        res.status(500).json({ success: false, message: 'Error fetching complaints', error: err.message });
     }
-});
+);
+
+/**
+ * UPDATE COMPLAINT STATUS (ADMIN)
+ */
+router.put(
+    "/complaints/:id",
+    authenticateToken,
+    isAdmin,
+    async (req, res) => {
+        try {
+            const updated = await Complaint.findByIdAndUpdate(
+                req.params.id,
+                { status: req.body.status },
+                { new: true }
+            );
+
+            if (!updated) {
+                return res.status(404).json({ message: "Complaint not found" });
+            }
+
+            res.json(updated);
+        } catch (error) {
+            res.status(500).json({ message: "Server error" });
+        }
+    }
+);
+
+/**
+ * DELETE COMPLAINT (ADMIN)
+ */
+router.delete(
+    "/complaints/:id",
+    authenticateToken,
+    isAdmin,
+    async (req, res) => {
+        try {
+            const deleted = await Complaint.findByIdAndDelete(req.params.id);
+            if (!deleted) {
+                return res.status(404).json({ message: "Complaint not found" });
+            }
+            res.json({ message: "Complaint deleted successfully" });
+        } catch (error) {
+            res.status(500).json({ message: "Server error" });
+        }
+    }
+);
 
 module.exports = router;

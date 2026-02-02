@@ -1,116 +1,160 @@
-const MobileProduct = require('../Models/SmartPhonesModels');
-const express = require('express');
+const express = require("express");
+const mongoose = require("mongoose");
+const MobileProduct = require("../Models/SmartPhonesModels");
+const authenticateToken = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
+
 const router = express.Router();
 
+/**
+ * CREATE MOBILE (ADMIN ONLY)
+ */
+router.post(
+    "/mobile",
+    authenticateToken,
+    isAdmin,
+    async (req, res) => {
+        try {
+            const { name, price, brand, model } = req.body;
 
-// Create a new mobile product
-router.post('/mobile', async (req, res) => {
-    try {
-        const {
-            name,
-            price,
-            brand,
-            model,
-            color,
-            ram,
-            storage,
-            battery,
-            camera,
-            processor,
-            display,
-            operatingSystem,
-            releaseDate,
-            category,
-            description,
-            image,
-            charging,
-            stock,
-        } = req.body;
+            if (!name || !price || !brand || !model) {
+                return res.status(400).json({
+                    success: false,
+                    message: "name, price, brand, model are required",
+                });
+            }
 
-        // Validate the required fields
-        if (!name || !price || !brand || !model) {
-            return res.status(400).json({ message: 'Missing required fields: name, price, brand, and model are mandatory.' });
+            const product = await MobileProduct.create(req.body);
+
+            res.status(201).json({
+                success: true,
+                message: "Mobile product created",
+                data: product,
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: "Failed to create product",
+                error: error.message,
+            });
         }
+    }
+);
 
-        // Create new product
-        const newProduct = new MobileProduct({
-            name,
-            price,
-            brand,
-            model,
-            color,
-            ram,
-            storage,
-            battery,
-            camera,
-            processor,
-            display,
-            operatingSystem,
-            releaseDate,
-            category,
-            description,
-            image,
-            charging,
-            stock,
+/**
+ * GET ALL MOBILES (PUBLIC, PAGINATED)
+ */
+router.get("/mobile", async (req, res) => {
+    try {
+        const { page = 1, limit = 10, brand, price } = req.query;
+
+        const query = {};
+        if (brand) query.brand = brand;
+        if (price) query.price = { $lte: Number(price) };
+
+        const products = await MobileProduct.find(query)
+            .skip((page - 1) * limit)
+            .limit(Number(limit))
+            .sort({ createdAt: -1 });
+
+        const total = await MobileProduct.countDocuments(query);
+
+        res.status(200).json({
+            success: true,
+            total,
+            page: Number(page),
+            data: products,
         });
-
-        await newProduct.save();
-        res.status(201).json(newProduct); // 201 status code for resource creation
-    } catch (error) {
-        res.status(500).json({ message: 'Error creating product', error: error.message });
-    }
-});
-
-// Get all mobile products
-router.get('/mobile', async (req, res) => {
-    try {
-        const response = await MobileProduct.find(); // Fetch all mobile products from DB
-        res.status(200).json(response); // 200 OK
     } catch (err) {
-        res.status(500).json({ message: 'Error fetching products', error: err.message });
+        res.status(500).json({
+            success: false,
+            message: "Error fetching products",
+        });
     }
 });
 
-// Get a specific mobile product by ID
-router.get('/mobile/:id', async (req, res) => {
+/**
+ * GET SINGLE MOBILE BY ID
+ */
+router.get("/mobile/:id", async (req, res) => {
     try {
-        const response = await MobileProduct.findById(req.params.id);
-        if (!response) {
-            return res.status(404).json({ message: 'Product not found' });
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: "Invalid product ID" });
         }
-        res.status(200).json(response); // 200 OK
-    } catch (err) {
-        res.status(500).json({ message: 'Error fetching product', error: err.message });
-    }
-});
 
-// Delete product by ID
-router.delete('/mobile/:id', async (req, res) => {
-    try {
-        const product = await MobileProduct.findByIdAndDelete(req.params.id); // Find and delete product by ID
+        const product = await MobileProduct.findById(req.params.id);
+
         if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
+            return res.status(404).json({ message: "Product not found" });
         }
-        res.status(200).json({ message: 'Product deleted successfully', product });
+
+        res.status(200).json({ success: true, data: product });
     } catch (err) {
-        res.status(500).json({ message: 'Error deleting product', error: err.message });
+        res.status(500).json({ message: "Error fetching product" });
     }
 });
 
-// Update mobile product by ID
-router.put('/mobile/:id', async (req, res) => {
-    try {
+/**
+ * UPDATE MOBILE (ADMIN ONLY)
+ */
+router.put(
+    "/mobile/:id",
+    authenticateToken,
+    isAdmin,
+    async (req, res) => {
+        try {
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                return res.status(400).json({ message: "Invalid product ID" });
+            }
 
-        const updatedProduct = await MobileProduct.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            const updated = await MobileProduct.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true, runValidators: true }
+            );
 
-        if (!updatedProduct) {
-            return res.status(404).json({ message: 'Product not found' });
+            if (!updated) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "Product updated",
+                data: updated,
+            });
+        } catch (err) {
+            res.status(500).json({ message: "Update failed" });
         }
-
-        res.status(200).json(updatedProduct); // Return the updated product
-    } catch (err) {
-        res.status(500).json({ message: 'Error updating product', error: err.message });
     }
-});
+);
+
+/**
+ * DELETE MOBILE (ADMIN ONLY)
+ */
+router.delete(
+    "/mobile/:id",
+    authenticateToken,
+    isAdmin,
+    async (req, res) => {
+        try {
+            if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+                return res.status(400).json({ message: "Invalid product ID" });
+            }
+
+            const deleted = await MobileProduct.findByIdAndDelete(req.params.id);
+
+            if (!deleted) {
+                return res.status(404).json({ message: "Product not found" });
+            }
+
+            res.status(200).json({
+                success: true,
+                message: "Product deleted successfully",
+            });
+        } catch (err) {
+            res.status(500).json({ message: "Delete failed" });
+        }
+    }
+);
 
 module.exports = router;

@@ -1,11 +1,13 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
 
-const ContactMessage = new Schema({
-    name: String,
-    email: String,
-    message: String,
-    timestamp: { type: Date, default: Date.now } // Corrected timestamp definition
-});
+const ContactMessageSchema = new mongoose.Schema(
+    {
+        name: { type: String, required: true, trim: true },
+        email: { type: String, required: true, lowercase: true },
+        message: { type: String, required: true, trim: true },
+        isRead: { type: Boolean, default: false },
+    },
+    { timestamps: true }
+);
 
-module.exports = mongoose.model('ContactMessage', ContactMessage);
+module.exports = mongoose.model("ContactMessage", ContactMessageSchema);
