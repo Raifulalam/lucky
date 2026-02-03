@@ -55,7 +55,7 @@ const Header = () => {
     ======================= */
     const isAdmin = user?.role === "admin";
     const isUser = user && !isAdmin;
-    const isGuest = !user;
+
 
     const roleMenu = isAdmin
         ? MENU.admin
