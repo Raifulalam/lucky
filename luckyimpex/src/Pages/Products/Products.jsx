@@ -11,6 +11,7 @@ import back03 from "../../Images/back03.jpg";
 import { UserContext } from "../../Components/UserContext";
 import EditProductModal from "./EditProductModal";
 import Modal from "../../Components/Modal";
+import { useNotification } from "../../Components/NotificationContext";
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -28,6 +29,7 @@ const Products = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const { addNotification } = useNotification();
     const [newProduct, setNewProduct] = useState({
         name: "",
         mrp: "",
@@ -155,6 +157,13 @@ const Products = () => {
             name: product.name,
             mrp: product.mrp,
             price: product.price,
+        });
+        addNotification({
+            title: "Success!",
+            message: "Item added to cart",
+            type: "success",
+            container: "top-right",
+            dismiss: { duration: 5000 },
         });
     };
 
