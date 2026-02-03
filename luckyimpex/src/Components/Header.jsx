@@ -4,7 +4,7 @@ import { UserContext } from "./UserContext";
 import { Helmet } from "react-helmet";
 import luckyLogo from "../Images/lucky-logo.png";
 import "./Header.css";
-import CartComponent from "../Pages/Cart/Cart";
+
 
 const categories = [
     "AirConditioners",
@@ -24,7 +24,7 @@ const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [catOpen, setCatOpen] = useState(false);
     const [showSubHeader, setShowSubHeader] = useState(false);
-    const [search, setSearch] = useState("");
+
 
     const isAdmin = user?.role === "admin";
     console.log(user);
