@@ -277,10 +277,7 @@ h2 {
 
 /* Tablets */
 @media (max-width: 768px) {
-    .hero-slider {
 
-        margin-top: 70px;
-    }
 
     .brands {
         padding: 15px 10px;

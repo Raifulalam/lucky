@@ -406,3 +406,9 @@ body {
 html {
     scroll-behavior: smooth;
 }
+
+.image-wrapper {
+    display: flex;
+    overflow: auto;
+
+}

@@ -3,6 +3,7 @@ import { useCartDispatch, useCartState } from '../../Components/CreateReducer';
 import './Cart.css';
 import { UserContext } from '../../Components/UserContext';
 import { useNotification } from '../../Components/NotificationContext';
+import useGoBack from '../../hooks/useGoback';
 
 // Helper function to format dates
 const formatDate = (date) => {
@@ -27,7 +28,7 @@ const CartComponent = () => {
     const { addNotification } = useNotification();
 
     const token = localStorage.getItem("authToken");
-    console.log(token)
+    const goBack = useGoBack();
     // State to manage user details for order
     const [deliveryDetails, setDeliveryDetails] = useState({
         name: '',
@@ -182,6 +183,7 @@ const CartComponent = () => {
         <>
             <div className="page-title">Review Your Order</div>
             <hr />
+            <button onClick={goBack}>⬅ Back</button>
 
 
             <div className="cart-container">

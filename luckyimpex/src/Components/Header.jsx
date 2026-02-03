@@ -1,146 +1,153 @@
-import React, { useState, useContext, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import luckyLogo from '../Images/lucky-logo.png';
-import './Header.css';
-import { UserContext } from './UserContext';
-import { Helmet } from 'react-helmet';
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserContext } from "./UserContext";
+import { Helmet } from "react-helmet";
+import luckyLogo from "../Images/lucky-logo.png";
+import "./Header.css";
+import CartComponent from "../Pages/Cart/Cart";
+
+const categories = [
+    "AirConditioners",
+    "Refrigerators",
+    "WashingMachines",
+    "LEDTelevisions",
+    "KitchenAppliances",
+    "HomeAppliances",
+    "AirCooler",
+    "ChestFreezer",
+];
 
 const Header = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isShopHovered, setIsShopHovered] = useState(false);  // State to control dropdown visibility
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
-    const isAdmin = user?.role === 'admin';
-    const isLoggedIn = !!user;
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [catOpen, setCatOpen] = useState(false);
+    const [showSubHeader, setShowSubHeader] = useState(false);
+    const [search, setSearch] = useState("");
 
-    const toggleMenu = useCallback(() => {
-        setIsMenuOpen((prevState) => !prevState);
-    }, []);
+    const isAdmin = user?.role === "admin";
+    console.log(user);
 
-    const handleNavigation = useCallback((path) => {
-        navigate(path);
-    }, [navigate]);
-
-    const handleLogout = useCallback(() => {
-        localStorage.removeItem('authToken');
-        navigate('/');
+    const logout = () => {
+        localStorage.removeItem("authToken");
+        navigate("/");
         window.location.reload();
-    }, [navigate]);
-    const categories = [
-        { name: 'Products' },
-        { name: 'AirConditioners' },
-        { name: 'Refrigerators' },
-        { name: 'WashingMachines' },
-        { name: 'LEDTelevisions' },
-        { name: 'KitchenAppliances' },
-        { name: 'Chimney' },
-        { name: 'HomeAppliances' },
-        { name: 'HomeTheater' },
-        { name: 'AirCooler' },
-        { name: 'ChestFreezer' },
-
-    ];
-    const handleCategoryChange = (event) => {
-        handleNavigation(`/products/${event.target.value}`)
-    }
-
-    // Define the buttons for logged-in users and admins
-    const adminButtons = (
-        <>
-            <button onClick={() => handleNavigation('/dashboard')} className="dropbtn">Dashboard <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/admindashboard')} className="dropbtn">Users <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/orders')} className="dropbtn">Order <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/complaints')} className="dropbtn">Complaints <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/feedback')} className="dropbtn">Feedback <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
-            <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
-        </>
-    );
-
-    const userButtons = (
-        <>
-            <button
-                onMouseEnter={() => setIsShopHovered(true)}
-                onMouseLeave={() => setIsShopHovered(false)}
-                className="dropbtn"
-            >
-                Categories <p>&#10148;</p>
-                {isShopHovered && (
-                    <select className="dropdown-select" onChange={handleCategoryChange}>
-                        {categories.map(category =>
-                            <option key={category.name} value={category.name}>{category.name}</option>
-                        )}
-
-                    </select>
-                )}
-            </button>
-            <button onClick={() => handleNavigation('/products')} className='dropbtn'>All Prodcuts <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/service')} className="dropbtn">Service <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/emi')} className="dropbtn">EMI <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/store')} className="dropbtn">EMI <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/exchange')} className="dropbtn">Exchange ⇆ <p>&#10148;</p></button>
-            <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
-        </>
-    );
-
-    const guestButtons = (
-        <>
-            <button
-                onMouseEnter={() => setIsShopHovered(true)}
-                onMouseLeave={() => setIsShopHovered(false)}
-                className="dropbtn"
-            >
-                Categories <p>&#11167;</p>
-                {isShopHovered && (
-                    <select className="dropdown-select" onChange={handleCategoryChange}>
-                        {categories.map(category =>
-                            <option key={category.name} value={category.name} >{category.name}</option>
-                        )}
-                    </select>
-                )}
-            </button>
-            <button onClick={() => handleNavigation('/products')} className='dropbtn'>All Prodcuts <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/store')} className="dropbtn">Our Stores <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Contact Us<p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/login')} className="dropbtn">Login <p>&#10148;</p></button>
-
-        </>
-    );
-
+    };
+    const cartQty = JSON.parse(localStorage.getItem('cart')).length;
     return (
-        <div className="header">
-            {/* Add Helmet for dynamic title and meta tags */}
-            <Helmet>
-                <title>{isLoggedIn ? (isAdmin ? 'Lucky Impex' : 'Welcome - Lucky Impex') : 'Lucky Impex'}</title>
-                <meta name="description" content={isLoggedIn ? (isAdmin ? ' Manage Users and Orders' : 'Your Profile - Lucky Impex') : 'Lucky Impex - Your Trusted Online Store'} />
-            </Helmet>
+        <div
+            className="header-wrapper"
+            onMouseEnter={() => setShowSubHeader(true)}
+            onMouseLeave={() => setShowSubHeader(false)}
+        >
+            <header className="header">
+                <Helmet>
+                    <title>Lucky Impex – Home Appliances Store</title>
+                    <meta
+                        name="description"
+                        content="Buy AC, TV, Refrigerator & Home Appliances in Nepal"
+                    />
+                </Helmet>
 
-            <div className="left">
-                <Link to="/" className="header-link">
-                    <img className="lucky-logo" src={luckyLogo} alt="Lucky Impex Logo" />
-                </Link>
-                <p className="lucky-name">Lucky Impex</p>
-            </div>
-
-            <nav className={`nav ${isMenuOpen ? 'open' : ''}`} id="nav-element" aria-hidden={!isMenuOpen}>
-                <div className="middle">
-                    {isLoggedIn ? (isAdmin ? adminButtons : userButtons) : guestButtons}
+                {/* LEFT */}
+                <div className="header-left">
+                    <Link to="/" className="logo">
+                        <img src={luckyLogo} alt="Lucky Impex" />
+                        <span>Lucky Impex</span>
+                    </Link>
                 </div>
-            </nav>
 
-            <div className="hamburger" onClick={toggleMenu} aria-expanded={isMenuOpen ? 'true' : 'false'} aria-controls="nav-element" aria-label="Toggle navigation">
-                <span className={`bar ${isMenuOpen ? 'open' : ''}`}></span>
-                <span className={`bar ${isMenuOpen ? 'open' : ''}`}></span>
-                <span className={`bar ${isMenuOpen ? 'open' : ''}`}></span>
+
+
+                {/* RIGHT */}
+                <div className="header-right">
+                    {/* CENTER */}
+                    <div className="header-center">
+                        {/* Categories */}
+                        <div
+                            className="category-box"
+                            onMouseEnter={() => setCatOpen(true)}
+                            onMouseLeave={() => setCatOpen(false)}
+                        >
+                            <button className="category-btn">Categories ▾</button>
+
+                            {catOpen && (
+                                <div className="category-dropdown">
+                                    {categories.map((cat) => (
+                                        <div
+                                            key={cat}
+                                            className="category-item"
+                                            onClick={() => navigate(`/products/${cat}`)}
+                                        >
+                                            {cat.replace(/([A-Z])/g, " $1")}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+
+                    </div>
+                    <Link to="/products">Products</Link>
+                    <Link to="/phones">Phones</Link>
+                    <Link to="/service">Service</Link>
+
+                    <Link to="/cart" className="cart">
+                        🛒 <span className="cart-badge">{cartQty}</span>
+                    </Link>
+
+                    {user ? (
+                        <div className="user-menu">
+                            <span>Hey {user?.name?.split(" ")[0]}</span>
+                            <div className="user-dropdown">
+                                {!isAdmin && <Link to="/profile">Profile</Link>}
+                                {isAdmin && <Link to="/dashboard">Dashboard</Link>}
+                                <button onClick={logout}>Logout</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Link to="/login" className="login-btn">
+                            Login
+                        </Link>
+                    )}
+
+                    <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+                        ☰
+                    </div>
+                </div>
+            </header>
+
+            {/* 🔹 SUB HEADER */}
+            <div className={`sub-header ${showSubHeader ? "show" : ""}`}>
+                <Link to="/store">About</Link>
+                <Link to="/emi">EMI</Link>
+                <Link to="/exchange">Exchange</Link>
+                <Link to="/store">Stores</Link>
+                <Link to="/contact">Contact</Link>
             </div>
+
+
+            {/* menu items */}
+
+            {/* MOBILE MENU */}
+            <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
+                <Link to="/products" onClick={() => setMenuOpen(false)}>Products</Link>
+                <Link to="/phones" onClick={() => setMenuOpen(false)}>Phones</Link>
+                <Link to="/cart" onClick={() => setMenuOpen(false)}>Cart</Link>
+                <Link to="/emi" onClick={() => setMenuOpen(false)}>EMI</Link>
+                <Link to="/exchange" onClick={() => setMenuOpen(false)}>Exchange</Link>
+                <Link to="/store" onClick={() => setMenuOpen(false)}>Stores</Link>
+                <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
+
+                {user ? (
+                    <button onClick={logout}>Logout</button>
+                ) : (
+                    <Link to="/login">Login</Link>
+                )}
+            </div>
+
+
         </div>
     );
 };

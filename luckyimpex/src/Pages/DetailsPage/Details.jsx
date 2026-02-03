@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';  // Import Helmet
 import './Details.css';
+import useGoBack from '../../hooks/useGoback';
 
 
 const ProductDetails = () => {
@@ -10,11 +11,12 @@ const ProductDetails = () => {
     const [error, setError] = useState(null); // State to hold error message
     const [loading, setLoading] = useState(true); // Loading state
 
+    const goBack = useGoBack();
 
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/products/productsDetails/${id}`);
+                const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/products/products/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('Product not found');
@@ -55,6 +57,7 @@ const ProductDetails = () => {
 
     return (
         <div className="product-detail-container">
+            <button onClick={goBack}>⬅ Back</button>
             <Helmet>
                 <title>{productData.name} - Lucky Impex</title>
                 <meta name="description" content={`Buy ${productData.name} from Lucky Impex.`} />

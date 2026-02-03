@@ -3,6 +3,8 @@ import { UserContext } from "../../Components/UserContext";
 import "./OrderPage.css";
 import { FaTrash, FaPrint } from "react-icons/fa";
 
+import useGoBack from "../../hooks/useGoback";
+
 import Invoice from "../../Components/invoice";
 import {
 
@@ -22,6 +24,7 @@ const OrderPage = () => {
 
     const token = localStorage.getItem("authToken");
 
+    const goBack = useGoBack();
     /* ================= FETCH ORDERS ================= */
     useEffect(() => {
         if (!token) return;
@@ -95,6 +98,7 @@ const OrderPage = () => {
     /* ================= RENDER ================= */
     return (
         <div className="order-page">
+            <button onClick={goBack}>⬅ Back</button>
             {orders.map((order) => (
                 <div className="order-card" key={order._id}>
                     {/* ---------- HEADER ---------- */}

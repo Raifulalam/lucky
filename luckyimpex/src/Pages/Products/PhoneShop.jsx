@@ -30,6 +30,9 @@ const PhoneShop = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Modal for adding products
     const [selectedProduct, setSelectedProduct] = useState(null);
     const { addNotification } = useNotification();
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [newProduct, setNewProduct] = useState({
         name: '',
         price: '',
@@ -48,29 +51,23 @@ const PhoneShop = () => {
         setError(null);
 
         try {
-            let url = "https://lucky-1-6ma5.onrender.com/api/mobiles/mobile";
+            let url = `https://lucky-1-6ma5.onrender.com/api/mobiles/mobile?page=${page}`;
+            if (category) url += `&category=${category}`;
 
-            if (category) {
-                url += `?category=${category}`;
-            }
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Failed to fetch products");
 
-            const response = await fetch(url, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
+            const result = await response.json();
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch products");
-            }
-
-            const data = await response.json();
-            setProducts(data);
+            setProducts(result.data);
+            setTotalPages(Math.ceil(result.total / 10)); // 👈 KEY
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, [category]); // ✅ FIXED
+    }, [page, category]);
+
 
     useEffect(() => {
         fetchProducts();
@@ -88,14 +85,6 @@ const PhoneShop = () => {
         });
     }, [products, searchTerm]);
 
-    // Image slider logic
-    const images = [backimg, back01, back02, back03, luckyImage, back04];
-    const nextSlide = () => setCurrentSlide((prevSlide) => (prevSlide + 1) % images.length);
-
-    useEffect(() => {
-        const intervalId = setInterval(nextSlide, 4000);
-        return () => clearInterval(intervalId);
-    });
 
     const dispatch = useCartDispatch();
 
@@ -194,6 +183,9 @@ const PhoneShop = () => {
             dismiss: { duration: 5000 },
         });
     };
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }, [page]);
 
     // Navigate to product details page
     const handleDetails = (productId) => {
@@ -264,7 +256,9 @@ const PhoneShop = () => {
 
         try {
             // Send the data to the backend
-            const response = await fetch('https://lucky-1-6ma5.onrender.com/api/mobiles/mobile', {
+            let url = `https://lucky-1-6ma5.onrender.com/api/mobiles/mobile?page=${page}`;
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -337,6 +331,31 @@ const PhoneShop = () => {
             </div>
         );
     }
+    const Pagination = ({ page, totalPages, onPageChange }) => {
+        if (totalPages <= 1) return null;
+
+        return (
+            <div className="pagination">
+                <button
+                    disabled={page === 1}
+                    onClick={() => onPageChange(page - 1)}
+                >
+                    ◀ Prev
+                </button>
+
+                <span>
+                    Page <strong>{page}</strong> of {totalPages}
+                </span>
+
+                <button
+                    disabled={page === totalPages}
+                    onClick={() => onPageChange(page + 1)}
+                >
+                    Next ▶
+                </button>
+            </div>
+        );
+    };
 
     return (
         <>
@@ -402,13 +421,21 @@ const PhoneShop = () => {
                                     Add to Cart
                                 </button>
                             )}
+
+
                         </div>
+
                     ))
                 ) : (
                     <div className="no-products-found">No products found for your search.</div>
                 )}
-            </div>
 
+            </div>
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+            />
             {/* Modal for adding a new product */}
             <Modal show={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
                 <h2>Add New Product</h2>
