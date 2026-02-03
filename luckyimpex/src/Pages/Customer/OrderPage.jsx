@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../Components/UserContext";
 import "./OrderPage.css";
-import { FaTrash, FaPrint, FaFilePdf } from "react-icons/fa";
+import { FaTrash, FaPrint } from "react-icons/fa";
 
 import Invoice from "../../Components/invoice";
 import {
