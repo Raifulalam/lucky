@@ -82,7 +82,7 @@ export default function HRDashboard() {
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this employee?")) return;
         try {
-            const res = await fetch(`https://lucky-back.onrender.com/api/employee/${id}`, { method: "DELETE", headers });
+            const res = await fetch(`https://lucky-1-6ma5.onrender.com/api/employees/employee/${id}`, { method: "DELETE", headers });
             const data = await res.json();
             if (data.success) fetchEmployees();
         } catch (err) {
@@ -96,7 +96,7 @@ export default function HRDashboard() {
     // ------------------ Attendance ------------------
     const fetchAttendance = async (employeeId) => {
         try {
-            const res = await fetch(`https://lucky-back.onrender.com/api/attendance/${employeeId}`, { headers });
+            const res = await fetch(`https://lucky-1-6ma5.onrender.com/api/employees/attendance/${employeeId}`, { headers });
             const data = await res.json();
             if (data.success) { setAttendance(data.records); setShowAttendance(true); }
             else alert("No attendance found");
@@ -106,17 +106,17 @@ export default function HRDashboard() {
     const markAttendance = async (employeeId, status) => {
         if (todayAttendance[employeeId]) { alert("Attendance already marked!"); return; }
         try {
-            const res = await fetch("https://lucky-back.onrender.com/api/attendance", { method: "POST", headers, body: JSON.stringify({ employeeId, status }) });
+            const res = await fetch("https://lucky-1-6ma5.onrender.com/api/employees/attendance", { method: "POST", headers, body: JSON.stringify({ employeeId, status }) });
             const data = await res.json();
             if (data.success) setTodayAttendance(prev => ({ ...prev, [employeeId]: status }));
             else alert(data.message || "Failed to mark attendance");
         } catch (err) { console.error(err); }
     };
-
+    //add update attendence , delete attendence
     // ------------------ Leave ------------------
     const applyLeave = async (employeeId, startDate = "2025-09-20", endDate = "2025-09-25") => {
         try {
-            const res = await fetch("https://lucky-back.onrender.com/api/leave", {
+            const res = await fetch("https://lucky-1-6ma5.onrender.com/api/employees/leave", {
                 method: "POST", headers, body: JSON.stringify({ employeeId, startDate, endDate, type: "Sick", reason: "Fever" })
             });
             const data = await res.json();

@@ -20,7 +20,7 @@
     width: 600px;
     border-radius: 8px;
     position: relative;
-    height: 80vh;
+    height: max-content;
     overflow: auto;
 }
 
