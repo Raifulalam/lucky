@@ -37,7 +37,7 @@ const ComplaintsComponent = () => {
 
     useEffect(() => {
         fetchComplaints();
-    }, []);
+    });
 
     // Update status
     const updateStatus = async (id, status) => {
