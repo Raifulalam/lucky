@@ -149,7 +149,7 @@ const Header = () => {
                     {/* USER DROPDOWN */}
                     {user ? (
                         <div className="user-menu">
-                            <span>{user?.name?.split(" ")[0]}</span>
+
                             <div className="user-dropdown">
                                 {isUser && <Link to="/profile">Profile</Link>}
                                 {isAdmin && <Link to="/dashboard">Dashboard</Link>}

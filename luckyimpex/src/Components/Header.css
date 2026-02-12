@@ -205,7 +205,6 @@
     border-bottom: 1px solid #eee;
     font-size: 14px;
 
-    opacity: 0;
     transform: translateY(-5px);
     pointer-events: none;
     transition: all 0.25s ease;
@@ -213,7 +212,7 @@
 }
 
 .sub-header.show {
-    opacity: 1;
+
     transform: translateY(0);
     pointer-events: auto;
     display: flex;
@@ -226,11 +225,4 @@
 
 .sub-header a:hover {
     color: #ff9800;
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-    .sub-header {
-        display: none;
-    }
 }

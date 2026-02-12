@@ -12,6 +12,9 @@ import { UserContext } from "../../Components/UserContext";
 import EditProductModal from "./EditProductModal";
 import Modal from "../../Components/Modal";
 import { useNotification } from "../../Components/NotificationContext";
+import { Helmet } from "react-helmet-async";
+
+const productCache = {};
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -50,6 +53,13 @@ const Products = () => {
     const userRole = user?.role || "user";
 
     const placeholderImage = "/path/to/placeholder-image.jpg";
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedBrand, setSelectedBrand] = useState("");
+
+    const filteredProducts = products.filter(product =>
+        (selectedCategory === "" || product.category === selectedCategory) &&
+        (selectedBrand === "" || product.brand === selectedBrand)
+    );
 
     // slider
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -67,33 +77,44 @@ const Products = () => {
     // ✅ Fetch products from backend with pagination + search + category
     const fetchProducts = useCallback(
         async (reset = false) => {
-            if (loading) return;
-            setLoading(true);
-            setError(null);
-
             try {
+                setLoading(true);
+                setError(null);
+
                 let url = `https://lucky-1-6ma5.onrender.com/api/products/products?page=${page}&limit=20`;
+
                 if (category) url += `&category=${category}`;
                 if (searchTerm) url += `&search=${searchTerm}`;
+
+                // ✅ Check cache first
+                if (productCache[url]) {
+                    setProducts(productCache[url]);
+                    setLoading(false);
+                    return;
+                }
 
                 const response = await fetch(url);
                 if (!response.ok) throw new Error("Failed to fetch products");
 
                 const data = await response.json();
 
+                productCache[url] = data.products;
+
                 if (reset) {
                     setProducts(data.products);
                 } else {
                     setProducts((prev) => [...prev, ...data.products]);
                 }
+
                 setPages(data.pages);
             } catch (err) {
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
-        }, [category, loading, page, searchTerm]
-    )
+        },
+        [category, page, searchTerm]
+    );
 
 
     // Initial load + when category/search changes
@@ -109,6 +130,14 @@ const Products = () => {
         // eslint-disable-next-line
     }, [page]);
 
+    useEffect(() => {
+        const delay = setTimeout(() => {
+            setPage(1);
+            fetchProducts(true);
+        }, 500);
+
+        return () => clearTimeout(delay);
+    }, [searchTerm, fetchProducts]);
     // Handle edit
     const handleEdit = (product) => {
         setSelectedProduct(product);
@@ -212,14 +241,7 @@ const Products = () => {
         }
     };
 
-    if (loading && products.length === 0) {
-        return (
-            <div className="loading-container">
-                <div className="spinner"></div>
-            </div>
-        );
-    }
-
+    const isInitialLoading = loading && products.length === 0;
     if (error) {
         return (
             <div className="error-container">
@@ -231,7 +253,46 @@ const Products = () => {
 
     return (
         <>
+            <Helmet>
+                <title>Buy Products Online | Lucky Impex</title>
+                <meta
+                    name="description"
+                    content="Shop high quality electronics and appliances from Lucky Impex at best prices."
+                />
+                <meta
+                    name="keywords"
+                    content="Lucky Impex, electronics, appliances, best price, online shopping"
+                />
+                <meta property="og:title" content="Lucky Impex Products" />
+                <meta
+                    property="og:description"
+                    content="Explore premium quality products at Lucky Impex."
+                />
+            </Helmet>
+
             <Header />
+
+
+
+
+
+
+            {/* ✅ Loading Skeleton */}
+            {isInitialLoading && (
+                <div className="skeleton-grid">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i} className="skeleton-card"></div>
+                    ))}
+                </div>
+            )}
+
+            {/* ✅ Error */}
+            {error && (
+                <div className="error-container">
+                    <p>Error: {error}</p>
+                    <button onClick={() => fetchProducts(true)}>Retry</button>
+                </div>
+            )}
             <div className="home-main">
                 <div className="image">
                     <input
@@ -246,6 +307,68 @@ const Products = () => {
                         alt={`Slide ${currentSlide + 1}`}
                         className="slider-image"
                     />
+                </div>
+                <div className="seo-static-content">
+                    <div className="container">
+
+                        <h1 className="main-title">
+                            Lucky Impex – Your Trusted Online Shopping Destination
+                        </h1>
+
+                        <p className="subtitle">
+                            Discover premium electronics, home appliances, and top-quality products
+                            at unbeatable prices. Shop smart, shop fast, shop with confidence.
+                        </p>
+
+                        <div className="features">
+                            <div className="feature-item">
+                                <h3>🔥 Best Deals</h3>
+                                <p>Exclusive discounts on top brands and trending products.</p>
+                            </div>
+
+                            <div className="feature-item">
+                                <h3>🚚 Fast Delivery</h3>
+                                <p>Quick and reliable delivery to your doorstep.</p>
+                            </div>
+
+                            <div className="feature-item">
+                                <h3>🔒 Secure Payment</h3>
+                                <p>Safe and secure checkout with trusted payment methods.</p>
+                            </div>
+
+                            <div className="feature-item">
+                                <h3>⭐ Quality Guaranteed</h3>
+                                <p>We offer only genuine and high-quality products.</p>
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <div className="filter-section">
+                    <h2>Filter Products</h2>
+
+                    <div className="filters">
+                        <select onChange={(e) => setSelectedCategory(e.target.value)}>
+                            <option value="">All Categories</option>
+                            <option value="AirConditioners">Air Conditioners</option>
+                            <option value="Refrigerators">Refrigerators</option>
+                            <option value="WashingMachines">Washing Machines</option>
+                            <option value="LEDTelevisions">LED Televisions</option>
+                            <option value="KitchenAppliances">Kitchen Appliances</option>
+                            <option value="HomeTheater">Home Theater</option>
+                        </select>
+
+                        <select onChange={(e) => setSelectedBrand(e.target.value)}>
+                            <option value="">All Brands</option>
+                            <option value="LG">LG</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Sony">Sony</option>
+                            <option value="Whirlpool">Whirlpool</option>
+                            <option value="Voltas">Voltas</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -263,8 +386,8 @@ const Products = () => {
 
             {/* Product List */}
             <div className="product-grid">
-                {products.length > 0 ? (
-                    products.map((product) => (
+                {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
                         <div
                             key={product._id}
                             ref={(el) => (productRefs.current[product._id] = el)}

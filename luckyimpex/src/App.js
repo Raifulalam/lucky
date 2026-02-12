@@ -48,6 +48,7 @@ function App() {
   }, []);
 
   return (
+
     <NotificationProvider>
       <UserProvider>
         <ProductProvider>

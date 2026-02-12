@@ -412,3 +412,57 @@ html {
     overflow: auto;
 
 }
+
+.seo-static-content {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.main-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 40px auto;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.feature-item {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+}
+
+
+
+
+
+.filter-section {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.filters select {
+    padding: 10px 15px;
+    margin: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
