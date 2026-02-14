@@ -44,7 +44,7 @@ const Home = () => {
                 target="_blank"
                 rel="noopener noreferrer"
             >
-                💬
+                <img src="/whatsapp.png" alt="whatsaap" />
             </a>
 
             <Footer />

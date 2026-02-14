@@ -145,7 +145,7 @@ const CartComponent = () => {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`, // ✅ REQUIRED
+                        Authorization: `Bearer ${token}`,
                     },
                     body: JSON.stringify(orderData),
                 }

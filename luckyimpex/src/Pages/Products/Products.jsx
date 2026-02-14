@@ -320,27 +320,7 @@ const Products = () => {
                             at unbeatable prices. Shop smart, shop fast, shop with confidence.
                         </p>
 
-                        <div className="features">
-                            <div className="feature-item">
-                                <h3>🔥 Best Deals</h3>
-                                <p>Exclusive discounts on top brands and trending products.</p>
-                            </div>
 
-                            <div className="feature-item">
-                                <h3>🚚 Fast Delivery</h3>
-                                <p>Quick and reliable delivery to your doorstep.</p>
-                            </div>
-
-                            <div className="feature-item">
-                                <h3>🔒 Secure Payment</h3>
-                                <p>Safe and secure checkout with trusted payment methods.</p>
-                            </div>
-
-                            <div className="feature-item">
-                                <h3>⭐ Quality Guaranteed</h3>
-                                <p>We offer only genuine and high-quality products.</p>
-                            </div>
-                        </div>
 
 
 

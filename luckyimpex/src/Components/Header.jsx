@@ -142,7 +142,7 @@ const Header = () => {
                     {/* CART (ALL USERS) */}
                     {!isAdmin && (
                         <Link to="/cart" className="cart">
-                            🛒 <span className="cart-badge">{cartQty}</span>
+                            <img src="/shopping-cart.png" height={28} width={28} alt="" /> <span className="cart-badge">{cartQty}</span>
                         </Link>
                     )}
 
