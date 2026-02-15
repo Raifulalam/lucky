@@ -1,133 +1,256 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { UserContext } from '../../Components/UserContext';
-import { useNavigate } from 'react-router-dom';
-import { FaTrash, FaEye, FaTruck } from 'react-icons/fa';
-import './OrderComponent.css';
+import React, { useEffect, useState, useContext, useMemo } from "react";
+import { UserContext } from "../../Components/UserContext";
+import { useNavigate } from "react-router-dom";
+import { FaTrash, FaEye, FaTruck } from "react-icons/fa";
+import { Helmet } from "react-helmet";
+import "./OrderComponent.css";
+
+const ITEMS_PER_PAGE = 8;
+const STATUS_FLOW = ["Placed", "Shipped", "Delivered"];
 
 const OrderComponent = () => {
     const { user } = useContext(UserContext);
-    const [orders, setOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const fetchOrders = async () => {
-        try {
-            const res = await fetch('https://lucky-back.onrender.com/api/orders');
-            if (!res.ok) throw new Error('Failed to fetch orders');
-            const data = await res.json();
-            setOrders(data);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    const updateStatus = async (orderId, newStatus) => {
-        try {
-            const res = await fetch(`https://lucky-back.onrender.com/api/orders/${orderId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus }),
-            });
-            if (!res.ok) throw new Error('Failed to update status');
-            const updated = await res.json();
-            setOrders(prev => prev.map(o => o._id === updated._id ? updated : o));
-        } catch (err) {
-            alert(err.message);
-        }
-    };
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [page, setPage] = useState(1);
 
-    const handleDelete = async (orderId) => {
-        if (window.confirm('Delete this order?')) {
-            try {
-                const res = await fetch(`https://lucky-back.onrender.com/api/orders/${orderId}`, {
-                    method: 'DELETE',
-                });
-                if (!res.ok) throw new Error('Delete failed');
-                setOrders(prev => prev.filter(order => order._id !== orderId));
-                alert('Deleted successfully');
-            } catch (err) {
-                alert(err.message);
-            }
-        }
-    };
-
-    const handleReviewClick = (orderId) => {
-        navigate(`/review/${orderId}`);
-    };
-
-    const getNextStatus = (status) => {
-        const flow = ['Placed', 'Shipped', 'Delivered'];
-        const currentIndex = flow.indexOf(status);
-        return currentIndex < flow.length - 1 ? flow[currentIndex + 1] : null;
-    };
+    /* ---------------- FETCH ---------------- */
 
     useEffect(() => {
         fetchOrders();
     }, []);
 
-    if (!user || user.role !== 'admin') return <div className="unauthorized">❌ Access Denied: Admins only</div>;
-    if (loading) return <div className="loading">Loading Orders...</div>;
-    if (error) return <div className="error">Error: {error}</div>;
+    const fetchOrders = async () => {
+        try {
+            const res = await fetch("https://lucky-back.onrender.com/api/orders");
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            setOrders(data);
+        } catch {
+            setError("Failed to load orders.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /* ---------------- STATUS ---------------- */
+
+    const getNextStatus = (status) => {
+        const idx = STATUS_FLOW.indexOf(status);
+        return idx < STATUS_FLOW.length - 1 ? STATUS_FLOW[idx + 1] : null;
+    };
+
+    const updateStatus = async (id, status) => {
+        try {
+            const res = await fetch(
+                `https://lucky-back.onrender.com/api/orders/${id}`,
+                {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ status }),
+                }
+            );
+            if (!res.ok) throw new Error();
+            const updated = await res.json();
+            setOrders((prev) =>
+                prev.map((o) => (o._id === updated._id ? updated : o))
+            );
+        } catch {
+            alert("Status update failed");
+        }
+    };
+
+    /* ---------------- DELETE ---------------- */
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Delete this order permanently?")) return;
+        try {
+            const res = await fetch(
+                `https://lucky-back.onrender.com/api/orders/${id}`,
+                { method: "DELETE" }
+            );
+            if (!res.ok) throw new Error();
+            setOrders((prev) => prev.filter((o) => o._id !== id));
+        } catch {
+            alert("Delete failed");
+        }
+    };
+
+    /* ---------------- FILTERING ---------------- */
+
+    const filteredOrders = useMemo(() => {
+        return orders.filter((o) => {
+            const textMatch =
+                o._id.toLowerCase().includes(search.toLowerCase()) ||
+                o.name.toLowerCase().includes(search.toLowerCase()) ||
+                o.phone.includes(search);
+
+            const statusMatch = statusFilter ? o.status === statusFilter : true;
+
+            const created = new Date(o.createdAt);
+            const afterStart = startDate ? created >= new Date(startDate) : true;
+            const beforeEnd = endDate ? created <= new Date(endDate) : true;
+
+            return textMatch && statusMatch && afterStart && beforeEnd;
+        });
+    }, [orders, search, statusFilter, startDate, endDate]);
+
+    /* ---------------- ANALYTICS ---------------- */
+
+    const analytics = useMemo(() => {
+        const now = new Date();
+        return {
+            total: orders.length,
+            today: orders.filter(
+                (o) =>
+                    new Date(o.createdAt).toDateString() === now.toDateString()
+            ).length,
+            last7: orders.filter(
+                (o) => now - new Date(o.createdAt) <= 7 * 86400000
+            ).length,
+            last30: orders.filter(
+                (o) => now - new Date(o.createdAt) <= 30 * 86400000
+            ).length,
+        };
+    }, [orders]);
+
+    /* ---------------- PAGINATION ---------------- */
+
+    const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+    const paginatedOrders = filteredOrders.slice(
+        (page - 1) * ITEMS_PER_PAGE,
+        page * ITEMS_PER_PAGE
+    );
+
+    /* ---------------- CSV EXPORT ---------------- */
+
+    const exportCSV = () => {
+        const headers = ["Order ID", "User", "Phone", "Status", "Date"];
+        const rows = filteredOrders.map((o) => [
+            `"${o._id}"`,
+            `"${o.name}"`,
+            `"${o.phone}"`,
+            `"${o.status}"`,
+            `"${new Date(o.createdAt).toLocaleString()}"`
+        ]);
+
+        const csv =
+            "data:text/csv;charset=utf-8," +
+            [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+
+        const link = document.createElement("a");
+        link.href = encodeURI(csv);
+        link.download = `orders-${Date.now()}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    /* ---------------- GUARD ---------------- */
+
+    if (!user || user.role !== "admin")
+        return <div className="unauthorized">❌ Admin access only</div>;
 
     return (
-        <div className="order-container">
-            <h2 className="title">📦 Order Management</h2>
-            {orders.length === 0 ? (
-                <p>No orders found.</p>
-            ) : (
-                <div className="table-wrapper">
-                    <table className="orders-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Status</th>
-                                <th>Delivery Date</th>
-                                <th>Address</th>
-                                <th>User</th>
-                                <th>Phone</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map(order => (
-                                <tr key={order._id}>
-                                    <td>{order._id}</td>
-                                    <td>
-                                        <span className={`status-badge ${order.status.toLowerCase()}`}>
-                                            {order.status}
-                                        </span>
-                                        {getNextStatus(order.status) && (
-                                            <button
-                                                className="status-update-btn"
-                                                onClick={() => updateStatus(order._id, getNextStatus(order.status))}
-                                                title={`Mark as ${getNextStatus(order.status)}`}
-                                            >
-                                                <FaTruck />
-                                            </button>
-                                        )}
-                                    </td>
-                                    <td>{order.deliveryDate || 'N/A'}</td>
-                                    <td>{order.address}</td>
-                                    <td>{order.name}</td>
-                                    <td>{order.phone}</td>
-                                    <td className="actions">
-                                        <button onClick={() => handleReviewClick(order._id)} title="View">
-                                            <FaEye />
-                                        </button>
-                                        <button onClick={() => handleDelete(order._id)} title="Delete">
-                                            <FaTrash />
-                                        </button>
-                                    </td>
+        <section className="order-page">
+            <Helmet>
+                <title>Order Management | Admin</title>
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
+
+            <h1>📦 Order Management</h1>
+
+            {/* ANALYTICS */}
+            <div className="analytics-grid">
+                <div className="card"><h3>Total</h3><p>{analytics.total}</p></div>
+                <div className="card"><h3>Today</h3><p>{analytics.today}</p></div>
+                <div className="card"><h3>Last 7 Days</h3><p>{analytics.last7}</p></div>
+                <div className="card"><h3>Last 30 Days</h3><p>{analytics.last30}</p></div>
+            </div>
+
+            {/* FILTERS */}
+            <div className="filter-bar">
+                <input placeholder="Search order / user / phone"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                    <option value="">All Status</option>
+                    {STATUS_FLOW.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+
+                <button className="export-btn" onClick={exportCSV}>Export CSV</button>
+            </div>
+
+            {loading && <p>Loading orders...</p>}
+            {error && <p className="error-message">{error}</p>}
+
+            {!loading && paginatedOrders.length > 0 && (
+                <>
+                    <div className="table-container">
+                        <table className="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Status</th>
+                                    <th>User</th>
+                                    <th>Phone</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {paginatedOrders.map(o => (
+                                    <tr key={o._id}>
+                                        <td>{o._id}</td>
+                                        <td>
+                                            <span className={`status ${o.status.toLowerCase()}`}>
+                                                {o.status}
+                                            </span>
+                                            {getNextStatus(o.status) && (
+                                                <button
+                                                    className="status-btn"
+                                                    title="Update Status"
+                                                    onClick={() => updateStatus(o._id, getNextStatus(o.status))}
+                                                >
+                                                    <FaTruck />
+                                                </button>
+                                            )}
+                                        </td>
+                                        <td>{o.name}</td>
+                                        <td>{o.phone}</td>
+                                        <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+                                        <td className="actions">
+                                            <button onClick={() => navigate(`/review/${o._id}`)}><FaEye /></button>
+                                            <button onClick={() => handleDelete(o._id)}><FaTrash /></button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* PAGINATION */}
+                    <div className="pagination">
+                        <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</button>
+                        <span>{page} / {totalPages}</span>
+                        <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</button>
+                    </div>
+                </>
             )}
-        </div>
+        </section>
     );
 };
 

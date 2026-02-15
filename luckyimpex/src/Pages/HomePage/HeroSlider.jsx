@@ -15,9 +15,18 @@ const HeroSlider = () => {
 
     return (
         <section className="hero-slider">
-            <img src={images[currentSlide]} alt={`Slide ${currentSlide + 1}`} className="hero-img" loading="lazy" />
-
+            <img
+                src={images[currentSlide]}
+                alt={`Lucky Impex Slide ${currentSlide + 1}`}
+                className="hero-img"
+                width="1135"
+                height="890"
+                loading={currentSlide === 0 ? "eager" : "lazy"}
+                fetchpriority={currentSlide === 0 ? "high" : "auto"}
+            />
         </section>
+
+
     );
 };
 

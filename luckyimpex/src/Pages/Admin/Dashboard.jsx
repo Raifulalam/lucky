@@ -29,202 +29,143 @@ import {
 } from "recharts";
 import "./Dashboard.css";
 
+/* ---------------- SIDEBAR ---------------- */
+const Sidebar = ({ navigate }) => (
+    <aside className="sidebar">
+        <h1 className="sidebar-title">Admin Panel</h1>
+        <ul className="menus">
+            <li onClick={() => navigate("/dashboard")}><FaTachometerAlt /> Dashboard</li>
+            <li onClick={() => navigate("/orders")}><FaShoppingCart /> Orders</li>
+            <li onClick={() => navigate("/admindashboard")}><FaUsers /> Users</li>
+            <li onClick={() => navigate("/complaints")}><FaComments /> Complaints</li>
+            <li onClick={() => navigate("/feedback")}><FaStar /> Reviews</li>
+            <li onClick={() => navigate("/employee-manage")}><FaUserTie /> Employees</li>
+            <li onClick={() => navigate("/manage-products")}><FaProductHunt /> Products</li>
+            <li onClick={() => navigate("/settings")}><FaCogs /> Settings</li>
+        </ul>
+    </aside>
+);
 
-
+/* ---------------- DASHBOARD ---------------- */
 export default function Dashboard() {
     const navigate = useNavigate();
-    const [statsData, setStatsData] = useState({
-        users: 0,
-        orders: 0,
-        complaints: 0,
-        reviews: 0,
-        products: 0,
-        brands: 0,
-    });
-    const Sidebar = () => (
-        <div className="sidebar">
-            <h1 className="sidebar-title">Admin Panel</h1>
+    const token = localStorage.getItem("authToken");
 
-            <ul className="menus">
-                <li>
-                    <button onClick={() => navigate("/dashboard")}>
-                        <FaTachometerAlt /> Dashboard
-                    </button>
-                </li>
-
-                <li>
-                    <button onClick={() => navigate("/orders")}>
-                        <FaShoppingCart /> Orders
-                    </button>
-                </li>
-
-                <li>
-                    <button onClick={() => navigate("/admindashboard")}>
-                        <FaUsers /> Users
-                    </button>
-                </li>
-
-                <li>
-                    <button onClick={() => navigate("/complaints")}>
-                        <FaComments /> Complaints
-                    </button>
-                </li>
-
-                <li>
-                    <button onClick={() => navigate("/feedback")}>
-                        <FaStar /> Reviews
-                    </button>
-                </li>
-
-                <li>
-                    <button onClick={() => navigate("/employee-manage")}>
-                        <FaStar /> Manage Employee
-                    </button>
-                </li>
-
-                <li>
-                    <button onClick={() => navigate("/settings")}>
-                        <FaCogs /> Settings
-                    </button>
-                </li>
-            </ul>
-        </div>
-    );
-    const [employeeStats, setEmployeeStats] = useState({
-        totalEmployees: 0,
-        totalAttendance: 0,
-        totalLeaves: 0,
-        totalSalaryPaid: 0,
-    });
-
+    const [stats, setStats] = useState({});
+    const [employeeStats, setEmployeeStats] = useState({});
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchAll = async () => {
             try {
-                const res = await fetch(
-                    "https://lucky-back.onrender.com/api/dashboard/stats"
-                );
-                if (!res.ok) throw new Error("Stats request failed");
-                const data = await res.json();
-                setStatsData(data);
-            } catch (err) {
-                console.error("Failed to fetch stats:", err);
-            }
-        };
-
-        const fetchEmployeeStats = async () => {
-            try {
-                const token = localStorage.getItem("authToken");
-                const res = await fetch(
-                    "https://lucky-back.onrender.com/api/admin-dashboard",
-                    {
+                const [statsRes, empRes] = await Promise.all([
+                    fetch("https://lucky-1-6ma5.onrender.com/api/dashboard/stats", {
                         headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
-                const data = await res.json();
-                if (data.success) {
-                    setEmployeeStats(data.stats);
-                }
+                    }),
+                    fetch("https://lucky-1-6ma5.onrender.com/api/employees/admin-dashboard", {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }),
+                ]);
+
+                const statsData = await statsRes.json();
+                const empData = await empRes.json();
+
+                setStats(statsData.data || {});
+                setEmployeeStats(empData.stats || {});
             } catch (err) {
-                console.error("Error fetching employee stats:", err);
+                console.error("Dashboard fetch failed", err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchStats();
-        fetchEmployeeStats();
-    }, []);
+        fetchAll();
+    }, [token]);
 
+    if (loading) return <div className="loading">Loading dashboard...</div>;
+
+    /* ---------------- STATS CARDS ---------------- */
     const statCards = [
-        { title: "Total Users", value: statsData.users, icon: <FaUsers /> },
-        { title: "Orders", value: statsData.orders, icon: <FaShoppingCart /> },
-        { title: "Complaints", value: statsData.complaints, icon: <FaComments /> },
-        { title: "Reviews", value: statsData.reviews, icon: <FaStar /> },
-        { title: "Products", value: statsData.products, icon: <FaProductHunt /> },
-        { title: "Brands", value: statsData.brands, icon: <FaTags /> },
-
-        // Employee stats
+        { title: "Users", value: stats.users, icon: <FaUsers /> },
+        { title: "Orders", value: stats.orders, icon: <FaShoppingCart /> },
+        { title: "Complaints", value: stats.complaints, icon: <FaComments /> },
+        { title: "Reviews", value: stats.reviews, icon: <FaStar /> },
+        { title: "Products", value: stats.products, icon: <FaProductHunt /> },
+        { title: "Brands", value: stats.brands, icon: <FaTags /> },
         { title: "Employees", value: employeeStats.totalEmployees, icon: <FaUserTie /> },
-        { title: "Salary Paid", value: `₹${employeeStats.totalSalaryPaid}`, icon: <FaMoneyBillWave /> },
+        {
+            title: "Salary Paid",
+            value: `₹${employeeStats.totalSalaryPaid || 0}`,
+            icon: <FaMoneyBillWave />,
+        },
     ];
 
-    if (loading) return <div>Loading dashboard...</div>;
-
-    // Chart data
+    /* ---------------- CHART DATA ---------------- */
     const barData = [
-        { name: "Users", value: statsData.users },
-        { name: "Orders", value: statsData.orders },
-        { name: "Products", value: statsData.products },
+        { name: "Users", value: stats.users || 0 },
+        { name: "Orders", value: stats.orders || 0 },
+        { name: "Products", value: stats.products || 0 },
     ];
 
     const pieData = [
-        { name: "Complaints", value: statsData.complaints },
-        { name: "Reviews", value: statsData.reviews },
+        { name: "Complaints", value: stats.complaints || 0 },
+        { name: "Reviews", value: stats.reviews || 0 },
     ];
 
-    const salaryTrendData = [
+    const salaryTrend = [
         { month: "Jan", salary: 20000 },
         { month: "Feb", salary: 25000 },
         { month: "Mar", salary: 30000 },
         { month: "Apr", salary: 40000 },
         { month: "May", salary: 35000 },
-        { month: "Jun", salary: employeeStats.totalSalaryPaid },
+        { month: "Jun", salary: employeeStats.totalSalaryPaid || 0 },
     ];
 
-    const COLORS = ["#FF8042", "#0088FE"];
+    const COLORS = ["#f97316", "#2563eb"];
 
     return (
         <div className="dashboard-container">
-            <Sidebar />
+            <Sidebar navigate={navigate} />
 
-            <div className="dashboard-main">
+            <main className="dashboard-main">
                 <h1 className="main-title">Dashboard Overview</h1>
 
+                {/* STATS */}
                 <div className="stats-grid">
-                    {statCards.map((item, idx) => (
-                        <div className="stat-card" key={idx}>
-                            <div className="stat-icon">{item.icon}</div>
-                            <div className="stat-info">
-                                <p className="stat-title">{item.title}</p>
-                                <p className="stat-value">{item.value}</p>
+                    {statCards.map((s, i) => (
+                        <div className="stat-card" key={i}>
+                            <div className="stat-icon">{s.icon}</div>
+                            <div>
+                                <p className="stat-title">{s.title}</p>
+                                <p className="stat-value">{s.value}</p>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Charts Section */}
+                {/* CHARTS */}
                 <div className="charts-section">
                     <div className="chart-card">
                         <h3>Business Overview</h3>
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer height={260}>
                             <BarChart data={barData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="value" fill="#8884d8" />
+                                <Bar dataKey="value" fill="#2563eb" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
 
                     <div className="chart-card">
                         <h3>Complaints vs Reviews</h3>
-                        <ResponsiveContainer width="100%" height={250}>
+                        <ResponsiveContainer height={260}>
                             <PieChart>
-                                <Pie
-                                    data={pieData}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    label
-                                >
-                                    {pieData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                <Pie data={pieData} dataKey="value" outerRadius={90} label>
+                                    {pieData.map((_, i) => (
+                                        <Cell key={i} fill={COLORS[i]} />
                                     ))}
                                 </Pie>
                                 <Tooltip />
@@ -234,19 +175,19 @@ export default function Dashboard() {
 
                     <div className="chart-card">
                         <h3>Salary Trend</h3>
-                        <ResponsiveContainer width="100%" height={250}>
-                            <LineChart data={salaryTrendData}>
+                        <ResponsiveContainer height={260}>
+                            <LineChart data={salaryTrend}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="month" />
                                 <YAxis />
                                 <Tooltip />
                                 <Legend />
-                                <Line type="monotone" dataKey="salary" stroke="#82ca9d" />
+                                <Line dataKey="salary" stroke="#16a34a" />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

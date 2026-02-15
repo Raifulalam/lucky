@@ -1,88 +1,261 @@
-import React, { useEffect, useState } from "react";
-import './Complaints.css'; // Import the CSS file
+import React, { useEffect, useMemo, useState } from "react";
+import "./Complaints.css";
+
+const PAGE_SIZE = 10;
 
 const ComplaintsComponent = () => {
     const [complaints, setComplaints] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
 
-    // Function to fetch complaints data
-    const fetchComplaintsData = async () => {
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+
+    const token = localStorage.getItem("authToken");
+
+    // Fetch complaints
+    const fetchComplaints = async () => {
         try {
-            const response = await fetch('https://lucky-back.onrender.com/api/getComplaint');
-            if (!response.ok) {
-                throw new Error('Failed to fetch complaints');
-            }
-            const data = await response.json();
-            setComplaints(data.complaints || []);  // Safely access complaints array
-            setError(null); // Clear any previous errors
+            const res = await fetch(
+                "https://lucky-1-6ma5.onrender.com/api/complaints/complaints",
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (!res.ok) throw new Error("Fetch failed");
+            const data = await res.json();
+            setComplaints(data || []);
+            setError(null);
         } catch (err) {
-            setError('Something went wrong. Please try again later.');
-            console.error(err);
+            setError("Failed to load complaints");
         } finally {
-            setLoading(false); // Stop loading once the fetch is done
+            setLoading(false);
         }
     };
 
-    // Fetch complaints data on component mount
     useEffect(() => {
-        fetchComplaintsData();
-    }, []); // Empty array ensures this runs only once when the component mounts
+        fetchComplaints();
+    });
+
+    // Update status
+    const updateStatus = async (id, status) => {
+        try {
+            await fetch(
+                `https://lucky-1-6ma5.onrender.com/api/complaints/complaints/${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ status }),
+                }
+            );
+
+            setComplaints((prev) =>
+                prev.map((c) => (c._id === id ? { ...c, status } : c))
+            );
+        } catch (err) {
+            alert("Failed to update status");
+        }
+    };
+
+    const handleDelComp = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this complaint?")) return;
+
+        try {
+            const res = await fetch(
+                `https://lucky-1-6ma5.onrender.com/api/complaints/complaints/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!res.ok) throw new Error("Delete failed");
+
+            // Remove from UI instantly
+            setComplaints((prev) => prev.filter((c) => c._id !== id));
+        } catch (error) {
+            alert("Failed to delete complaint");
+            console.error(error);
+        }
+    };
+
+    // Filters
+    const filteredData = useMemo(() => {
+        return complaints.filter((c) => {
+            const matchesSearch =
+                c.name.toLowerCase().includes(search.toLowerCase()) ||
+                c.phone.includes(search) ||
+                c.product.toLowerCase().includes(search.toLowerCase());
+
+            const matchesStatus =
+                statusFilter === "all" || c.status === statusFilter;
+
+            const date = new Date(c.complaintdate);
+            const matchesFrom = fromDate ? date >= new Date(fromDate) : true;
+            const matchesTo = toDate ? date <= new Date(toDate) : true;
+
+            return matchesSearch && matchesStatus && matchesFrom && matchesTo;
+        });
+    }, [complaints, search, statusFilter, fromDate, toDate]);
+
+    // Pagination
+    const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+    const paginatedData = filteredData.slice(
+        (page - 1) * PAGE_SIZE,
+        page * PAGE_SIZE
+    );
+
+    // Analytics
+    const analytics = useMemo(() => {
+        return {
+            total: complaints.length,
+            pending: complaints.filter((c) => c.status === "Pending").length,
+            progress: complaints.filter((c) => c.status === "In Progress").length,
+            resolved: complaints.filter((c) => c.status === "Resolved").length,
+        };
+    }, [complaints]);
+
+    // CSV Export
+    const exportCSV = () => {
+        const rows = [
+            ["ID", "Name", "Phone", "Product", "Model", "Status", "Date"],
+            ...filteredData.map((c) => [
+                c._id,
+                c.name,
+                c.phone,
+                c.product,
+                c.model,
+                c.status,
+                new Date(c.complaintdate).toLocaleDateString(),
+            ]),
+        ];
+        const csv = rows.map((r) => r.join(",")).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "complaints.csv";
+        a.click();
+    };
+
+    if (loading) return <p className="loading">Loading...</p>;
+    if (error) return <p className="error">{error}</p>;
 
     return (
         <div className="complaints-container">
-            <h3>Complaint Details</h3>
+            <h2>Complaints Dashboard</h2>
 
-            {/* Show loading spinner or message */}
-            {loading && <p className="loading-message">Loading complaints...</p>}
+            {/* Analytics */}
+            <div className="stats">
+                <div>Total: {analytics.total}</div>
+                <div className="pending">Pending: {analytics.pending}</div>
+                <div className="progress">In Progress: {analytics.progress}</div>
+                <div className="resolved">Resolved: {analytics.resolved}</div>
+            </div>
 
-            {/* Show error message if any */}
-            {error && <p className="error-message">{error}</p>}
+            {/* Filters */}
+            <div className="filters">
+                <input
+                    placeholder="Search..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                    <option value="all">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+                <button onClick={exportCSV}>Export CSV</button>
+            </div>
 
-            {/* Display complaints if available */}
-            {complaints.length > 0 ? (
-                <table className="complaints-table">
+            {/* Table */}
+            <div className="table-wrapper">
+                <table>
                     <thead>
                         <tr>
-                            <th>Complaint ID</th>
+                            <th>ID</th>
                             <th>Name</th>
-                            <th>Address</th>
                             <th>Phone</th>
                             <th>Product</th>
-                            <th>Model</th>
-                            <th>Warranty</th>
-                            <th>Issue</th>
-                            <th>Complaint Date</th>
+                            <th>Status</th>
+                            <th>Date</th>
                             <th>Image</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {complaints.map((complaint) => (
-                            <tr key={complaint._id}>
-                                <td>{complaint._id}</td>
-                                <td>{complaint.name}</td>
-                                <td>{complaint.address}, {complaint.district}, {complaint.province}</td>
-                                <td>{complaint.phone}</td>
-                                <td>{complaint.product}</td>
-                                <td>{complaint.model}</td>
-                                <td>{complaint.warranty}</td>
-                                <td>{complaint.issue}</td>
-                                <td>{new Date(complaint.complaintdate).toLocaleDateString()}</td>
+                        {paginatedData.map((c) => (
+                            <tr key={c._id}>
+                                <td>{c._id.slice(-6)}</td>
+                                <td>{c.name}</td>
+                                <td>{c.phone}</td>
+                                <td>{c.product}</td>
                                 <td>
-                                    {/* Render image with a fallback */}
+                                    <select
+                                        className={`status status-${c.status.replace(" ", "-")}`} value={c.status}
+                                        onChange={(e) => updateStatus(c._id, e.target.value)}
+                                    >
+                                        <option>Pending</option>
+                                        <option>In Progress</option>
+                                        <option>Resolved</option>
+                                    </select>
+                                </td>
+                                <td>{new Date(c.complaintdate).toLocaleDateString()}</td>
+                                <td>
                                     <img
-                                        src={complaint.image}  // This is the Cloudinary URL
-                                        alt="imgname"
-                                        width="200"
-                                        height="200"
+                                        src={c.image}
+                                        alt=""
+                                        onClick={() => setImagePreview(c.image)}
                                     />
                                 </td>
+                                <td>
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() => handleDelComp(c._id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+
                             </tr>
                         ))}
                     </tbody>
                 </table>
-            ) : (
-                !loading && <p className="no-complaints">No complaints available.</p> // Only show if no complaints and not loading
+            </div>
+
+            {/* Pagination */}
+            <div className="pagination">
+                <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+                    Prev
+                </button>
+                <span>
+                    {page} / {totalPages}
+                </span>
+                <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage(page + 1)}
+                >
+                    Next
+                </button>
+            </div>
+            {/* IMAGE MODAL */}
+            {imagePreview && (
+                <div className="image-modal" onClick={() => setImagePreview(null)}>
+                    <img src={imagePreview} alt="" />
+                </div>
             )}
         </div>
     );

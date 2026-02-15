@@ -38,6 +38,14 @@ const Home = () => {
             <BrandsCarousel />
             <WhyChooseUs />
             <CustomerSupport />
+            <a
+                href="https://wa.me/9779809278236?text=Hello%20Lucky%20Impex,%20I%20want%20more%20information."
+                className="floating-whatsapp"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <img src="/whatsapp.png" alt="whatsaap" />
+            </a>
 
             <Footer />
         </div>

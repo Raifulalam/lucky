@@ -1,0 +1,16 @@
+# Ignore backend env
+myStore/.env
+myStore/.env.local
+myStore/.env.production
+
+# Node modules
+myStore/node_modules/
+luckyimpex/node_modules/
+
+
+# Build folders
+myStore/dist/
+luckyimpex/build/
+
+# Logs
+*.log

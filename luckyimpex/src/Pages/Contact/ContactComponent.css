@@ -175,12 +175,13 @@ textarea.form-control {
 }
 
 .social-icons a {
-    color: #333;
+    color: #1677ff;
+
     transition: color 0.3s ease;
 }
 
 .social-icons a:hover {
-    color: #007bff;
+    color: #095db7;
 }
 
 /* Media Queries for responsive design */
@@ -216,5 +217,49 @@ textarea.form-control {
     .social-icons {
         font-size: 1.3rem;
         gap: 10px;
+    }
+}
+
+.floating-whatsapp {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: 0.3s ease;
+    z-index: 999;
+    animation: float 3s ease-in-out infinite;
+}
+
+.floating-whatsapp img {
+    width: 30px;
+    height: 30px;
+}
+
+.floating-whatsapp:hover {
+    background: #1ebe5d;
+    transform: scale(1.1);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+
+    100% {
+        transform: translateY(0);
     }
 }

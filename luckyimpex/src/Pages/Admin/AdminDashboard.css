@@ -1,52 +1,104 @@
-.admin-dashboard {
+.admin-container {
     padding: 20px;
-    font-family: Arial, sans-serif;
+    background: #f8fafc;
 }
 
-h2 {
-    text-align: center;
+.analytics {
+    display: flex;
+    gap: 20px;
     margin-bottom: 20px;
 }
 
-.section {
-    margin-bottom: 40px;
+.analytics div {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    flex: 1;
+    font-weight: bold;
 }
 
+.analytics span {
+    display: block;
+    font-size: 22px;
+    color: #2563eb;
+}
 
+.filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
 
-.admin-table {
+.filters input,
+.filters select,
+.filters button {
+    padding: 8px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+}
+
+table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
 }
 
-.admin-table th,
-.admin-table td {
-    padding: 2px 2px 2px 12px;
-    border: 1px solid #ccc;
-    text-align: left;
+thead {
+    position: sticky;
+    top: 0;
+    background: #1e293b;
+    color: white;
 }
 
-.admin-table th {
-    background-color: #f2f2f2;
+th,
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-td button {
-    padding: 5px 10px;
-    border-radius: 5px;
+.role.admin {
+    color: green;
+    font-weight: bold;
+}
+
+.role.user {
+    color: #555;
+}
+
+button {
+    padding: 6px 10px;
+    margin-right: 5px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #ddd;
+button.danger {
+    background: #dc2626;
+    color: white;
 }
 
-.link {
-    text-decoration: none;
-    color: #007BFF;
-    font-size: 14px;
+.pagination {
+    margin-top: 15px;
 }
 
-.link:hover {
-    text-decoration: underline;
+.pagination button {
+    margin-right: 5px;
+}
+
+.pagination .active {
+    background: #2563eb;
+    color: white;
+}
+
+.loading {
+    padding: 30px;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .filters {
+        flex-wrap: wrap;
+    }
 }

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';  // Import Helmet
 import './Details.css';
 import '../../Components/Modal.css'
+import useGoBack from '../../hooks/useGoback';
 
 
 const PhoneDetails = () => {
@@ -10,12 +11,12 @@ const PhoneDetails = () => {
     const [productData, setProduct] = useState(null); // Renamed product to productData
     const [error, setError] = useState(null); // State to hold error message
     const [loading, setLoading] = useState(true); // Loading state
-
+    const goBack = useGoBack();
 
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`https://lucky-back.onrender.com/api/mobile/${id}`);
+                const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/mobiles/mobile/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('Product not found');
@@ -23,7 +24,7 @@ const PhoneDetails = () => {
                     throw new Error('Failed to fetch product details');
                 }
                 const data = await response.json();
-                setProduct(data);  // Update the product state with fetched data
+                setProduct(data.data);  // Update the product state with fetched data
                 setLoading(false); // Finished loading product details
             } catch (err) {
                 setError(err.message); // Set error message in case of failure
@@ -34,7 +35,6 @@ const PhoneDetails = () => {
 
         fetchProductDetails();
     }, [id]);
-
 
 
     if (loading) {
@@ -56,6 +56,7 @@ const PhoneDetails = () => {
 
     return (
         <div className="product-detail-container">
+            <button onClick={goBack}>⬅ Back</button>
             <Helmet>
                 <title>{productData.name} - Lucky Impex</title>
                 <meta name="description" content={`Buy ${productData.name} from Lucky Impex.`} />

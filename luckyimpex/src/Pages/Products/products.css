@@ -8,7 +8,7 @@
 
 :root {
     --primary-color: #007bff;
-    --secondary-color: #388e3c;
+    --secondary-color: #e4eae5;
     --danger-color: #e53935;
     --background-color: #f9f9f9;
     --text-color: #333;
@@ -49,6 +49,7 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     padding: 10px;
     text-align: left;
+    position: relative;
 }
 
 .product-container:hover {
@@ -57,6 +58,7 @@ body {
 }
 
 .product-image-container {
+    position: relative;
     width: 100%;
     overflow: hidden;
     background-color: var(--light-gray);
@@ -141,8 +143,14 @@ body {
 }
 
 .product-discount {
+    position: absolute;
+    bottom: 10px;
+    left: 0px;
     color: var(--secondary-color);
     font-weight: 600;
+    background-color: #388e3c;
+    border-radius: 3px;
+    padding: 2px 3px;
 }
 
 .product-price {
@@ -227,8 +235,9 @@ body {
 /* Responsive Styles */
 @media (max-width: 768px) {
     .product-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 15px;
+        padding: 0px;
     }
 
     .product-container {
@@ -396,4 +405,64 @@ body {
 
 html {
     scroll-behavior: smooth;
+}
+
+.image-wrapper {
+    display: flex;
+    overflow: auto;
+
+}
+
+.seo-static-content {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.main-title {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 40px auto;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.feature-item {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-5px);
+}
+
+
+
+
+
+.filter-section {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.filters select {
+    padding: 10px 15px;
+    margin: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }

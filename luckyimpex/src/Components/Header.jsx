@@ -1,145 +1,217 @@
-import React, { useState, useContext, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import luckyLogo from '../Images/lucky-logo.png';
-import './Header.css';
-import { UserContext } from './UserContext';
-import { Helmet } from 'react-helmet';
+import React, { useState, useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import { UserContext } from "./UserContext";
+import luckyLogo from "../Images/lucky-logo.png";
+import "./Header.css";
+
+/* =======================
+   CATEGORY LIST
+======================= */
+const categories = [
+    "AirConditioners",
+    "Refrigerators",
+    "WashingMachines",
+    "LEDTelevisions",
+    "KitchenAppliances",
+    "HomeAppliances",
+    "AirCooler",
+    "ChestFreezer",
+];
+
+/* =======================
+   ROLE BASED MENUS
+======================= */
+const MENU = {
+    guest: [
+        { label: "Products", to: "/products" },
+        { label: "Phones", to: "/phones" },
+
+    ],
+    user: [
+        { label: "Products", to: "/products" },
+        { label: "Phones", to: "/phones" },
+        { label: "Service", to: "/service" },
+        { label: "Profile", to: "/profile" },
+    ],
+    admin: [
+        { label: "Products", to: "/products" },
+        { label: "Phones", to: "/phones" },
+        { label: "Dashboard", to: "/dashboard" },
+        { label: "Profile", to: "/profile" },
+    ],
+};
 
 const Header = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isShopHovered, setIsShopHovered] = useState(false);  // State to control dropdown visibility
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
-    const isAdmin = user?.role === 'admin';
-    const isLoggedIn = !!user;
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [catOpen, setCatOpen] = useState(false);
+    const [showSubHeader, setShowSubHeader] = useState(false);
 
-    const toggleMenu = useCallback(() => {
-        setIsMenuOpen((prevState) => !prevState);
-    }, []);
+    /* =======================
+       ROLE CHECKS
+    ======================= */
+    const isAdmin = user?.role === "admin";
+    const isUser = user && !isAdmin;
 
-    const handleNavigation = useCallback((path) => {
-        navigate(path);
-    }, [navigate]);
 
-    const handleLogout = useCallback(() => {
-        localStorage.removeItem('authToken');
-        navigate('/');
+    const roleMenu = isAdmin
+        ? MENU.admin
+        : isUser
+            ? MENU.user
+            : MENU.guest;
+
+    /* =======================
+       CART SAFE HANDLING
+    ======================= */
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const cartQty = cart.length;
+
+    /* =======================
+       LOGOUT
+    ======================= */
+    const logout = () => {
+        localStorage.removeItem("authToken");
+        navigate("/");
         window.location.reload();
-    }, [navigate]);
-    const categories = [
-        { name: 'Products' },
-        { name: 'AirConditioners' },
-        { name: 'Refrigerators' },
-        { name: 'WashingMachines' },
-        { name: 'LEDTelevisions' },
-        { name: 'KitchenAppliances' },
-        { name: 'Chimney' },
-        { name: 'HomeAppliances' },
-        { name: 'HomeTheater' },
-        { name: 'AirCooler' },
-        { name: 'ChestFreezer' },
-
-    ];
-    const handleCategoryChange = (event) => {
-        handleNavigation(`/products/${event.target.value}`)
-    }
-
-    // Define the buttons for logged-in users and admins
-    const adminButtons = (
-        <>
-            <button onClick={() => handleNavigation('/dashboard')} className="dropbtn">Dashboard <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/admindashboard')} className="dropbtn">Users <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/orders')} className="dropbtn">Order <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/complaints')} className="dropbtn">Complaints <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/feedback')} className="dropbtn">Feedback <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
-            <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
-        </>
-    );
-
-    const userButtons = (
-        <>
-            <button
-                onMouseEnter={() => setIsShopHovered(true)}
-                onMouseLeave={() => setIsShopHovered(false)}
-                className="dropbtn"
-            >
-                Categories <p>&#10148;</p>
-                {isShopHovered && (
-                    <select className="dropdown-select" onChange={handleCategoryChange}>
-                        {categories.map(category =>
-                            <option key={category.name} value={category.name}>{category.name}</option>
-                        )}
-
-                    </select>
-                )}
-            </button>
-            <button onClick={() => handleNavigation('/products')} className='dropbtn'>All Prodcuts <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/service')} className="dropbtn">Service <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Visit Us <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/profile')} className="dropbtn">Profile <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/emi')} className="dropbtn">EMI <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/store')} className="dropbtn">EMI <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/exchange')} className="dropbtn">Exchange ⇆ <p>&#10148;</p></button>
-            <button onClick={handleLogout} className="dropbtn">Logout <p>&#10148;</p></button>
-        </>
-    );
-
-    const guestButtons = (
-        <>
-            <button
-                onMouseEnter={() => setIsShopHovered(true)}
-                onMouseLeave={() => setIsShopHovered(false)}
-                className="dropbtn"
-            >
-                Categories <p>&#11167;</p>
-                {isShopHovered && (
-                    <select className="dropdown-select" onChange={handleCategoryChange}>
-                        {categories.map(category =>
-                            <option key={category.name} value={category.name} >{category.name}</option>
-                        )}
-                    </select>
-                )}
-            </button>
-            <button onClick={() => handleNavigation('/products')} className='dropbtn'>All Prodcuts <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/phones')} className='dropbtn'>Smart Phones <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/store')} className="dropbtn">Our Stores <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/cart')} className="dropbtn">Cart <p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/contact')} className="dropbtn">Contact Us<p>&#10148;</p></button>
-            <button onClick={() => handleNavigation('/login')} className="dropbtn">Login <p>&#10148;</p></button>
-
-        </>
-    );
+    };
 
     return (
-        <div className="header">
-            {/* Add Helmet for dynamic title and meta tags */}
+        <div
+            className="header-wrapper"
+            onMouseEnter={() => setShowSubHeader(true)}
+            onMouseLeave={() => setShowSubHeader(false)}
+        >
             <Helmet>
-                <title>{isLoggedIn ? (isAdmin ? 'Lucky Impex' : 'Welcome - Lucky Impex') : 'Lucky Impex'}</title>
-                <meta name="description" content={isLoggedIn ? (isAdmin ? ' Manage Users and Orders' : 'Your Profile - Lucky Impex') : 'Lucky Impex - Your Trusted Online Store'} />
+                <title>Lucky Impex – Home Appliances Store</title>
+                <meta
+                    name="description"
+                    content="Buy AC, TV, Refrigerator & Home Appliances in Nepal"
+                />
             </Helmet>
 
-            <div className="left">
-                <Link to="/" className="header-link">
-                    <img className="lucky-logo" src={luckyLogo} alt="Lucky Impex Logo" />
-                </Link>
-                <p className="lucky-name">Lucky Impex</p>
+            {/* =======================
+         MAIN HEADER
+      ======================= */}
+            <header className="header">
+                {/* LEFT */}
+                <div className="header-left">
+                    <Link to="/" className="logo">
+                        <img src={luckyLogo} alt="Lucky Impex" />
+                        <span>Lucky Impex</span>
+                    </Link>
+                </div>
+
+                {/* RIGHT */}
+                <div className="header-right">
+                    {/* CENTER */}
+                    <div className="header-center">
+                        {/* CATEGORIES */}
+                        <div
+                            className="category-box"
+                            onMouseEnter={() => setCatOpen(true)}
+                            onMouseLeave={() => setCatOpen(false)}
+                        >
+                            <button className="category-btn">Categories ▾</button>
+
+                            {catOpen && (
+                                <div className="category-dropdown">
+                                    {categories.map((cat) => (
+                                        <div
+                                            key={cat}
+                                            className="category-item"
+                                            onClick={() => navigate(`/products/${cat}`)}
+                                        >
+                                            {cat.replace(/([A-Z])/g, " $1")}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ROLE BASED DESKTOP MENU */}
+                    {roleMenu.map((item) => (
+                        <Link key={item.to} to={item.to}>
+                            {item.label}
+                        </Link>
+                    ))}
+
+                    {/* CART (ALL USERS) */}
+                    {!isAdmin && (
+                        <Link to="/cart" className="cart">
+                            <img src="/shopping-cart.png" height={28} width={28} alt="" /> <span className="cart-badge">{cartQty}</span>
+                        </Link>
+                    )}
+
+                    {/* USER DROPDOWN */}
+                    {user ? (
+                        <div className="user-menu">
+
+                            <div className="user-dropdown">
+                                {isUser && <Link to="/profile">Profile</Link>}
+                                {isAdmin && <Link to="/dashboard">Dashboard</Link>}
+                                <button onClick={logout}>Logout</button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Link to="/login" className="login-btn">
+                            Login
+                        </Link>
+                    )}
+
+                    {/* HAMBURGER */}
+                    <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+                        ☰
+                    </div>
+                </div>
+            </header>
+
+            {/* =======================
+         SUB HEADER
+      ======================= */}
+            <div className={`sub-header ${showSubHeader ? "show" : ""}`}>
+                <Link to="/store">About</Link>
+                <Link to="/emi">EMI</Link>
+                <Link to="/exchange">Exchange</Link>
+                <Link to="/store">Stores</Link>
+                <Link to="/contact">Contact</Link>
             </div>
 
-            <nav className={`nav ${isMenuOpen ? 'open' : ''}`} id="nav-element" aria-hidden={!isMenuOpen}>
-                <div className="middle">
-                    {isLoggedIn ? (isAdmin ? adminButtons : userButtons) : guestButtons}
-                </div>
-            </nav>
+            {/* =======================
+         MOBILE MENU
+      ======================= */}
+            <div className={`mobile-menu ${menuOpen ? "open" : ""}`}>
+                {roleMenu.map((item) => (
+                    <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        {item.label}
+                    </Link>
+                ))}
 
-            <div className="hamburger" onClick={toggleMenu} aria-expanded={isMenuOpen ? 'true' : 'false'} aria-controls="nav-element" aria-label="Toggle navigation">
-                <span className={`bar ${isMenuOpen ? 'open' : ''}`}></span>
-                <span className={`bar ${isMenuOpen ? 'open' : ''}`}></span>
-                <span className={`bar ${isMenuOpen ? 'open' : ''}`}></span>
+                {!isAdmin && (
+                    <Link to="/cart" onClick={() => setMenuOpen(false)}>
+                        Cart
+                    </Link>
+                )}
+
+                <Link to="/emi" onClick={() => setMenuOpen(false)}>EMI</Link>
+                <Link to="/exchange" onClick={() => setMenuOpen(false)}>Exchange</Link>
+                <Link to="/store" onClick={() => setMenuOpen(false)}>Stores</Link>
+                <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
+
+                {user ? (
+                    <button onClick={logout}>Logout</button>
+                ) : (
+                    <Link to="/login" onClick={() => setMenuOpen(false)}>
+                        Login
+                    </Link>
+                )}
             </div>
         </div>
     );

@@ -1,125 +1,180 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const mongoose = require('mongoose');
-const Order = require('../Models/order');
-const ObjectId = mongoose.Types.ObjectId;
+const mongoose = require("mongoose");
+const Order = require("../Models/order");
+const authenticateToken = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
 
-// POST: Create Order
-router.post('/createOrder', async (req, res) => {
-    const orderData = req.body;
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+/**
+ * CREATE ORDER (USER)
+ */
+router.post("/orders", authenticateToken, async (req, res) => {
     try {
-        const user = orderData.user;
-        if (!user || !user.name || !user.email || !user.userId) {
-            return res.status(400).json({
-                message: "User information is missing required fields: name, email, and userId."
-            });
-        }
-        const newOrder = new Order({
-            items: orderData.items,
-            user: {
-                name: user.name,
-                email: user.email,
-                userId: user.userId
-            },
-            totalPrice: orderData.totalPrice,
-            tax: orderData.tax,
-            deliveryDate: orderData.deliveryDate,
-            address: orderData.address,
-            phone: orderData.phone,
-            name: orderData.name,
-            postalCode: orderData.postalCode,  // Added postal code
-            country: orderData.country,        // Added country
-            deliveryInstructions: orderData.deliveryInstructions,  // Added delivery instructions
-            additionalPhone: orderData.additionalPhone  // Added additional phone number
-        });
+        const {
+            items,
+            totalPrice,
+            tax,
+            deliveryDate,
+            address,
+            phone,
+            name,
+            postalCode,
+            country,
+            deliveryInstructions,
+            additionalPhone,
+        } = req.body;
 
+        // 1️⃣ Validate items array
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: "Cart items are required" });
+        }
+
+        for (const item of items) {
+            if (!mongoose.Types.ObjectId.isValid(item.itemId)) {
+                return res.status(400).json({ message: `Invalid itemId: ${item.itemId}` });
+            }
+            if (!item.name || !item.price || !item.quantity) {
+                return res.status(400).json({ message: "Each item must have name, price, and quantity" });
+            }
+        }
+
+        // 2️⃣ Validate user info
+        if (!req.user || !req.user.id || !req.user.name || !req.user.email) {
+            return res.status(401).json({ message: "Invalid user info" });
+        }
+
+        // 3️⃣ Validate required order fields
+        if (!totalPrice || !tax || !deliveryDate || !address || !phone || !name || !postalCode || !country) {
+            return res.status(400).json({ message: "All required fields must be provided" });
+        }
+
+        const newOrder = new Order({
+            items,
+            user: {
+                userId: req.user.id,
+                name: req.user.name,
+                email: req.user.email
+            },
+            totalPrice,
+            tax,
+            deliveryDate,
+            name,
+            address,
+            phone,
+            postalCode,
+            country,
+            deliveryInstructions,
+            additionalPhone
+        });
 
         await newOrder.save();
 
-        // Respond with a success message
-        res.status(201).json({ message: 'Order created successfully', order: newOrder });
+        res.status(201).json({
+            success: true,
+            message: "Order created successfully",
+            order: newOrder,
+        });
 
-    } catch (err) {
-        console.error('Error creating order:', err);  // Log error for debugging
-        res.status(500).json({ message: 'Error creating order', error: err.message });
+    } catch (error) {
+        console.error("Create Order Error:", error);
+        res.status(500).json({ message: error.message || "Server error" });
     }
 });
 
-// GET: Fetch Orders
-router.get('/orders', async (req, res) => {
+
+/**
+ * GET MY ORDERS (USER)
+ */
+router.get("/orders/my", authenticateToken, async (req, res) => {
     try {
-        const orders = await Order.find();
+        const orders = await Order.find({ "user.userId": req.user.id }).sort({
+            createdAt: -1,
+        });
+
         res.json(orders);
-    } catch (err) {
-        console.error('Error fetching orders:', err);  // Log error for debugging
-        res.status(500).json({ message: 'Error fetching orders', error: err.message });
+    } catch (error) {
+        console.error("Fetch My Orders Error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
-router.get('/orders/:id', async (req, res) => {
+
+/**
+ * GET ALL ORDERS (ADMIN)
+ */
+router.get("/orders", authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const orders = await Order.find().sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (error) {
+        console.error("Fetch Orders Error:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+/**
+ * GET SINGLE ORDER (ADMIN)
+ */
+router.get("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
+    if (!isValidObjectId(req.params.id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+    }
+
     try {
         const order = await Order.findById(req.params.id);
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
+        if (!order) return res.status(404).json({ message: "Order not found" });
+
         res.json(order);
-    }
-    catch (err) {
-        console.error('Error fetching order:', err);  // Log error for debugging
-        res.status(500).json({ message: 'Error fetching order', error: err.message });
+    } catch (error) {
+        console.error("Fetch Order Error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
 
-router.get('/Myorders/:id', async (req, res) => {
+/**
+ * UPDATE ORDER (ADMIN)
+ */
+router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
+    if (!isValidObjectId(req.params.id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+    }
+
     try {
-        const userId = new mongoose.Types.ObjectId(req.params.id);
-        console.log('Looking for orders by userId:', userId);
+        const updatedOrder = await Order.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true }
+        );
 
-        const orders = await Order.find({ 'user.userId': userId });
-        console.log('Found orders:', orders.length);
+        if (!updatedOrder)
+            return res.status(404).json({ message: "Order not found" });
 
-        if (!orders || orders.length === 0) {
-            return res.status(404).json({ message: 'No orders found for this user' });
-        }
-
-        res.json(orders);
-    } catch (err) {
-        console.error('Error fetching order:', err);
-        res.status(500).json({ message: 'Error fetching order', error: err.message });
+        res.json(updatedOrder);
+    } catch (error) {
+        console.error("Update Order Error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
 
+/**
+ * DELETE ORDER (ADMIN)
+ */
+router.delete("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
+    if (!isValidObjectId(req.params.id)) {
+        return res.status(400).json({ message: "Invalid order ID" });
+    }
 
-// PUT: Update Order
-router.put('/orders/:id', async (req, res) => {
     try {
-        const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
-        res.json(order);
-    }
-    catch (err) {
-        console.error('Error updating order:', err);  // Log error for debugging
-        res.status(500).json({ message: 'Error updating order', error: err.message });
-    }
-});
+        const deletedOrder = await Order.findByIdAndDelete(req.params.id);
+        if (!deletedOrder)
+            return res.status(404).json({ message: "Order not found" });
 
-// DELETE: Delete Order// DELETE: Delete Order
-router.delete('/orders/:id', async (req, res) => {
-    try {
-        const deletedOrder = await Order.findByIdAndDelete(req.params.id);  // Use findByIdAndDelete instead
-        if (!deletedOrder) {
-            return res.status(404).json({ message: 'Order not found' });  // If order doesn't exist, return 404
-        }
-        res.json({ message: 'Order deleted successfully' });
-    } catch (err) {
-        console.error('Error deleting order:', err);  // Log the error on the server
-        res.status(500).json({ message: 'Error deleting order', error: err.message });
+        res.json({ message: "Order deleted successfully" });
+    } catch (error) {
+        console.error("Delete Order Error:", error);
+        res.status(500).json({ message: "Server error" });
     }
 });
-
-
-
 
 module.exports = router;

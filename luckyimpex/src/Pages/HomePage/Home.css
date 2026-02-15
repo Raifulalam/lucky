@@ -5,7 +5,7 @@ body {
     padding: 0;
     color: #222;
     line-height: 1.6;
-    background-color: #122f4e;
+
 
 }
 
@@ -48,43 +48,58 @@ body {
     position: relative;
     width: 100%;
     overflow: hidden;
-
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .hero-img {
     width: 100%;
-    height: 90vh;
+    height: auto;
+    aspect-ratio: 1235 / 890;
     object-fit: cover;
-    transition: opacity 1s ease-in-out;
+    display: block;
+    /* avoids small inline gaps */
+    transition: opacity 0.5s ease-in-out;
+
 }
+
+
 
 /* Categories */
 .card-container {
     display: flex;
     flex-direction: column;
-    background-color: #07213c;
+
     padding: 40px 15px;
     text-align: center;
 }
 
-.card-container h1,
-h2 {
+.card-container h2 {
     margin-bottom: 25px;
     font-size: 1.75rem;
     font-weight: 600;
-    color: white;
+    color: #559ce7;
+}
+
+h2 {
+    color: #559ce7;
+    font-size: 1.8rem;
 }
 
 .category-grid {
-    min-height: 60vh;
+
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+
     gap: 15px;
 }
 
 .category-card {
-    background: #cbd5e019;
+    background: #fff;
+
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -104,11 +119,11 @@ h2 {
 .category-card h3 {
     font-size: 1.1rem;
     margin: 8px 0;
-    color: #ffff;
+    color: #122f4e;
 }
 
 .category-card p {
-    color: #d2d2d2;
+    color: #122f4ec5;
     font-size: 15px;
 }
 
@@ -172,7 +187,7 @@ h2 {
 
     padding: 45px 15px;
     text-align: center;
-    background-color: #07213c;
+
 }
 
 .brands h2 {
@@ -185,12 +200,11 @@ h2 {
     flex-wrap: wrap;
     justify-content: center;
     gap: 15px;
-    background-color: #07213c;
     padding: 15px;
 }
 
 .brand-logo {
-    background: #122f4ea6;
+    background: #969ea7a6;
     border: 1px solid #eee;
     border-radius: 8px;
     padding: 10px;
@@ -211,8 +225,8 @@ h2 {
 
 /* Why Choose Us */
 .why-choose-us {
-    padding: 50px 15px;
-    background: #122f4e;
+    padding: 20px 15px;
+
     text-align: center;
 }
 
@@ -223,13 +237,13 @@ h2 {
 
 .benefits-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
 }
 
 .benefit {
     background: #fff;
-    padding: 20px;
+    padding: 12px 6px;
     border-radius: 12px;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
     transition: transform 0.3s ease;
@@ -240,16 +254,16 @@ h2 {
 }
 
 .benefit h4 {
-    margin: 12px 0 8px;
+
     font-size: 1.1rem;
 }
 
 /* Customer Support */
 .customer-support {
     text-align: center;
-    padding: 50px 15px;
-    background: linear-gradient(120deg, #000000, #183681);
-    color: white;
+    padding: 30px 15px;
+
+    color: rgb(44, 42, 42);
 }
 
 .customer-support h2 {
@@ -263,9 +277,10 @@ h2 {
 
 /* Tablets */
 @media (max-width: 768px) {
-    .hero-slider {
 
-        margin-top: 70px;
+
+    .brands {
+        padding: 15px 10px;
     }
 
     .category-grid {
@@ -285,7 +300,7 @@ h2 {
     }
 
     .category-card p {
-        font-size: 12px;
+        display: none;
     }
 
     .hero-img {
@@ -318,9 +333,13 @@ h2 {
     .card-container h1,
     .promo-banner h2,
     .brands h2,
-    .why-choose-us h2,
+
     .customer-support h2 {
         font-size: 2rem;
+    }
+
+    .btn-secondary {
+        padding: 5px 8px;
     }
 }
 

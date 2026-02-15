@@ -33,11 +33,13 @@ function LoginComponent() {
         setLoading(true);
 
         try {
-            const response = await fetch("https://lucky-back.onrender.com/api/loginUser", {
+            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/users/login", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+
                 },
+
                 body: JSON.stringify({ email, password }),
             });
 
@@ -68,7 +70,7 @@ function LoginComponent() {
                     dismiss: { duration: 5000 },
                 });
 
-                // Redirect after login success
+                // Redirect after login succe
                 navigate('/', { state: { email } });
 
 

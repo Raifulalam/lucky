@@ -1,167 +1,293 @@
 import React, { useState } from "react";
-import './ContactComponent.css';
-// import { useNavigate } from "react-router-dom";
+import "./ContactComponent.css";
 import { Helmet } from "react-helmet";
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
-
-
+import {
+    FaFacebook,
+    FaInstagram,
+    FaWhatsapp,
+    FaYoutube,
+} from "react-icons/fa";
 
 export const ContactComponent = () => {
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        message: '',
+        name: "",
+        email: "",
+        productInterest: "",
+        message: "",
+        website: "", // honeypot
     });
-    const [status, setStatus] = useState(null); // To handle success/error messages
-    const [loading, setLoading] = useState(false); // To handle loading state
-    // const navigate = useNavigate();
+
+    const [status, setStatus] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { id, value } = e.target;
-        setFormData({ ...formData, [id]: value });
+        setFormData((prev) => ({
+            ...prev,
+            [id]: value,
+        }));
+    };
+
+    const validateForm = () => {
+        if (formData.website) return "Spam detected.";
+
+        if (formData.name.trim().length < 3) {
+            return "Name must be at least 3 characters.";
+        }
+
+        const emailRegex =
+            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
+        if (!emailRegex.test(formData.email)) {
+            return "Please enter a valid email address.";
+        }
+
+        if (!formData.productInterest) {
+            return "Please select a product interest.";
+        }
+
+        if (formData.message.trim().length < 10) {
+            return "Message must be at least 10 characters.";
+        }
+
+        return null;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true); // Set loading state to true when submitting
 
-        // Basic email validation
-        if (!formData.email.match(/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/)) {
-            setStatus("Please enter a valid email address.");
-            setLoading(false);
+        const error = validateForm();
+        if (error) {
+            setStatus(error);
             return;
         }
 
+        setLoading(true);
+        setStatus("");
+
         try {
-            const response = await fetch("https://lucky-back.onrender.com/api/contactMessage", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
+            const response = await fetch(
+                `https://lucky-1-6ma5.onrender.com/api/contact/contact`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData),
+                }
+            );
+
+            if (!response.ok) throw new Error("Server Error");
+
+            setStatus("success");
+            setFormData({
+                name: "",
+                email: "",
+                productInterest: "",
+                message: "",
+                website: "",
             });
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const result = await response.json();
-
-            if (result.message === 'Contact message saved successfully!') {
-                setStatus('Message sent successfully');
-                setFormData({ name: '', email: '', message: '' }); // Reset form on success
-            } else {
-                setStatus('Failed to send message');
-            }
         } catch (error) {
-            setStatus('Failed to send message. Please try again later.');
-            console.error('Error during message submission:', error);
+            setStatus("Something went wrong. Please try again.");
         } finally {
-            setLoading(false); // Reset loading state
+            setLoading(false);
         }
     };
 
     return (
         <div className="contact">
+
+            {/* ================= SEO ================= */}
             <Helmet>
-                <title>Contact Us</title>
-                <meta name="description" content="Contact us at Lucky Impex" />
+                <title>
+                    Contact Lucky Impex | AC, LED TV & Appliances in Birgunj
+                </title>
+
+                <meta
+                    name="description"
+                    content="Contact Lucky Impex in Birgunj for Air Conditioners, Refrigerators, LED TVs, Washing Machines and home appliances. Call 051531789 or WhatsApp us today."
+                />
+
+                <meta
+                    name="keywords"
+                    content="Lucky Impex Birgunj, electronics shop Nepal, AC store Birgunj, LED TV Nepal"
+                />
+
+                <meta name="author" content="Lucky Impex" />
+
+                <meta property="og:title" content="Contact Lucky Impex - Birgunj" />
+                <meta
+                    property="og:description"
+                    content="Visit Lucky Impex for premium electronics and appliances in Birgunj."
+                />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="https://luckyimpex.vercel.app/contact" />
+
+                <meta name="twitter:card" content="summary_large_image" />
+
+                <link rel="canonical" href="https://luckyimpex.vercel.app/contact" />
             </Helmet>
 
-
+            {/* ================= HEADER ================= */}
             <div className="contact-header">
-                <h1>Contact Us</h1>
-                <p>We'd love to hear from you! Please fill out the form below.</p>
+                <h1>Contact Lucky Impex – Electronics Store in Birgunj</h1>
+                <p>
+                    Have questions about AC, Refrigerators, LED TVs or other
+                    electronics? Get in touch with us today.
+                </p>
             </div>
 
+            {/* ================= MAIN SECTION ================= */}
             <div className="contact-container">
+
+                {/* LEFT SIDE INFO */}
                 <div className="contact-left">
                     <h2>Get in Touch</h2>
-                    <p>If you have any questions, feel free to reach out to us!</p>
                     <ul>
                         <li><strong>Email:</strong> luckyimpex4u@gmail.com</li>
                         <li><strong>Phone:</strong> 051531789</li>
-                        <li><strong>Address:</strong> Ghantaghar linkroad, Birgunj, Nepal</li>
+                        <li><strong>Address:</strong> Ghantaghar Link Road, Birgunj, Nepal</li>
+                        <li><strong>Hours:</strong> 10:00 AM – 8:00 PM (Sun–Sat)</li>
                     </ul>
 
+                    {/* WhatsApp Direct Button */}
+                    <a
+                        href="https://wa.me/9779809278236"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="whatsapp-button"
+                    >
+                        <FaWhatsapp /> Chat on WhatsApp
+                    </a>
+
+                    {/* Google Map */}
+                    <div className="map-container">
+                        <iframe
+                            title="Lucky Impex Location"
+                            src="https://www.google.com/maps?q=Ghantaghar+Birgunj+Nepal&output=embed"
+                            width="100%"
+                            height="300"
+                            style={{ border: 0 }}
+                            loading="lazy"
+                        ></iframe>
+                    </div>
                 </div>
 
+                {/* RIGHT SIDE FORM */}
                 <div className="contact-right">
                     <form onSubmit={handleSubmit}>
+
+                        {/* Honeypot */}
+                        <input
+                            type="text"
+                            id="website"
+                            value={formData.website}
+                            onChange={handleChange}
+                            style={{ display: "none" }}
+                        />
+
                         <div className="form-group">
-                            <label htmlFor="name">Name:</label>
+                            <label>Name</label>
                             <input
                                 type="text"
-                                className="form-control"
                                 id="name"
-                                placeholder="Enter your name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                required
-                                aria-label="Name"
                             />
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="email">Email:</label>
+                            <label>Email</label>
                             <input
                                 type="email"
-                                className="form-control"
                                 id="email"
-                                placeholder="Enter your email"
                                 value={formData.email}
                                 onChange={handleChange}
-                                required
-                                aria-label="Email"
                             />
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="message">Message:</label>
+                            <label>Product Interest</label>
+                            <select
+                                id="productInterest"
+                                value={formData.productInterest}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select Product</option>
+                                <option>Air Conditioner</option>
+                                <option>Refrigerator</option>
+                                <option>LED TV</option>
+                                <option>Washing Machine</option>
+                                <option>Kitchen Appliances</option>
+                                <option>Home Theater</option>
+                                <option>Air Cooler</option>
+                                <option>Chest Freezer</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label>Message</label>
                             <textarea
-                                className="form-control"
                                 id="message"
                                 rows="4"
-                                placeholder="Enter your message"
                                 value={formData.message}
                                 onChange={handleChange}
-                                required
-                                aria-label="Message"
                             ></textarea>
                         </div>
 
-                        <button type="submit" className="btn-submit" disabled={loading}>
-                            {loading ? 'Sending...' : 'Send Message'}
+                        <button type="submit" disabled={loading}>
+                            {loading ? "Sending..." : "Send Message"}
                         </button>
-                    </form>
 
-                    {status && (
-                        <div className={`status-message ${status.includes('successfully') ? 'success' : 'error'}`}>
-                            {status}
-                        </div>
-                    )}
+                        {status && status !== "success" && (
+                            <div className="error-msg">{status}</div>
+                        )}
+
+                        {status === "success" && (
+                            <div className="success-msg">
+                                ✅ Message sent successfully!
+                            </div>
+                        )}
+                    </form>
                 </div>
             </div>
 
-            {/* Social Media Section */}
+            {/* ================= SOCIAL ================= */}
             <div className="social-media">
-                <h3>Follow Us</h3>
-                <p>If you need more information, feel free to contact any of our branches listed above.</p>
+                <h3>Follow Lucky Impex</h3>
                 <div className="social-icons">
-                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                    <a href="https://facebook.com/yourpage" target="_blank" rel="noopener noreferrer">
                         <FaFacebook />
                     </a>
-                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                        <FaTwitter />
-                    </a>
-                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <a href="https://instagram.com/yourpage" target="_blank" rel="noopener noreferrer">
                         <FaInstagram />
                     </a>
-                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                        <FaLinkedin />
+                    <a href="https://youtube.com/yourchannel" target="_blank" rel="noopener noreferrer">
+                        <FaYoutube />
                     </a>
                 </div>
             </div>
+
+            {/* ================= STRUCTURED DATA ================= */}
+            <script type="application/ld+json">
+                {JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "ElectronicsStore",
+                    name: "Lucky Impex",
+                    address: {
+                        "@type": "PostalAddress",
+                        streetAddress: "Ghantaghar Link Road",
+                        addressLocality: "Birgunj",
+                        addressCountry: "NP"
+                    },
+                    telephone: "051531789",
+                    email: "luckyimpex4u@gmail.com",
+                    sameAs: [
+                        "https://www.facebook.com/luckyimpex4u/",
+                        "https://instagram.com/yourpage",
+                        "https://youtube.com/yourchannel"
+                    ]
+                })}
+            </script>
+
         </div>
     );
 };

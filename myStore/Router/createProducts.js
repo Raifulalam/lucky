@@ -1,158 +1,259 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Product = require('../Models/products');
-
-
-// ✅ Create a single product
-router.post('/products', async (req, res) => {
-    try {
-        const newProduct = new Product(req.body);
-        await newProduct.save();
-        res.status(201).json(newProduct);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+const { body, param, validationResult } = require("express-validator");
+const rateLimit = require("express-rate-limit");
+const Product = require("../Models/products");
+const auth = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
+const redisClient = require("../config/redis");
+/* -------------------- COMMON VALIDATOR -------------------- */
+const validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
     }
+    next();
+};
+const DEFAULT_EXPIRY = 600; // 10 minutes
+
+const getCache = async (key) => {
+    const data = await redisClient.get(key);
+    return data ? JSON.parse(data) : null;
+};
+
+const setCache = async (key, value, expiry = DEFAULT_EXPIRY) => {
+    await redisClient.setEx(key, expiry, JSON.stringify(value));
+};
+
+
+/* -------------------- RATE LIMIT (SEARCH) -------------------- */
+const searchLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
 });
 
+/* ===========================================================
+   CREATE PRODUCT (ADMIN)
+   =========================================================== */
+router.post(
+    "/products",
+    auth,
+    isAdmin,
+    [
+        body("name").notEmpty().trim(),
+        body("price").isNumeric(),
+        body("category").notEmpty().trim(),
+        body("brand").notEmpty().trim(),
+        body("model").notEmpty().trim(),
+    ],
+    validate,
+    async (req, res) => {
+        try {
+            const product = await Product.create(req.body);
+            await redisClient.flushAll();
+            res.status(201).json(product);
+        } catch (err) {
+            res.status(500).json({ message: "Product creation failed" });
+        }
+    }
+);
 
-// ✅ Get all products (with pagination + optional category filter)
-router.get('/products', async (req, res) => {
+/* ===========================================================
+   GET PRODUCTS (CATEGORY + PAGINATION + UNIQUE MODEL)
+   =========================================================== */
+router.get("/products", async (req, res) => {
     try {
         const { category, page = 1, limit = 20 } = req.query;
+        const cacheKey = `products:${category || "all"}:${page}:${limit}`;
 
-        const matchCriteria = category ? { category } : {};
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            console.log("⚡ Products from Redis");
+            return res.json(cached);
+        }
+
+        const match = category ? { category } : {};
 
         const products = await Product.aggregate([
-            { $match: matchCriteria },
-
-            // Sort before grouping
-            { $sort: { createdAt: -1, _id: -1 } },
-
-            // Group by model (latest product only)
+            { $match: match },
+            { $sort: { createdAt: -1 } },
             {
                 $group: {
                     _id: "$model",
-                    productDetails: { $first: "$$ROOT" }
-                }
+                    product: { $first: "$$ROOT" },
+                },
             },
-
-            { $replaceRoot: { newRoot: "$productDetails" } },
-
-            { $sort: { createdAt: -1 } },
-
-            // Pagination
-            { $skip: (parseInt(page) - 1) * parseInt(limit) },
-            { $limit: parseInt(limit) }
+            { $replaceRoot: { newRoot: "$product" } },
+            { $skip: (page - 1) * limit },
+            { $limit: Number(limit) },
         ]);
 
-        const total = await Product.countDocuments(matchCriteria);
+        const total = await Product.distinct("model", match).then(r => r.length);
 
-        res.status(200).json({
+        const response = {
             products,
             total,
-            page: parseInt(page),
-            pages: Math.ceil(total / limit)
-        });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+            page: Number(page),
+            pages: Math.ceil(total / limit),
+        };
+
+        await setCache(cacheKey, response);
+
+        res.json(response);
+    } catch {
+        res.status(500).json({ message: "Failed to fetch products" });
     }
 });
 
-
-// ✅ Get products by brand (with pagination)
-router.get('/products/brand/:brand', async (req, res) => {
+/* ===========================================================
+   BRAND FILTER
+   =========================================================== */
+router.get("/products/brand/:brand", async (req, res) => {
     try {
         const { brand } = req.params;
         const { page = 1, limit = 20 } = req.query;
+        const cacheKey = `brand:${brand}:${page}:${limit}`;
+
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            console.log("⚡ Brand products from Redis");
+            return res.json(cached);
+        }
 
         const products = await Product.find({ brand })
             .sort({ createdAt: -1 })
-            .skip((parseInt(page) - 1) * parseInt(limit))
-            .limit(parseInt(limit));
+            .skip((page - 1) * limit)
+            .limit(Number(limit))
+            .lean();
 
         const total = await Product.countDocuments({ brand });
 
-        res.status(200).json({
+        const response = {
             products,
             total,
-            page: parseInt(page),
+            page: Number(page),
             pages: Math.ceil(total / limit),
-        });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-
-// ✅ Search products by keyword (name, model, brand, description)
-router.get('/products/search/:keyword', async (req, res) => {
-    try {
-        const { keyword } = req.params;
-        const { page = 1, limit = 20 } = req.query;
-
-        const query = {
-            $or: [
-                { name: new RegExp(keyword, "i") },
-                { model: new RegExp(keyword, "i") },
-                { brand: new RegExp(keyword, "i") },
-                { description: new RegExp(keyword, "i") },
-                { keywords: new RegExp(keyword, "i") }
-            ]
         };
 
-        const products = await Product.find(query)
-            .sort({ createdAt: -1 })
-            .skip((parseInt(page) - 1) * parseInt(limit))
-            .limit(parseInt(limit));
+        await setCache(cacheKey, response);
 
-        const total = await Product.countDocuments(query);
-
-        res.status(200).json({
-            products,
-            total,
-            page: parseInt(page),
-            pages: Math.ceil(total / limit),
-        });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.json(response);
+    } catch {
+        res.status(500).json({ message: "Failed to fetch brand products" });
     }
 });
 
 
-// ✅ Get a product by ID
-router.get('/productsDetails/:id', async (req, res) => {
+/* ===========================================================
+   SEARCH PRODUCTS (TEXT INDEX)
+   =========================================================== */
+router.get(
+    "/products/search/:keyword",
+    searchLimiter,
+    async (req, res) => {
+        try {
+            const { keyword } = req.params;
+            const { page = 1, limit = 20 } = req.query;
+
+            const products = await Product.find(
+                { $text: { $search: keyword } },
+                { score: { $meta: "textScore" } }
+            )
+                .sort({ score: { $meta: "textScore" } })
+                .skip((page - 1) * limit)
+                .limit(Number(limit));
+
+            const total = await Product.countDocuments({
+                $text: { $search: keyword },
+            });
+
+            res.json({
+                products,
+                total,
+                page: Number(page),
+                pages: Math.ceil(total / limit),
+            });
+        } catch {
+            res.status(500).json({ message: "Search failed" });
+        }
+    }
+);
+
+/* ===========================================================
+   PRODUCT DETAILS
+   =========================================================== */
+router.get(
+    "/products/:id",
+    [param("id").isMongoId()],
+    validate,
+    async (req, res) => {
+        const cacheKey = `product:${req.params.id}`;
+
+        const cached = await getCache(cacheKey);
+        if (cached) {
+            console.log("⚡ Single product from Redis");
+            return res.json(cached);
+        }
+
+        const product = await Product.findById(req.params.id).lean();
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
+        await setCache(cacheKey, product);
+
+        res.json(product);
+    }
+);
+
+
+/* ===========================================================
+   UPDATE PRODUCT (ADMIN)
+   =========================================================== */
+router.put("/products/:id", auth, isAdmin, async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
-        if (!product) return res.status(404).json({ message: 'Product not found' });
-        res.status(200).json(product);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        const allowedFields = (({
+            name,
+            price,
+            category,
+            brand,
+            model,
+            description,
+            images,
+            stock,
+        }) => ({
+            name,
+            price,
+            category,
+            brand,
+            model,
+            description,
+            images,
+            stock,
+        }))(req.body);
+
+        const product = await Product.findByIdAndUpdate(
+            req.params.id,
+            allowedFields,
+            { new: true }
+        );
+        if (!product) return res.status(404).json({ message: "Product not found" });
+        await redisClient.flushAll();
+
+        res.json(product);
+    } catch {
+        res.status(500).json({ message: "Update failed" });
     }
 });
 
+/* ===========================================================
+   DELETE PRODUCT (ADMIN)
+   =========================================================== */
+router.delete("/products/:id", auth, isAdmin, async (req, res) => {
+    const product = await Product.findByIdAndDelete(req.params.id);
 
-// ✅ Delete product by ID
-router.delete('/products/:id', async (req, res) => {
-    try {
-        const product = await Product.findByIdAndDelete(req.params.id);
-        if (!product) return res.status(404).json({ message: 'Product not found' });
-        res.status(200).json({ message: 'Product deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    await redisClient.flushAll();
+
+    res.json({ message: "Product deleted successfully" });
 });
-
-
-// ✅ Update product by ID
-router.put('/products/:id', async (req, res) => {
-    try {
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!product) return res.status(404).json({ message: 'Product not found' });
-        res.status(200).json(product);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
 
 module.exports = router;

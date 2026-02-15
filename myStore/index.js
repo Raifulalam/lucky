@@ -1,77 +1,70 @@
-// Import necessary modules
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const path = require('path');
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const path = require("path");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+
+// Base API router
+const apiRoutes = require("./Router/index"); // Create a central routes file
+
+// Models for indexes
 const Product = require("./Models/products");
 
-const cors = require('cors');
-const dashboardRoutes = require('./Router/Dashboard');
-
-// Load environment variables from .env file
-require('dotenv').config();
-
-// Middleware
 const app = express();
-const port = 3000;
-app.use(bodyParser.json());
-app.use(cors());
+const PORT = process.env.PORT || 3000;
 
+// -------------------- MIDDLEWARE --------------------
+app.use(cors());                       // Enable CORS
+app.use(helmet());                      // Security headers
+app.use(morgan("combined"));            // Logging
+app.use(express.json({ limit: "10mb" })); // Parse JSON
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// MongoDB connection URI from environment variables
-const mongoURI = process.env.MONGO_URI;
+// Serve static files for uploads
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Connect to MongoDB
-mongoose.connect(mongoURI)
+// -------------------- ROUTES --------------------
+app.get("/", (req, res) => {
+    res.send("✅ API is running");
+});
+
+app.use("/api", apiRoutes); // Mount all API routes under /api
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ message: "Route not found" });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error("Global Error:", err.stack);
+    res.status(500).json({ message: "Something went wrong!" });
+});
+
+// -------------------- DATABASE CONNECTION --------------------
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
     .then(() => {
-        console.log('Connected to MongoDB');
+        console.log("✅ MongoDB connected");
+
+        // Ensure indexes for product search
+        Product.collection.createIndex({ category: 1 });
+        Product.collection.createIndex({ brand: 1 });
+        Product.collection.createIndex({ model: 1 });
+        Product.collection.createIndex({ createdAt: -1 });
+        Product.collection.createIndex({ name: "text", description: "text", keywords: "text" });
+        console.log("Indexes created/ensured successfully ✅");
+
+        // Start the server
+        app.listen(PORT, () => {
+            console.log(`🚀 Server is running on port ${PORT}`);
+        });
     })
     .catch(err => {
-        console.log('Error connecting to MongoDB:', err);
+        console.error("❌ Error connecting to MongoDB:", err);
+        process.exit(1); // Exit process if DB connection fails
     });
-
-// Post the data to the database
-
-
-// Sample route
-app.get('/', (req, res) => {
-    res.send('Sucess ');
-});
-
-// User router (if applicable)
-app.use('/api', require('./Router/createUser'));
-app.use('/api', require('./Router/createProducts'));
-app.use('/api', require('./Router/createOrder'));
-app.use('/api', require('./Router/complaints'));
-app.use('/api', require('./Router/productcategory'));
-app.use('/api', require('./Router/contactMessage'));
-app.use('/api', require('./Router/MobileRouter'));
-app.use('/api', require('./Router/EmployeeRoutes'))
-app.use('/api/dashboard', dashboardRoutes)
-
-
-
-// Ensure indexes on startup
-mongoose.connection.once("open", async () => {
-    try {
-        await Product.collection.createIndex({ category: 1 });
-        await Product.collection.createIndex({ brand: 1 });
-        await Product.collection.createIndex({ model: 1 });
-        await Product.collection.createIndex({ createdAt: -1 });
-        await Product.collection.createIndex({
-            name: "text",
-            description: "text",
-            keywords: "text"
-        });
-        console.log("Indexes created/ensured successfully ✅");
-    } catch (err) {
-        console.error("Error creating indexes:", err);
-    }
-});
-
-
-app.use('/uploads', express.static(path.join(__dirname, './uploads')));
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});

@@ -1,138 +1,144 @@
-/* Container for the complaints list */
-.complaints-container {
-    margin: 20px auto;
-    padding: 20px;
-    width: 90%;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.complaints-admin {
+    padding: 24px;
+    background: #f8fafc;
 }
 
-/* Table styling */
-.complaints-table {
+h2 {
+    margin-bottom: 15px;
+}
+
+.analytics {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.analytics div {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.toolbar input,
+.toolbar select,
+.toolbar button {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.toolbar button {
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+}
+
+table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
 }
 
-h3 {
-    text-align: center;
-    font-size: 24px;
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
 }
 
-/* Table header styling */
-.complaints-table th {
-    background-color: #4CAF50;
+th {
+    position: sticky;
+    top: 0;
+    background: #1e293b;
     color: white;
-    padding: 12px;
-    text-align: left;
-    font-size: 16px;
 }
 
-/* Table cell styling */
-.complaints-table td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-    font-size: 14px;
+.status {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    color: #000;
 }
 
-/* Row hover effect */
-.complaints-table tr:hover {
-    background-color: #f1f1f1;
+.status-Pending {
+    background: #fde68a;
 }
 
-/* Loading and error messages */
-.loading-message,
-.error-message {
+.status-In-Progress {
+    background: #93c5fd;
+}
+
+.status-Resolved {
+    background: #bbf7d0;
+}
+
+.status-Closed {
+    background: #e5e7eb;
+}
+
+
+td img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.pagination {
+    margin-top: 15px;
+}
+
+.pagination button {
+    margin-right: 5px;
+    padding: 6px 10px;
+}
+
+.pagination .active {
+    background: #2563eb;
+    color: white;
+}
+
+.image-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-modal img {
+    max-width: 80%;
+    max-height: 80%;
+}
+
+.loading,
+.error {
+    padding: 30px;
     text-align: center;
-    font-size: 18px;
-    color: #555;
 }
 
-/* Error styling */
-.error-message {
-    color: red;
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-/* No complaints message */
-.no-complaints {
-    text-align: center;
-    font-size: 18px;
-    color: #888;
-}
-
-/* --- RESPONSIVE STYLES --- */
-
-/* Mobile view: Stack the table content vertically on small screens */
-@media screen and (max-width: 600px) {
-
-    /* Adjusting container width */
-    .complaints-container {
-        width: 100%;
-        padding: 15px;
-    }
-
-    /* Table styling for small screens */
-    .complaints-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    /* Table header for mobile */
-    .complaints-table th {
-        font-size: 14px;
-    }
-
-    /* Table cell adjustments for smaller screens */
-    .complaints-table td {
-        font-size: 12px;
-        padding: 8px;
-    }
-
-    /* Adjusting heading sizes */
-    h3 {
-        font-size: 20px;
-    }
-}
-
-/* Tablet view: Adjust layout for medium-sized screens (up to 768px) */
-@media screen and (max-width: 768px) {
-    .complaints-container {
-        width: 95%;
-    }
-
-    .complaints-table th {
-        font-size: 15px;
-    }
-
-    .complaints-table td {
-        font-size: 13px;
-        padding: 10px;
-    }
-
-    h3 {
-        font-size: 22px;
-    }
-}
-
-/* Desktop view: Keep the layout as is for larger screens */
-@media screen and (min-width: 769px) {
-    .complaints-container {
-        width: 100%;
-    }
-
-    .complaints-table th {
-        font-size: 16px;
-    }
-
-    .complaints-table td {
-        font-size: 14px;
-        padding: 12px;
-    }
-
-    h3 {
-        font-size: 24px;
-    }
+.delete-btn:hover {
+    background: #c0392b;
 }

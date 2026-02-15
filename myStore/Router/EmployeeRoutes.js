@@ -6,7 +6,7 @@ const Employee = require("../Models/Employee");
 const Attendance = require("../Models/Attendance");
 const Leave = require("../Models/Leave");
 const Salary = require("../Models/Salary");
-const authMiddleware = require("../authMiddleware");
+const authMiddleware = require("../middlewares/auth");
 
 // ---------------------------- EMPLOYEE ROUTES ----------------------------
 
