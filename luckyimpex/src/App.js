@@ -1,6 +1,7 @@
 import "./App.css";
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 
 /* PAGES */
 import LoginComponent from "./Pages/LoginPage/LoginPage";
@@ -48,13 +49,13 @@ function App() {
   }, []);
 
   return (
-
-    <NotificationProvider>
-      <UserProvider>
-        <ProductProvider>
-          <CartProvider>
-            <BrowserRouter>
-              <Routes>
+    <>
+      <NotificationProvider>
+        <UserProvider>
+          <ProductProvider>
+            <CartProvider>
+              <BrowserRouter>
+                <Routes>
 
                 {/* ================= PUBLIC ROUTES ================= */}
                 <Route path="/" element={<HomePage />} />
@@ -199,12 +200,14 @@ function App() {
                   }
                 />
 
-              </Routes>
-            </BrowserRouter>
-          </CartProvider>
-        </ProductProvider>
-      </UserProvider>
-    </NotificationProvider>
+                </Routes>
+              </BrowserRouter>
+            </CartProvider>
+          </ProductProvider>
+        </UserProvider>
+      </NotificationProvider>
+      <Analytics />
+    </>
   );
 }
 
