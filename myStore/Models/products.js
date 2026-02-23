@@ -86,5 +86,6 @@ productSchema.index({
 // ⚡ Fast filters & sorting
 productSchema.index({ createdAt: -1 });
 productSchema.index({ model: 1 });
-
+productSchema.index({ category: 1 });
+productSchema.index({ brand: 1 });
 module.exports = mongoose.model("Product", productSchema);

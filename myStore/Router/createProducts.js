@@ -14,7 +14,7 @@ const validate = (req, res, next) => {
     }
     next();
 };
-const DEFAULT_EXPIRY = 600; // 10 minutes
+const DEFAULT_EXPIRY = 60;
 
 const getCache = async (key) => {
     const data = await redisClient.get(key);
@@ -31,6 +31,7 @@ const searchLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
 });
+
 
 const clearProductCache = async () => {
     const keys = await redisClient.keys("products:*");
@@ -82,6 +83,7 @@ router.get("/products", async (req, res) => {
             return res.json(cached);
         }
 
+
         const match = category ? { category } : {};
 
         const products = await Product.aggregate([
@@ -106,7 +108,9 @@ router.get("/products", async (req, res) => {
             page: Number(page),
             pages: Math.ceil(total / limit),
         };
-
+        if (page == 1) {
+            await setCache(cacheKey, response);
+        }
         await setCache(cacheKey, response);
 
         res.json(response);
