@@ -204,6 +204,7 @@ function App() {
           </CartProvider>
         </ProductProvider>
       </UserProvider>
+      <SpeedInsights />
     </NotificationProvider>
   );
 }
