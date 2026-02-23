@@ -32,6 +32,17 @@ const searchLimiter = rateLimit({
     max: 100,
 });
 
+const clearProductCache = async () => {
+    const keys = await redisClient.keys("products:*");
+    const brandKeys = await redisClient.keys("brand:*");
+    const singleKeys = await redisClient.keys("product:*");
+
+    const allKeys = [...keys, ...brandKeys, ...singleKeys];
+
+    if (allKeys.length > 0) {
+        await redisClient.del(allKeys);
+    }
+};
 /* ===========================================================
    CREATE PRODUCT (ADMIN)
    =========================================================== */
@@ -50,7 +61,7 @@ router.post(
     async (req, res) => {
         try {
             const product = await Product.create(req.body);
-            await redisClient.flushAll();
+            await clearProductCache();
             res.status(201).json(product);
         } catch (err) {
             res.status(500).json({ message: "Product creation failed" });
@@ -68,7 +79,6 @@ router.get("/products", async (req, res) => {
 
         const cached = await getCache(cacheKey);
         if (cached) {
-            console.log("⚡ Products from Redis");
             return res.json(cached);
         }
 
@@ -236,7 +246,7 @@ router.put("/products/:id", auth, isAdmin, async (req, res) => {
             { new: true }
         );
         if (!product) return res.status(404).json({ message: "Product not found" });
-        await redisClient.flushAll();
+        await clearProductCache();
 
         res.json(product);
     } catch {
@@ -251,7 +261,7 @@ router.delete("/products/:id", auth, isAdmin, async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id);
 
     if (!product) return res.status(404).json({ message: "Product not found" });
-    await redisClient.flushAll();
+    await clearProductCache();
 
     res.json({ message: "Product deleted successfully" });
 });

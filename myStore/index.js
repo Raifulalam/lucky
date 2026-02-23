@@ -68,3 +68,13 @@ mongoose.connect(process.env.MONGO_URI, {
         console.error("❌ Error connecting to MongoDB:", err);
         process.exit(1); // Exit process if DB connection fails
     });
+
+const redisClient = require("./config/redis"); // adjust path
+
+async function testRedis() {
+    await redisClient.set("hello", "world");
+    const data = await redisClient.get("hello");
+    console.log(data);
+}
+
+testRedis();
