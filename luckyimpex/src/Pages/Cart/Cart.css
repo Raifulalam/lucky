@@ -333,6 +333,7 @@
     justify-content: center;
     padding: 20px;
     background: rgba(12, 24, 39, 0.5);
+    overflow: scroll;
 }
 
 .cart-modal {
