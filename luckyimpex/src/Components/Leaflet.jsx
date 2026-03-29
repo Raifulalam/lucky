@@ -54,7 +54,7 @@ const MapComponent = ({ position }) => {
             <MapContainer
                 center={luckyImpexLocation}
                 zoom={16}
-                style={{ height: '200px', width: '90%' }}
+                style={{ height: '200px', width: '100%' }}
             >
                 {/* Use custom tile layer from OpenStreetMap */}
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />

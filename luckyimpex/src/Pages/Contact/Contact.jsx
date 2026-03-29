@@ -8,7 +8,7 @@ import {
     FaYoutube,
 } from "react-icons/fa";
 
-export const ContactComponent = () => {
+export const ContactComponent = ({ embedded = false }) => {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -96,35 +96,37 @@ export const ContactComponent = () => {
         <div className="contact">
 
             {/* ================= SEO ================= */}
-            <Helmet>
-                <title>
-                    Contact Lucky Impex | AC, LED TV & Appliances in Birgunj
-                </title>
+            {!embedded && (
+                <Helmet>
+                    <title>
+                        Contact Lucky Impex | AC, LED TV & Appliances in Birgunj
+                    </title>
 
-                <meta
-                    name="description"
-                    content="Contact Lucky Impex in Birgunj for Air Conditioners, Refrigerators, LED TVs, Washing Machines and home appliances. Call 051531789 or WhatsApp us today."
-                />
+                    <meta
+                        name="description"
+                        content="Contact Lucky Impex in Birgunj for Air Conditioners, Refrigerators, LED TVs, Washing Machines and home appliances. Call 051531789 or WhatsApp us today."
+                    />
 
-                <meta
-                    name="keywords"
-                    content="Lucky Impex Birgunj, electronics shop Nepal, AC store Birgunj, LED TV Nepal"
-                />
+                    <meta
+                        name="keywords"
+                        content="Lucky Impex Birgunj, electronics shop Nepal, AC store Birgunj, LED TV Nepal"
+                    />
 
-                <meta name="author" content="Lucky Impex" />
+                    <meta name="author" content="Lucky Impex" />
 
-                <meta property="og:title" content="Contact Lucky Impex - Birgunj" />
-                <meta
-                    property="og:description"
-                    content="Visit Lucky Impex for premium electronics and appliances in Birgunj."
-                />
-                <meta property="og:type" content="website" />
-                <meta property="og:url" content="https://luckyimpex.vercel.app/contact" />
+                    <meta property="og:title" content="Contact Lucky Impex - Birgunj" />
+                    <meta
+                        property="og:description"
+                        content="Visit Lucky Impex for premium electronics and appliances in Birgunj."
+                    />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:url" content="https://luckyimpex.vercel.app/contact" />
 
-                <meta name="twitter:card" content="summary_large_image" />
+                    <meta name="twitter:card" content="summary_large_image" />
 
-                <link rel="canonical" href="https://luckyimpex.vercel.app/contact" />
-            </Helmet>
+                    <link rel="canonical" href="https://luckyimpex.vercel.app/contact" />
+                </Helmet>
+            )}
 
             {/* ================= HEADER ================= */}
             <div className="contact-header">
@@ -267,26 +269,28 @@ export const ContactComponent = () => {
             </div>
 
             {/* ================= STRUCTURED DATA ================= */}
-            <script type="application/ld+json">
-                {JSON.stringify({
-                    "@context": "https://schema.org",
-                    "@type": "ElectronicsStore",
-                    name: "Lucky Impex",
-                    address: {
-                        "@type": "PostalAddress",
-                        streetAddress: "Ghantaghar Link Road",
-                        addressLocality: "Birgunj",
-                        addressCountry: "NP"
-                    },
-                    telephone: "051531789",
-                    email: "luckyimpex4u@gmail.com",
-                    sameAs: [
-                        "https://www.facebook.com/luckyimpex4u/",
-                        "https://instagram.com/yourpage",
-                        "https://youtube.com/yourchannel"
-                    ]
-                })}
-            </script>
+            {!embedded && (
+                <script type="application/ld+json">
+                    {JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "ElectronicsStore",
+                        name: "Lucky Impex",
+                        address: {
+                            "@type": "PostalAddress",
+                            streetAddress: "Ghantaghar Link Road",
+                            addressLocality: "Birgunj",
+                            addressCountry: "NP"
+                        },
+                        telephone: "051531789",
+                        email: "luckyimpex4u@gmail.com",
+                        sameAs: [
+                            "https://www.facebook.com/luckyimpex4u/",
+                            "https://instagram.com/yourpage",
+                            "https://youtube.com/yourchannel"
+                        ]
+                    })}
+                </script>
+            )}
 
         </div>
     );

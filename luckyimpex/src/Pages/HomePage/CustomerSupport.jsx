@@ -1,5 +1,5 @@
 import React from "react";
-import { PhoneCall } from "lucide-react";
+import { ArrowRight, PhoneCall } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const CustomerSupport = () => {
@@ -7,11 +7,19 @@ const CustomerSupport = () => {
 
     return (
         <section className="customer-support">
-            <h2>Need Help?</h2>
-            <p>Our customer service is here for you 24/7.</p>
-            <button className="btn-primary" onClick={() => navigate("/contact")} aria-label="Contact customer support">
-                <PhoneCall /> Contact Us
-            </button>
+            <div className="customer-support-card">
+                <div className="customer-support-copy">
+                    <span className="section-kicker">Customer Support</span>
+                    <h2>Need help choosing the right product?</h2>
+                    <p>
+                        Speak with the Lucky Impex team for product guidance, store information,
+                        order support, and appliance recommendations.
+                    </p>
+                </div>
+                <button className="btn-primary" onClick={() => navigate("/contact")} aria-label="Contact customer support">
+                    <PhoneCall size={18} /> Contact Us <ArrowRight size={18} />
+                </button>
+            </div>
         </section>
     );
 };

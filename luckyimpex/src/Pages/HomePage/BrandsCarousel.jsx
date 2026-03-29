@@ -7,7 +7,11 @@ const BrandsCarousel = () => {
 
     return (
         <section className="brands">
-            <h2>Our Top Deal Brands</h2>
+            <div className="section-heading">
+                <span className="section-kicker">Brand Access</span>
+                <h2>Featured partner brands</h2>
+                <p>Recognizable names customers expect when shopping electronics and appliances.</p>
+            </div>
             <div className="brand-carousel">
                 {brands.map((brand) => (
                     <button
@@ -16,7 +20,8 @@ const BrandsCarousel = () => {
                         onClick={() => navigate(`/products/brand/${brand}`)}
                         aria-label={`View ${brand} products`}
                     >
-                        <img src={`/${brand.toLowerCase()}.png `} alt={`${brand} logo`} loading="lazy" />
+                        <img src={`/${brand.toLowerCase()}.png`} alt={`${brand} logo`} loading="lazy" />
+                        <span>{brand}</span>
                     </button>
                 ))}
             </div>

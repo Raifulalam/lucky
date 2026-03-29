@@ -97,70 +97,102 @@ function LoginComponent() {
                 <meta name="description" content="Log in to your Lucky Impex account." />
             </Helmet>
             <Header />
-            <div className="container-signup">
-                <div className="login-form">
-                    <h2>Log in</h2>
-                    <p>Welcome back! Please enter your details.</p>
+            <section className="auth-page">
+                <div className="auth-shell">
+                    <div className="auth-aside">
+                        <div className="auth-brand-badge">Lucky Impex</div>
+                        <h1>Welcome back to your shopping account.</h1>
+                        <p>
+                            Sign in to track orders, save your cart, and continue browsing
+                            appliances and electronics without losing your progress.
+                        </p>
+                        <div className="auth-feature-list">
+                            <div className="auth-feature-item">
+                                <strong>Fast checkout</strong>
+                                <span>Keep your profile and shopping flow ready across visits.</span>
+                            </div>
+                            <div className="auth-feature-item">
+                                <strong>Order visibility</strong>
+                                <span>See your purchases and account activity in one place.</span>
+                            </div>
+                            <div className="auth-feature-item">
+                                <strong>Secure access</strong>
+                                <span>Your account session stays protected with token-based login.</span>
+                            </div>
+                        </div>
+                    </div>
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label htmlFor="email">Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={email}
-                                onChange={handleEmailChange}
-                                required
-                                placeholder="Enter your email"
-                                aria-label="Enter your email address"
-                            />
+                    <div className="auth-card">
+                        <div className="auth-card-header">
+                            <span className="auth-kicker">Account Login</span>
+                            <h2>Sign in</h2>
+                            <p>Use your registered email and password to continue.</p>
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="password">Password</label>
-                            <div className="password-container">
+                        <form onSubmit={handleSubmit} className="auth-form">
+                            <div className="form-group">
+                                <label htmlFor="email">Email address</label>
                                 <input
-                                    type={showPassword ? "text" : "password"}
-                                    id="password"
-                                    name="password"
-                                    value={password}
-                                    onChange={handlePasswordChange}
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={email}
+                                    onChange={handleEmailChange}
                                     required
-                                    placeholder="Enter your password"
-                                    aria-label="Enter your password"
+                                    placeholder="name@example.com"
+                                    aria-label="Enter your email address"
                                 />
-                                <button
-                                    type="button"
-                                    className="toggle-password"
-                                    onClick={handlePasswordVisibilityToggle}
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
-                                >
-                                    {showPassword ? "Hide" : "Show"}
+                            </div>
+
+                            <div className="form-group">
+                                <div className="password-row">
+                                    <label htmlFor="password">Password</label>
+                                    <button type="button" className="text-link-btn">
+                                        Forgot password?
+                                    </button>
+                                </div>
+                                <div className="password-container">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        id="password"
+                                        name="password"
+                                        value={password}
+                                        onChange={handlePasswordChange}
+                                        required
+                                        placeholder="Enter your password"
+                                        aria-label="Enter your password"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="toggle-password"
+                                        onClick={handlePasswordVisibilityToggle}
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                        {showPassword ? "Hide" : "Show"}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {error && (
+                                <div className="error-message" aria-live="assertive">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className="form-group-submit">
+                                <button type="submit" className="submit-button" disabled={loading}>
+                                    {loading ? 'Signing in...' : 'Sign in'}
                                 </button>
                             </div>
-                        </div>
 
-                        <div className="form-group-submit">
-                            <button type="submit" className="submit-button" disabled={loading}>
-                                {loading ? 'Signing in...' : 'Sign in'}
-                            </button>
-
-                            <button className='forgot-password'>Forgot password</button>
-                        </div>
-
-                        {error && (
-                            <div className="error-message" aria-live="assertive">
-                                {error}
+                            <div className="auth-footer">
+                                <span>Do not have an account?</span>
+                                <Link to="/signup">Create one</Link>
                             </div>
-                        )}
-
-                        <div className="form-group-register">
-                            <h5>Don't have an account? <Link to="/signup">Register</Link></h5>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }

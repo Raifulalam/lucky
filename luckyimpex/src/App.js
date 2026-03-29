@@ -68,6 +68,7 @@ function App() {
                 <Route path="/phones" element={<PhoneShop />} />
                 <Route path="/phonedetails/:id" element={<PhoneDetails />} />
                 <Route path="/contact" element={<ContactComponent />} />
+                <Route path="/about" element={<StoreComponent />} />
                 <Route path="/store" element={<StoreComponent />} />
 
                 {/* ================= USER ROUTES ================= */}
