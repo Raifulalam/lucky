@@ -1,51 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
 
-<head>
-  <meta charset="utf-8" />
-  <link rel="icon" href="%PUBLIC_URL%/lucky-logo.png" sizes="32x32" type="image/png" />
+    <title>Lucky Impex | Electronics and Home Appliances Store</title>
+    <meta
+      name="description"
+      content="Shop electronics, home appliances, mobile phones, and branded products online at Lucky Impex with a faster mobile experience and trusted local-store support."
+    />
+    <meta
+      name="keywords"
+      content="Lucky Impex, electronics store, home appliances, mobiles, refrigerator, AC, washing machine, TV, kitchen appliances"
+    />
+    <meta name="author" content="Lucky Impex" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#0f5bd8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Lucky Impex" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="keywords" content="Lucky Impex, best deals, shopping">
-  <meta name="author" content="Mohammed raiful alam">
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/lucky-logo.png" />
-  <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="canonical" href="https://luckyimpex.vercel.app/" />
+    <link rel="icon" href="%PUBLIC_URL%/lucky-logo.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/lucky-logo.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-  <!-- 
-  leaflet css
-  -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"
-    integrity="sha384-pzjw8f+ua7Kw1TIq0w7XB5zZm7kW+Wf1g77JvCqO4F9Zd7wXw3jWv7pa67pOjz74" crossorigin="" />
-  <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <link
+      rel="preload"
+      as="image"
+      href="%PUBLIC_URL%/lucky-logo.png"
+      type="image/png"
+      fetchpriority="high"
+    />
+    <link rel="preconnect" href="https://lucky-1-6ma5.onrender.com" crossorigin />
+    <link rel="dns-prefetch" href="//lucky-1-6ma5.onrender.com" />
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://unpkg.com/leaflet/dist/leaflet.css"
+      as="style"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet/dist/leaflet.css"
+      media="print"
+      onload="this.media='all'"
+      crossorigin="anonymous"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
+        crossorigin="anonymous"
+      />
+    </noscript>
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-  <title>Lucky Impex</title>
-</head>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lucky Impex" />
+    <meta property="og:title" content="Lucky Impex | Electronics and Home Appliances Store" />
+    <meta
+      property="og:description"
+      content="Browse appliances, electronics, mobiles, and branded collections with a faster, more app-like shopping experience."
+    />
+    <meta property="og:url" content="https://luckyimpex.vercel.app/" />
+    <meta property="og:image" content="https://luckyimpex.vercel.app/lucky-logo.png" />
 
-<body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-  <div id="root"></div>
-  <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Lucky Impex | Electronics and Home Appliances Store" />
+    <meta
+      name="twitter:description"
+      content="Shop electronics, appliances, and mobile products online at Lucky Impex."
+    />
+    <meta name="twitter:image" content="https://luckyimpex.vercel.app/lucky-logo.png" />
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Store",
+        "name": "Lucky Impex",
+        "url": "https://luckyimpex.vercel.app/",
+        "logo": "https://luckyimpex.vercel.app/lucky-logo.png",
+        "image": "https://luckyimpex.vercel.app/lucky-logo.png",
+        "description": "Lucky Impex online store for electronics, home appliances, and mobile products."
+      }
+    </script>
+  </head>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-</body>
-
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
 </html>

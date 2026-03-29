@@ -1,3 +1,17 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+Disallow: /cart
+Disallow: /profile
+Disallow: /orderpage
+Disallow: /dashboard
+Disallow: /admindashboard
+Disallow: /manage-products
+Disallow: /manageproducts
+Disallow: /employee-manage
+Disallow: /feedback
+Disallow: /complaints
+Disallow: /orders
+Disallow: /review/
+
+Sitemap: https://luckyimpex.vercel.app/sitemap-index.xml
