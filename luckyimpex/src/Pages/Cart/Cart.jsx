@@ -309,6 +309,18 @@ const CartComponent = () => {
                 )}
             </main>
 
+            {cart.length > 0 && (
+                <div className="cart-mobile-checkout">
+                    <div className="cart-mobile-total">
+                        <span>Total payable</span>
+                        <strong>{formatCurrency(total)}</strong>
+                    </div>
+                    <button className="place-order mobile-place-order" onClick={handleOrderPlace} disabled={loading}>
+                        {loading ? "Checking account..." : "Proceed to checkout"}
+                    </button>
+                </div>
+            )}
+
             {isModalOpen && (
                 <div className="cart-modal-overlay">
                     <div className="cart-modal">
