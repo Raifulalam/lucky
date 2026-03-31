@@ -311,7 +311,7 @@
     }
 
     .header-nav,
-    .cart-link > span:not(.cart-badge),
+    .cart-link>span:not(.cart-badge),
     .login-btn,
     .user-menu {
         display: none;
@@ -336,8 +336,9 @@
         border: 1px solid rgba(214, 223, 231, 0.9);
         border-radius: 14px;
         background: #f6f9fc;
-        color: #203244;
+        color: #f1f4f7;
         cursor: pointer;
+        padding: 7px;
     }
 
     .mobile-menu-backdrop {
@@ -464,6 +465,7 @@
 }
 
 @media (max-width: 520px) {
+
     .header-topbar-inner,
     .header-inner {
         width: min(100% - 20px, 1240px);
@@ -471,6 +473,11 @@
 
     .logo-copy span {
         display: none;
+    }
+
+    .cart-badge {
+        top: 0px;
+        right: -3px;
     }
 
     .logo img {
