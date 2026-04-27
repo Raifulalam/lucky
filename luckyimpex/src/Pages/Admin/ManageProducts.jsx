@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import './ManageProducts.css'; // You can add your own CSS styling
 import Modal from '../../Components/Modal'; // Assuming you have a modal component for confirmation
+import { authRequest, getData } from "../../api/api";
 
 const ManageProducts = () => {
     const [products, setProducts] = useState([]);
@@ -15,10 +16,8 @@ const ManageProducts = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetch('https://lucky-back.onrender.com/api/products');
-                if (!response.ok) throw new Error('Failed to fetch products');
-                const data = await response.json();
-                setProducts(data);
+                const data = await getData("/products/products?page=1&limit=100");
+                setProducts(data.products || []);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -39,16 +38,10 @@ const ManageProducts = () => {
     const handleAddProduct = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('https://lucky-back.onrender.com/api/products', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newProduct),
+            const addedProduct = await authRequest("/products/products", {
+                method: "POST",
+                body: newProduct,
             });
-
-            if (!response.ok) throw new Error('Failed to add product');
-            const addedProduct = await response.json();
             setProducts((prevProducts) => [...prevProducts, addedProduct]);
             setNewProduct({ name: '', price: '', description: '', image: '' }); // Clear form after adding
             setIsAddModalOpen(false); // Close modal
@@ -66,11 +59,9 @@ const ManageProducts = () => {
     // Confirm product deletion
     const confirmDelete = async () => {
         try {
-            const response = await fetch(`https://lucky-back.onrender.com/api/products/${selectedProduct._id}`, {
-                method: 'DELETE',
+            await authRequest(`/products/products/${selectedProduct._id}`, {
+                method: "DELETE",
             });
-
-            if (!response.ok) throw new Error('Failed to delete product');
             setProducts((prevProducts) => prevProducts.filter((product) => product._id !== selectedProduct._id));
             setIsDeleteModalOpen(false); // Close modal
         } catch (err) {
@@ -83,16 +74,14 @@ const ManageProducts = () => {
         const updatedProduct = { price: prompt('Enter new price') };
 
         try {
-            const response = await fetch(`https://lucky-back.onrender.com/api/products/${productId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedProduct),
-            });
+            if (!updatedProduct.price) {
+                return;
+            }
 
-            if (!response.ok) throw new Error('Failed to update product');
-            const updatedData = await response.json();
+            const updatedData = await authRequest(`/products/products/${productId}`, {
+                method: "PUT",
+                body: updatedProduct,
+            });
             setProducts((prevProducts) =>
                 prevProducts.map((product) =>
                     product._id === productId ? { ...product, ...updatedData } : product

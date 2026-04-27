@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import './EMI.css';
+import { BASE_URL } from "../../api/api";
 
 export default function EMI() {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [selectedBrand, setSelectedBrand] = useState(null);
     const [emiDetails, setEmiDetails] = useState(null);
+    const DEFAULT_RATE = 12;
+    const DEFAULT_TENURE = 12;
 
     // List of products (same as before)
     const items = [
@@ -64,28 +67,51 @@ export default function EMI() {
                 return;
             }
 
-            // Build the query string with selected product, option, and brand
             const query = new URLSearchParams({
-                product,
-                option: option || '', // Handle case when option is not selected
-                brand,
+                page: '1',
+                limit: '100',
             }).toString();
 
-            // Replace with actual API endpoint
-            const response = await fetch(`https://lucky-back.onrender.com/api/products?${query}`, {
+            const response = await fetch(`${BASE_URL}/products/products?${query}`, {
                 method: 'GET',
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Assuming response contains EMI details (price, interest rate, tenure, etc.)
-                const emi = calculateEMI(data.price, data.rate, data.tenure);
+                const productList = Array.isArray(data.products) ? data.products : [];
+                const normalize = (value) => (value || '').toString().trim().toLowerCase();
+                const optionValue = normalize(option);
+                const brandValue = normalize(brand);
+                const productValue = normalize(product);
+
+                const matchedProduct = productList.find((entry) => {
+                    const categoryMatch =
+                        normalize(entry.category).includes(productValue) ||
+                        normalize(entry.name).includes(productValue);
+                    const brandMatch = normalize(entry.brand) === brandValue;
+                    const optionMatch =
+                        !optionValue ||
+                        normalize(entry.model).includes(optionValue) ||
+                        normalize(entry.name).includes(optionValue) ||
+                        normalize(entry.description).includes(optionValue);
+
+                    return categoryMatch && brandMatch && optionMatch;
+                });
+
+                if (!matchedProduct) {
+                    console.error('No matching product found for EMI calculation.');
+                    setEmiDetails(null);
+                    return;
+                }
+
+                const price = Number(matchedProduct.price || matchedProduct.mrp || 0);
+                const emi = calculateEMI(price, DEFAULT_RATE, DEFAULT_TENURE);
                 setEmiDetails({
                     emi,
-                    rate: data.rate,
-                    price: data.price,
-                    months: data.tenure,
+                    rate: DEFAULT_RATE,
+                    price,
+                    months: DEFAULT_TENURE,
                 });
             } else {
                 console.error('Failed to fetch EMI details', data);

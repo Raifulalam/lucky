@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import './Review.css';
+import { authRequest } from "../../api/api";
 
 const ReviewPage = () => {
     const { orderId } = useParams(); // Get the orderId from the URL
@@ -10,12 +11,7 @@ const ReviewPage = () => {
     useEffect(() => {
         const fetchOrderData = async () => {
             try {
-                const response = await fetch(`https://lucky-back.onrender.com/api/orders/${orderId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch order details');
-                }
-
-                const orderData = await response.json();
+                const orderData = await authRequest(`/orders/orders/${orderId}`);
                 setOrderDetails(orderData); // Store the fetched order data in the state
             } catch (error) {
                 console.error('Error fetching order details:', error);

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { authRequest } from "../api/api";
 
 const UserContext = createContext();
 
@@ -21,28 +22,18 @@ const UserProvider = ({ children }) => {
                 return;
             }
 
-            try {
-                const response = await fetch(
-                    "https://lucky-1-6ma5.onrender.com/api/users/me",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                if (response.status === 401 || response.status === 403) {
+        try {
+                const data = await authRequest("/users/me", { token });
+                setUser(data);
+            } catch (err) {
+                if (
+                    err.message === "Access denied. Token missing." ||
+                    err.message === "Token expired. Please login again." ||
+                    err.message === "Invalid or malformed token"
+                ) {
                     logout(); // auto logout on invalid/expired token
                     return;
                 }
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch user data");
-                }
-
-                const data = await response.json();
-                setUser(data);
-            } catch (err) {
                 setError(err.message);
             } finally {
                 setLoading(false);

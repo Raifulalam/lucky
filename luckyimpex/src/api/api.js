@@ -2,6 +2,7 @@ const API_ROOT = process.env.REACT_APP_API_BASE_URL || "https://lucky-1-6ma5.onr
 
 export const BASE_URL = API_ROOT;
 export const HRMS_BASE_URL = `${API_ROOT}/hrms`;
+export const getAuthToken = () => localStorage.getItem("authToken");
 
 function buildUrl(baseUrl, endpoint) {
     if (!endpoint.startsWith("/")) {
@@ -37,6 +38,13 @@ function withJsonHeaders(token, extraHeaders = {}) {
     };
 }
 
+function withAuthHeaders(token, extraHeaders = {}) {
+    return {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...extraHeaders,
+    };
+}
+
 export const getData = async (endpoint) => request(BASE_URL, endpoint);
 
 export const postData = async (endpoint, data) =>
@@ -63,9 +71,25 @@ export const patchData = async (endpoint, data) =>
 export const deleteData = async (endpoint) =>
     request(BASE_URL, endpoint, { method: "DELETE" });
 
+export const authRequest = async (
+    endpoint,
+    { token = getAuthToken(), method = "GET", body, headers, isFormData = false } = {}
+) =>
+    request(BASE_URL, endpoint, {
+        method,
+        headers: isFormData
+            ? withAuthHeaders(token, headers)
+            : withJsonHeaders(token, headers),
+        body: body
+            ? isFormData
+                ? body
+                : JSON.stringify(body)
+            : undefined,
+    });
+
 export const hrmsRequest = async (endpoint, { token, method = "GET", body, headers } = {}) =>
     request(HRMS_BASE_URL, endpoint, {
         method,
-        headers: withJsonHeaders(token, headers),
+        headers: withJsonHeaders(token || getAuthToken(), headers),
         body: body ? JSON.stringify(body) : undefined,
     });

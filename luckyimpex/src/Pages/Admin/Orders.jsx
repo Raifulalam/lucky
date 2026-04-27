@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEye, FaTrash, FaTruck } from "react-icons/fa";
 import { Helmet } from "react-helmet";
 import "./OrderComponent.css";
+import { authRequest } from "../../api/api";
 
 const ITEMS_PER_PAGE = 8;
 const STATUS_FLOW = ["Placed", "Shipped", "Delivered"];
@@ -26,12 +27,10 @@ const OrderComponent = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch("https://lucky-1-6ma5.onrender.com/api/orders/orders");
-            if (!res.ok) throw new Error();
-            const data = await res.json();
+            const data = await authRequest("/orders/orders");
             setOrders(data);
-        } catch {
-            setError("Failed to load orders.");
+        } catch (err) {
+            setError(err.message || "Failed to load orders.");
         } finally {
             setLoading(false);
         }
@@ -44,29 +43,25 @@ const OrderComponent = () => {
 
     const updateStatus = async (id, status) => {
         try {
-            const res = await fetch(`https://lucky-back.onrender.com/api/orders/${id}`, {
+            const updated = await authRequest(`/orders/orders/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status }),
+                body: { status },
             });
-            if (!res.ok) throw new Error();
-            const updated = await res.json();
             setOrders((prev) => prev.map((order) => (order._id === updated._id ? updated : order)));
-        } catch {
-            alert("Status update failed");
+        } catch (err) {
+            alert(err.message || "Status update failed");
         }
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this order permanently?")) return;
         try {
-            const res = await fetch(`https://lucky-back.onrender.com/api/orders/${id}`, {
+            await authRequest(`/orders/orders/${id}`, {
                 method: "DELETE",
             });
-            if (!res.ok) throw new Error();
             setOrders((prev) => prev.filter((order) => order._id !== id));
-        } catch {
-            alert("Delete failed");
+        } catch (err) {
+            alert(err.message || "Delete failed");
         }
     };
 

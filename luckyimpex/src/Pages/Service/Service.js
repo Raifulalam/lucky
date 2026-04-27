@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Service.css';
 import Header from '../../Components/Header';
+import { BASE_URL } from "../../api/api";
 
 // Sample data for reviews
 const sampleReviews = [
@@ -67,7 +68,7 @@ const LuckyImpexServicePage = () => {
         formData.append("image", productDetails.image);
 
         try {
-            const response = await fetch('https://lucky-back.onrender.com/api/submitComplaint', {
+            const response = await fetch(`${BASE_URL}/complaints/complaints`, {
                 method: 'POST',
                 body: formData,
             });

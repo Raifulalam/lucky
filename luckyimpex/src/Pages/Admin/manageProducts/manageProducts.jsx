@@ -11,6 +11,7 @@ import back03 from "../../../Images/back03.jpg";
 import { UserContext } from "../../../Components/UserContext";
 import EditProductModal from "../../Products/EditProductModal";
 import Modal from "../../../Components/Modal";
+import { authRequest, BASE_URL } from "../../../api/api";
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -72,7 +73,7 @@ const Products = () => {
             setError(null);
 
             try {
-                let url = `https://lucky-1-6ma5.onrender.com/api/products/products?page=${page}&limit=20`;
+                let url = `${BASE_URL}/products/products?page=${page}&limit=20`;
                 if (category) url += `&category=${category}`;
                 if (searchTerm) url += `&search=${searchTerm}`;
 
@@ -116,18 +117,16 @@ const Products = () => {
     };
 
     const handleSave = async (updatedProduct) => {
-        const res = await fetch(
-            `https://lucky-1-6ma5.onrender.com/api/products/products/${updatedProduct._id}`,
-            {
+        try {
+            const savedProduct = await authRequest(`/products/products/${updatedProduct._id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedProduct),
-            }
-        );
-        if (res.ok) {
+                body: updatedProduct,
+            });
             setProducts((prev) =>
-                prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
+                prev.map((p) => (p._id === savedProduct._id ? savedProduct : p))
             );
+        } catch (err) {
+            setError(err.message);
         }
     };
 
@@ -138,13 +137,12 @@ const Products = () => {
     };
 
     const confirmDelete = async (productId) => {
-        const res = await fetch(
-            `https://lucky-1-6ma5.onrender.com/api/products/products/${productId}`,
-            { method: "DELETE" }
-        );
-        if (res.ok) {
+        try {
+            await authRequest(`/products/products/${productId}`, { method: "DELETE" });
             setProducts((prev) => prev.filter((p) => p._id !== productId));
             dispatch({ type: "DELETE_PRODUCT", payload: productId });
+        } catch (err) {
+            setError(err.message);
         }
     };
 
@@ -180,29 +178,25 @@ const Products = () => {
                 ? newProduct.keywords.split(",").map((k) => k.trim())
                 : [],
         };
-        const res = await fetch("https://lucky-1-6ma5.onrender.com/api/products/products", {
+        const res = await authRequest("/products/products", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(productData),
+            body: productData,
         });
-        if (res.ok) {
-            const added = await res.json();
-            setProducts((prev) => [added, ...prev]);
-            setIsAddModalOpen(false);
-            setNewProduct({
-                name: "",
-                mrp: "",
-                bestBuyPrice: "",
-                category: "",
-                model: "",
-                description: "",
-                image: "",
-                keywords: "",
-                brand: "",
-                capacity: "",
-                stock: "",
-            });
-        }
+        setProducts((prev) => [res, ...prev]);
+        setIsAddModalOpen(false);
+        setNewProduct({
+            name: "",
+            mrp: "",
+            bestBuyPrice: "",
+            category: "",
+            model: "",
+            description: "",
+            image: "",
+            keywords: "",
+            brand: "",
+            capacity: "",
+            stock: "",
+        });
     };
 
     if (loading && products.length === 0) {

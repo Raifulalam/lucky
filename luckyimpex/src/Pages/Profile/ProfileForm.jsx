@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // Use useNavigate instead of useHistory
+import { authRequest } from "../../api/api";
 
 const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
     const [formData, setFormData] = useState({
-        username: userData.username || '',
+        name: userData.name || userData.username || '',
         email: userData.email || '',
-        password: '', // Leave password empty for the user to enter a new one
     });
 
     const navigate = useNavigate();  // Initialize useNavigate
@@ -13,9 +13,8 @@ const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
     useEffect(() => {
         // Prepopulate form data if userData is available
         setFormData({
-            username: userData.username || '',
+            name: userData.name || userData.username || '',
             email: userData.email || '',
-            password: '',  // Password will be handled separately
         });
     }, [userData]);
 
@@ -30,28 +29,13 @@ const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const updatedData = { ...formData };
-
-        // If password is empty, we don't want to update the password field
-        if (!updatedData.password) {
-            delete updatedData.password;
-        }
-
         try {
-            const response = await fetch('https://lucky-back.onrender.com/api/userData', {
+            const data = await authRequest('/users/me', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`, // Ensure you're passing the JWT token
+                body: {
+                    name: formData.name,
                 },
-                body: JSON.stringify(updatedData),
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to update profile');
-            }
-
-            const data = await response.json();
             setUserData(data);  // Update the user data in the parent component
             setIsEditing(false);  // Switch back to the view mode
 
@@ -67,11 +51,11 @@ const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
     return (
         <form onSubmit={handleSubmit}>
             <div className="form-group">
-                <label>Username:</label>
+                <label>Name:</label>
                 <input
                     type="text"
-                    name="username"
-                    value={formData.username}
+                    name="name"
+                    value={formData.name}
                     onChange={handleChange}
                 />
             </div>
@@ -81,17 +65,7 @@ const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
                     type="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className="form-group">
-                <label>Password:</label>
-                <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Leave blank to keep the same password"
+                    readOnly
                 />
             </div>
             <button type="submit">Save Changes</button>

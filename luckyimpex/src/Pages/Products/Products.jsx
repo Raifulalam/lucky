@@ -14,6 +14,7 @@ import Modal from "../../Components/Modal";
 import { useNotification } from "../../Components/NotificationContext";
 import { Helmet } from "react-helmet-async";
 import { categories as categoryCatalog, brands as brandCatalog } from "../HomePage/Constants";
+import { authRequest, BASE_URL } from "../../api/api";
 
 const CACHE_TTL = 5 * 60 * 1000;
 const CACHE_STORAGE_KEY = "lucky-products-cache-v1";
@@ -234,7 +235,7 @@ const Products = () => {
                 setIsFetchingMore(!isInitialRequest);
                 startSlowLoadingIndicator(isInitialRequest);
 
-                url = `https://lucky-1-6ma5.onrender.com/api/products/products?page=${requestedPage}&limit=20`;
+                url = `${BASE_URL}/products/products?page=${requestedPage}&limit=20`;
 
                 if (category) url += `&category=${category}`;
                 if (searchTerm) url += `&search=${searchTerm}`;
@@ -374,18 +375,16 @@ const Products = () => {
     };
 
     const handleSave = async (updatedProduct) => {
-        const res = await fetch(
-            `https://lucky-1-6ma5.onrender.com/api/products/products/${updatedProduct._id}`,
-            {
+        try {
+            const savedProduct = await authRequest(`/products/products/${updatedProduct._id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(updatedProduct),
-            }
-        );
-        if (res.ok) {
+                body: updatedProduct,
+            });
             setProducts((prev) =>
-                prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p))
+                prev.map((p) => (p._id === savedProduct._id ? savedProduct : p))
             );
+        } catch (err) {
+            setError(err.message);
         }
     };
 
@@ -396,13 +395,12 @@ const Products = () => {
     };
 
     const confirmDelete = async (productId) => {
-        const res = await fetch(
-            `https://lucky-1-6ma5.onrender.com/api/products/products/${productId}`,
-            { method: "DELETE" }
-        );
-        if (res.ok) {
+        try {
+            await authRequest(`/products/products/${productId}`, { method: "DELETE" });
             setProducts((prev) => prev.filter((p) => p._id !== productId));
             dispatch({ type: "DELETE_PRODUCT", payload: productId });
+        } catch (err) {
+            setError(err.message);
         }
     };
 
@@ -452,14 +450,12 @@ const Products = () => {
                 ? newProduct.keywords.split(",").map((k) => k.trim())
                 : [],
         };
-        const res = await fetch("https://lucky-1-6ma5.onrender.com/api/products/products", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(productData),
-        });
-        if (res.ok) {
-            const added = await res.json();
-            setProducts((prev) => [added, ...prev]);
+        try {
+            const addedProduct = await authRequest("/products/products", {
+                method: "POST",
+                body: productData,
+            });
+            setProducts((prev) => [addedProduct, ...prev]);
             setIsAddModalOpen(false);
             setNewProduct({
                 name: "",
@@ -474,6 +470,8 @@ const Products = () => {
                 capacity: "",
                 stock: "",
             });
+        } catch (err) {
+            setError(err.message);
         }
     };
 
