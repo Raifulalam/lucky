@@ -31,7 +31,7 @@ const MENU = {
     admin: [
         { label: "Products", to: "/products" },
         { label: "Phones", to: "/phones" },
-        { label: "Dashboard", to: "/dashboard" },
+        { label: "Dashboard", to: "/admin" },
         { label: "Profile", to: "/profile" },
     ],
 };
@@ -171,7 +171,7 @@ const Header = () => {
                                 </button>
                                 <div className="user-dropdown">
                                     {isUser && <Link to="/profile">Profile</Link>}
-                                    {isAdmin && <Link to="/dashboard">Dashboard</Link>}
+                                    {isAdmin && <Link to="/admin">Dashboard</Link>}
                                     <button type="button" onClick={logout}>Logout</button>
                                 </div>
                             </div>

@@ -12,7 +12,7 @@ const authenticate = (req, res, next) => {
 
         const token = authHeader.split(" ")[1];
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "change-me-in-env");
 
         // Defensive check
         if (!decoded || !decoded.id) {

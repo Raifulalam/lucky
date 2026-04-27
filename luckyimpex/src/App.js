@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 /* PAGES */
 import LoginComponent from "./Pages/LoginPage/LoginPage";
@@ -30,6 +30,8 @@ import ManageProducts from "./Pages/Admin/ManageProducts";
 import ReviewPage from "./Pages/Admin/ReviewComponent";
 import EmployeeManager from "./Pages/Admin/ManageEmployee";
 import AdminProduct from "./Pages/Admin/manageProducts/manageProducts";
+import AdminLayout from "./Pages/Admin/AdminLayout";
+import { legacyAdminRedirects } from "./Pages/Admin/adminRoutes";
 
 /* CONTEXTS */
 import { CartProvider } from "./Components/CreateReducer";
@@ -119,83 +121,41 @@ function App() {
 
                 {/* ================= ADMIN ROUTES ================= */}
                 <Route
-                  path="/dashboard"
+                  path="/admin"
                   element={
                     <ProtectedRoute allowedRoles={["admin"]}>
-                      <Dashboard />
+                      <AdminLayout />
                     </ProtectedRoute>
                   }
-                />
+                >
+                  <Route index element={<Dashboard />} />
+                  <Route path="users" element={<AdminDashboard />} />
+                  <Route path="employees" element={<EmployeeManager />} />
+                  <Route path="orders" element={<OrderComponent />} />
+                  <Route path="orders/:orderId" element={<ReviewPage />} />
+                  <Route path="complaints" element={<ComplaintsComponent />} />
+                  <Route path="feedback" element={<FeedbackList />} />
+                  <Route path="products" element={<AdminProduct />} />
+                  <Route path="inventory" element={<ManageProducts />} />
+                </Route>
 
-                <Route
-                  path="/admindashboard"
-                  element={
-                    <ProtectedRoute allowedRoles={["admin"]}>
-                      <AdminDashboard />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/manage-products"
-                  element={
-                    <ProtectedRoute allowedRoles={["admin"]}>
-                      <AdminProduct />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/manageproducts"
-                  element={
-                    <ProtectedRoute allowedRoles={["admin"]}>
-                      <ManageProducts />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/employee-manage"
-                  element={
-                    <ProtectedRoute allowedRoles={["admin"]}>
-                      <EmployeeManager />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/feedback"
-                  element={
-                    <ProtectedRoute allowedRoles={["admin"]}>
-                      <FeedbackList />
-                    </ProtectedRoute>
-                  }
-                />
-
-                <Route
-                  path="/complaints"
-                  element={
-                    <ProtectedRoute allowedRoles={["admin"]}>
-                      <ComplaintsComponent />
-                    </ProtectedRoute>
-                  }
-                />
-
-                {/* ================= ADMIN + EMPLOYEE ================= */}
-                <Route
-                  path="/orders"
-                  element={
-                    <ProtectedRoute allowedRoles={["admin", "employee"]}>
-                      <OrderComponent />
-                    </ProtectedRoute>
-                  }
-                />
+                {legacyAdminRedirects.map((route) => (
+                  <Route
+                    key={route.from}
+                    path={route.from}
+                    element={
+                      <ProtectedRoute allowedRoles={["admin"]}>
+                        <Navigate to={route.to} replace />
+                      </ProtectedRoute>
+                    }
+                  />
+                ))}
 
                 <Route
                   path="/review/:orderId"
                   element={
                     <ProtectedRoute allowedRoles={["admin"]}>
-                      <ReviewPage />
+                      <Navigate to="/admin/orders" replace />
                     </ProtectedRoute>
                   }
                 />

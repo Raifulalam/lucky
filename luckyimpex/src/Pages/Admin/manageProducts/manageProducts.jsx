@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef, useCallback } from "rea
 
 import Header from "../../../Components/Header";
 import { useCartDispatch } from "../../../Components/CreateReducer";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import luckyImage from "../../../Images/lucky.png";
 import backimg from "../../../Images/backimg.jpg";
 import back01 from "../../../Images/back01.png";
@@ -44,8 +44,10 @@ const Products = () => {
 
     const productRefs = useRef({});
     const Navigate = useNavigate();
+    const location = useLocation();
     const { user } = useContext(UserContext);
     const userRole = user?.role || "user";
+    const isAdminConsole = location.pathname.startsWith("/admin");
 
     const placeholderImage = "/path/to/placeholder-image.jpg";
 
@@ -222,7 +224,7 @@ const Products = () => {
 
     return (
         <>
-            <Header />
+            {!isAdminConsole ? <Header /> : null}
             <div className="home-main">
                 <div className="image">
                     <input
@@ -232,11 +234,13 @@ const Products = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="search-bar"
                     />
-                    <img
-                        src={images[currentSlide]}
-                        alt={`Slide ${currentSlide + 1}`}
-                        className="slider-image"
-                    />
+                    {!isAdminConsole ? (
+                        <img
+                            src={images[currentSlide]}
+                            alt={`Slide ${currentSlide + 1}`}
+                            className="slider-image"
+                        />
+                    ) : null}
                 </div>
             </div>
 

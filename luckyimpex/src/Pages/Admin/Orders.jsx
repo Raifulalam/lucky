@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useContext, useMemo } from "react";
-import { UserContext } from "../../Components/UserContext";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTrash, FaEye, FaTruck } from "react-icons/fa";
+import { FaEye, FaTrash, FaTruck } from "react-icons/fa";
 import { Helmet } from "react-helmet";
 import "./OrderComponent.css";
 
@@ -9,7 +8,6 @@ const ITEMS_PER_PAGE = 8;
 const STATUS_FLOW = ["Placed", "Shipped", "Delivered"];
 
 const OrderComponent = () => {
-    const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
     const [orders, setOrders] = useState([]);
@@ -22,15 +20,13 @@ const OrderComponent = () => {
     const [endDate, setEndDate] = useState("");
     const [page, setPage] = useState(1);
 
-    /* ---------------- FETCH ---------------- */
-
     useEffect(() => {
         fetchOrders();
     }, []);
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch("https://lucky-back.onrender.com/api/orders");
+            const res = await fetch("https://lucky-1-6ma5.onrender.com/api/orders/orders");
             if (!res.ok) throw new Error();
             const data = await res.json();
             setOrders(data);
@@ -41,8 +37,6 @@ const OrderComponent = () => {
         }
     };
 
-    /* ---------------- STATUS ---------------- */
-
     const getNextStatus = (status) => {
         const idx = STATUS_FLOW.indexOf(status);
         return idx < STATUS_FLOW.length - 1 ? STATUS_FLOW[idx + 1] : null;
@@ -50,52 +44,41 @@ const OrderComponent = () => {
 
     const updateStatus = async (id, status) => {
         try {
-            const res = await fetch(
-                `https://lucky-back.onrender.com/api/orders/${id}`,
-                {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ status }),
-                }
-            );
+            const res = await fetch(`https://lucky-back.onrender.com/api/orders/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status }),
+            });
             if (!res.ok) throw new Error();
             const updated = await res.json();
-            setOrders((prev) =>
-                prev.map((o) => (o._id === updated._id ? updated : o))
-            );
+            setOrders((prev) => prev.map((order) => (order._id === updated._id ? updated : order)));
         } catch {
             alert("Status update failed");
         }
     };
 
-    /* ---------------- DELETE ---------------- */
-
     const handleDelete = async (id) => {
         if (!window.confirm("Delete this order permanently?")) return;
         try {
-            const res = await fetch(
-                `https://lucky-back.onrender.com/api/orders/${id}`,
-                { method: "DELETE" }
-            );
+            const res = await fetch(`https://lucky-back.onrender.com/api/orders/${id}`, {
+                method: "DELETE",
+            });
             if (!res.ok) throw new Error();
-            setOrders((prev) => prev.filter((o) => o._id !== id));
+            setOrders((prev) => prev.filter((order) => order._id !== id));
         } catch {
             alert("Delete failed");
         }
     };
 
-    /* ---------------- FILTERING ---------------- */
-
     const filteredOrders = useMemo(() => {
-        return orders.filter((o) => {
+        return orders.filter((order) => {
             const textMatch =
-                o._id.toLowerCase().includes(search.toLowerCase()) ||
-                o.name.toLowerCase().includes(search.toLowerCase()) ||
-                o.phone.includes(search);
+                order._id.toLowerCase().includes(search.toLowerCase()) ||
+                order.name.toLowerCase().includes(search.toLowerCase()) ||
+                order.phone.includes(search);
 
-            const statusMatch = statusFilter ? o.status === statusFilter : true;
-
-            const created = new Date(o.createdAt);
+            const statusMatch = statusFilter ? order.status === statusFilter : true;
+            const created = new Date(order.createdAt);
             const afterStart = startDate ? created >= new Date(startDate) : true;
             const beforeEnd = endDate ? created <= new Date(endDate) : true;
 
@@ -103,48 +86,32 @@ const OrderComponent = () => {
         });
     }, [orders, search, statusFilter, startDate, endDate]);
 
-    /* ---------------- ANALYTICS ---------------- */
-
     const analytics = useMemo(() => {
         const now = new Date();
         return {
             total: orders.length,
-            today: orders.filter(
-                (o) =>
-                    new Date(o.createdAt).toDateString() === now.toDateString()
-            ).length,
-            last7: orders.filter(
-                (o) => now - new Date(o.createdAt) <= 7 * 86400000
-            ).length,
-            last30: orders.filter(
-                (o) => now - new Date(o.createdAt) <= 30 * 86400000
-            ).length,
+            today: orders.filter((order) => new Date(order.createdAt).toDateString() === now.toDateString()).length,
+            last7: orders.filter((order) => now - new Date(order.createdAt) <= 7 * 86400000).length,
+            last30: orders.filter((order) => now - new Date(order.createdAt) <= 30 * 86400000).length,
         };
     }, [orders]);
 
-    /* ---------------- PAGINATION ---------------- */
-
     const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-    const paginatedOrders = filteredOrders.slice(
-        (page - 1) * ITEMS_PER_PAGE,
-        page * ITEMS_PER_PAGE
-    );
-
-    /* ---------------- CSV EXPORT ---------------- */
+    const paginatedOrders = filteredOrders.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
     const exportCSV = () => {
         const headers = ["Order ID", "User", "Phone", "Status", "Date"];
-        const rows = filteredOrders.map((o) => [
-            `"${o._id}"`,
-            `"${o.name}"`,
-            `"${o.phone}"`,
-            `"${o.status}"`,
-            `"${new Date(o.createdAt).toLocaleString()}"`
+        const rows = filteredOrders.map((order) => [
+            `"${order._id}"`,
+            `"${order.name}"`,
+            `"${order.phone}"`,
+            `"${order.status}"`,
+            `"${new Date(order.createdAt).toLocaleString()}"`,
         ]);
 
         const csv =
             "data:text/csv;charset=utf-8," +
-            [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+            [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
 
         const link = document.createElement("a");
         link.href = encodeURI(csv);
@@ -154,11 +121,6 @@ const OrderComponent = () => {
         document.body.removeChild(link);
     };
 
-    /* ---------------- GUARD ---------------- */
-
-    if (!user || user.role !== "admin")
-        return <div className="unauthorized">❌ Admin access only</div>;
-
     return (
         <section className="order-page">
             <Helmet>
@@ -166,9 +128,8 @@ const OrderComponent = () => {
                 <meta name="robots" content="noindex, nofollow" />
             </Helmet>
 
-            <h1>📦 Order Management</h1>
+            <h1>Order Management</h1>
 
-            {/* ANALYTICS */}
             <div className="analytics-grid">
                 <div className="card"><h3>Total</h3><p>{analytics.total}</p></div>
                 <div className="card"><h3>Today</h3><p>{analytics.today}</p></div>
@@ -176,20 +137,22 @@ const OrderComponent = () => {
                 <div className="card"><h3>Last 30 Days</h3><p>{analytics.last30}</p></div>
             </div>
 
-            {/* FILTERS */}
             <div className="filter-bar">
-                <input placeholder="Search order / user / phone"
+                <input
+                    placeholder="Search order / user / phone"
                     value={search}
-                    onChange={(e) => setSearch(e.target.value)}
+                    onChange={(event) => setSearch(event.target.value)}
                 />
 
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
                     <option value="">All Status</option>
-                    {STATUS_FLOW.map(s => <option key={s} value={s}>{s}</option>)}
+                    {STATUS_FLOW.map((status) => (
+                        <option key={status} value={status}>{status}</option>
+                    ))}
                 </select>
 
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+                <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
 
                 <button className="export-btn" onClick={exportCSV}>Export CSV</button>
             </div>
@@ -212,29 +175,29 @@ const OrderComponent = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {paginatedOrders.map(o => (
-                                    <tr key={o._id}>
-                                        <td>{o._id}</td>
+                                {paginatedOrders.map((order) => (
+                                    <tr key={order._id}>
+                                        <td>{order._id}</td>
                                         <td>
-                                            <span className={`status ${o.status.toLowerCase()}`}>
-                                                {o.status}
+                                            <span className={`status ${order.status.toLowerCase()}`}>
+                                                {order.status}
                                             </span>
-                                            {getNextStatus(o.status) && (
+                                            {getNextStatus(order.status) && (
                                                 <button
                                                     className="status-btn"
                                                     title="Update Status"
-                                                    onClick={() => updateStatus(o._id, getNextStatus(o.status))}
+                                                    onClick={() => updateStatus(order._id, getNextStatus(order.status))}
                                                 >
                                                     <FaTruck />
                                                 </button>
                                             )}
                                         </td>
-                                        <td>{o.name}</td>
-                                        <td>{o.phone}</td>
-                                        <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+                                        <td>{order.name}</td>
+                                        <td>{order.phone}</td>
+                                        <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                                         <td className="actions">
-                                            <button onClick={() => navigate(`/review/${o._id}`)}><FaEye /></button>
-                                            <button onClick={() => handleDelete(o._id)}><FaTrash /></button>
+                                            <button onClick={() => navigate(`/admin/orders/${order._id}`)}><FaEye /></button>
+                                            <button onClick={() => handleDelete(order._id)}><FaTrash /></button>
                                         </td>
                                     </tr>
                                 ))}
@@ -242,11 +205,10 @@ const OrderComponent = () => {
                         </table>
                     </div>
 
-                    {/* PAGINATION */}
                     <div className="pagination">
-                        <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>Prev</button>
+                        <button disabled={page === 1} onClick={() => setPage((value) => value - 1)}>Prev</button>
                         <span>{page} / {totalPages}</span>
-                        <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next</button>
+                        <button disabled={page === totalPages} onClick={() => setPage((value) => value + 1)}>Next</button>
                     </div>
                 </>
             )}

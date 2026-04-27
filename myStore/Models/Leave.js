@@ -1,13 +1,36 @@
-// models/Leave.js
 const mongoose = require("mongoose");
 
-const LeaveSchema = new mongoose.Schema({
-    employeeId: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, required: true },
-    type: { type: String, enum: ["Sick", "Casual", "Annual", "Unpaid"], required: true },
-    reason: { type: String },
-    status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" }
-}, { timestamps: true });
+const leaveSchema = new mongoose.Schema(
+    {
+        employeeId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Employee",
+            required: true,
+            index: true,
+        },
+        policyId: { type: mongoose.Schema.Types.ObjectId, ref: "LeavePolicy" },
+        startDate: { type: Date, required: true },
+        endDate: { type: Date, required: true },
+        leaveType: {
+            type: String,
+            enum: ["annual", "sick", "casual", "unpaid"],
+            required: true,
+            index: true,
+        },
+        totalDays: { type: Number, required: true },
+        reason: { type: String, trim: true },
+        handoverNotes: { type: String, trim: true },
+        status: {
+            type: String,
+            enum: ["pending", "approved", "rejected", "cancelled"],
+            default: "pending",
+            index: true,
+        },
+        reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Employee" },
+        reviewedAt: { type: Date },
+        reviewedComment: { type: String, trim: true },
+    },
+    { timestamps: true }
+);
 
-module.exports = mongoose.model("Leave", LeaveSchema);
+module.exports = mongoose.models.Leave || mongoose.model("Leave", leaveSchema);

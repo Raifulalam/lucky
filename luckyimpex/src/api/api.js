@@ -1,94 +1,71 @@
-// src/api.js
+const API_ROOT = process.env.REACT_APP_API_BASE_URL || "https://lucky-1-6ma5.onrender.com/api";
 
-// Base URL of your backend API
-export const BASE_URL = "https://lucky-1-6ma5.onrender.com/api";
+export const BASE_URL = API_ROOT;
+export const HRMS_BASE_URL = `${API_ROOT}/hrms`;
 
-/**
- * GET request
- * @param {string} endpoint
- */
-export const getData = async (endpoint) => {
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}`);
-        if (!response.ok) throw new Error(`GET request failed: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("GET request error:", error);
-        throw error;
+function buildUrl(baseUrl, endpoint) {
+    if (!endpoint.startsWith("/")) {
+        return `${baseUrl}/${endpoint}`;
     }
-};
 
-/**
- * POST request
- * @param {string} endpoint
- * @param {object} data
- */
-export const postData = async (endpoint, data) => {
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-        if (!response.ok) throw new Error(`POST request failed: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("POST request error:", error);
-        throw error;
-    }
-};
+    return `${baseUrl}${endpoint}`;
+}
 
-/**
- * PUT request (update entire resource)
- * @param {string} endpoint
- * @param {object} data
- */
-export const putData = async (endpoint, data) => {
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-        if (!response.ok) throw new Error(`PUT request failed: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("PUT request error:", error);
-        throw error;
-    }
-};
+async function request(baseUrl, endpoint, options = {}) {
+    const response = await fetch(buildUrl(baseUrl, endpoint), options);
+    const contentType = response.headers.get("content-type") || "";
+    const payload = contentType.includes("application/json")
+        ? await response.json()
+        : await response.text();
 
-/**
- * PATCH request (update partial resource)
- * @param {string} endpoint
- * @param {object} data
- */
-export const patchData = async (endpoint, data) => {
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-        });
-        if (!response.ok) throw new Error(`PATCH request failed: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("PATCH request error:", error);
-        throw error;
+    if (!response.ok) {
+        const message =
+            payload?.message ||
+            payload?.error ||
+            `Request failed with status ${response.status}`;
+        throw new Error(message);
     }
-};
 
-/**
- * DELETE request
- * @param {string} endpoint
- */
-export const deleteData = async (endpoint) => {
-    try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, { method: "DELETE" });
-        if (!response.ok) throw new Error(`DELETE request failed: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("DELETE request error:", error);
-        throw error;
-    }
-};
+    return payload;
+}
+
+function withJsonHeaders(token, extraHeaders = {}) {
+    return {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...extraHeaders,
+    };
+}
+
+export const getData = async (endpoint) => request(BASE_URL, endpoint);
+
+export const postData = async (endpoint, data) =>
+    request(BASE_URL, endpoint, {
+        method: "POST",
+        headers: withJsonHeaders(),
+        body: JSON.stringify(data),
+    });
+
+export const putData = async (endpoint, data) =>
+    request(BASE_URL, endpoint, {
+        method: "PUT",
+        headers: withJsonHeaders(),
+        body: JSON.stringify(data),
+    });
+
+export const patchData = async (endpoint, data) =>
+    request(BASE_URL, endpoint, {
+        method: "PATCH",
+        headers: withJsonHeaders(),
+        body: JSON.stringify(data),
+    });
+
+export const deleteData = async (endpoint) =>
+    request(BASE_URL, endpoint, { method: "DELETE" });
+
+export const hrmsRequest = async (endpoint, { token, method = "GET", body, headers } = {}) =>
+    request(HRMS_BASE_URL, endpoint, {
+        method,
+        headers: withJsonHeaders(token, headers),
+        body: body ? JSON.stringify(body) : undefined,
+    });
