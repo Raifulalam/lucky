@@ -8,6 +8,8 @@ const morgan = require("morgan");
 
 // Base API router
 const apiRoutes = require("./Router/index"); // Create a central routes file
+const hrmsRoutes = require("./hrms/routes");
+
 
 // Models for indexes
 const Product = require("./Models/products");
@@ -31,6 +33,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", apiRoutes); // Mount all API routes under /api
+app.use("/api/hrms", hrmsRoutes);
+
 
 // 404 handler
 app.use((req, res) => {
