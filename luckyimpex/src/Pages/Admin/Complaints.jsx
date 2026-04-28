@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./Complaints.css";
 
 const PAGE_SIZE = 10;
@@ -17,26 +17,31 @@ const ComplaintsComponent = () => {
 
     const token = localStorage.getItem("authToken");
 
-    const fetchComplaints = async () => {
+    const fetchComplaints = useCallback(async () => {
         try {
+            setLoading(true);
+
             const res = await fetch("https://lucky-1-6ma5.onrender.com/api/complaints/complaints", {
                 headers: { Authorization: `Bearer ${token}` },
             });
+
             if (!res.ok) throw new Error("Fetch failed");
+
             const data = await res.json();
+
             setComplaints(data || []);
             setError(null);
-        } catch {
+        } catch (err) {
+            console.error(err);
             setError("Failed to load complaints");
         } finally {
             setLoading(false);
         }
-    };
+    }, [token]); // ✅ IMPORTANT: add token dependency
 
     useEffect(() => {
         fetchComplaints();
     }, [fetchComplaints]);
-
     const updateStatus = async (id, status) => {
         try {
             await fetch(`https://lucky-1-6ma5.onrender.com/api/complaints/complaints/${id}`, {
