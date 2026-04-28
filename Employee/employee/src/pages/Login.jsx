@@ -15,7 +15,7 @@ export default function Login() {
         setLoading(true);
 
         try {
-            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/login-employee", {
+            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/employees/login-employee", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
