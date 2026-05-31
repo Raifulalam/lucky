@@ -5,6 +5,7 @@ import './Details.css';
 import '../../Components/Modal.css'
 import useGoBack from '../../hooks/useGoback';
 
+import { BASE_URL } from '../../api/api';
 
 const PhoneDetails = () => {
     const { id } = useParams(); // Get the product ID from URL
@@ -16,7 +17,7 @@ const PhoneDetails = () => {
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/mobiles/mobile/${id}`);
+                const response = await fetch(`${BASE_URL}/mobiles/mobile/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('Product not found');

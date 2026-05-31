@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import "./Complaints.css";
+import { BASE_URL } from "../../api/api";
 
 const PAGE_SIZE = 10;
 
@@ -21,7 +22,7 @@ const ComplaintsComponent = () => {
         try {
             setLoading(true);
 
-            const res = await fetch("https://lucky-1-6ma5.onrender.com/api/complaints/complaints", {
+            const res = await fetch(`${BASE_URL}/complaints/complaints`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -44,7 +45,7 @@ const ComplaintsComponent = () => {
     }, [fetchComplaints]);
     const updateStatus = async (id, status) => {
         try {
-            await fetch(`https://lucky-1-6ma5.onrender.com/api/complaints/complaints/${id}`, {
+            await fetch(`${BASE_URL}/complaints/complaints/${id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -63,7 +64,7 @@ const ComplaintsComponent = () => {
         if (!window.confirm("Are you sure you want to delete this complaint?")) return;
 
         try {
-            const res = await fetch(`https://lucky-1-6ma5.onrender.com/api/complaints/complaints/${id}`, {
+            const res = await fetch(`${BASE_URL}/complaints/complaints/${id}`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`,

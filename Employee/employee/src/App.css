@@ -434,6 +434,7 @@ textarea:focus {
 }
 
 @media (max-width: 1080px) {
+
   .shell,
   .auth-page,
   .auth-panel,
@@ -464,4 +465,46 @@ textarea:focus {
   .sidebar {
     padding-bottom: 16px;
   }
+}
+
+.id-card {
+  width: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.id-card-header {
+  background: #1e3a8a;
+  color: white;
+  padding: 12px;
+  text-align: center;
+}
+
+.id-card-body {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  align-items: center;
+}
+
+.id-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.id-info p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.id-card-footer {
+  background: #f3f4f6;
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
 }

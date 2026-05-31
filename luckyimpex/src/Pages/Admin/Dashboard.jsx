@@ -27,6 +27,7 @@ import {
     YAxis,
 } from "recharts";
 import "./Dashboard.css";
+import { BASE_URL } from "../../api/api";
 
 const COLORS = ["#2563eb", "#16a34a", "#f59e0b", "#ef4444", "#7c3aed"];
 
@@ -53,9 +54,9 @@ export default function Dashboard() {
             try {
                 const headers = { Authorization: `Bearer ${token}` };
                 const [storeRes, hrRes, employeeRes] = await Promise.all([
-                    fetch("https://lucky-1-6ma5.onrender.com/api/dashboard/stats", { headers }),
-                    fetch("https://lucky-1-6ma5.onrender.com/api/employees/admin-dashboard", { headers }),
-                    fetch("https://lucky-1-6ma5.onrender.com/api/employees/admin-employeeStats", { headers }),
+                    fetch(`${BASE_URL}/dashboard/stats`, { headers }),
+                    fetch(`${BASE_URL}/employees/admin-dashboard`, { headers }),
+                    fetch(`${BASE_URL}/employees/admin-employeeStats`, { headers }),
                 ]);
 
                 const storeData = await storeRes.json();

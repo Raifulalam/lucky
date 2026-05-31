@@ -5,6 +5,7 @@ import Header from '../../Components/Header';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../../Components/NotificationContext'; // Import notification context
+import { BASE_URL } from '../../api/api';
 
 function LoginComponent() {
     const [email, setEmail] = useState('');
@@ -33,7 +34,7 @@ function LoginComponent() {
         setLoading(true);
 
         try {
-            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/users/login", {
+            const response = await fetch(`${BASE_URL}/users/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

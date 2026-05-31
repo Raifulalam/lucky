@@ -9,8 +9,9 @@ import "./OrderPage.css";
 import useGoBack from "../../hooks/useGoback";
 import Invoice from "../../Components/invoice";
 import { printInvoice, printShippingSlip } from "../../Components/invoiceUtils";
+import { BASE_URL } from "../../api/api";
 
-const API_BASE = "https://lucky-1-6ma5.onrender.com/api/orders";
+const API_BASE = `${BASE_URL}/orders`;
 const ORDER_STEPS = ["Order Placed", "Shipped", "Delivered"];
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;

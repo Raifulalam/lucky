@@ -7,6 +7,7 @@ import Footer from "../../Components/Footer";
 import { useCartDispatch } from "../../Components/CreateReducer";
 import { useNotification } from "../../Components/NotificationContext";
 import useGoBack from "../../hooks/useGoback";
+import { BASE_URL } from "../../api/api";
 import "./Details.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
@@ -24,7 +25,7 @@ const ProductDetails = () => {
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
-                const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/products/products/${id}`);
+                const response = await fetch(`${BASE_URL}/products/products/${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error("Product not found");

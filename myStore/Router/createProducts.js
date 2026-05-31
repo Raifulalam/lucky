@@ -14,17 +14,25 @@ const validate = (req, res, next) => {
     }
     next();
 };
-const DEFAULT_EXPIRY = 60;
+const DEFAULT_EXPIRY = 600; // 10 minutes cache by default
 
 const getCache = async (key) => {
-    const data = await redisClient.get(key);
-    return data ? JSON.parse(data) : null;
+    try {
+        const data = await redisClient.get(key);
+        return data ? JSON.parse(data) : null;
+    } catch (err) {
+        console.error("Redis getCache error:", err);
+        return null;
+    }
 };
 
 const setCache = async (key, value, expiry = DEFAULT_EXPIRY) => {
-    await redisClient.setEx(key, expiry, JSON.stringify(value));
+    try {
+        await redisClient.setEx(key, expiry, JSON.stringify(value));
+    } catch (err) {
+        console.error("Redis setCache error:", err);
+    }
 };
-
 
 /* -------------------- RATE LIMIT (SEARCH) -------------------- */
 const searchLimiter = rateLimit({
@@ -32,16 +40,32 @@ const searchLimiter = rateLimit({
     max: 100,
 });
 
+const scanAndDelete = async (pattern) => {
+    try {
+        let cursor = 0;
+        do {
+            const reply = await redisClient.scan(cursor, { MATCH: pattern, COUNT: 100 });
+            cursor = Number(reply.cursor);
+            const keys = reply.keys;
+            if (keys && keys.length > 0) {
+                await redisClient.del(keys);
+            }
+        } while (cursor !== 0);
+    } catch (err) {
+        console.error(`Redis SCAN & Delete failed for pattern ${pattern}:`, err);
+    }
+};
 
 const clearProductCache = async () => {
-    const keys = await redisClient.keys("products:*");
-    const brandKeys = await redisClient.keys("brand:*");
-    const singleKeys = await redisClient.keys("product:*");
-
-    const allKeys = [...keys, ...brandKeys, ...singleKeys];
-
-    if (allKeys.length > 0) {
-        await redisClient.del(allKeys);
+    try {
+        await scanAndDelete("products:*");
+        await scanAndDelete("brand:*");
+        await scanAndDelete("product:*");
+        if (redisClient && typeof redisClient.del === "function") {
+            await redisClient.del("categories:all");
+        }
+    } catch (err) {
+        console.error("clearProductCache error:", err);
     }
 };
 /* ===========================================================
@@ -83,7 +107,6 @@ router.get("/products", async (req, res) => {
             return res.json(cached);
         }
 
-
         const match = category ? { category } : {};
 
         const products = await Product.aggregate([
@@ -108,13 +131,12 @@ router.get("/products", async (req, res) => {
             page: Number(page),
             pages: Math.ceil(total / limit),
         };
-        if (page == 1) {
-            await setCache(cacheKey, response);
-        }
-        await setCache(cacheKey, response);
+
+        await setCache(cacheKey, response, DEFAULT_EXPIRY);
 
         res.json(response);
-    } catch {
+    } catch (err) {
+        console.error("Error fetching products:", err);
         res.status(500).json({ message: "Failed to fetch products" });
     }
 });

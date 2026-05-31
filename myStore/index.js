@@ -13,6 +13,7 @@ const hrmsRoutes = require("./hrms/routes");
 
 // Models for indexes
 const Product = require("./Models/products");
+const Mobile = require("./Models/SmartPhonesModels");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,12 +57,14 @@ mongoose.connect(process.env.MONGO_URI, {
         console.log("✅ MongoDB connected");
 
         // Ensure indexes for product search
-        Product.collection.createIndex({ category: 1 });
-        Product.collection.createIndex({ brand: 1 });
-        Product.collection.createIndex({ model: 1 });
-        Product.collection.createIndex({ createdAt: -1 });
-        Product.collection.createIndex({ name: "text", description: "text", keywords: "text" });
-        console.log("Indexes created/ensured successfully ✅");
+        Promise.all([
+            Product.createIndexes(),
+            Mobile.createIndexes()
+        ]).then(() => {
+            console.log("Indexes created/ensured successfully ✅");
+        }).catch(err => {
+            console.error("Failed to build indexes:", err);
+        });
 
         // Start the server
         app.listen(PORT, () => {

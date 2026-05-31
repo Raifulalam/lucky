@@ -8,6 +8,8 @@ import {
     FaYoutube,
 } from "react-icons/fa";
 
+import { BASE_URL } from "../../api/api";
+
 export const ContactComponent = ({ embedded = false }) => {
     const [formData, setFormData] = useState({
         name: "",
@@ -67,7 +69,7 @@ export const ContactComponent = ({ embedded = false }) => {
 
         try {
             const response = await fetch(
-                `https://lucky-1-6ma5.onrender.com/api/contact/contact`,
+                `${BASE_URL}/contact/contact`,
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

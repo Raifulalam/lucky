@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./AdminDashboard.css";
 import Modal from "../../Components/Modal";
+import { BASE_URL } from "../../api/api";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -24,7 +25,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const res = await fetch("https://lucky-1-6ma5.onrender.com/api/users/users", {
+                const res = await fetch(`${BASE_URL}/users/users`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const data = await res.json();
@@ -64,7 +65,7 @@ const AdminDashboard = () => {
     const recentUsers = users.filter((user) => getCreatedDate(user) > new Date(Date.now() - 7 * 86400000)).length;
 
     const deleteUser = async () => {
-        await fetch(`https://lucky-1-6ma5.onrender.com/api/users/users/${deleteId}`, {
+        await fetch(`${BASE_URL}/users/users/${deleteId}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -74,7 +75,7 @@ const AdminDashboard = () => {
     };
 
     const updateUser = async () => {
-        const res = await fetch(`https://lucky-1-6ma5.onrender.com/api/users/users/${editUser._id}`, {
+        const res = await fetch(`${BASE_URL}/users/users/${editUser._id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

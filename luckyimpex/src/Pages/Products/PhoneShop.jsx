@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import './products.css';
 import Header from '../../Components/Header';
 import { useCartDispatch } from '../../Components/CreateReducer';
@@ -13,6 +13,7 @@ import { UserContext } from '../../Components/UserContext';
 import EditMobileModal from './EditMobile';
 import Modal from '../../Components/Modal';
 import { useNotification } from '../../Components/NotificationContext';
+import { BASE_URL } from '../../api/api';
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -24,7 +25,8 @@ const PhoneShop = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const [searchTerm, setSearchTerm] = useState();
+    const [searchVal, setSearchVal] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Modal for adding products
@@ -51,8 +53,9 @@ const PhoneShop = () => {
         setError(null);
 
         try {
-            let url = `https://lucky-1-6ma5.onrender.com/api/mobiles/mobile?page=${page}`;
+            let url = `${BASE_URL}/mobiles/mobile?page=${page}`;
             if (category) url += `&category=${category}`;
+            if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
 
             const response = await fetch(url);
             if (!response.ok) throw new Error("Failed to fetch products");
@@ -66,24 +69,22 @@ const PhoneShop = () => {
         } finally {
             setLoading(false);
         }
-    }, [page, category]);
+    }, [page, category, searchTerm]);
 
 
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setSearchTerm(searchVal);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchVal]);
 
-    const filteredProducts = useMemo(() => {
-        return products.filter((item) => {
-            // Safely concatenate the fields, fallback to empty string if undefined or null
-            const itemName = (item.name || '') + (item.model || '') + (item.brand || '');
 
-            const lowercasedSearchTerm = (searchTerm || '').toLowerCase();
-
-            return itemName.toLowerCase().includes(lowercasedSearchTerm);
-        });
-    }, [products, searchTerm]);
+    const filteredProducts = products;
 
 
     const dispatch = useCartDispatch();
@@ -96,7 +97,7 @@ const PhoneShop = () => {
 
     // Save edited product
     const handleSave = async (updatedProduct) => {
-        const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/mobiles/mobile/${updatedProduct._id}`, {
+        const response = await fetch(`${BASE_URL}/mobiles/mobile/${updatedProduct._id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedProduct),
@@ -132,7 +133,7 @@ const PhoneShop = () => {
     // Confirm product deletion
     const confirmDelete = async (productId) => {
         try {
-            const response = await fetch(`https://lucky-1-6ma5.onrender.com/api/mobiles/mobile/${productId}`, {
+            const response = await fetch(`${BASE_URL}/mobiles/mobile/${productId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -208,9 +209,9 @@ const PhoneShop = () => {
     }, []);
 
     // Debounced search handler
-    const handleSearchChange = ((e) => {
-        setSearchTerm(e.target.value);
-    }); // Debounce search by 500ms
+    const handleSearchChange = (e) => {
+        setSearchVal(e.target.value);
+    };
 
     // Handle new product input change
     const handleNewProductChange = (e) => {
@@ -256,7 +257,7 @@ const PhoneShop = () => {
 
         try {
             // Send the data to the backend
-            let url = `https://lucky-1-6ma5.onrender.com/api/mobiles/mobile?page=${page}`;
+            let url = `${BASE_URL}/mobiles/mobile?page=${page}`;
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -364,7 +365,7 @@ const PhoneShop = () => {
                 <input
                     type="text"
                     placeholder="Search for items..."
-                    value={searchTerm}
+                    value={searchVal}
                     onChange={handleSearchChange}
                     className="search-bar"
                 />
@@ -399,6 +400,7 @@ const PhoneShop = () => {
                                     className="product-image"
                                     src={getImageSrc(product.image, placeholderImage)}
                                     alt="image-not-found"
+                                    loading="lazy"
                                 />
                             </div>
 

@@ -4,6 +4,7 @@ import './Signup.css';
 import Header from '../../Components/Header';
 import { Helmet } from 'react-helmet';
 import { useNotification } from '../../Components/NotificationContext';
+import { BASE_URL } from '../../api/api';
 
 function SignupComponent() {
     const [email, setEmail] = useState('');
@@ -30,7 +31,7 @@ function SignupComponent() {
         setLoading(true); // Set loading to true
 
         try {
-            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/users/register", {
+            const response = await fetch(`${BASE_URL}/users/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

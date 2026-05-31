@@ -20,6 +20,21 @@ const MobileSchema = new Schema({
     image: String,
     charging: String,
     stock: Number,
+}, {
+    timestamps: true
+});
 
-})
+// ⚡ Fast filters & sorting
+MobileSchema.index({ createdAt: -1 });
+MobileSchema.index({ brand: 1, createdAt: -1 });
+MobileSchema.index({ price: 1 });
+
+// 🔍 Text search
+MobileSchema.index({
+    name: "text",
+    brand: "text",
+    model: "text",
+    description: "text"
+});
+
 module.exports = mongoose.model('Mobile', MobileSchema);

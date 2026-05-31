@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import "./Feedback.css";
 import { useNotification } from "../../../Components/NotificationContext";
+import { BASE_URL } from "../../../api/api";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -29,7 +30,7 @@ const FeedbackList = () => {
         try {
             setLoading(true);
             const res = await fetch(
-                "https://lucky-1-6ma5.onrender.com/api/contact/contact",
+                `${BASE_URL}/contact/contact`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -54,7 +55,7 @@ const FeedbackList = () => {
 
         try {
             const res = await fetch(
-                `https://lucky-1-6ma5.onrender.com/api/contact/contact/${id}`,
+                `${BASE_URL}/contact/contact/${id}`,
                 {
                     method: "DELETE",
                     headers: { Authorization: `Bearer ${token}` },

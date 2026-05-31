@@ -7,6 +7,7 @@ import Footer from "../../Components/Footer";
 import { useCartDispatch, useCartState } from "../../Components/CreateReducer";
 import { UserContext } from "../../Components/UserContext";
 import { useNotification } from "../../Components/NotificationContext";
+import { BASE_URL } from "../../api/api";
 import useGoBack from "../../hooks/useGoback";
 import "./Cart.css";
 
@@ -139,7 +140,7 @@ const CartComponent = () => {
         };
 
         try {
-            const response = await fetch("https://lucky-1-6ma5.onrender.com/api/orders/orders", {
+            const response = await fetch(`${BASE_URL}/orders/orders`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

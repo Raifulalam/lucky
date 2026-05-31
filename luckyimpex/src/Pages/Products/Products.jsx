@@ -665,6 +665,7 @@ const Products = () => {
                                         className="product-image"
                                         src={getImageSrc(product.image, placeholderImage)}
                                         alt={product.name || "Product image"}
+                                        loading="lazy"
                                         onError={(e) => {
                                             e.currentTarget.onerror = null;
                                             e.currentTarget.src = placeholderImage;
