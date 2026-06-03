@@ -222,10 +222,28 @@ async function getAnalytics(req, res) {
 async function exportDataset(req, res) {
     try {
         const dataset = req.params.dataset;
+        const { startDate, endDate, limit = 1000 } = req.query;
+        const queryLimit = Math.min(5000, Number(limit) || 1000);
         let rows = [];
 
+        // Date filter builder
+        const buildDateQuery = (field) => {
+            const dateQuery = {};
+            if (startDate || endDate) {
+                dateQuery[field] = {};
+                if (startDate) dateQuery[field].$gte = new Date(startDate);
+                if (endDate) dateQuery[field].$lte = new Date(endDate);
+            }
+            return dateQuery;
+        };
+
         if (dataset === "employees") {
-            const employees = await Employee.find().select("-password").sort({ createdAt: -1 });
+            const employees = await Employee.find()
+                .select("-password")
+                .sort({ createdAt: -1 })
+                .limit(queryLimit)
+                .lean();
+
             rows = employees.map((employee) => ({
                 employeeCode: employee.employeeCode,
                 name: employee.name,
@@ -239,11 +257,17 @@ async function exportDataset(req, res) {
         }
 
         if (dataset === "attendance") {
-            const attendance = await Attendance.find().populate("employeeId", "name employeeCode");
+            const dateFilters = buildDateQuery("date");
+            const attendance = await Attendance.find(dateFilters)
+                .populate("employeeId", "name employeeCode")
+                .sort({ date: -1 })
+                .limit(queryLimit)
+                .lean();
+
             rows = attendance.map((record) => ({
-                employeeCode: record.employeeId?.employeeCode,
-                employeeName: record.employeeId?.name,
-                date: record.date?.toISOString()?.slice(0, 10),
+                employeeCode: record.employeeId?.employeeCode || "N/A",
+                employeeName: record.employeeId?.name || "N/A",
+                date: record.date?.toISOString()?.slice(0, 10) || "",
                 status: record.status,
                 checkIn: record.checkIn?.toISOString() || "",
                 checkOut: record.checkOut?.toISOString() || "",
@@ -253,11 +277,17 @@ async function exportDataset(req, res) {
         }
 
         if (dataset === "payroll") {
-            const payrolls = await Salary.find().populate("employeeId", "name employeeCode");
+            const dateFilters = buildDateQuery("createdAt");
+            const payrolls = await Salary.find(dateFilters)
+                .populate("employeeId", "name employeeCode")
+                .sort({ createdAt: -1 })
+                .limit(queryLimit)
+                .lean();
+
             rows = payrolls.map((payroll) => ({
                 payslipNumber: payroll.payslipNumber,
-                employeeCode: payroll.employeeId?.employeeCode,
-                employeeName: payroll.employeeId?.name,
+                employeeCode: payroll.employeeId?.employeeCode || "N/A",
+                employeeName: payroll.employeeId?.name || "N/A",
                 month: payroll.month,
                 year: payroll.year,
                 grossSalary: payroll.grossSalary,

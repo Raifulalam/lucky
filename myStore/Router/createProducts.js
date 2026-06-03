@@ -1,11 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 const { body, param, validationResult } = require("express-validator");
 const rateLimit = require("express-rate-limit");
 const Product = require("../Models/products");
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const redisClient = require("../config/redis");
+
+const toSlug = (value) =>
+    String(value || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
 /* -------------------- COMMON VALIDATOR -------------------- */
 const validate = (req, res, next) => {
     const errors = validationResult(req);
@@ -68,6 +76,11 @@ const clearProductCache = async () => {
         console.error("clearProductCache error:", err);
     }
 };
+
+const setPublicCacheHeaders = (res, maxAgeSeconds = 300) => {
+    res.set("Cache-Control", `public, max-age=${maxAgeSeconds}, stale-while-revalidate=${maxAgeSeconds * 2}`);
+    return res;
+};
 /* ===========================================================
    CREATE PRODUCT (ADMIN)
    =========================================================== */
@@ -85,7 +98,12 @@ router.post(
     validate,
     async (req, res) => {
         try {
-            const product = await Product.create(req.body);
+            const payload = {
+                ...req.body,
+                slug: req.body.slug || toSlug(`${req.body.name || ""}-${req.body.model || ""}`),
+            };
+
+            const product = await Product.create(payload);
             await clearProductCache();
             res.status(201).json(product);
         } catch (err) {
@@ -100,11 +118,13 @@ router.post(
 router.get("/products", async (req, res) => {
     try {
         const { category, page = 1, limit = 20 } = req.query;
-        const cacheKey = `products:${category || "all"}:${page}:${limit}`;
+        const pageNum = Math.max(1, Number(page) || 1);
+        const limitNum = Math.max(1, Math.min(100, Number(limit) || 20));
+        const cacheKey = `products:${category || "all"}:${pageNum}:${limitNum}`;
 
         const cached = await getCache(cacheKey);
         if (cached) {
-            return res.json(cached);
+            return setPublicCacheHeaders(res, 180).json(cached);
         }
 
         const match = category ? { category } : {};
@@ -119,22 +139,27 @@ router.get("/products", async (req, res) => {
                 },
             },
             { $replaceRoot: { newRoot: "$product" } },
-            { $skip: (page - 1) * limit },
-            { $limit: Number(limit) },
-        ]);
+            { $skip: (pageNum - 1) * limitNum },
+            { $limit: limitNum },
+        ]).allowDiskUse(true);
 
-        const total = await Product.distinct("model", match).then(r => r.length);
+        const totalResult = await Product.aggregate([
+            { $match: match },
+            { $group: { _id: "$model" } },
+            { $count: "total" },
+        ]);
+        const total = totalResult[0]?.total || 0;
 
         const response = {
             products,
             total,
-            page: Number(page),
-            pages: Math.ceil(total / limit),
+            page: pageNum,
+            pages: Math.ceil(total / limitNum),
         };
 
         await setCache(cacheKey, response, DEFAULT_EXPIRY);
 
-        res.json(response);
+        setPublicCacheHeaders(res, 180).json(response);
     } catch (err) {
         console.error("Error fetching products:", err);
         res.status(500).json({ message: "Failed to fetch products" });
@@ -148,18 +173,20 @@ router.get("/products/brand/:brand", async (req, res) => {
     try {
         const { brand } = req.params;
         const { page = 1, limit = 20 } = req.query;
-        const cacheKey = `brand:${brand}:${page}:${limit}`;
+        const pageNum = Math.max(1, Number(page) || 1);
+        const limitNum = Math.max(1, Math.min(100, Number(limit) || 20));
+        const cacheKey = `brand:${brand}:${pageNum}:${limitNum}`;
 
         const cached = await getCache(cacheKey);
         if (cached) {
             console.log("⚡ Brand products from Redis");
-            return res.json(cached);
+            return setPublicCacheHeaders(res, 180).json(cached);
         }
 
         const products = await Product.find({ brand })
             .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(Number(limit))
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum)
             .lean();
 
         const total = await Product.countDocuments({ brand });
@@ -167,13 +194,13 @@ router.get("/products/brand/:brand", async (req, res) => {
         const response = {
             products,
             total,
-            page: Number(page),
-            pages: Math.ceil(total / limit),
+            page: pageNum,
+            pages: Math.ceil(total / limitNum),
         };
 
         await setCache(cacheKey, response);
 
-        res.json(response);
+        setPublicCacheHeaders(res, 180).json(response);
     } catch {
         res.status(500).json({ message: "Failed to fetch brand products" });
     }
@@ -190,14 +217,17 @@ router.get(
         try {
             const { keyword } = req.params;
             const { page = 1, limit = 20 } = req.query;
+            const pageNum = Math.max(1, Number(page) || 1);
+            const limitNum = Math.max(1, Math.min(100, Number(limit) || 20));
 
             const products = await Product.find(
                 { $text: { $search: keyword } },
                 { score: { $meta: "textScore" } }
             )
                 .sort({ score: { $meta: "textScore" } })
-                .skip((page - 1) * limit)
-                .limit(Number(limit));
+                .skip((pageNum - 1) * limitNum)
+                .limit(limitNum)
+                .lean();
 
             const total = await Product.countDocuments({
                 $text: { $search: keyword },
@@ -206,8 +236,8 @@ router.get(
             res.json({
                 products,
                 total,
-                page: Number(page),
-                pages: Math.ceil(total / limit),
+                page: pageNum,
+                pages: Math.ceil(total / limitNum),
             });
         } catch {
             res.status(500).json({ message: "Search failed" });
@@ -219,24 +249,28 @@ router.get(
    PRODUCT DETAILS
    =========================================================== */
 router.get(
-    "/products/:id",
-    [param("id").isMongoId()],
+    "/products/:identifier",
+    [param("identifier").notEmpty().trim()],
     validate,
     async (req, res) => {
-        const cacheKey = `product:${req.params.id}`;
+        const { identifier } = req.params;
+        const cacheKey = `product:${identifier}`;
 
         const cached = await getCache(cacheKey);
         if (cached) {
             console.log("⚡ Single product from Redis");
-            return res.json(cached);
+            return setPublicCacheHeaders(res, 300).json(cached);
         }
 
-        const product = await Product.findById(req.params.id).lean();
+        const query = mongoose.Types.ObjectId.isValid(identifier)
+            ? { _id: identifier }
+            : { slug: identifier };
+        const product = await Product.findOne(query).lean();
         if (!product) return res.status(404).json({ message: "Product not found" });
 
         await setCache(cacheKey, product);
 
-        res.json(product);
+        setPublicCacheHeaders(res, 300).json(product);
     }
 );
 
@@ -255,6 +289,7 @@ router.put("/products/:id", auth, isAdmin, async (req, res) => {
             description,
             images,
             stock,
+            slug,
         }) => ({
             name,
             price,
@@ -264,7 +299,12 @@ router.put("/products/:id", auth, isAdmin, async (req, res) => {
             description,
             images,
             stock,
+            slug,
         }))(req.body);
+
+        if (!allowedFields.slug && (allowedFields.name || allowedFields.model)) {
+            allowedFields.slug = toSlug(`${allowedFields.name || ""}-${allowedFields.model || ""}`);
+        }
 
         const product = await Product.findByIdAndUpdate(
             req.params.id,

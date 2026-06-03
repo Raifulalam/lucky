@@ -70,7 +70,7 @@ router.get(
     isAdmin,
     async (req, res) => {
         try {
-            const complaints = await Complaint.find().sort({ createdAt: -1 });
+            const complaints = await Complaint.find().sort({ createdAt: -1 }).lean();
             res.json(complaints);
         } catch (error) {
             res.status(500).json({ message: "Server error" });

@@ -1,5 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Helmet } from "react-helmet";
+import React, { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BadgePercent, PackageCheck, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
 import Header from "../../Components/Header";
@@ -8,6 +7,9 @@ import { useCartDispatch } from "../../Components/CreateReducer";
 import { useNotification } from "../../Components/NotificationContext";
 import useGoBack from "../../hooks/useGoback";
 import { BASE_URL } from "../../api/api";
+import { useQuery } from "@tanstack/react-query";
+import PageSeo from "../../Components/PageSeo";
+import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
 import "./Details.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
@@ -17,15 +19,18 @@ const ProductDetails = () => {
     const navigate = useNavigate();
     const dispatch = useCartDispatch();
     const { addNotification } = useNotification();
-    const [productData, setProduct] = useState(null);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
     const goBack = useGoBack();
 
-    useEffect(() => {
-        const fetchProductDetails = async () => {
+    const queryKey = ["product-details", id];
+
+    const { data: productData, isLoading, error } = useQuery({
+        queryKey,
+        queryFn: async ({ signal }) => {
+            const cacheKey = buildCatalogCacheKey("product-details", id);
+            const cached = await readCatalogCache(cacheKey);
+
             try {
-                const response = await fetch(`${BASE_URL}/products/products/${id}`);
+                const response = await fetch(`${BASE_URL}/products/products/${id}`, { signal });
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error("Product not found");
@@ -33,17 +38,15 @@ const ProductDetails = () => {
                     throw new Error("Failed to fetch product details");
                 }
                 const data = await response.json();
-                setProduct(data);
+                await writeCatalogCache(cacheKey, data);
+                return data;
             } catch (err) {
-                setError(err.message);
-                console.error("Error fetching product details:", err);
-            } finally {
-                setLoading(false);
+                if (cached) return cached;
+                throw err;
             }
-        };
-
-        fetchProductDetails();
-    }, [id]);
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
     const savings = useMemo(() => {
         if (!productData?.mrp || !productData?.price) return null;
@@ -74,11 +77,13 @@ const ProductDetails = () => {
         });
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="details-page">
                 <Header />
-                <div className="details-loading">Loading product details...</div>
+                <div className="details-loading" aria-busy="true" aria-live="polite">
+                    Loading product details...
+                </div>
                 <Footer />
             </div>
         );
@@ -89,7 +94,7 @@ const ProductDetails = () => {
             <div className="details-page">
                 <Header />
                 <div className="details-error">
-                    <p>{error}</p>
+                    <p>{error.message}</p>
                     <button onClick={() => navigate("/products")}>Back to products</button>
                 </div>
                 <Footer />
@@ -102,10 +107,12 @@ const ProductDetails = () => {
 
     return (
         <div className="details-page">
-            <Helmet>
-                <title>{productData.name} - Lucky Impex</title>
-                <meta name="description" content={`Buy ${productData.name} from Lucky Impex.`} />
-            </Helmet>
+            <PageSeo
+                title={productData?.name || "Product Details"}
+                description={`Buy ${productData?.name || "this product"} from Lucky Impex.`}
+                canonicalPath={`/productdetails/${productData?.slug || id}`}
+                image={imageUrl}
+            />
 
             <Header />
 

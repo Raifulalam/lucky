@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import './products.css';
 import Header from '../../Components/Header';
 import { useCartDispatch } from '../../Components/CreateReducer';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import luckyImage from '../../Images/mobiles/download (1).jpg';
 import backimg from '../../Images/mobiles/download.jpg';
 import back01 from '../../Images/mobiles/HONOR 20 PROMO _ WONDER.jpg';
@@ -14,6 +15,8 @@ import EditMobileModal from './EditMobile';
 import Modal from '../../Components/Modal';
 import { useNotification } from '../../Components/NotificationContext';
 import { BASE_URL } from '../../api/api';
+import PageSeo from '../../Components/PageSeo';
+import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from '../../utils/catalogCache';
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -21,10 +24,6 @@ const getImageSrc = (src, fallbackSrc) => {
 
 const PhoneShop = () => {
     const { category } = useParams();
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
     const [searchVal, setSearchVal] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,7 +32,6 @@ const PhoneShop = () => {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const { addNotification } = useNotification();
     const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
 
     const [newProduct, setNewProduct] = useState({
         name: '',
@@ -42,39 +40,42 @@ const PhoneShop = () => {
         image: ''
     });
 
-    const Navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const { user } = useContext(UserContext);
     const userRole = user?.role || 'user';
 
     const placeholderImage = '/path/to/placeholder-image.jpg'; // Placeholder image
 
-    const fetchProducts = useCallback(async () => {
-        setLoading(true);
-        setError(null);
+    const mobileQueryKey = useMemo(() => ["mobile-products", { page, category, searchTerm }], [page, category, searchTerm]);
 
-        try {
-            let url = `${BASE_URL}/mobiles/mobile?page=${page}`;
-            if (category) url += `&category=${category}`;
-            if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+    const { data, isLoading, error } = useQuery({
+        queryKey: mobileQueryKey,
+        queryFn: async ({ signal }) => {
+            const cacheKey = buildCatalogCacheKey("mobile-products", page, category, searchTerm);
+            const cached = await readCatalogCache(cacheKey);
 
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Failed to fetch products");
+            try {
+                let url = `${BASE_URL}/mobiles/mobile?page=${page}&limit=10`;
+                if (category) url += `&category=${encodeURIComponent(category)}`;
+                if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
 
-            const result = await response.json();
+                const response = await fetch(url, { signal });
+                if (!response.ok) throw new Error("Failed to fetch products");
 
-            setProducts(result.data);
-            setTotalPages(Math.ceil(result.total / 10)); // 👈 KEY
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    }, [page, category, searchTerm]);
+                const result = await response.json();
+                await writeCatalogCache(cacheKey, result);
+                return result;
+            } catch (err) {
+                if (cached) return cached;
+                throw err;
+            }
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
-
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
+    const products = data?.data || [];
+    const totalPages = data?.pages || 1;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -104,7 +105,7 @@ const PhoneShop = () => {
         });
 
         if (response.ok) {
-            setProducts((prev) => prev.map((prod) => (prod._id === updatedProduct._id ? updatedProduct : prod)));
+            queryClient.invalidateQueries({ queryKey: ["mobile-products"] });
             addNotification({
                 title: 'Success!',
                 message: 'Product updated successfully',
@@ -139,11 +140,9 @@ const PhoneShop = () => {
             });
 
             if (response.ok) {
-
-                setProducts((prev) => prev.filter((prod) => prod._id !== productId));
-
                 dispatch({ type: 'DELETE_PRODUCT', payload: productId });
                 setIsDeleteModalOpen(false)
+                queryClient.invalidateQueries({ queryKey: ["mobile-products"] });
                 addNotification({
                     title: 'Success!',
                     message: 'Product deleted successfully',
@@ -190,7 +189,7 @@ const PhoneShop = () => {
 
     // Navigate to product details page
     const handleDetails = (productId) => {
-        Navigate(`/phonedetails/${productId}`);
+        navigate(`/phonedetails/${productId}`);
         window.history.pushState(null, null, window.location.href);
     };
 
@@ -257,7 +256,7 @@ const PhoneShop = () => {
 
         try {
             // Send the data to the backend
-            let url = `${BASE_URL}/mobiles/mobile?page=${page}`;
+            let url = `${BASE_URL}/mobiles/mobile`;
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -269,8 +268,8 @@ const PhoneShop = () => {
 
             if (response.ok) {
                 // If successful, add the new product to the state and reset the form
-                const addedProduct = await response.json();
-                setProducts((prev) => [...prev, addedProduct]);  // Update state with the newly added product
+                await response.json();
+                queryClient.invalidateQueries({ queryKey: ["mobile-products"] });
                 setNewProduct({
                     name: '',
                     price: '',
@@ -314,11 +313,23 @@ const PhoneShop = () => {
     };
 
     // Loading state
-    if (loading) {
+    if (isLoading) {
         return (
-            <div className="loading-container">
-                <div className="spinner"></div>
-
+            <div>
+                <Header />
+                <div className="skeleton-grid" aria-busy="true" aria-live="polite">
+                    {[...Array(8)].map((_, index) => (
+                        <div className="skeleton-card" key={index}>
+                            <div className="skeleton-image-placeholder" />
+                            <div className="skeleton-body-placeholder">
+                                <div className="skeleton-line-placeholder short" />
+                                <div className="skeleton-line-placeholder long" />
+                                <div className="skeleton-line-placeholder medium" />
+                                <div className="skeleton-line-placeholder buttons" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
@@ -327,8 +338,8 @@ const PhoneShop = () => {
     if (error) {
         return (
             <div className="error-container">
-                <div>Error: {error}</div>
-                <button onClick={() => setLoading(true)}>Retry</button>
+                <div>Error: {error.message}</div>
+                <button onClick={() => queryClient.invalidateQueries({ queryKey: ["mobile-products"] })}>Retry</button>
             </div>
         );
     }
@@ -360,6 +371,11 @@ const PhoneShop = () => {
 
     return (
         <>
+            <PageSeo
+                title="Phone Shop"
+                description="Browse mobile phones, compare options, and shop the latest Lucky Impex mobile catalog."
+                canonicalPath="/phones"
+            />
             <Header />
             <div className="image-move">
                 <input
@@ -395,7 +411,7 @@ const PhoneShop = () => {
                     filteredProducts.map((product) => (
                         <div key={product._id} className="product-container">
 
-                            <div className="product-image-container" onClick={() => handleDetails(product._id)}>
+                            <div className="product-image-container" onClick={() => handleDetails(product.slug || product._id)}>
                                 <img
                                     className="product-image"
                                     src={getImageSrc(product.image, placeholderImage)}
@@ -404,7 +420,7 @@ const PhoneShop = () => {
                                 />
                             </div>
 
-                            <div className="product-name" onClick={() => handleDetails(product._id)}>
+                            <div className="product-name" onClick={() => handleDetails(product.slug || product._id)}>
                                 {product.brand} {product.name}
                             </div>
                             <p className='stock'>Availability: <span className={`stock-status ${product.stock === 0 ? 'out-of-stock' : 'in-stock'}`}></span>{product.stock === 0 ? 'Out of Stock' : 'In stock'}</p>

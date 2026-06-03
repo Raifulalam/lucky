@@ -55,9 +55,9 @@ router.get(
     isAdmin,
     async (req, res) => {
         try {
-            const messages = await ContactMessage.find().sort({
-                createdAt: -1,
-            });
+            const messages = await ContactMessage.find()
+                .sort({ createdAt: -1 })
+                .lean();
 
             res.json(messages);
         } catch (error) {

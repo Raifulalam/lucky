@@ -1,6 +1,13 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+const toSlug = (value) =>
+    String(value || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
 const productSchema = new Schema(
     {
         images: {
@@ -12,6 +19,15 @@ const productSchema = new Schema(
             type: String,
             required: true,
             trim: true,
+            index: true,
+        },
+
+        slug: {
+            type: String,
+            trim: true,
+            index: true,
+            unique: true,
+            sparse: true,
         },
 
         description: {
@@ -88,6 +104,16 @@ productSchema.index({ createdAt: -1 });
 productSchema.index({ model: 1 });
 productSchema.index({ category: 1 });
 productSchema.index({ brand: 1 });
+productSchema.index({ name: 1 });
+productSchema.index({ slug: 1 });
 productSchema.index({ category: 1, createdAt: -1 });
 productSchema.index({ brand: 1, createdAt: -1 });
+
+productSchema.pre("validate", function preValidate(next) {
+    if (!this.slug && this.name) {
+        this.slug = toSlug(`${this.name}-${this.model || ""}`);
+    }
+    next();
+});
+
 module.exports = mongoose.model("Product", productSchema);

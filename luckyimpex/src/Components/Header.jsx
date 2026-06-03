@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { ChevronDown, Headphones, LayoutDashboard, Menu, Phone, ShoppingCart, Store, User, X } from "lucide-react";
 import { UserContext } from "./UserContext";
+import { useCartState } from "./CreateReducer";
 import luckyLogo from "../Images/lucky-logo.png";
 import "./Header.css";
 
@@ -61,8 +62,8 @@ const Header = () => {
         [isAdmin, isUser]
     );
 
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const cartQty = cart.length;
+    const cart = useCartState() || [];
+    const cartQty = cart.reduce((total, item) => total + (item.quantity || 1), 0);
 
     const logout = () => {
         localStorage.removeItem("authToken");

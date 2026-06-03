@@ -7,6 +7,13 @@ const redisClient = require("../config/redis");
 
 const router = express.Router();
 
+const toSlug = (value) =>
+    String(value || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
 const getCache = async (key) => {
     try {
         const data = await redisClient.get(key);
@@ -23,6 +30,11 @@ const setCache = async (key, value, expiry = 600) => {
     } catch (err) {
         console.error("Redis setCache error:", err);
     }
+};
+
+const setPublicCacheHeaders = (res, maxAgeSeconds = 300) => {
+    res.set("Cache-Control", `public, max-age=${maxAgeSeconds}, stale-while-revalidate=${maxAgeSeconds * 2}`);
+    return res;
 };
 
 const clearMobileCache = async () => {
@@ -59,7 +71,12 @@ router.post(
                 });
             }
 
-            const product = await MobileProduct.create(req.body);
+            const payload = {
+                ...req.body,
+                slug: req.body.slug || toSlug(`${req.body.name || ""}-${req.body.model || ""}`),
+            };
+
+            const product = await MobileProduct.create(payload);
             await clearMobileCache();
 
             res.status(201).json({
@@ -82,16 +99,19 @@ router.post(
  */
 router.get("/mobile", async (req, res) => {
     try {
-        const { page = 1, limit = 10, brand, price, search } = req.query;
-        const cacheKey = `mobile:${brand || "all"}:${price || "all"}:${search || "all"}:${page}:${limit}`;
+        const { page = 1, limit = 10, brand, price, search, category } = req.query;
+        const pageNum = Math.max(1, Number(page) || 1);
+        const limitNum = Math.max(1, Math.min(100, Number(limit) || 10));
+        const cacheKey = `mobile:${brand || "all"}:${category || "all"}:${price || "all"}:${search || "all"}:${pageNum}:${limitNum}`;
 
         const cached = await getCache(cacheKey);
         if (cached) {
-            return res.status(200).json(cached);
+            return setPublicCacheHeaders(res, 180).status(200).json(cached);
         }
 
         const query = {};
         if (brand) query.brand = brand;
+        if (category) query.category = category;
         if (price) query.price = { $lte: Number(price) };
         if (search) {
             query.$or = [
@@ -102,8 +122,8 @@ router.get("/mobile", async (req, res) => {
         }
 
         const products = await MobileProduct.find(query)
-            .skip((page - 1) * limit)
-            .limit(Number(limit))
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum)
             .sort({ createdAt: -1 })
             .lean();
 
@@ -112,13 +132,14 @@ router.get("/mobile", async (req, res) => {
         const response = {
             success: true,
             total,
-            page: Number(page),
+            page: pageNum,
+            pages: Math.ceil(total / limitNum),
             data: products,
         };
 
         await setCache(cacheKey, response);
 
-        res.status(200).json(response);
+        setPublicCacheHeaders(res, 180).status(200).json(response);
     } catch (err) {
         console.error("Error fetching mobiles:", err);
         res.status(500).json({
@@ -131,19 +152,20 @@ router.get("/mobile", async (req, res) => {
 /**
  * GET SINGLE MOBILE BY ID
  */
-router.get("/mobile/:id", async (req, res) => {
+router.get("/mobile/:identifier", async (req, res) => {
     try {
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ message: "Invalid product ID" });
-        }
+        const { identifier } = req.params;
+        const query = mongoose.Types.ObjectId.isValid(identifier)
+            ? { _id: identifier }
+            : { slug: identifier };
 
-        const product = await MobileProduct.findById(req.params.id).lean();
+        const product = await MobileProduct.findOne(query).lean();
 
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        res.status(200).json({ success: true, data: product });
+        setPublicCacheHeaders(res, 300).status(200).json({ success: true, data: product });
     } catch (err) {
         res.status(500).json({ message: "Error fetching product" });
     }
@@ -162,9 +184,14 @@ router.put(
                 return res.status(400).json({ message: "Invalid product ID" });
             }
 
+            const updatedPayload = {
+                ...req.body,
+                slug: req.body.slug || toSlug(`${req.body.name || ""}-${req.body.model || ""}`),
+            };
+
             const updated = await MobileProduct.findByIdAndUpdate(
                 req.params.id,
-                req.body,
+                updatedPayload,
                 { new: true, runValidators: true }
             );
 

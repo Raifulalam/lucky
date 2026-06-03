@@ -16,9 +16,13 @@ const ComplaintSchema = new mongoose.Schema(
             type: String,
             enum: ["pending", "in-progress", "resolved"],
             default: "pending",
+            index: true,
         },
     },
     { timestamps: true }
 );
+
+ComplaintSchema.index({ createdAt: -1 });
+ComplaintSchema.index({ status: 1, createdAt: -1 });
 
 module.exports = mongoose.model("Complaint", ComplaintSchema);

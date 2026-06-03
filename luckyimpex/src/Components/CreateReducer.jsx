@@ -38,8 +38,17 @@ const reducer = (state, action) => {
 
 // CartProvider component to wrap around your app
 export const CartProvider = ({ children }) => {
+    const readInitialCart = () => {
+        try {
+            if (typeof window === "undefined") return [];
+            return JSON.parse(localStorage.getItem('cart')) || [];
+        } catch {
+            return [];
+        }
+    };
+
     // Try to load cart from localStorage, or default to an empty array
-    const initialState = JSON.parse(localStorage.getItem('cart')) || [];
+    const initialState = readInitialCart();
 
     // Use the reducer to manage cart state
     const [state, dispatch] = useReducer(reducer, initialState);

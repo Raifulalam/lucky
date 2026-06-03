@@ -1,23 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet';  // Import Helmet
+import { useQuery } from '@tanstack/react-query';
 import './Details.css';
 import '../../Components/Modal.css'
 import useGoBack from '../../hooks/useGoback';
-
 import { BASE_URL } from '../../api/api';
+import PageSeo from '../../Components/PageSeo';
+import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from '../../utils/catalogCache';
 
 const PhoneDetails = () => {
     const { id } = useParams(); // Get the product ID from URL
-    const [productData, setProduct] = useState(null); // Renamed product to productData
-    const [error, setError] = useState(null); // State to hold error message
-    const [loading, setLoading] = useState(true); // Loading state
     const goBack = useGoBack();
 
-    useEffect(() => {
-        const fetchProductDetails = async () => {
+    const { data: productData, error, isLoading } = useQuery({
+        queryKey: ["mobile-product-details", id],
+        queryFn: async ({ signal }) => {
+            const cacheKey = buildCatalogCacheKey("mobile-product-details", id);
+            const cached = await readCatalogCache(cacheKey);
+
             try {
-                const response = await fetch(`${BASE_URL}/mobiles/mobile/${id}`);
+                const response = await fetch(`${BASE_URL}/mobiles/mobile/${id}`, { signal });
                 if (!response.ok) {
                     if (response.status === 404) {
                         throw new Error('Product not found');
@@ -25,20 +27,18 @@ const PhoneDetails = () => {
                     throw new Error('Failed to fetch product details');
                 }
                 const data = await response.json();
-                setProduct(data.data);  // Update the product state with fetched data
-                setLoading(false); // Finished loading product details
+                await writeCatalogCache(cacheKey, data.data);
+                return data.data;
             } catch (err) {
-                setError(err.message); // Set error message in case of failure
-                setLoading(false); // Finished loading with error
-                console.error('Error fetching product details:', err);
+                if (cached) return cached;
+                throw err;
             }
-        };
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
-        fetchProductDetails();
-    }, [id]);
 
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="loading-container">
                 <div className="spinner"></div>
@@ -49,7 +49,7 @@ const PhoneDetails = () => {
     }
 
     if (error) {
-        return <div className="error">{error}</div>; // Display error message if product is not found or any other error occurs
+        return <div className="error">{error.message}</div>; // Display error message if product is not found or any other error occurs
     }
 
     // Construct the full image path from the relative path
@@ -58,10 +58,12 @@ const PhoneDetails = () => {
     return (
         <div className="product-detail-container">
             <button onClick={goBack}>⬅ Back</button>
-            <Helmet>
-                <title>{productData.name} - Lucky Impex</title>
-                <meta name="description" content={`Buy ${productData.name} from Lucky Impex.`} />
-            </Helmet>
+            <PageSeo
+                title={productData?.name || "Phone Details"}
+                description={`Buy ${productData?.name || "this phone"} from Lucky Impex.`}
+                canonicalPath={`/phonedetails/${productData?.slug || id}`}
+                image={productData?.image || undefined}
+            />
 
             <div className="product-details-content">
 

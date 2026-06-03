@@ -1,5 +1,5 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     ArrowRight,
     BadgePercent,
@@ -19,6 +19,7 @@ import { UserContext } from "../../Components/UserContext";
 import EditProductModal from "./EditProductModal";
 import Modal from "../../Components/Modal";
 import { useNotification } from "../../Components/NotificationContext";
+import PageSeo from "../../Components/PageSeo";
 import { brands as brandCatalog } from "../HomePage/Constants";
 import luckyImage from "../../Images/lucky.png";
 import backimg from "../../Images/backimg.jpg";
@@ -26,60 +27,7 @@ import back01 from "../../Images/back01.png";
 import back02 from "../../Images/back04.jpg";
 import back03 from "../../Images/back03.jpg";
 import { authRequest, BASE_URL } from "../../api/api";
-
-const CACHE_TTL = 5 * 60 * 1000;
-const BRAND_CACHE_STORAGE_KEY = "lucky-brand-products-cache-v1";
-
-const readStoredBrandCache = () => {
-    if (typeof window === "undefined") return {};
-
-    try {
-        return JSON.parse(sessionStorage.getItem(BRAND_CACHE_STORAGE_KEY)) || {};
-    } catch {
-        return {};
-    }
-};
-
-const writeStoredBrandCache = (cache) => {
-    if (typeof window === "undefined") return;
-
-    try {
-        sessionStorage.setItem(BRAND_CACHE_STORAGE_KEY, JSON.stringify(cache));
-    } catch {
-        // Ignore storage write failures.
-    }
-};
-
-const brandProductCache = readStoredBrandCache();
-
-const getCachedBrandEntry = (key) => {
-    const entry = brandProductCache[key];
-
-    if (!entry) return null;
-
-    if (Date.now() - entry.timestamp > CACHE_TTL) {
-        delete brandProductCache[key];
-        writeStoredBrandCache(brandProductCache);
-        return null;
-    }
-
-    return entry;
-};
-
-const setCachedBrandEntry = (key, value) => {
-    brandProductCache[key] = {
-        ...value,
-        timestamp: Date.now(),
-    };
-    writeStoredBrandCache(brandProductCache);
-};
-
-const invalidateBrandCache = () => {
-    Object.keys(brandProductCache).forEach((key) => {
-        delete brandProductCache[key];
-    });
-    writeStoredBrandCache(brandProductCache);
-};
+import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
 
 const getImageSrc = (src, fallbackSrc) => (src ? `${src}` : fallbackSrc);
 
@@ -105,17 +53,12 @@ const getSavings = (mrp, price) => {
 const BrandSearch = () => {
     const { brand } = useParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const dispatch = useCartDispatch();
     const { user } = useContext(UserContext);
     const { addNotification } = useNotification();
     const userRole = user?.role || "user";
-    const slowLoadingTimeoutRef = useRef(null);
 
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showSlowLoading, setShowSlowLoading] = useState(false);
-    const [cacheSource, setCacheSource] = useState("live");
-    const [error, setError] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [searchTerm, setSearchTerm] = useState("");
     const [sortBy, setSortBy] = useState("featured");
@@ -142,72 +85,36 @@ const BrandSearch = () => {
     const normalizedBrand = decodeURIComponent(brand || "").replace(/-/g, " ");
     const brandLogo = `/${normalizedBrand.toLowerCase()}.png`;
 
-    const stopSlowLoadingIndicator = useCallback(() => {
-        if (slowLoadingTimeoutRef.current) {
-            clearTimeout(slowLoadingTimeoutRef.current);
-            slowLoadingTimeoutRef.current = null;
-        }
-        setShowSlowLoading(false);
-    }, []);
+    const brandQueryKey = useMemo(() => ["brand-products", brand], [brand]);
 
-    const startSlowLoadingIndicator = useCallback(() => {
-        stopSlowLoadingIndicator();
-        slowLoadingTimeoutRef.current = setTimeout(() => {
-            setShowSlowLoading(true);
-        }, 700);
-    }, [stopSlowLoadingIndicator]);
+    const { data, isLoading, isFetching, error } = useQuery({
+        queryKey: brandQueryKey,
+        enabled: Boolean(brand),
+        queryFn: async ({ signal }) => {
+            const cacheKey = buildCatalogCacheKey("brand-products", brand);
+            const cached = await readCatalogCache(cacheKey);
 
-    const fetchProducts = useCallback(async () => {
-        const url = `${BASE_URL}/products/products/brand/${brand}`;
+            try {
+                const response = await fetch(`${BASE_URL}/products/products/brand/${brand}?page=1&limit=200`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                    signal,
+                });
 
-        setLoading(true);
-        setError(null);
-        startSlowLoadingIndicator();
+                if (!response.ok) throw new Error("Failed to fetch products");
 
-        try {
-            const cachedEntry = getCachedBrandEntry(url);
-
-            if (cachedEntry) {
-                setProducts(Array.isArray(cachedEntry.products) ? cachedEntry.products : []);
-                setCacheSource("cache");
-                return;
+                const result = await response.json();
+                await writeCatalogCache(cacheKey, result);
+                return result;
+            } catch (err) {
+                if (cached) return cached;
+                throw err;
             }
+        },
+        staleTime: 5 * 60 * 1000,
+    });
 
-            const response = await fetch(url, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-                cache: "force-cache",
-            });
-
-            if (!response.ok) throw new Error("Failed to fetch products");
-
-            const data = await response.json();
-            const nextProducts = Array.isArray(data.products) ? data.products : [];
-
-            setProducts(nextProducts);
-            setCacheSource("live");
-            setCachedBrandEntry(url, { products: nextProducts });
-        } catch (err) {
-            const cachedEntry = getCachedBrandEntry(url);
-
-            if (cachedEntry) {
-                setProducts(Array.isArray(cachedEntry.products) ? cachedEntry.products : []);
-                setCacheSource("cache");
-                setError(null);
-            } else {
-                setError(err.message);
-            }
-        } finally {
-            stopSlowLoadingIndicator();
-            setLoading(false);
-        }
-    }, [brand, startSlowLoadingIndicator, stopSlowLoadingIndicator]);
-
-    useEffect(() => {
-        if (brand) {
-            fetchProducts();
-        }
-    }, [brand, fetchProducts]);
+    const products = useMemo(() => data?.products || [], [data]);
 
     useEffect(() => {
         setNewProduct((prev) => ({ ...prev, brand: normalizedBrand || "" }));
@@ -220,10 +127,6 @@ const BrandSearch = () => {
 
         return () => clearInterval(intervalId);
     }, [heroImages.length]);
-
-    useEffect(() => {
-        return () => stopSlowLoadingIndicator();
-    }, [stopSlowLoadingIndicator]);
 
     const filteredProducts = useMemo(() => {
         const loweredSearch = searchTerm.trim().toLowerCase();
@@ -272,15 +175,11 @@ const BrandSearch = () => {
                 method: "PUT",
                 body: updatedProduct,
             });
-            setProducts((prev) =>
-                prev.map((prod) =>
-                    prod._id === updatedProduct._id ? data : prod
-                )
-            );
-            invalidateBrandCache();
+            queryClient.invalidateQueries({ queryKey: brandQueryKey });
             setIsModalOpen(false);
+            return data;
         } catch (err) {
-            setError(err.message);
+            throw err;
         }
     };
 
@@ -294,11 +193,10 @@ const BrandSearch = () => {
             await authRequest(`/products/products/${productId}`, {
                 method: "DELETE",
             });
-            setProducts((prev) => prev.filter((prod) => prod._id !== productId));
             dispatch({ type: "DELETE_PRODUCT", payload: productId });
-            invalidateBrandCache();
+            queryClient.invalidateQueries({ queryKey: brandQueryKey });
         } catch (err) {
-            setError(err.message);
+            throw err;
         }
     };
 
@@ -346,8 +244,7 @@ const BrandSearch = () => {
                 method: "POST",
                 body: productData,
             });
-            setProducts((prev) => [data, ...prev]);
-            invalidateBrandCache();
+            queryClient.invalidateQueries({ queryKey: brandQueryKey });
             setNewProduct({
                 name: "",
                 mrp: "",
@@ -362,18 +259,19 @@ const BrandSearch = () => {
                 stock: "",
             });
             setIsAddModalOpen(false);
+            return data;
         } catch (err) {
-            setError(err.message);
+            throw err;
         }
     };
 
-    if (error && !loading) {
+    if (error && !isLoading) {
         return (
             <div className="details-page">
                 <Header />
                 <div className="details-error">
-                    <p>Error: {error}</p>
-                    <button onClick={fetchProducts}>Retry</button>
+                    <p>Error: {error.message}</p>
+                    <button onClick={() => queryClient.invalidateQueries({ queryKey: brandQueryKey })}>Retry</button>
                 </div>
                 <Footer />
             </div>
@@ -382,17 +280,15 @@ const BrandSearch = () => {
 
     return (
         <div className="brand-page-shell">
-            <Helmet>
-                <title>{normalizedBrand} Products | Lucky Impex</title>
-                <meta
-                    name="description"
-                    content={`Browse ${normalizedBrand} products, pricing, and offers at Lucky Impex.`}
-                />
-            </Helmet>
+            <PageSeo
+                title={`${normalizedBrand} Products`}
+                description={`Browse ${normalizedBrand} products, pricing, and offers at Lucky Impex.`}
+                canonicalPath={`/products/brand/${brand}`}
+            />
 
             <Header />
 
-            {showSlowLoading && (
+            {isFetching && !isLoading && (
                 <div className="slow-loading-banner">
                     <span className="loading-pulse-dot"></span>
                     Loading {normalizedBrand} products. This is taking a bit longer than usual.
@@ -461,8 +357,8 @@ const BrandSearch = () => {
                     <article className="brand-summary-card">
                         <Store size={18} />
                         <div>
-                            <strong>Source: {cacheSource === "cache" ? "Cached data" : "Live API"}</strong>
-                            <span>Fallback cache keeps the collection usable during slow responses.</span>
+                            <strong>Source: Cached & synced</strong>
+                            <span>IndexedDB and TanStack Query keep this collection usable during slow responses.</span>
                         </div>
                     </article>
                 </section>
@@ -559,7 +455,7 @@ const BrandSearch = () => {
                     </div>
                 )}
 
-                {loading && products.length === 0 ? (
+                {isLoading && products.length === 0 ? (
                     <div className="brand-inline-loader">
                         <span className="loading-pulse-dot"></span>
                         Preparing the {normalizedBrand} collection...
@@ -578,7 +474,7 @@ const BrandSearch = () => {
                                     >
                                         <div
                                             className="product-image-container"
-                                            onClick={() => handleDetails(product._id)}
+                                            onClick={() => handleDetails(product.slug || product._id)}
                                         >
                                             <img
                                                 className="product-image"
@@ -602,7 +498,7 @@ const BrandSearch = () => {
                                                 <span className="meta-badge muted">{product.category || "General"}</span>
                                             </div>
 
-                                            <div className="product-name" onClick={() => handleDetails(product._id)}>
+                                            <div className="product-name" onClick={() => handleDetails(product.slug || product._id)}>
                                                 {product.name}
                                             </div>
 
@@ -645,7 +541,7 @@ const BrandSearch = () => {
                                                 </div>
                                             ) : (
                                                 <div className="product-actions customer-actions">
-                                                    <button className="details-btn" onClick={() => handleDetails(product._id)}>
+                                                    <button className="details-btn" onClick={() => handleDetails(product.slug || product._id)}>
                                                         View Details
                                                     </button>
                                                     <button

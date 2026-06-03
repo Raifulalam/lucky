@@ -28,6 +28,11 @@ const setCache = async (key, value, expiry = DEFAULT_EXPIRY) => {
     }
 };
 
+const setPublicCacheHeaders = (res, maxAgeSeconds = 3600) => {
+    res.set("Cache-Control", `public, max-age=${maxAgeSeconds}, stale-while-revalidate=${maxAgeSeconds * 2}`);
+    return res;
+};
+
 // Fetch categories with associated products (with Redis caching, lean queries, and robust async fallback)
 router.get('/productCategories', async (req, res) => {
     const cacheKey = "categories:all";
@@ -36,25 +41,31 @@ router.get('/productCategories', async (req, res) => {
         // Try resolving from cache first
         const cached = await getCache(cacheKey);
         if (cached) {
-            return res.json(cached);
+            return setPublicCacheHeaders(res, 3600).json(cached);
         }
 
         // Fallback to database with lean optimization
         const categories = await ProductsCategory.find()
-            .populate('products')
+            .select("name description products createdAt")
+            .sort({ name: 1 })
+            .populate({
+                path: 'products',
+                select: "name slug brand category price mrp stock image createdAt",
+                options: { sort: { createdAt: -1 } }
+            })
             .lean();
 
         // Write-through cache
         await setCache(cacheKey, categories);
 
-        res.json(categories);
+        setPublicCacheHeaders(res, 3600).json(categories);
     } catch (err) {
         console.error('Error fetching categories:', err);
         
         // Resilient fallback: bypass Redis in case of connection failure
         try {
             const categories = await ProductsCategory.find().populate('products').lean();
-            return res.json(categories);
+            return setPublicCacheHeaders(res, 3600).json(categories);
         } catch (dbErr) {
             res.status(500).json({ message: 'Error fetching categories', error: dbErr.message });
         }

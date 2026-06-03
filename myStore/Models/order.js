@@ -35,7 +35,13 @@ const Orderschema = new Schema(
     { timestamps: true }
 );
 
+// Indexes for fast querying & sorting
+Orderschema.index({ "user.userId": 1, createdAt: -1 });
+Orderschema.index({ createdAt: -1 });
+Orderschema.index({ status: 1 });
+
 // Create the Order model
 const Order = mongoose.model('Order', Orderschema);
 
 module.exports = Order;
+

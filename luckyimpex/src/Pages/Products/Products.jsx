@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
+import React, { useState, useEffect, useContext, useCallback, useRef, useMemo } from "react";
 import "./products.css";
 import Header from "../../Components/Header";
 import { useCartDispatch } from "../../Components/CreateReducer";
@@ -12,56 +12,11 @@ import { UserContext } from "../../Components/UserContext";
 import EditProductModal from "./EditProductModal";
 import Modal from "../../Components/Modal";
 import { useNotification } from "../../Components/NotificationContext";
-import { Helmet } from "react-helmet-async";
+import PageSeo from "../../Components/PageSeo";
 import { categories as categoryCatalog, brands as brandCatalog } from "../HomePage/Constants";
 import { authRequest, BASE_URL } from "../../api/api";
-
-const CACHE_TTL = 5 * 60 * 1000;
-const CACHE_STORAGE_KEY = "lucky-products-cache-v1";
-
-const readStoredProductCache = () => {
-    if (typeof window === "undefined") return {};
-
-    try {
-        return JSON.parse(sessionStorage.getItem(CACHE_STORAGE_KEY)) || {};
-    } catch {
-        return {};
-    }
-};
-
-const writeStoredProductCache = (cache) => {
-    if (typeof window === "undefined") return;
-
-    try {
-        sessionStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(cache));
-    } catch {
-        // Ignore storage write failures.
-    }
-};
-
-const productCache = readStoredProductCache();
-
-const getCachedProductEntry = (key) => {
-    const entry = productCache[key];
-
-    if (!entry) return null;
-
-    if (Date.now() - entry.timestamp > CACHE_TTL) {
-        delete productCache[key];
-        writeStoredProductCache(productCache);
-        return null;
-    }
-
-    return entry;
-};
-
-const setCachedProductEntry = (key, value) => {
-    productCache[key] = {
-        ...value,
-        timestamp: Date.now(),
-    };
-    writeStoredProductCache(productCache);
-};
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -88,21 +43,24 @@ const getSavings = (mrp, price) => {
 
 const Products = () => {
     const { category } = useParams();
-    const [products, setProducts] = useState([]);
+    const queryClient = useQueryClient();
+    const { addNotification } = useNotification();
+    const navigate = useNavigate();
+    const { user } = useContext(UserContext);
+    const userRole = user?.role || "user";
+    const dispatch = useCartDispatch();
+
     const [searchTerm, setSearchTerm] = useState("");
-    const [page, setPage] = useState(1);
-    const [pages, setPages] = useState(1);
-    const [loading, setLoading] = useState(false);
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
-    const [error, setError] = useState(null);
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState(category || "");
+    const [selectedBrand, setSelectedBrand] = useState("");
+    const [sortBy, setSortBy] = useState("featured");
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [sortBy, setSortBy] = useState("featured");
-    const [showSlowLoading, setShowSlowLoading] = useState(false);
-    const [cacheSource, setCacheSource] = useState("live");
-    const { addNotification } = useNotification();
+
     const [newProduct, setNewProduct] = useState({
         name: "",
         mrp: "",
@@ -117,57 +75,204 @@ const Products = () => {
         stock: "",
     });
 
-    const Navigate = useNavigate();
-    const { user } = useContext(UserContext);
-    const userRole = user?.role || "user";
-    const slowLoadingTimeoutRef = useRef(null);
     const autoLoadObserverRef = useRef(null);
-    const abortControllerRef = useRef(null);
-    const currentPageRef = useRef(1);
-    const totalPagesRef = useRef(1);
-    const isRequestInFlightRef = useRef(false);
-
     const placeholderImage = "/lucky-logo.png";
-    const [selectedCategory, setSelectedCategory] = useState(category || "");
-    const [selectedBrand, setSelectedBrand] = useState("");
-    const supportsAutoLoad =
-        typeof window !== "undefined" && "IntersectionObserver" in window;
+    const supportsAutoLoad = typeof window !== "undefined" && "IntersectionObserver" in window;
 
-    const categoryOptions = [...new Set([
-        ...categoryCatalog.map((item) => item.name),
-        ...products.map((product) => product.category).filter(Boolean),
-    ])];
+    // Debounce search term to prevent flooding queries
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 400);
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
 
-    const brandOptions = [...new Set([
-        ...brandCatalog,
-        ...products.map((product) => product.brand).filter(Boolean),
-    ])];
+    // Update state category when URL parameter changes
+    useEffect(() => {
+        setSelectedCategory(category || "");
+    }, [category]);
 
-    const filteredProducts = products.filter((product) => {
-        const matchesCategory = selectedCategory === "" || product.category === selectedCategory;
-        const matchesBrand = selectedBrand === "" || product.brand === selectedBrand;
-        return matchesCategory && matchesBrand;
+    // TanStack Query: Infinite products fetcher
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+        isFetching,
+        isError,
+        error,
+        refetch
+    } = useInfiniteQuery({
+        queryKey: ["products", { category: selectedCategory, search: debouncedSearch }],
+        queryFn: async ({ pageParam = 1, signal }) => {
+            const cacheKey = buildCatalogCacheKey("products", selectedCategory, debouncedSearch, pageParam);
+            const cached = await readCatalogCache(cacheKey);
+
+            try {
+                let url = `${BASE_URL}/products/products?page=${pageParam}&limit=20`;
+                if (selectedCategory) url += `&category=${selectedCategory}`;
+                if (debouncedSearch) url += `&search=${debouncedSearch}`;
+
+                const response = await fetch(url, { signal });
+                if (!response.ok) throw new Error("Failed to fetch products");
+                const payload = await response.json();
+                await writeCatalogCache(cacheKey, payload);
+                return payload;
+            } catch (err) {
+                if (cached) return cached;
+                throw err;
+            }
+        },
+        initialPageParam: 1,
+        getNextPageParam: (lastPage, allPages) => {
+            const nextPage = allPages.length + 1;
+            return nextPage <= lastPage.pages ? nextPage : undefined;
+        },
+        staleTime: 5 * 60 * 1000, // Cache active for 5 mins
     });
 
-    const sortedProducts = [...filteredProducts].sort((a, b) => {
-        switch (sortBy) {
-            case "priceLowToHigh":
-                return Number(a.price || 0) - Number(b.price || 0);
-            case "priceHighToLow":
-                return Number(b.price || 0) - Number(a.price || 0);
-            case "discountHighToLow":
-                return (getSavings(b.mrp, b.price)?.amount || 0) - (getSavings(a.mrp, a.price)?.amount || 0);
-            case "nameAToZ":
-                return (a.name || "").localeCompare(b.name || "");
-            default:
-                return 0;
+    // Derive flat array of products from pages
+    const products = useMemo(() => {
+        return data?.pages.flatMap((page) => page.products) || [];
+    }, [data]);
+
+    // Mutations for admin actions
+    const saveMutation = useMutation({
+        mutationFn: async (updatedProduct) => {
+            return authRequest(`/products/products/${updatedProduct._id}`, {
+                method: "PUT",
+                body: updatedProduct,
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["products"] });
+            setIsModalOpen(false);
+            addNotification({
+                title: "Success!",
+                message: "Product updated successfully.",
+                type: "success",
+                container: "top-right",
+                dismiss: { duration: 3000 },
+            });
+        },
+        onError: (err) => {
+            addNotification({
+                title: "Failed!",
+                message: err.message || "Failed to update product.",
+                type: "danger",
+                container: "top-right",
+                dismiss: { duration: 5000 },
+            });
         }
     });
 
-    const availableCount = sortedProducts.filter((product) => Number(product.stock) > 0).length;
-    const activeFilterCount = [selectedCategory, selectedBrand, searchTerm].filter(Boolean).length;
+    const deleteMutation = useMutation({
+        mutationFn: async (productId) => {
+            return authRequest(`/products/products/${productId}`, { method: "DELETE" });
+        },
+        onSuccess: (data, productId) => {
+            queryClient.invalidateQueries({ queryKey: ["products"] });
+            dispatch({ type: "DELETE_PRODUCT", payload: productId });
+            setIsDeleteModalOpen(false);
+            addNotification({
+                title: "Deleted!",
+                message: "Product has been deleted.",
+                type: "success",
+                container: "top-right",
+                dismiss: { duration: 3000 },
+            });
+        },
+        onError: (err) => {
+            addNotification({
+                title: "Failed!",
+                message: err.message || "Failed to delete product.",
+                type: "danger",
+                container: "top-right",
+                dismiss: { duration: 5000 },
+            });
+        }
+    });
 
-    // slider
+    const addMutation = useMutation({
+        mutationFn: async (productData) => {
+            return authRequest("/products/products", {
+                method: "POST",
+                body: productData,
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["products"] });
+            setIsAddModalOpen(false);
+            setNewProduct({
+                name: "", mrp: "", bestBuyPrice: "", category: "", model: "",
+                description: "", image: "", keywords: "", brand: "", capacity: "", stock: ""
+            });
+            addNotification({
+                title: "Created!",
+                message: "Product added successfully.",
+                type: "success",
+                container: "top-right",
+                dismiss: { duration: 3000 },
+            });
+        },
+        onError: (err) => {
+            addNotification({
+                title: "Failed!",
+                message: err.message || "Failed to add product.",
+                type: "danger",
+                container: "top-right",
+                dismiss: { duration: 5000 },
+            });
+        }
+    });
+
+    const categoryOptions = useMemo(() => {
+        return [...new Set([
+            ...categoryCatalog.map((item) => item.name),
+            ...products.map((product) => product.category).filter(Boolean),
+        ])];
+    }, [products]);
+
+    const brandOptions = useMemo(() => {
+        return [...new Set([
+            ...brandCatalog,
+            ...products.map((product) => product.brand).filter(Boolean),
+        ])];
+    }, [products]);
+
+    const filteredProducts = useMemo(() => {
+        return products.filter((product) => {
+            const matchesCategory = selectedCategory === "" || product.category === selectedCategory;
+            const matchesBrand = selectedBrand === "" || product.brand === selectedBrand;
+            return matchesCategory && matchesBrand;
+        });
+    }, [products, selectedCategory, selectedBrand]);
+
+    const sortedProducts = useMemo(() => {
+        return [...filteredProducts].sort((a, b) => {
+            switch (sortBy) {
+                case "priceLowToHigh":
+                    return Number(a.price || 0) - Number(b.price || 0);
+                case "priceHighToLow":
+                    return Number(b.price || 0) - Number(a.price || 0);
+                case "discountHighToLow":
+                    return (getSavings(b.mrp, b.price)?.amount || 0) - (getSavings(a.mrp, a.price)?.amount || 0);
+                case "nameAToZ":
+                    return (a.name || "").localeCompare(b.name || "");
+                default:
+                    return 0;
+            }
+        });
+    }, [filteredProducts, sortBy]);
+
+    const availableCount = useMemo(() => {
+        return sortedProducts.filter((product) => Number(product.stock) > 0).length;
+    }, [sortedProducts]);
+
+    const activeFilterCount = [selectedCategory, selectedBrand, debouncedSearch].filter(Boolean).length;
+
+    // Hero Slider logic
     const [currentSlide, setCurrentSlide] = useState(0);
     const images = [backimg, back01, back02, back03, luckyImage];
     useEffect(() => {
@@ -176,139 +281,9 @@ const Products = () => {
             4000
         );
         return () => clearInterval(intervalId);
-    }, [currentSlide, images.length]);
+    }, [images.length]);
 
-    const dispatch = useCartDispatch();
-
-    useEffect(() => {
-        currentPageRef.current = page;
-    }, [page]);
-
-    useEffect(() => {
-        totalPagesRef.current = pages;
-    }, [pages]);
-
-    const stopSlowLoadingIndicator = useCallback(() => {
-        if (slowLoadingTimeoutRef.current) {
-            clearTimeout(slowLoadingTimeoutRef.current);
-            slowLoadingTimeoutRef.current = null;
-        }
-        setShowSlowLoading(false);
-    }, []);
-
-    const startSlowLoadingIndicator = useCallback((showForSlowRequests = true) => {
-        if (!showForSlowRequests) return;
-
-        stopSlowLoadingIndicator();
-        slowLoadingTimeoutRef.current = setTimeout(() => {
-            setShowSlowLoading(true);
-        }, 700);
-    }, [stopSlowLoadingIndicator]);
-
-    const mergeProducts = useCallback((incomingProducts) => {
-        setProducts((prev) => {
-            const existingIds = new Set(prev.map((item) => item._id));
-            const freshProducts = incomingProducts.filter((item) => !existingIds.has(item._id));
-            return [...prev, ...freshProducts];
-        });
-    }, []);
-
-    // ✅ Fetch products from backend with pagination + search + category
-    const fetchProducts = useCallback(
-        async (requestedPage = 1, { reset = false } = {}) => {
-            let url = "";
-            const isInitialRequest = reset || requestedPage === 1;
-            const controller = new AbortController();
-
-            try {
-                if (isRequestInFlightRef.current && !reset) return;
-
-                if (reset && abortControllerRef.current) {
-                    abortControllerRef.current.abort();
-                }
-
-                abortControllerRef.current = controller;
-                isRequestInFlightRef.current = true;
-
-                setError(null);
-                setLoading(isInitialRequest);
-                setIsFetchingMore(!isInitialRequest);
-                startSlowLoadingIndicator(isInitialRequest);
-
-                url = `${BASE_URL}/products/products?page=${requestedPage}&limit=20`;
-
-                if (category) url += `&category=${category}`;
-                if (searchTerm) url += `&search=${searchTerm}`;
-
-                const cachedEntry = getCachedProductEntry(url);
-                if (cachedEntry) {
-                    setPages(cachedEntry.pages || 1);
-                    setCacheSource("cache");
-                    setPage(requestedPage);
-
-                    if (isInitialRequest) {
-                        setProducts(cachedEntry.products);
-                    } else {
-                        mergeProducts(cachedEntry.products);
-                    }
-
-                    stopSlowLoadingIndicator();
-                    return;
-                }
-
-                const response = await fetch(url, {
-                    cache: "force-cache",
-                    signal: controller.signal,
-                });
-                if (!response.ok) throw new Error("Failed to fetch products");
-
-                const data = await response.json();
-                setCacheSource("live");
-                setPage(requestedPage);
-
-                setCachedProductEntry(url, {
-                    products: data.products,
-                    pages: data.pages,
-                });
-
-                if (isInitialRequest) {
-                    setProducts(data.products);
-                } else {
-                    mergeProducts(data.products);
-                }
-
-                setPages(data.pages);
-            } catch (err) {
-                if (err.name === "AbortError") return;
-
-                setError(err.message);
-
-                const cachedEntry = getCachedProductEntry(url);
-                if (cachedEntry) {
-                    setPage(requestedPage);
-
-                    if (isInitialRequest) {
-                        setProducts(cachedEntry.products);
-                    } else {
-                        mergeProducts(cachedEntry.products);
-                    }
-                    setPages(cachedEntry.pages || 1);
-                    setCacheSource("cache");
-                    setError(null);
-                }
-            } finally {
-                if (abortControllerRef.current === controller) {
-                    abortControllerRef.current = null;
-                }
-                isRequestInFlightRef.current = false;
-                stopSlowLoadingIndicator();
-                setLoading(false);
-                setIsFetchingMore(false);
-            }
-        },
-        [category, mergeProducts, searchTerm, startSlowLoadingIndicator, stopSlowLoadingIndicator]
-    );
-
+    // IntersectionObserver scroll setup
     const autoLoadTriggerRef = useCallback(
         (node) => {
             if (!supportsAutoLoad) return;
@@ -317,16 +292,16 @@ const Products = () => {
                 autoLoadObserverRef.current.disconnect();
             }
 
-            if (loading || isFetchingMore || !node) return;
+            if (isLoading || isFetchingNextPage || !node) return;
 
             autoLoadObserverRef.current = new IntersectionObserver(
                 (entries) => {
                     if (
                         entries[0]?.isIntersecting &&
-                        currentPageRef.current < totalPagesRef.current &&
-                        !isRequestInFlightRef.current
+                        hasNextPage &&
+                        !isFetchingNextPage
                     ) {
-                        fetchProducts(currentPageRef.current + 1, { reset: false });
+                        fetchNextPage();
                     }
                 },
                 {
@@ -337,74 +312,35 @@ const Products = () => {
 
             autoLoadObserverRef.current.observe(node);
         },
-        [fetchProducts, isFetchingMore, loading, supportsAutoLoad]
+        [fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, supportsAutoLoad]
     );
 
     useEffect(() => {
-        return () => stopSlowLoadingIndicator();
-    }, [stopSlowLoadingIndicator]);
-
-    useEffect(() => {
         return () => {
-            if (abortControllerRef.current) {
-                abortControllerRef.current.abort();
-            }
             if (autoLoadObserverRef.current) {
                 autoLoadObserverRef.current.disconnect();
             }
         };
     }, []);
 
-    useEffect(() => {
-        setSelectedCategory(category || "");
-    }, [category]);
-
-    // Initial load + when category/search changes
-    useEffect(() => {
-        const delay = setTimeout(() => {
-            fetchProducts(1, { reset: true });
-        }, 350);
-
-        return () => clearTimeout(delay);
-    }, [category, searchTerm, fetchProducts]);
-
-    // Handle edit
     const handleEdit = (product) => {
         setSelectedProduct(product);
         setIsModalOpen(true);
     };
 
-    const handleSave = async (updatedProduct) => {
-        try {
-            const savedProduct = await authRequest(`/products/products/${updatedProduct._id}`, {
-                method: "PUT",
-                body: updatedProduct,
-            });
-            setProducts((prev) =>
-                prev.map((p) => (p._id === savedProduct._id ? savedProduct : p))
-            );
-        } catch (err) {
-            setError(err.message);
-        }
+    const handleSave = (updatedProduct) => {
+        saveMutation.mutate(updatedProduct);
     };
 
-    // Delete
     const handleDelete = (productId) => {
         setIsDeleteModalOpen(true);
         setSelectedProduct(products.find((p) => p._id === productId));
     };
 
-    const confirmDelete = async (productId) => {
-        try {
-            await authRequest(`/products/products/${productId}`, { method: "DELETE" });
-            setProducts((prev) => prev.filter((p) => p._id !== productId));
-            dispatch({ type: "DELETE_PRODUCT", payload: productId });
-        } catch (err) {
-            setError(err.message);
-        }
+    const confirmDelete = (productId) => {
+        deleteMutation.mutate(productId);
     };
 
-    // Cart
     const handleAddToCart = (product) => {
         dispatch({
             type: "ADD_ITEM",
@@ -423,9 +359,8 @@ const Products = () => {
         });
     };
 
-    // Details
     const handleDetails = (productId) => {
-        Navigate(`/productdetails/${productId}`);
+        navigate(`/productdetails/${productId}`);
     };
 
     const clearFilters = () => {
@@ -435,13 +370,12 @@ const Products = () => {
         setSortBy("featured");
     };
 
-    // Add new product
     const handleNewProductChange = (e) => {
         const { name, value } = e.target;
         setNewProduct((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleAddNewProduct = async (e) => {
+    const handleAddNewProduct = (e) => {
         e.preventDefault();
         const productData = {
             ...newProduct,
@@ -450,82 +384,34 @@ const Products = () => {
                 ? newProduct.keywords.split(",").map((k) => k.trim())
                 : [],
         };
-        try {
-            const addedProduct = await authRequest("/products/products", {
-                method: "POST",
-                body: productData,
-            });
-            setProducts((prev) => [addedProduct, ...prev]);
-            setIsAddModalOpen(false);
-            setNewProduct({
-                name: "",
-                mrp: "",
-                bestBuyPrice: "",
-                category: "",
-                model: "",
-                description: "",
-                image: "",
-                keywords: "",
-                brand: "",
-                capacity: "",
-                stock: "",
-            });
-        } catch (err) {
-            setError(err.message);
-        }
+        addMutation.mutate(productData);
     };
 
-    const isInitialLoading = loading && products.length === 0;
-    if (error) {
+    if (isError) {
         return (
             <div className="error-container">
-                <div>Error: {error}</div>
-                <button onClick={() => fetchProducts(1, { reset: true })}>Retry</button>
+                <div>Error: {error.message || "Failed to load products."}</div>
+                <button onClick={() => refetch()}>Retry</button>
             </div>
         );
     }
 
     return (
         <>
-            <Helmet>
-                <title>Buy Products Online | Lucky Impex</title>
-                <meta
-                    name="description"
-                    content="Shop high quality electronics and appliances from Lucky Impex at best prices."
-                />
-                <meta
-                    name="keywords"
-                    content="Lucky Impex, electronics, appliances, best price, online shopping"
-                />
-                <meta property="og:title" content="Lucky Impex Products" />
-                <meta
-                    property="og:description"
-                    content="Explore premium quality products at Lucky Impex."
-                />
-            </Helmet>
+            <PageSeo
+                title="Buy Products Online"
+                description="Shop high quality electronics and appliances from Lucky Impex at best prices."
+                canonicalPath="/products"
+            />
             <Header />
-            {showSlowLoading && (
+
+            {isFetching && !isFetchingNextPage && (
                 <div className="slow-loading-banner">
                     <span className="loading-pulse-dot"></span>
-                    Fetching products. This is taking a bit longer than usual.
-                </div>
-            )}
-            {/* ✅ Loading Skeleton */}
-            {isInitialLoading && (
-                <div className="skeleton-grid">
-                    {[...Array(6)].map((_, i) => (
-                        <div key={i} className="skeleton-card"></div>
-                    ))}
+                    Syncing product data...
                 </div>
             )}
 
-            {/* ✅ Error */}
-            {error && (
-                <div className="error-container">
-                    <p>Error: {error}</p>
-                    <button onClick={() => fetchProducts(1, { reset: true })}>Retry</button>
-                </div>
-            )}
             <div className="home-main">
                 <div className="image">
                     <input
@@ -540,14 +426,6 @@ const Products = () => {
                         alt={`Slide ${currentSlide + 1}`}
                         className="slider-image"
                     />
-                    <div className="hero-copy">
-                        <p className="hero-eyebrow">Lucky Impex Product Store</p>
-                        <h1>Find appliances and electronics that fit your home and budget.</h1>
-                        <p>
-                            Compare brands, filter by category, and shop current offers without
-                            digging through clutter.
-                        </p>
-                    </div>
                 </div>
                 <div className="seo-static-content">
                     <div className="container">
@@ -626,9 +504,9 @@ const Products = () => {
                     <div className="results-summary">
                         <span>{availableCount} in stock</span>
                         <span>{Math.max(sortedProducts.length - availableCount, 0)} unavailable</span>
-                        <span>{products.length} loaded so far</span>
-                        <span>Source: {cacheSource === "cache" ? "Cached data" : "Live API"}</span>
-                        <span>{page < pages ? "Auto loading enabled" : "All products loaded"}</span>
+                        <span>{products.length} loaded</span>
+                        <span>Source: Cached & Auto-Syncing</span>
+                        <span>{hasNextPage ? "Auto loading enabled" : "All products loaded"}</span>
                     </div>
                 </div>
             </div>
@@ -639,152 +517,175 @@ const Products = () => {
                     <button
                         onClick={() => setIsAddModalOpen(true)}
                         className="button-primary"
+                        disabled={addMutation.isPending}
                     >
-                        Add New Product
+                        {addMutation.isPending ? "Adding..." : "Add New Product"}
                     </button>
                 </div>
             )}
 
+            {/* Loading Skeletons for Initial Load */}
+            {isLoading && (
+                <div className="skeleton-grid">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="skeleton-card" aria-hidden="true">
+                            <div className="skeleton-image-placeholder"></div>
+                            <div className="skeleton-body-placeholder">
+                                <div className="skeleton-line-placeholder short"></div>
+                                <div className="skeleton-line-placeholder long"></div>
+                                <div className="skeleton-line-placeholder medium"></div>
+                                <div className="skeleton-line-placeholder buttons"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Product List */}
-            <div className="product-grid">
-                {sortedProducts.length > 0 ? (
-                    sortedProducts.map((product) => {
-                        const savings = getSavings(product.mrp, product.price);
-                        const isOutOfStock = Number(product.stock) <= 0;
+            {!isLoading && (
+                <div className="product-grid">
+                    {sortedProducts.length > 0 ? (
+                        sortedProducts.map((product) => {
+                            const savings = getSavings(product.mrp, product.price);
+                            const isOutOfStock = Number(product.stock) <= 0;
 
-                        return (
-                            <div
-                                key={product._id}
-                                className={`product-container ${isOutOfStock ? "is-unavailable" : ""}`}
-                            >
-                                <div
-                                    className="product-image-container"
-                                    onClick={() => handleDetails(product._id)}
-                                >
-                                    <img
-                                        className="product-image"
-                                        src={getImageSrc(product.image, placeholderImage)}
-                                        alt={product.name || "Product image"}
-                                        loading="lazy"
-                                        onError={(e) => {
-                                            e.currentTarget.onerror = null;
-                                            e.currentTarget.src = placeholderImage;
-                                        }}
-                                    />
-                                    {savings && (
-                                        <div className="product-discount">
-                                            <p>Save {formatCurrency(savings.amount)}</p>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="product-card-body">
-                                    <div className="product-meta-row">
-                                        <span className="meta-badge">{product.brand || "Lucky Impex"}</span>
-                                        <span className="meta-badge muted">{product.category || "General"}</span>
-                                    </div>
-
+                                return (
                                     <div
-                                        className="product-name"
-                                        onClick={() => handleDetails(product._id)}
+                                        key={product._id}
+                                        className={`product-container ${isOutOfStock ? "is-unavailable" : ""}`}
                                     >
-                                        {product.name}
-                                    </div>
-
-                                    <p className="stock">
-                                        <span
-                                            className={`stock-status ${isOutOfStock ? "out-of-stock" : "in-stock"}`}
-                                        ></span>
-                                        {isOutOfStock ? "Out of stock" : `In stock${product.stock ? ` (${product.stock})` : ""}`}
-                                    </p>
-
-                                    <div className="product-spec-list">
-                                        <div className="product-size">Capacity: {product.capacity || "N/A"}</div>
-                                        <div className="product-model">Model: {product.model || "N/A"}</div>
-                                    </div>
-
-                                    <div className="price-block">
-                                        <div className="product-mrp">MRP: {formatCurrency(product.mrp)}</div>
-                                        <div className="product-price">
-                                            <p>Best Buy: {formatCurrency(product.price)}</p>
-                                        </div>
+                                    <div
+                                        className="product-image-container"
+                                        onClick={() => handleDetails(product.slug || product._id)}
+                                    >
+                                        <img
+                                            className="product-image"
+                                            src={getImageSrc(product.image, placeholderImage)}
+                                            alt={product.name || "Product image"}
+                                            loading="lazy"
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null;
+                                                e.currentTarget.src = placeholderImage;
+                                            }}
+                                        />
                                         {savings && (
-                                            <div className="discount-note">
-                                                {savings.percentage}% off against MRP
+                                            <div className="product-discount">
+                                                <p>Save {formatCurrency(savings.amount)}</p>
                                             </div>
                                         )}
                                     </div>
 
-                                    <p className="product-description-preview">
-                                        {product.description || "Product details available on the details page."}
-                                    </p>
+                                    <div className="product-card-body">
+                                        <div className="product-meta-row">
+                                            <span className="meta-badge">{product.brand || "Lucky Impex"}</span>
+                                            <span className="meta-badge muted">{product.category || "General"}</span>
+                                        </div>
 
-                                    {userRole === "admin" ? (
-                                        <div className="product-actions">
-                                            <button
-                                                className="edit-btn"
-                                                onClick={() => handleEdit(product)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="delete-btn"
-                                                onClick={() => handleDelete(product._id)}
-                                            >
-                                                Delete
-                                            </button>
+                                        <div
+                                            className="product-name"
+                                            onClick={() => handleDetails(product.slug || product._id)}
+                                        >
+                                            {product.name}
                                         </div>
-                                    ) : (
-                                        <div className="product-actions customer-actions">
-                                            <button
-                                                className="details-btn"
-                                                onClick={() => handleDetails(product._id)}
-                                            >
-                                                View Details
-                                            </button>
-                                            <button
-                                                className="add-to-cart-button button-primary"
-                                                onClick={() => handleAddToCart(product)}
-                                                disabled={isOutOfStock}
-                                            >
-                                                {isOutOfStock ? "Unavailable" : "Add to Cart"}
-                                            </button>
+
+                                        <p className="stock">
+                                            <span
+                                                className={`stock-status ${isOutOfStock ? "out-of-stock" : "in-stock"}`}
+                                            ></span>
+                                            {isOutOfStock ? "Out of stock" : `In stock${product.stock ? ` (${product.stock})` : ""}`}
+                                        </p>
+
+                                        <div className="product-spec-list">
+                                            <div className="product-size">Capacity: {product.capacity || "N/A"}</div>
+                                            <div className="product-model">Model: {product.model || "N/A"}</div>
                                         </div>
-                                    )}
+
+                                        <div className="price-block">
+                                            <div className="product-mrp">MRP: {formatCurrency(product.mrp)}</div>
+                                            <div className="product-price">
+                                                <p>Best Buy: {formatCurrency(product.price)}</p>
+                                            </div>
+                                            {savings && (
+                                                <div className="discount-note">
+                                                    {savings.percentage}% off against MRP
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <p className="product-description-preview">
+                                            {product.description || "Product details available on the details page."}
+                                        </p>
+
+                                        {userRole === "admin" ? (
+                                            <div className="product-actions">
+                                                <button
+                                                    className="edit-btn"
+                                                    onClick={() => handleEdit(product)}
+                                                    disabled={saveMutation.isPending}
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className="delete-btn"
+                                                    onClick={() => handleDelete(product._id)}
+                                                    disabled={deleteMutation.isPending}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="product-actions customer-actions">
+                                                <button
+                                                    className="details-btn"
+                                                    onClick={() => handleDetails(product.slug || product._id)}
+                                                >
+                                                    View Details
+                                                </button>
+                                                <button
+                                                    className="add-to-cart-button button-primary"
+                                                    onClick={() => handleAddToCart(product)}
+                                                    disabled={isOutOfStock}
+                                                >
+                                                    {isOutOfStock ? "Unavailable" : "Add to Cart"}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        );
-                    })
-                ) : (
-                    <div className="no-products-found">
-                        <h3>No products found</h3>
-                        <p>Try changing the search, brand, or category filters.</p>
-                        <button className="button-primary" onClick={clearFilters}>
-                            Reset filters
-                        </button>
-                    </div>
-                )}
-            </div>
-            {sortedProducts.length > 0 && page < pages && (
+                            );
+                        })
+                    ) : (
+                        <div className="no-products-found">
+                            <h3>No products found</h3>
+                            <p>Try changing the search, brand, or category filters.</p>
+                            <button className="button-primary" onClick={clearFilters}>
+                                Reset filters
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {sortedProducts.length > 0 && hasNextPage && (
                 <div ref={autoLoadTriggerRef} className="auto-load-sentinel" aria-hidden="true" />
             )}
 
-            {isFetchingMore && (
+            {isFetchingNextPage && (
                 <div className="infinite-loader">
                     <span className="loading-pulse-dot"></span>
                     Loading more products...
                 </div>
             )}
 
-            {/* Load More */}
-            {!supportsAutoLoad && page < pages && (
+            {/* Load More Fallback for non-intersection browsers */}
+            {!supportsAutoLoad && hasNextPage && (
                 <div className="load-more-container">
                     <button
                         className="button-primary"
-                        disabled={loading || isFetchingMore}
-                        onClick={() => fetchProducts(page + 1, { reset: false })}
+                        disabled={isFetchingNextPage}
+                        onClick={() => fetchNextPage()}
                     >
-                        {loading || isFetchingMore ? "Loading..." : "Load More"}
+                        {isFetchingNextPage ? "Loading..." : "Load More"}
                     </button>
                 </div>
             )}
@@ -877,8 +778,8 @@ const Products = () => {
                         onChange={handleNewProductChange}
                         placeholder="Stock"
                     />
-                    <button type="submit" className="button-primary">
-                        Add Product
+                    <button type="submit" className="button-primary" disabled={addMutation.isPending}>
+                        {addMutation.isPending ? "Adding..." : "Add Product"}
                     </button>
                 </form>
             </Modal>
@@ -898,8 +799,9 @@ const Products = () => {
                     <button
                         onClick={() => confirmDelete(selectedProduct?._id)}
                         className="button-primary"
+                        disabled={deleteMutation.isPending}
                     >
-                        Yes, Delete
+                        {deleteMutation.isPending ? "Deleting..." : "Yes, Delete"}
                     </button>
                     <button
                         onClick={() => setIsDeleteModalOpen(false)}

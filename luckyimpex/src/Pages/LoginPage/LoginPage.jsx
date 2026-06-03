@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 import Header from '../../Components/Header';
-import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../../Components/NotificationContext'; // Import notification context
 import { BASE_URL } from '../../api/api';
+import PageSeo from '../../Components/PageSeo';
 
 function LoginComponent() {
     const [email, setEmail] = useState('');
@@ -93,10 +93,12 @@ function LoginComponent() {
 
     return (
         <div>
-            <Helmet>
-                <title>Login - Lucky Impex</title>
-                <meta name="description" content="Log in to your Lucky Impex account." />
-            </Helmet>
+            <PageSeo
+                title="Login"
+                description="Log in to your Lucky Impex account."
+                canonicalPath="/login"
+                noIndex
+            />
             <Header />
             <section className="auth-page">
                 <div className="auth-shell">

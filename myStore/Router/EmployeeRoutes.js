@@ -38,7 +38,7 @@ router.post("/login-employee", async (req, res) => {
         const isMatch = await employee.comparePassword(password);
         if (!isMatch) return res.status(400).json({ success: false, message: "Invalid email or password" });
 
-        const token = jwt.sign({ id: employee._id, role: "employee" }, "bcdjbsfnkndskdemlfwfkebfkw11", { expiresIn: "1d" });
+        const token = jwt.sign({ id: employee._id, role: "employee" }, process.env.JWT_SECRET || "bcdjbsfnkndskdemlfwfkebfkw11", { expiresIn: "1d" });
 
         res.json({
             success: true,
@@ -286,67 +286,79 @@ router.get("/admin-employeeStats", authMiddleware, async (req, res) => {
         if (req.user.role !== "admin") {
             return res.status(403).json({ message: "Access denied. Admins only." });
         }
-        const employees = await Employee.find();
+        const employees = await Employee.find().lean();
+        const employeeIds = employees.map(emp => emp._id);
 
-        // Prepare detailed stats for each employee
-        const employeeStats = await Promise.all(
-            employees.map(async (emp) => {
-                // Calculate total days since joining
-                const joinDate = new Date(emp.joinDate);
-                const today = new Date();
-                const totalDays = Math.ceil(
-                    (today - joinDate) / (1000 * 60 * 60 * 24)
-                );
+        // Fetch attendance, leaves, and salary paid in bulk (removes N+1)
+        const [allAttendance, allLeaves, salarySums] = await Promise.all([
+            Attendance.find({ employeeId: { $in: employeeIds } }).lean(),
+            Leave.find({ employeeId: { $in: employeeIds } }).lean(),
+            Salary.aggregate([
+                { $match: { employeeId: { $in: employeeIds } } },
+                { $group: { _id: "$employeeId", total: { $sum: "$netSalary" } } }
+            ])
+        ]);
 
-                // Fetch attendance records for this employee
-                const attendanceRecords = await Attendance.find({ employeeId: emp._id });
+        // Map salary sums for O(1) lookup
+        const salaryMap = salarySums.reduce((acc, item) => {
+            acc[item._id.toString()] = item.total;
+            return acc;
+        }, {});
 
-                const totalPresent = attendanceRecords.filter(
-                    (a) => a.status === "Present"
-                ).length;
+        // Group attendance records by employeeId
+        const attendanceMap = allAttendance.reduce((acc, a) => {
+            const empId = a.employeeId.toString();
+            if (!acc[empId]) acc[empId] = [];
+            acc[empId].push(a);
+            return acc;
+        }, {});
 
-                const totalAbsent = attendanceRecords.filter(
-                    (a) => a.status === "Absent"
-                ).length;
+        // Group leave records by employeeId
+        const leavesMap = allLeaves.reduce((acc, l) => {
+            const empId = l.employeeId.toString();
+            if (!acc[empId]) acc[empId] = [];
+            acc[empId].push(l);
+            return acc;
+        }, {});
 
-                const totalAttendance = totalPresent + totalAbsent;
+        // Compute stats in memory
+        const employeeStats = employees.map((emp) => {
+            const empIdStr = emp._id.toString();
+            const joinDate = new Date(emp.joinDate);
+            const today = new Date();
+            const totalDays = Math.ceil((today - joinDate) / (1000 * 60 * 60 * 24));
 
-                // Fetch leaves for this employee
-                const leaves = await Leave.find({ employeeId: emp._id });
-                const totalLeaves = leaves.length;
+            const empAttendance = attendanceMap[empIdStr] || [];
+            const totalPresent = empAttendance.filter(a => a.status === "Present" || a.status === "present").length;
+            const totalAbsent = empAttendance.filter(a => a.status === "Absent" || a.status === "absent").length;
+            const totalAttendance = totalPresent + totalAbsent;
 
-                // Fetch total salary paid
-                const salaryPaid = await Salary.aggregate([
-                    { $match: { employeeId: emp._id } },
-                    { $group: { _id: null, total: { $sum: "$netSalary" } } },
-                ]);
+            const empLeaves = leavesMap[empIdStr] || [];
+            const totalLeaves = empLeaves.length;
+            const effectiveDays = totalDays - totalLeaves;
 
+            const totalSalaryPaid = salaryMap[empIdStr] || 0;
 
-                // Effective working days after excluding leaves
-                const effectiveDays = totalDays - totalLeaves;
+            return {
+                empId: emp._id,
+                name: emp.name,
+                email: emp.email,
+                phone: emp.phone,
+                salary: emp.salary,
+                status: emp.status,
+                department: emp.department,
+                designation: emp.designation,
+                joinedDate: emp.joinDate,
+                totalDays,
+                totalPresent,
+                totalAbsent,
+                totalAttendance,
+                totalLeaves,
+                totalSalaryPaid,
+                effectiveDays,
+            };
+        });
 
-                return {
-                    empId: emp._id,
-                    name: emp.name,
-                    email: emp.email,
-                    phone: emp.phone,
-                    salary: emp.salary,
-                    status: emp.status,
-                    department: emp.department,
-                    designation: emp.designation,
-                    joinedDate: emp.joinDate,
-                    totalDays,
-                    totalPresent,
-                    totalAbsent,
-                    totalAttendance,
-                    totalLeaves,
-                    totalSalaryPaid: salaryPaid[0]?.total || 0,
-                    effectiveDays,
-                };
-            })
-        );
-
-        // Send response
         res.json({
             success: true,
             employees: employeeStats,
@@ -356,23 +368,24 @@ router.get("/admin-employeeStats", authMiddleware, async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 });
+
 // ✅ Employee Dashboard Stats
 router.get("/employee-dashboard", authMiddleware, async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.query.id || req.user.id;
         if (req.user.role === "employee" && req.user.id !== id) return res.status(403).json({ message: "Access denied." });
 
         const attendanceCount = await Attendance.countDocuments({ employeeId: id, status: "Present" });
-        const leaves = await Leave.find({ employeeId: id });
-        const salaries = await Salary.find({ employeeId: id });
+        const leaves = await Leave.find({ employeeId: id }).lean();
+        const salaries = await Salary.find({ employeeId: id }).lean();
 
         res.json({
             success: true,
             stats: {
                 totalAttendance: attendanceCount,
                 totalLeaves: leaves.length,
-                approvedLeaves: leaves.filter(l => l.status === "Approved").length,
-                rejectedLeaves: leaves.filter(l => l.status === "Rejected").length,
+                approvedLeaves: leaves.filter(l => l.status === "Approved" || l.status === "approved").length,
+                rejectedLeaves: leaves.filter(l => l.status === "Rejected" || l.status === "rejected").length,
                 totalSalaryReceived: salaries.reduce((sum, s) => sum + s.netSalary, 0),
                 lastSalary: salaries[salaries.length - 1] || null
             }

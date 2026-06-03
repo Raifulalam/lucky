@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Helmet } from "react-helmet";
 import { BadgePercent, Headphones, MapPin, ShieldCheck } from "lucide-react";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
+import PageSeo from "../../Components/PageSeo";
 
 import HeroSlider from "./HeroSlider";
 import Categories from "./Categories";
@@ -24,12 +24,11 @@ const Home = () => {
 
     return (
         <div className="home-page">
-            <Helmet>
-                <title>Home - Lucky Impex</title>
-                <meta name="description" content="Your one-stop shop for electronics and home appliances." />
-                <meta name="keywords" content="electronics, appliances, AC, refrigerator, washing machine, TV, kitchen appliances" />
-                <link rel="canonical" href="https://luckyimpex.netlify.app" />
-            </Helmet>
+            <PageSeo
+                title="Home"
+                description="Your one-stop shop for electronics and home appliances."
+                canonicalPath="/"
+            />
 
             <Header />
             <main className="home-main">

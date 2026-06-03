@@ -89,11 +89,26 @@ router.post("/orders", authenticateToken, async (req, res) => {
  */
 router.get("/orders/my", authenticateToken, async (req, res) => {
     try {
-        const orders = await Order.find({ "user.userId": req.user.id }).sort({
-            createdAt: -1,
-        });
+        const page = Math.max(1, Number(req.query.page) || 1);
+        const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 20));
+        const skip = (page - 1) * limit;
 
-        res.json(orders);
+        const [orders, total] = await Promise.all([
+            Order.find({ "user.userId": req.user.id })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Order.countDocuments({ "user.userId": req.user.id }),
+        ]);
+
+        res.json({
+            success: true,
+            data: orders,
+            total,
+            page,
+            pages: Math.ceil(total / limit),
+        });
     } catch (error) {
         console.error("Fetch My Orders Error:", error);
         res.status(500).json({ message: "Server error" });
@@ -105,8 +120,26 @@ router.get("/orders/my", authenticateToken, async (req, res) => {
  */
 router.get("/orders", authenticateToken, isAdmin, async (req, res) => {
     try {
-        const orders = await Order.find().sort({ createdAt: -1 });
-        res.json(orders);
+        const page = Math.max(1, Number(req.query.page) || 1);
+        const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 20));
+        const skip = (page - 1) * limit;
+
+        const [orders, total] = await Promise.all([
+            Order.find()
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Order.countDocuments(),
+        ]);
+
+        res.json({
+            success: true,
+            data: orders,
+            total,
+            page,
+            pages: Math.ceil(total / limit),
+        });
     } catch (error) {
         console.error("Fetch Orders Error:", error);
         res.status(500).json({ message: "Server error" });
