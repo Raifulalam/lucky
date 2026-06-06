@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { X, Trash2, ShoppingCart, Plus, Minus, ArrowRight } from "lucide-react";
 import { useCartState, useCartDispatch } from "./CreateReducer";
 import "./CartDrawer.css";
@@ -125,7 +125,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                             <span>Total</span>
                             <span>{formatCurrency(total)}</span>
                         </div>
-                        
+
                         <div className="drawer-footer-actions">
                             <button className="drawer-checkout-btn" onClick={() => { onClose(); navigate("/cart"); }}>
                                 Proceed to Checkout <ArrowRight size={16} />
