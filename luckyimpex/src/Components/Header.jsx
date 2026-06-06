@@ -1,10 +1,11 @@
 import React, { useContext, useMemo, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { ChevronDown, Headphones, LayoutDashboard, Menu, Phone, ShoppingCart, Store, User, X } from "lucide-react";
 import { UserContext } from "./UserContext";
 import { useCartState } from "./CreateReducer";
 import luckyLogo from "../Images/lucky-logo.png";
+import CartDrawer from "./CartDrawer";
 import "./Header.css";
 
 const categories = [
@@ -50,9 +51,18 @@ const formatCategory = (value) => value.replace(/([A-Z])/g, " $1").trim();
 const Header = () => {
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [catOpen, setCatOpen] = useState(false);
+    const [cartOpen, setCartOpen] = useState(false);
+
+    const handleCartClick = (e) => {
+        if (location.pathname !== "/cart") {
+            e.preventDefault();
+            setCartOpen(true);
+        }
+    };
 
     const isAdmin = user?.role === "admin";
     const isUser = user && !isAdmin;
@@ -156,7 +166,7 @@ const Header = () => {
 
                     <div className="header-actions">
                         {!isAdmin && (
-                            <Link to="/cart" className="cart-link" aria-label="View cart">
+                            <Link to="/cart" className="cart-link" aria-label="View cart" onClick={handleCartClick}>
                                 <ShoppingCart size={20} />
                                 <span>Cart</span>
                                 <span className="cart-badge">{cartQty}</span>
@@ -214,7 +224,7 @@ const Header = () => {
                         </Link>
                     ))}
                     {!isAdmin && (
-                        <Link to="/cart" onClick={closeMobileMenu}>
+                        <Link to="/cart" onClick={(e) => { closeMobileMenu(); handleCartClick(e); }}>
                             Cart
                         </Link>
                     )}
@@ -261,6 +271,7 @@ const Header = () => {
                     </Link>
                 </div>
             </aside>
+            <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
         </div>
     );
 };

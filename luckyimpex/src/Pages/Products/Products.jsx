@@ -17,6 +17,8 @@ import { categories as categoryCatalog, brands as brandCatalog } from "../HomePa
 import { authRequest, BASE_URL } from "../../api/api";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
+import ProductQuickViewModal from "./ProductQuickViewModal";
+import { Eye, Search, X, SlidersHorizontal, Check } from "lucide-react";
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -55,6 +57,19 @@ const Products = () => {
     const [selectedCategory, setSelectedCategory] = useState(category || "");
     const [selectedBrand, setSelectedBrand] = useState("");
     const [sortBy, setSortBy] = useState("featured");
+
+    // Price range & stock filters
+    const [minPrice, setMinPrice] = useState("");
+    const [maxPrice, setMaxPrice] = useState("");
+    const [showInStockOnly, setShowInStockOnly] = useState(false);
+    const [showFiltersPanel, setShowFiltersPanel] = useState(false);
+
+    // Quick view states
+    const [quickViewProduct, setQuickViewProduct] = useState(null);
+    const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+    // Add loading indicator per product
+    const [addingItems, setAddingItems] = useState({});
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -245,9 +260,18 @@ const Products = () => {
         return products.filter((product) => {
             const matchesCategory = selectedCategory === "" || product.category === selectedCategory;
             const matchesBrand = selectedBrand === "" || product.brand === selectedBrand;
-            return matchesCategory && matchesBrand;
+            
+            // Price range check
+            const priceVal = Number(product.price || 0);
+            const matchesMinPrice = minPrice === "" || priceVal >= Number(minPrice);
+            const matchesMaxPrice = maxPrice === "" || priceVal <= Number(maxPrice);
+            
+            // In stock check
+            const matchesStock = !showInStockOnly || Number(product.stock || 0) > 0;
+            
+            return matchesCategory && matchesBrand && matchesMinPrice && matchesMaxPrice && matchesStock;
         });
-    }, [products, selectedCategory, selectedBrand]);
+    }, [products, selectedCategory, selectedBrand, minPrice, maxPrice, showInStockOnly]);
 
     const sortedProducts = useMemo(() => {
         return [...filteredProducts].sort((a, b) => {
@@ -270,7 +294,14 @@ const Products = () => {
         return sortedProducts.filter((product) => Number(product.stock) > 0).length;
     }, [sortedProducts]);
 
-    const activeFilterCount = [selectedCategory, selectedBrand, debouncedSearch].filter(Boolean).length;
+    const activeFilterCount = [
+        selectedCategory,
+        selectedBrand,
+        debouncedSearch,
+        minPrice,
+        maxPrice,
+        showInStockOnly ? "instock" : ""
+    ].filter(Boolean).length;
 
     // Hero Slider logic
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -341,7 +372,14 @@ const Products = () => {
         deleteMutation.mutate(productId);
     };
 
+    const handleQuickView = (product) => {
+        setQuickViewProduct(product);
+        setIsQuickViewOpen(true);
+    };
+
     const handleAddToCart = (product) => {
+        setAddingItems((prev) => ({ ...prev, [product._id]: true }));
+        
         dispatch({
             type: "ADD_ITEM",
             id: product._id,
@@ -350,13 +388,18 @@ const Products = () => {
             mrp: product.mrp,
             price: product.price,
         });
-        addNotification({
-            title: "Success!",
-            message: "Item added to cart",
-            type: "success",
-            container: "top-right",
-            dismiss: { duration: 5000 },
-        });
+
+        // Simulating loading callback state
+        setTimeout(() => {
+            setAddingItems((prev) => ({ ...prev, [product._id]: false }));
+            addNotification({
+                title: "Added to Cart!",
+                message: `${product.name} has been added to your cart.`,
+                type: "success",
+                container: "top-right",
+                dismiss: { duration: 3000 },
+            });
+        }, 650);
     };
 
     const handleDetails = (productId) => {
@@ -368,6 +411,9 @@ const Products = () => {
         setSelectedBrand("");
         setSelectedCategory(category || "");
         setSortBy("featured");
+        setMinPrice("");
+        setMaxPrice("");
+        setShowInStockOnly(false);
     };
 
     const handleNewProductChange = (e) => {
@@ -412,26 +458,40 @@ const Products = () => {
                 </div>
             )}
 
-            <div className="home-main">
-                <div className="image">
-                    <input
-                        type="text"
-                        placeholder="Search for items..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="search-bar"
-                    />
+            <div className="products-hero-section">
+                <div className="slider-wrapper">
+                    <div className="slider-overlay">
+                        <div className="hero-search-block">
+                            <h1 className="hero-search-title">Discover Premium Appliances</h1>
+                            <p className="hero-search-subtitle">Search authorized electronics at best buy prices</p>
+                            <div className="search-bar-wrapper">
+                                <Search className="search-icon" size={20} />
+                                <input
+                                    type="text"
+                                    placeholder="Search for ACs, refrigerators, TVs..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="search-bar-input"
+                                />
+                                {searchTerm && (
+                                    <button className="search-clear-btn" onClick={() => setSearchTerm("")} aria-label="Clear search">
+                                        <X size={18} />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                     <img
                         src={images[currentSlide]}
                         alt={`Slide ${currentSlide + 1}`}
-                        className="slider-image"
+                        className="slider-image-new"
                     />
                 </div>
+            </div>
+
+            <div className="home-main">
                 <div className="seo-static-content">
                     <div className="container">
-                        <h1 className="main-title">
-                            Lucky Impex – Your Trusted Online Shopping Destination
-                        </h1>
                         <p className="subtitle">
                             Discover premium electronics, home appliances, and top-quality products
                             at unbeatable prices. Shop smart, shop fast, shop with confidence.
@@ -444,17 +504,23 @@ const Products = () => {
                         </div>
                     </div>
                 </div>
+
                 <div className="filter-section">
                     <div className="filter-header">
                         <div>
-                            <h2>Filter Products</h2>
+                            <h2>Catalog Explorer</h2>
                             <p>
                                 {sortedProducts.length} results{activeFilterCount > 0 ? ` • ${activeFilterCount} active filters` : ""}
                             </p>
                         </div>
-                        <button className="button-secondary clear-filters-btn" onClick={clearFilters}>
-                            Clear filters
-                        </button>
+                        <div className="filter-header-buttons">
+                            <button className="filter-toggle-btn" onClick={() => setShowFiltersPanel(!showFiltersPanel)}>
+                                <SlidersHorizontal size={16} /> {showFiltersPanel ? "Hide Advanced Filters" : "Show Advanced Filters"}
+                            </button>
+                            <button className="button-secondary clear-filters-btn" onClick={clearFilters}>
+                                Clear filters
+                            </button>
+                        </div>
                     </div>
 
                     <div className="category-chip-row">
@@ -462,7 +528,7 @@ const Products = () => {
                             className={`category-chip ${selectedCategory === "" ? "active" : ""}`}
                             onClick={() => setSelectedCategory("")}
                         >
-                            All
+                            All Categories
                         </button>
                         {categoryOptions.map((item) => (
                             <button
@@ -470,43 +536,95 @@ const Products = () => {
                                 className={`category-chip ${selectedCategory === item ? "active" : ""}`}
                                 onClick={() => setSelectedCategory(item)}
                             >
-                                {item}
+                                {item.replace(/([A-Z])/g, " $1").trim()}
                             </button>
                         ))}
                     </div>
-                    <div className="filters">
-                        <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-                            <option value="">All Categories</option>
-                            {categoryOptions.map((item) => (
-                                <option key={item} value={item}>
-                                    {item}
-                                </option>
-                            ))}
-                        </select>
 
-                        <select value={selectedBrand} onChange={(e) => setSelectedBrand(e.target.value)}>
-                            <option value="">All Brands</option>
-                            {brandOptions.map((item) => (
-                                <option key={item} value={item}>
-                                    {item}
-                                </option>
-                            ))}
-                        </select>
+                    {/* Advanced Filters Panel */}
+                    <div className={`advanced-filters-panel ${showFiltersPanel ? "show" : ""}`}>
+                        <div className="filter-grid">
+                            {/* Brand Chips Selection */}
+                            <div className="filter-group">
+                                <label className="filter-label">Select Brand</label>
+                                <div className="brand-chips">
+                                    <button
+                                        type="button"
+                                        className={`brand-chip-btn ${selectedBrand === "" ? "active" : ""}`}
+                                        onClick={() => setSelectedBrand("")}
+                                    >
+                                        All Brands
+                                    </button>
+                                    {brandOptions.map((brand) => (
+                                        <button
+                                            key={brand}
+                                            type="button"
+                                            className={`brand-chip-btn ${selectedBrand === brand ? "active" : ""}`}
+                                            onClick={() => setSelectedBrand(brand)}
+                                        >
+                                            {brand}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
 
-                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                            <option value="featured">Featured</option>
-                            <option value="priceLowToHigh">Price: Low to High</option>
-                            <option value="priceHighToLow">Price: High to Low</option>
-                            <option value="discountHighToLow">Biggest Savings</option>
-                            <option value="nameAToZ">Name: A to Z</option>
-                        </select>
+                            {/* Price range and Stock filter */}
+                            <div className="filter-group-row">
+                                <div className="filter-group">
+                                    <label className="filter-label">Price Range (Rs)</label>
+                                    <div className="price-inputs">
+                                        <input
+                                            type="number"
+                                            placeholder="Min"
+                                            value={minPrice}
+                                            onChange={(e) => setMinPrice(e.target.value)}
+                                            className="price-input"
+                                            min="0"
+                                        />
+                                        <span className="price-divider">to</span>
+                                        <input
+                                            type="number"
+                                            placeholder="Max"
+                                            value={maxPrice}
+                                            onChange={(e) => setMaxPrice(e.target.value)}
+                                            className="price-input"
+                                            min="0"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="filter-group justify-end">
+                                    <label className="checkbox-container">
+                                        <input
+                                            type="checkbox"
+                                            checked={showInStockOnly}
+                                            onChange={(e) => setShowInStockOnly(e.target.checked)}
+                                        />
+                                        <span className="checkmark"></span>
+                                        In Stock Only
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div className="results-summary">
-                        <span>{availableCount} in stock</span>
-                        <span>{Math.max(sortedProducts.length - availableCount, 0)} unavailable</span>
-                        <span>{products.length} loaded</span>
-                        <span>Source: Cached & Auto-Syncing</span>
-                        <span>{hasNextPage ? "Auto loading enabled" : "All products loaded"}</span>
+
+                    <div className="filters-row">
+                        <div className="filters-sorting">
+                            <span>Sort By</span>
+                            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="sort-select">
+                                <option value="featured">Featured / Default</option>
+                                <option value="priceLowToHigh">Price: Low to High</option>
+                                <option value="priceHighToLow">Price: High to Low</option>
+                                <option value="discountHighToLow">Biggest Savings</option>
+                                <option value="nameAToZ">Name: A to Z</option>
+                            </select>
+                        </div>
+
+                        <div className="results-summary">
+                            <span className="badge-status-item">{availableCount} In Stock</span>
+                            <span className="badge-status-item muted">{Math.max(sortedProducts.length - availableCount, 0)} Out of Stock</span>
+                            <span className="badge-status-item muted">{products.length} Loaded</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -548,21 +666,21 @@ const Products = () => {
                         sortedProducts.map((product) => {
                             const savings = getSavings(product.mrp, product.price);
                             const isOutOfStock = Number(product.stock) <= 0;
+                            const isAdding = addingItems[product._id];
+                            const isLowStock = !isOutOfStock && Number(product.stock) <= 3;
 
-                                return (
-                                    <div
-                                        key={product._id}
-                                        className={`product-container ${isOutOfStock ? "is-unavailable" : ""}`}
-                                    >
-                                    <div
-                                        className="product-image-container"
-                                        onClick={() => handleDetails(product.slug || product._id)}
-                                    >
+                            return (
+                                <div
+                                    key={product._id}
+                                    className={`product-container ${isOutOfStock ? "is-unavailable" : ""}`}
+                                >
+                                    <div className="product-image-container">
                                         <img
                                             className="product-image"
                                             src={getImageSrc(product.image, placeholderImage)}
                                             alt={product.name || "Product image"}
                                             loading="lazy"
+                                            onClick={() => handleDetails(product.slug || product._id)}
                                             onError={(e) => {
                                                 e.currentTarget.onerror = null;
                                                 e.currentTarget.src = placeholderImage;
@@ -573,6 +691,19 @@ const Products = () => {
                                                 <p>Save {formatCurrency(savings.amount)}</p>
                                             </div>
                                         )}
+                                        
+                                        {/* Quick View Hover Button */}
+                                        <button
+                                            type="button"
+                                            className="quick-view-hover-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleQuickView(product);
+                                            }}
+                                            aria-label="Quick view"
+                                        >
+                                            <Eye size={16} /> Quick View
+                                        </button>
                                     </div>
 
                                     <div className="product-card-body">
@@ -588,12 +719,17 @@ const Products = () => {
                                             {product.name}
                                         </div>
 
-                                        <p className="stock">
-                                            <span
-                                                className={`stock-status ${isOutOfStock ? "out-of-stock" : "in-stock"}`}
-                                            ></span>
-                                            {isOutOfStock ? "Out of stock" : `In stock${product.stock ? ` (${product.stock})` : ""}`}
-                                        </p>
+                                        <div className="stock-container-row">
+                                            <p className="stock">
+                                                <span
+                                                    className={`stock-status ${isOutOfStock ? "out-of-stock" : "in-stock"}`}
+                                                ></span>
+                                                {isOutOfStock ? "Out of stock" : `In stock${product.stock ? ` (${product.stock})` : ""}`}
+                                            </p>
+                                            {isLowStock && (
+                                                <span className="low-stock-warning-badge">Low Stock</span>
+                                            )}
+                                        </div>
 
                                         <div className="product-spec-list">
                                             <div className="product-size">Capacity: {product.capacity || "N/A"}</div>
@@ -644,9 +780,17 @@ const Products = () => {
                                                 <button
                                                     className="add-to-cart-button button-primary"
                                                     onClick={() => handleAddToCart(product)}
-                                                    disabled={isOutOfStock}
+                                                    disabled={isOutOfStock || isAdding}
                                                 >
-                                                    {isOutOfStock ? "Unavailable" : "Add to Cart"}
+                                                    {isAdding ? (
+                                                        <span className="adding-loader-text">
+                                                            <Check size={14} className="check-icon-spin" /> Adding...
+                                                        </span>
+                                                    ) : isOutOfStock ? (
+                                                        "Unavailable"
+                                                    ) : (
+                                                        "Add to Cart"
+                                                    )}
                                                 </button>
                                             </div>
                                         )}
@@ -790,6 +934,14 @@ const Products = () => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSave}
+            />
+
+            {/* Product Quick View Modal */}
+            <ProductQuickViewModal
+                isOpen={isQuickViewOpen}
+                product={quickViewProduct}
+                onClose={() => setIsQuickViewOpen(false)}
+                onAddToCart={handleAddToCart}
             />
 
             {/* Delete Confirmation Modal */}

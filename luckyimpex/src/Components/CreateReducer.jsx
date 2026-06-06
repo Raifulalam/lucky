@@ -7,7 +7,15 @@ const CartDispatcherContext = createContext();
 // Reducer to handle cart actions
 const reducer = (state, action) => {
     switch (action.type) {
-        case 'ADD_ITEM':
+        case 'ADD_ITEM': {
+            const existingItem = state.find(item => item.id === action.id);
+            if (existingItem) {
+                return state.map(item =>
+                    item.id === action.id
+                        ? { ...item, quantity: item.quantity + (action.quantity || 1) }
+                        : item
+                );
+            }
             return [...state, {
                 id: action.id,
                 name: action.name,
@@ -16,6 +24,7 @@ const reducer = (state, action) => {
                 mrp: action.mrp,
                 quantity: action.quantity || 1
             }];
+        }
 
         case 'REMOVE_ITEM':
             return state.filter(item => item.id !== action.payload.id);
