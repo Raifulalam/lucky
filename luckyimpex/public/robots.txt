@@ -1,6 +1,4 @@
 User-agent: *
-Allow: /
-
 Disallow: /cart
 Disallow: /profile
 Disallow: /orderpage
@@ -14,4 +12,4 @@ Disallow: /complaints
 Disallow: /orders
 Disallow: /review/
 
-Sitemap: https://luckyimpex.vercel.app/sitemap-index.xml
+Sitemap: https://luckyimpex4u.com/sitemap.xml
