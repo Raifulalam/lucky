@@ -19,6 +19,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import { Eye, Search, X, SlidersHorizontal, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -260,15 +261,15 @@ const Products = () => {
         return products.filter((product) => {
             const matchesCategory = selectedCategory === "" || product.category === selectedCategory;
             const matchesBrand = selectedBrand === "" || product.brand === selectedBrand;
-            
+
             // Price range check
             const priceVal = Number(product.price || 0);
             const matchesMinPrice = minPrice === "" || priceVal >= Number(minPrice);
             const matchesMaxPrice = maxPrice === "" || priceVal <= Number(maxPrice);
-            
+
             // In stock check
             const matchesStock = !showInStockOnly || Number(product.stock || 0) > 0;
-            
+
             return matchesCategory && matchesBrand && matchesMinPrice && matchesMaxPrice && matchesStock;
         });
     }, [products, selectedCategory, selectedBrand, minPrice, maxPrice, showInStockOnly]);
@@ -379,7 +380,7 @@ const Products = () => {
 
     const handleAddToCart = (product) => {
         setAddingItems((prev) => ({ ...prev, [product._id]: true }));
-        
+
         dispatch({
             type: "ADD_ITEM",
             id: product._id,
@@ -691,7 +692,7 @@ const Products = () => {
                                                 <p>Save {formatCurrency(savings.amount)}</p>
                                             </div>
                                         )}
-                                        
+
                                         {/* Quick View Hover Button */}
                                         <button
                                             type="button"
@@ -707,8 +708,14 @@ const Products = () => {
                                     </div>
 
                                     <div className="product-card-body">
+
+
                                         <div className="product-meta-row">
-                                            <span className="meta-badge">{product.brand || "Lucky Impex"}</span>
+                                            <Link to={`/products/brand/${product.brand || "lucky-impex"}`}>
+                                                <span className="meta-badge">
+                                                    {product.brand || "Lucky Impex"}
+                                                </span>
+                                            </Link>
                                             <span className="meta-badge muted">{product.category || "General"}</span>
                                         </div>
 
