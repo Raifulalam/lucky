@@ -1,13 +1,13 @@
 import { Truck, ShieldCheck, Percent, Star } from "lucide-react";
 
-import luckyImage from "../../Images/backimg.png";
+import luckyImage from "../../Images/backimg.webp";
 import backimg from "../../Images/backimg1.webp";
-import back01 from "../../Images/backimg2.png";
-import back02 from "../../Images/backimg3.png";
-import back03 from "../../Images/backimg4.png";
-import back04 from "../../Images/backimg6.png";
-import back05 from "../../Images/backimg7.png";
-import back06 from "../../Images/backimg5.png";
+import back01 from "../../Images/backimg2.webp";
+import back02 from "../../Images/backimg3.webp";
+import back03 from "../../Images/backimg4.webp";
+import back04 from "../../Images/backimg6.webp";
+import back05 from "../../Images/backimg7.webp";
+import back06 from "../../Images/backimg5.webp";
 export const images = [
     luckyImage,
     backimg,

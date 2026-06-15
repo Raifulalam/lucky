@@ -318,14 +318,32 @@ body {
     margin-bottom: 12px;
 }
 
-.skeleton-line-placeholder.short { width: 38%; }
-.skeleton-line-placeholder.medium { width: 62%; }
-.skeleton-line-placeholder.long { width: 88%; }
-.skeleton-line-placeholder.buttons { width: 100%; height: 42px; margin-top: 6px; }
+.skeleton-line-placeholder.short {
+    width: 38%;
+}
+
+.skeleton-line-placeholder.medium {
+    width: 62%;
+}
+
+.skeleton-line-placeholder.long {
+    width: 88%;
+}
+
+.skeleton-line-placeholder.buttons {
+    width: 100%;
+    height: 42px;
+    margin-top: 6px;
+}
 
 @keyframes skeleton-shimmer {
-    0% { background-position: 100% 0; }
-    100% { background-position: -100% 0; }
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
 }
 
 .slow-loading-banner {
@@ -1108,6 +1126,7 @@ html {
 }
 
 @media (max-width: 992px) {
+
     .brand-summary-grid,
     .brand-proof-strip {
         grid-template-columns: 1fr;
@@ -1174,6 +1193,7 @@ html {
 }
 
 @media (max-width: 540px) {
+
     .brand-hero-metrics div,
     .brand-results-meta span,
     .brand-nav-chip,
@@ -1465,11 +1485,11 @@ html {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.checkbox-container:hover input ~ .checkmark {
+.checkbox-container:hover input~.checkmark {
     background-color: #e2e8f0;
 }
 
-.checkbox-container input:checked ~ .checkmark {
+.checkbox-container input:checked~.checkmark {
     background-color: #0d63c0;
     border-color: #0d63c0;
 }
@@ -1480,7 +1500,7 @@ html {
     display: none;
 }
 
-.checkbox-container input:checked ~ .checkmark:after {
+.checkbox-container input:checked~.checkmark:after {
     display: block;
 }
 
@@ -1614,6 +1634,7 @@ html {
         transform: scale(0.6) rotate(-45deg);
         opacity: 0.5;
     }
+
     to {
         transform: scale(1) rotate(0deg);
         opacity: 1;
@@ -1627,6 +1648,7 @@ html {
         gap: 16px;
         align-items: flex-start;
     }
+
     .checkbox-container {
         height: auto;
     }
@@ -1636,32 +1658,37 @@ html {
     .slider-wrapper {
         height: 380px;
     }
+
     .slider-image-new {
         height: 100%;
         margin-top: 0;
     }
+
     .filter-header-buttons {
         width: 100%;
         margin-top: 10px;
     }
+
     .filter-toggle-btn {
         flex: 1;
         justify-content: center;
     }
+
     .clear-filters-btn {
         flex: 1;
         justify-content: center;
     }
+
     .brand-chips {
         max-height: 180px;
         overflow-y: auto;
         padding-bottom: 4px;
     }
+
     .product-image-container .quick-view-hover-btn {
-        opacity: 1;
+
         transform: translate(-50%, 0);
         padding: 6px 12px;
         font-size: 0.75rem;
     }
 }
-

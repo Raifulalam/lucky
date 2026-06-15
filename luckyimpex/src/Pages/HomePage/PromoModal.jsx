@@ -76,7 +76,7 @@ Please contact me for early offers and launch updates.
                 </p>
 
                 <img
-                    src="/commingsoon.png"
+                    src="/commingsoon.webp"
                     alt="New branch coming soon"
                     className="promo-image"
                 />
