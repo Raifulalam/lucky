@@ -17,7 +17,9 @@ const ORDER_STEPS = ["Order Placed", "Shipped", "Delivered"];
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
 
 const getStatusIndex = (status) => {
-    const normalizedStatus = ORDER_STEPS.findIndex((step) => step.toLowerCase() === String(status || "").toLowerCase());
+    const normalizedStatus = ORDER_STEPS.findIndex(
+        (step) => step.toLowerCase() === String(status || "").toLowerCase()
+    );
     return normalizedStatus === -1 ? 0 : normalizedStatus;
 };
 
@@ -48,7 +50,12 @@ const OrderPage = () => {
                 if (!res.ok) throw new Error("Failed to fetch orders");
 
                 const data = await res.json();
-                setOrders(data);
+                const nextOrders = Array.isArray(data?.data)
+                    ? data.data
+                    : Array.isArray(data)
+                        ? data
+                        : [];
+                setOrders(nextOrders);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -73,7 +80,7 @@ const OrderPage = () => {
         if (!window.confirm("Delete this order permanently?")) return;
 
         try {
-            const res = await fetch(`${API_BASE}/orders/${orderId}`, {
+            const res = await fetch(`${API_BASE}/${orderId}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -92,6 +99,7 @@ const OrderPage = () => {
     const renderContent = () => {
         if (userLoading) return <div className="order-state">Loading user...</div>;
         if (userError) return <div className="order-state error">{userError}</div>;
+
         if (!user?._id) {
             return (
                 <div className="order-empty">
@@ -102,9 +110,11 @@ const OrderPage = () => {
                 </div>
             );
         }
+
         if (loading) return <div className="order-state">Loading orders...</div>;
         if (error) return <div className="order-state error">{error}</div>;
-        if (orders.length === 0) {
+
+        if (!orders.length) {
             return (
                 <div className="order-empty">
                     <ReceiptText size={38} />
@@ -119,6 +129,9 @@ const OrderPage = () => {
             <div className="order-list">
                 {orders.map((order) => {
                     const statusIndex = getStatusIndex(order.status);
+                    const orderItems = Array.isArray(order.items) ? order.items : [];
+                    const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : "N/A";
+                    const deliveryDate = order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : "N/A";
 
                     return (
                         <article className="order-card" key={order._id}>
@@ -128,11 +141,10 @@ const OrderPage = () => {
 
                             <div className="order-top">
                                 <div className="order-top-copy">
-                                    <span className="order-label">Order #{order._id.slice(-6)}</span>
+                                    <span className="order-label">Order #{order._id?.slice(-6) || "------"}</span>
                                     <h3>{order.name || "Customer Order"}</h3>
                                     <p>
-                                        Placed on {new Date(order.createdAt).toLocaleDateString()} ·
-                                        Total {formatCurrency(order.totalPrice)}
+                                        Placed on {orderDate} · Total {formatCurrency(order.totalPrice)}
                                     </p>
                                 </div>
 
@@ -166,7 +178,7 @@ const OrderPage = () => {
                             <div className="order-progress">
                                 {ORDER_STEPS.map((step, index) => (
                                     <div key={step} className={`step ${index <= statusIndex ? "active" : ""}`}>
-                                        <span className="step-dot"></span>
+                                        <span className="step-dot" />
                                         <span>{step}</span>
                                     </div>
                                 ))}
@@ -175,16 +187,16 @@ const OrderPage = () => {
                             <div className="order-card-grid">
                                 <section className="order-items">
                                     <h4>Items</h4>
-                                    {order.items?.length ? (
+                                    {orderItems.length ? (
                                         <div className="order-items-list">
-                                            {order.items.map((item, idx) => (
+                                            {orderItems.map((item, idx) => (
                                                 <div key={idx} className="item">
-                                                    <img src={item.image} alt={item.name} />
+                                                    <img src={item.image || "/lucky-logo.png"} alt={item.name || "Item"} />
                                                     <div>
-                                                        <p><strong>{item.name}</strong></p>
-                                                        <p>Qty: {item.quantity}</p>
+                                                        <p><strong>{item.name || "Product"}</strong></p>
+                                                        <p>Qty: {item.quantity || 0}</p>
                                                         <p>Price: {formatCurrency(item.price)}</p>
-                                                        <p>Total: {formatCurrency(item.quantity * item.price)}</p>
+                                                        <p>Total: {formatCurrency((item.quantity || 0) * (item.price || 0))}</p>
                                                     </div>
                                                 </div>
                                             ))}
@@ -196,10 +208,10 @@ const OrderPage = () => {
 
                                 <aside className="shipping-details">
                                     <h4>Shipping details</h4>
-                                    <p><strong>Address:</strong> {order.address}</p>
-                                    <p><strong>Phone:</strong> {order.phone}</p>
-                                    <p><strong>Delivery Date:</strong> {new Date(order.deliveryDate).toLocaleDateString()}</p>
-                                    <p><strong>Status:</strong> {order.status}</p>
+                                    <p><strong>Address:</strong> {order.address || "N/A"}</p>
+                                    <p><strong>Phone:</strong> {order.phone || "N/A"}</p>
+                                    <p><strong>Delivery Date:</strong> {deliveryDate}</p>
+                                    <p><strong>Status:</strong> {order.status || "Order Placed"}</p>
                                 </aside>
                             </div>
                         </article>
