@@ -36,7 +36,6 @@ const Footer = () => {
                 <div className="footer-links-column">
                     <h4>Shop</h4>
                     <Link to="/products">Products</Link>
-                    <Link to="/phones">Phones</Link>
                     <Link to="/emi">EMI</Link>
                     <Link to="/exchange">Exchange</Link>
                 </div>

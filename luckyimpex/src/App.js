@@ -25,8 +25,6 @@ const BrandSearch = lazy(() => import("./Pages/Products/Brandserch"));
 const EMI = lazy(() => import("./Pages/EMI/EMI"));
 const Exchange = lazy(() => import("./Pages/Exchange/Exchange"));
 const StoreComponent = lazy(() => import("./Pages/HomePage/StorePage"));
-const PhoneShop = lazy(() => import("./Pages/Products/PhoneShop"));
-const PhoneDetails = lazy(() => import("./Pages/DetailsPage/PhoneDetails"));
 const OrderPage = lazy(() => import("./Pages/Customer/OrderPage"));
 
 /* ADMIN / EMPLOYEE (Lazy Loaded) */
@@ -94,8 +92,6 @@ function App() {
                     <Route path="/products/:category" element={<Products />} />
                     <Route path="/products/brand/:brand" element={<BrandSearch />} />
                     <Route path="/productdetails/:id" element={<ProductDetails />} />
-                    <Route path="/phones" element={<PhoneShop />} />
-                    <Route path="/phonedetails/:id" element={<PhoneDetails />} />
                     <Route path="/contact" element={<ContactComponent />} />
                     <Route path="/about" element={<StoreComponent />} />
                     <Route path="/store" element={<StoreComponent />} />

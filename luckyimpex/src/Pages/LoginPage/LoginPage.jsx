@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useNotification } from '../../Components/NotificationContext'; // Import notification context
 import { BASE_URL } from '../../api/api';
 import PageSeo from '../../Components/PageSeo';
+import { useUser } from '../../Components/UserContext';
 
 function LoginComponent() {
     const [email, setEmail] = useState('');
@@ -15,6 +16,7 @@ function LoginComponent() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const { addNotification } = useNotification(); // Get addNotification function from the context
+    const { refreshUser } = useUser();
 
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
@@ -60,6 +62,7 @@ function LoginComponent() {
 
             if (data.success) {
                 localStorage.setItem("authToken", data.authToken);
+                await refreshUser(data.authToken);
                 setLoading(false);
 
                 // Show success notification
@@ -71,8 +74,7 @@ function LoginComponent() {
                     dismiss: { duration: 5000 },
                 });
 
-                // Redirect after login succe
-                navigate('/', { state: { email } });
+                navigate('/');
 
 
             }

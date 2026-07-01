@@ -1,121 +1,190 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { UserContext } from '../../Components/UserContext';
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Helmet } from "react-helmet";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle2, Mail, ShieldCheck, ShoppingBag, UserCircle2 } from "lucide-react";
+import { UserContext } from "../../Components/UserContext";
 import ProfileForm from "./ProfileForm";
-import './Profile.css';
 import Header from "../../Components/Header";
-import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
-//mport OrderPage from '../Customer/OrderPage';
+import "./Profile.css";
 
 const Profile = () => {
-    const { user, loading } = useContext(UserContext); // Use 'user' from context
-    const [isEditing, setIsEditing] = useState(false);    // Manage the edit form state
-    const [userDataState, setUserDataState] = useState(user);  // Store user data in state
+    const { user, loading, logout } = useContext(UserContext);
+    const [isEditing, setIsEditing] = useState(false);
+    const [userDataState, setUserDataState] = useState(user);
     const navigate = useNavigate();
-    const [isdotOpen, setIsdotOpen] = useState(false)
 
-    // Set user data when the context user data changes
     useEffect(() => {
         setUserDataState(user);
     }, [user]);
 
+    const stats = useMemo(
+        () => [
+            { label: "Account", value: user?.role || "Guest", icon: <ShieldCheck size={18} /> },
+            { label: "Email", value: user?.email || "Not set", icon: <Mail size={18} /> },
+            { label: "Orders", value: "View history", icon: <ShoppingBag size={18} /> },
+        ],
+        [user]
+    );
+
     if (loading) {
         return (
-            <div className="loading-container">
-                <div className="spinner"></div>
-                <img className="spinner-gif" src="spinner.gif" alt="loading products..." />
-
+            <div className="profile-loading">
+                <div className="profile-spinner" />
+                <p>Loading your account...</p>
             </div>
         );
     }
-    // const handleReviewClick = (orderId) => {
-    //     navigate(`/review/${orderId}`); // Navigate to Review page with order ID
-    // };
-    // if (error) {
-    //     return <div>Error: {error}</div>; // Show error message if fetch fails
-    // }
 
-    // if (!user) {
-    //     return <div>No user data found. Please log in.</div>; // Handle case where user data is unavailable
-    // }
-
-    const handleEditClick = () => {
-        setIsEditing(true);
-    };
-    const handleDotClick = () => {
-        setIsdotOpen(!isdotOpen)
+    if (!user) {
+        return (
+            <div className="profile-empty">
+                <Header />
+                <div className="profile-empty-card">
+                    <UserCircle2 size={40} />
+                    <h2>Please sign in</h2>
+                    <p>Sign in to view your account, orders, and saved profile details.</p>
+                    <button onClick={() => navigate("/login")}>Go to Login</button>
+                </div>
+            </div>
+        );
     }
 
-    const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/'); // Redirect to home after logout
-    };
-
-    const isAdmin = user.role === 'admin'; // Check if the user is an admin
+    const isAdmin = user.role === "admin";
+    const displayName = user.name || user.username || "Customer";
+    const profileImage = user.avatar || user.image || user.profileImage || "";
+    const initials = displayName
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
 
     return (
         <>
             <Helmet>
                 <title>Your Profile - Lucky Impex</title>
-                <meta name="description" content="Manage your account and view your orders at Lucky Impex." />
+                <meta name="description" content="Manage your Lucky Impex account, profile, and orders." />
             </Helmet>
             <Header />
-            <div className="profile-container">
-                <h2>Hey! {user.name.split(" ")[0]} 🙋‍♂️</h2>
-                <span className='three-dot'>
-                    {/* Three dots button */}
-                    <button onClick={handleDotClick} aria-label="More options">
-                        &#x22EE; {/* Unicode for three dots */}
-                    </button>
-
-
-                    {isdotOpen && (
-                        <div className="menu">
-                            <button onClick={handleEditClick}>Edit Profile</button>
-
-
-                            {isAdmin && (
-                                <>
-                                    <button onClick={() => navigate('/admindashboard')}>Go to Admin Dashboard</button>
-                                    <button onClick={() => navigate('/products')}>Add Product</button>
-                                    <button onClick={() => navigate('/orders')}>Manage Orders</button>
-                                    <button onClick={() => navigate('/admindashboard')}>Manage Users</button>
-                                    <button onClick={() => navigate('/manage-promotions')}>Manage Promotions</button>
-
-                                </>
-                            )}
-
-                            <button onClick={handleLogout} className="logout">Logout</button>
-
+            <main className="profile-page">
+                <section className="profile-hero">
+                    <div className="profile-hero-copy">
+                        <span className="profile-kicker">Account Center</span>
+                        <h1>Welcome back, {displayName}.</h1>
+                        <p>
+                            Manage your profile, review account details, and keep your shopping
+                            experience polished and personal.
+                        </p>
+                    </div>
+                    <div className="profile-status">
+                        <div className="profile-avatar">
+                            {profileImage ? <img src={profileImage} alt={displayName} /> : initials}
                         </div>
-                    )}
-                </span>
-
-                {!isEditing ? (
-                    <div className="profile-info">
-                        <img src={user.avatar || "default-avatar.png"} alt={user.name} />
-                        <div className="info-self">
-                            <p><strong>Username:</strong> {user.name}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>UserId:</strong> {user.id}</p>
-                            <p><strong>Role:</strong> {user.role}</p>
-                            <p><strong>Created At:</strong> {user.created}</p>
-                            <button onClick={() => navigate('/orderpage')}>My Orders</button>
+                        <div>
+                            <strong>{isAdmin ? "Admin account" : "Verified customer"}</strong>
+                            <span>
+                                <CheckCircle2 size={14} /> Active session
+                            </span>
                         </div>
                     </div>
-                ) : (
-                    <ProfileForm
-                        userData={userDataState} // Pass user data to ProfileForm
-                        setUserData={setUserDataState} // Update user data state if needed
-                        setIsEditing={setIsEditing}
-                    />
-                )}
+                </section>
 
-                {/* Render Admin Dashboard link if user is admin */}
+                <section className="profile-grid">
+                    <aside className="profile-sidebar">
+                        <div className="profile-card profile-summary">
+                            <div className="profile-summary-head">
+                                <div className="profile-avatar large">
+                                    {profileImage ? <img src={profileImage} alt={displayName} /> : initials}
+                                </div>
+                                <div>
+                                    <h2>{displayName}</h2>
+                                    <p>{user.email}</p>
+                                </div>
+                            </div>
 
+                            <div className="profile-metrics">
+                                {stats.map((item) => (
+                                    <div key={item.label} className="profile-metric">
+                                        <span className="profile-metric-icon">{item.icon}</span>
+                                        <div>
+                                            <small>{item.label}</small>
+                                            <strong>{item.value}</strong>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
 
+                            <div className="profile-actions">
+                                <button onClick={() => navigate("/orderpage")} className="primary-btn">
+                                    View Orders
+                                </button>
+                                <button onClick={() => setIsEditing((prev) => !prev)} className="secondary-btn">
+                                    {isEditing ? "Close Editor" : "Edit Profile"}
+                                </button>
+                                {isAdmin && (
+                                    <button onClick={() => navigate("/admin")} className="ghost-btn">
+                                        Open Dashboard
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() => {
+                                        logout();
+                                        navigate("/");
+                                    }}
+                                    className="danger-btn"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
 
-            </div>
+                    <section className="profile-card profile-main">
+                        {!isEditing ? (
+                            <>
+                                <div className="profile-section-head">
+                                    <div>
+                                        <span className="profile-kicker">Profile Details</span>
+                                        <h2>Your account information</h2>
+                                    </div>
+                                    <button className="text-button" onClick={() => setIsEditing(true)}>
+                                        Edit
+                                    </button>
+                                </div>
+
+                                <div className="profile-details">
+                                    <div className="profile-detail-item">
+                                        <span>Full name</span>
+                                        <strong>{displayName}</strong>
+                                    </div>
+                                    <div className="profile-detail-item">
+                                        <span>Email address</span>
+                                        <strong>{user.email}</strong>
+                                    </div>
+                                    <div className="profile-detail-item">
+                                        <span>User ID</span>
+                                        <strong>{user.id}</strong>
+                                    </div>
+                                    <div className="profile-detail-item">
+                                        <span>Role</span>
+                                        <strong>{user.role}</strong>
+                                    </div>
+                                    <div className="profile-detail-item">
+                                        <span>Member since</span>
+                                        <strong>{user.created || "Recently joined"}</strong>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <ProfileForm
+                                userData={userDataState}
+                                setUserData={setUserDataState}
+                                setIsEditing={setIsEditing}
+                            />
+                        )}
+                    </section>
+                </section>
+            </main>
         </>
     );
 };

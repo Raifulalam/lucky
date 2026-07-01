@@ -22,17 +22,14 @@ const categories = [
 const MENU = {
     guest: [
         { label: "Products", to: "/products" },
-        { label: "Phones", to: "/phones" },
     ],
     user: [
         { label: "Products", to: "/products" },
-        { label: "Phones", to: "/phones" },
         { label: "Service", to: "/service" },
         { label: "Profile", to: "/profile" },
     ],
     admin: [
         { label: "Products", to: "/products" },
-        { label: "Phones", to: "/phones" },
         { label: "Dashboard", to: "/admin" },
         { label: "Profile", to: "/profile" },
     ],

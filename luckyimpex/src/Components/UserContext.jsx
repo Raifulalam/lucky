@@ -8,7 +8,16 @@ const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const token = localStorage.getItem("authToken");
+    const loadUser = async (token) => {
+        if (!token) {
+            setUser(null);
+            return null;
+        }
+
+        const data = await authRequest("/users/me", { token });
+        setUser(data);
+        return data;
+    };
 
     const logout = () => {
         localStorage.removeItem("authToken");
@@ -17,14 +26,14 @@ const UserProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchUserData = async () => {
+            const token = localStorage.getItem("authToken");
             if (!token) {
                 setLoading(false);
                 return;
             }
 
-        try {
-                const data = await authRequest("/users/me", { token });
-                setUser(data);
+            try {
+                await loadUser(token);
             } catch (err) {
                 if (
                     err.message === "Access denied. Token missing." ||
@@ -41,7 +50,7 @@ const UserProvider = ({ children }) => {
         };
 
         fetchUserData();
-    }, [token]);
+    }, []);
 
     const value = {
         user,
@@ -53,6 +62,7 @@ const UserProvider = ({ children }) => {
         isEmployee: user?.role === "employee",
         isUser: user?.role === "user",
         logout,
+        refreshUser: loadUser,
     };
 
     return (

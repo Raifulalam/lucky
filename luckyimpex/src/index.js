@@ -9,7 +9,7 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const QUERY_PERSIST_KEY = "lucky-query-cache-v1";
 const PERSISTED_QUERY_TTL = 15 * 60 * 1000;
-const PUBLIC_QUERY_ROOTS = new Set(["products", "product", "mobile-products", "mobile-product", "brand-products", "categories"]);
+const PUBLIC_QUERY_ROOTS = new Set(["products", "product", "brand-products", "categories"]);
 
 const queryClient = new QueryClient({
   defaultOptions: {

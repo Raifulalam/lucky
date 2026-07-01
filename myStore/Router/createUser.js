@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../Models/user.model");
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
+const uploadUserAvatar = require("../middlewares/uploadUserAvatar");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 
 /* ===================== VALIDATION HANDLER ===================== */
 const validate = (req, res, next) => {
@@ -121,24 +124,39 @@ router.get("/me", auth, async (req, res) => {
 /* ===========================================================
    UPDATE LOGGED-IN USER PROFILE
    =========================================================== */
-router.put("/me", auth, async (req, res) => {
+router.put("/me", auth, uploadUserAvatar.single("avatar"), async (req, res) => {
     try {
-        const allowed = (({ name, phone, address, avatar }) => ({
+        const updateData = (({ name, phone, address }) => ({
             name,
             phone,
             address,
-            avatar,
         }))(req.body);
+
+        if (req.file) {
+            const uploadedAvatar = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "users/avatars" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+
+                streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+            });
+
+            updateData.avatar = uploadedAvatar.secure_url;
+        }
 
         const user = await User.findByIdAndUpdate(
             req.user.id,
-            allowed,
-            { new: true }
+            updateData,
+            { new: true, runValidators: true }
         ).select("-password");
 
         res.json(user);
-    } catch {
-        res.status(500).json({ message: "Update failed" });
+    } catch (error) {
+        res.status(500).json({ message: error.message || "Update failed" });
     }
 });
 
