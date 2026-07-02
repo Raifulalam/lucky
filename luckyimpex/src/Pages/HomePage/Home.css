@@ -383,11 +383,11 @@
 
 .home-page .brand-logo {
     display: grid;
-    gap: 12px;
+
     justify-items: center;
     align-content: center;
-    min-height: 124px;
-    padding: 18px 16px;
+
+    padding: 8px 16px;
     border: 1px solid rgba(219, 226, 233, 0.9);
     border-radius: 22px;
     background: #fff;
@@ -648,7 +648,7 @@
     }
 
     .home-page .brand-carousel {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
     }
 
     .home-page .hero-dot.active {

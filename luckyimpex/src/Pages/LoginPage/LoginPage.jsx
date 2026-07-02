@@ -144,7 +144,7 @@ function LoginComponent() {
                                     value={email}
                                     onChange={handleEmailChange}
                                     required
-                                    placeholder="name@example.com"
+                                    placeholder="Example@gmail.com"
                                     aria-label="Enter your email address"
                                 />
                             </div>

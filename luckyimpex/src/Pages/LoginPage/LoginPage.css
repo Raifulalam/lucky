@@ -281,9 +281,10 @@
         padding: 20px 14px 36px;
     }
 
-    .auth-card,
+
     .auth-aside {
         border-radius: 22px;
+        display: none;
     }
 
     .password-row {
