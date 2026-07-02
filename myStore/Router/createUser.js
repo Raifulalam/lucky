@@ -19,6 +19,15 @@ const validate = (req, res, next) => {
     next();
 };
 
+const deleteCloudinaryImage = async (publicId) => {
+    if (!publicId) return;
+    try {
+        await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+        console.error("Cloudinary cleanup failed:", error);
+    }
+};
+
 /* ===========================================================
    REGISTER USER
    =========================================================== */
@@ -125,6 +134,8 @@ router.get("/me", auth, async (req, res) => {
    UPDATE LOGGED-IN USER PROFILE
    =========================================================== */
 router.put("/me", auth, uploadUserAvatar.single("avatar"), async (req, res) => {
+    let uploadedAvatarResult = null;
+
     try {
         const updateData = (({ name, phone, address }) => ({
             name,
@@ -133,19 +144,19 @@ router.put("/me", auth, uploadUserAvatar.single("avatar"), async (req, res) => {
         }))(req.body);
 
         if (req.file) {
-            const uploadedAvatar = await new Promise((resolve, reject) => {
+            uploadedAvatarResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: "users/avatars" },
                     (error, result) => {
                         if (error) return reject(error);
-                        resolve(result);
+                        resolve(result || null);
                     }
                 );
 
                 streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
             });
 
-            updateData.avatar = uploadedAvatar.secure_url;
+            updateData.avatar = uploadedAvatarResult.secure_url;
         }
 
         const user = await User.findByIdAndUpdate(
@@ -156,6 +167,7 @@ router.put("/me", auth, uploadUserAvatar.single("avatar"), async (req, res) => {
 
         res.json(user);
     } catch (error) {
+        await deleteCloudinaryImage(uploadedAvatarResult?.public_id);
         res.status(500).json({ message: error.message || "Update failed" });
     }
 });

@@ -38,18 +38,27 @@ router.post(
                         return res.status(500).json({ message: "Image upload failed" });
                     }
 
-                    const complaint = new Complaint({
-                        ...req.body,
-                        image: result.secure_url,
-                        status: "pending",
-                    });
+                    try {
+                        const complaint = new Complaint({
+                            ...req.body,
+                            image: result.secure_url,
+                            status: "pending",
+                        });
 
-                    await complaint.save();
+                        await complaint.save();
 
-                    res.status(201).json({
-                        success: true,
-                        message: "Complaint submitted successfully",
-                    });
+                        res.status(201).json({
+                            success: true,
+                            message: "Complaint submitted successfully",
+                        });
+                    } catch (saveError) {
+                        try {
+                            await cloudinary.uploader.destroy(result.public_id);
+                        } catch (cleanupError) {
+                            console.error("Complaint image cleanup failed:", cleanupError);
+                        }
+                        res.status(500).json({ message: "Server error" });
+                    }
                 }
             );
 

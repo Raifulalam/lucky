@@ -84,6 +84,15 @@ const setPublicCacheHeaders = (res, maxAgeSeconds = 300) => {
     res.set("Cache-Control", `public, max-age=${maxAgeSeconds}, stale-while-revalidate=${maxAgeSeconds * 2}`);
     return res;
 };
+
+const deleteCloudinaryImage = async (publicId) => {
+    if (!publicId) return;
+    try {
+        await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+        console.error("Cloudinary cleanup failed:", error);
+    }
+};
 /* ===========================================================
    CREATE PRODUCT (ADMIN)
    =========================================================== */
@@ -101,16 +110,16 @@ router.post(
     ],
     validate,
     async (req, res) => {
-        try {
-            let uploadedImage = null;
+        let uploadedImageResult = null;
 
+        try {
             if (req.file) {
-                uploadedImage = await new Promise((resolve, reject) => {
+                uploadedImageResult = await new Promise((resolve, reject) => {
                     const uploadStream = cloudinary.uploader.upload_stream(
                         { folder: "products" },
                         (error, result) => {
                             if (error) return reject(error);
-                            resolve(result?.secure_url || null);
+                            resolve(result || null);
                         }
                     );
 
@@ -126,7 +135,7 @@ router.post(
 
             const payload = {
                 ...req.body,
-                images: uploadedImage ? [uploadedImage] : bodyImages,
+                images: uploadedImageResult?.secure_url ? [uploadedImageResult.secure_url] : bodyImages,
                 slug: req.body.slug || toSlug(`${req.body.name || ""}-${req.body.model || ""}`),
             };
 
@@ -134,6 +143,7 @@ router.post(
             await clearProductCache();
             res.status(201).json(product);
         } catch (err) {
+            await deleteCloudinaryImage(uploadedImageResult?.public_id);
             res.status(500).json({ message: "Product creation failed" });
         }
     }
@@ -306,16 +316,16 @@ router.get(
    UPDATE PRODUCT (ADMIN)
    =========================================================== */
 router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), async (req, res) => {
-    try {
-        let uploadedImage = null;
+    let uploadedImageResult = null;
 
+    try {
         if (req.file) {
-            uploadedImage = await new Promise((resolve, reject) => {
+            uploadedImageResult = await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     { folder: "products" },
                     (error, result) => {
                         if (error) return reject(error);
-                        resolve(result?.secure_url || null);
+                        resolve(result || null);
                     }
                 );
 
@@ -347,7 +357,7 @@ router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), a
             brand,
             model,
             description,
-            images: uploadedImage ? [uploadedImage] : (images || (image ? [image] : bodyImages)),
+            images: uploadedImageResult?.secure_url ? [uploadedImageResult.secure_url] : (images || (image ? [image] : bodyImages)),
             stock,
             slug,
         }))(req.body);
@@ -366,6 +376,7 @@ router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), a
 
         res.json(product);
     } catch {
+        await deleteCloudinaryImage(uploadedImageResult?.public_id);
         res.status(500).json({ message: "Update failed" });
     }
 });
