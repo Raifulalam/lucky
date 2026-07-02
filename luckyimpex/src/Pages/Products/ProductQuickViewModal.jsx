@@ -3,6 +3,7 @@ import { X, ShoppingCart, Truck, ShieldCheck, BadgePercent, PackageCheck } from 
 import "./ProductQuickViewModal.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
+const getProductImage = (product) => product?.images?.[0] || product?.image || "/lucky-logo.png";
 
 const ProductQuickViewModal = ({ isOpen, product, onClose, onAddToCart }) => {
     const modalRef = useRef(null);
@@ -31,7 +32,7 @@ const ProductQuickViewModal = ({ isOpen, product, onClose, onAddToCart }) => {
 
     if (!isOpen || !product) return null;
 
-    const imageUrl = product.image ? `${product.image}` : "/lucky-logo.png";
+    const imageUrl = getProductImage(product);
     const isOutOfStock = Number(product.stock) <= 0;
     
     // Calculate savings

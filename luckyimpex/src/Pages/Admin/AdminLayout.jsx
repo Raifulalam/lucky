@@ -22,7 +22,7 @@ export default function AdminLayout() {
                 <div className="admin-brand">
                     <span className="admin-kicker">Lucky Impex</span>
                     <h1>Admin Workspace</h1>
-                    <p>Unified control center for HR, orders, catalog, and support.</p>
+                    <p>Unified control center for orders, catalog, users, and support.</p>
                 </div>
 
                 <nav className="admin-nav">

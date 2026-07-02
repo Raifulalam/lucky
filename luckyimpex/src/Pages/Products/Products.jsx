@@ -25,6 +25,8 @@ const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
 };
 
+const getProductImage = (product) => product?.images?.[0] || product?.image || "";
+
 const formatCurrency = (value) => {
     const amount = Number(value);
     if (Number.isNaN(amount)) return "N/A";
@@ -90,6 +92,8 @@ const Products = () => {
         capacity: "",
         stock: "",
     });
+    const [newProductImage, setNewProductImage] = useState(null);
+    const [newProductPreview, setNewProductPreview] = useState("");
 
     const autoLoadObserverRef = useRef(null);
     const placeholderImage = "/lucky-logo.png";
@@ -155,10 +159,11 @@ const Products = () => {
 
     // Mutations for admin actions
     const saveMutation = useMutation({
-        mutationFn: async (updatedProduct) => {
-            return authRequest(`/products/products/${updatedProduct._id}`, {
+        mutationFn: async ({ id, payload }) => {
+            return authRequest(`/products/products/${id}`, {
                 method: "PUT",
-                body: updatedProduct,
+                body: payload,
+                isFormData: payload instanceof FormData,
             });
         },
         onSuccess: () => {
@@ -215,6 +220,7 @@ const Products = () => {
             return authRequest("/products/products", {
                 method: "POST",
                 body: productData,
+                isFormData: productData instanceof FormData,
             });
         },
         onSuccess: () => {
@@ -224,6 +230,8 @@ const Products = () => {
                 name: "", mrp: "", bestBuyPrice: "", category: "", model: "",
                 description: "", image: "", keywords: "", brand: "", capacity: "", stock: ""
             });
+            setNewProductImage(null);
+            setNewProductPreview("");
             addNotification({
                 title: "Created!",
                 message: "Product added successfully.",
@@ -361,7 +369,10 @@ const Products = () => {
     };
 
     const handleSave = (updatedProduct) => {
-        saveMutation.mutate(updatedProduct);
+        saveMutation.mutate({
+            id: updatedProduct._id,
+            payload: updatedProduct.payload,
+        });
     };
 
     const handleDelete = (productId) => {
@@ -384,7 +395,7 @@ const Products = () => {
         dispatch({
             type: "ADD_ITEM",
             id: product._id,
-            image: product.image,
+            image: getProductImage(product),
             name: product.name,
             mrp: product.mrp,
             price: product.price,
@@ -422,15 +433,30 @@ const Products = () => {
         setNewProduct((prev) => ({ ...prev, [name]: value }));
     };
 
+    const handleNewProductImageChange = (e) => {
+        const file = e.target.files?.[0] || null;
+        setNewProductImage(file);
+        setNewProductPreview(file ? URL.createObjectURL(file) : "");
+    };
+
     const handleAddNewProduct = (e) => {
         e.preventDefault();
-        const productData = {
-            ...newProduct,
-            price: newProduct.bestBuyPrice,
-            keywords: newProduct.keywords
-                ? newProduct.keywords.split(",").map((k) => k.trim())
-                : [],
-        };
+        const productData = new FormData();
+        productData.append("name", newProduct.name);
+        productData.append("mrp", newProduct.mrp);
+        productData.append("price", newProduct.bestBuyPrice);
+        productData.append("category", newProduct.category);
+        productData.append("model", newProduct.model);
+        productData.append("description", newProduct.description);
+        productData.append("keywords", newProduct.keywords);
+        productData.append("brand", newProduct.brand);
+        productData.append("capacity", newProduct.capacity);
+        productData.append("stock", newProduct.stock);
+        if (newProductImage) {
+            productData.append("image", newProductImage);
+        } else if (newProduct.image) {
+            productData.append("images", newProduct.image);
+        }
         addMutation.mutate(productData);
     };
 
@@ -678,7 +704,7 @@ const Products = () => {
                                     <div className="product-image-container">
                                         <img
                                             className="product-image"
-                                            src={getImageSrc(product.image, placeholderImage)}
+                                            src={getImageSrc(getProductImage(product), placeholderImage)}
                                             alt={product.name || "Product image"}
                                             loading="lazy"
                                             onClick={() => handleDetails(product.slug || product._id)}
@@ -892,13 +918,26 @@ const Products = () => {
                         placeholder="Description"
                         required
                     ></textarea>
+                    <div className="product-image-upload">
+                        {newProductPreview ? (
+                            <img src={newProductPreview} alt="New product preview" className="product-image-preview" />
+                        ) : (
+                            <div className="product-image-preview empty">Upload image preview</div>
+                        )}
+                        <input
+                            type="file"
+                            name="image"
+                            accept="image/*"
+                            onChange={handleNewProductImageChange}
+                            required
+                        />
+                    </div>
                     <input
                         type="text"
                         name="image"
                         value={newProduct.image}
                         onChange={handleNewProductChange}
-                        placeholder="Image URL"
-                        required
+                        placeholder="Or image URL"
                     />
                     <input
                         type="text"

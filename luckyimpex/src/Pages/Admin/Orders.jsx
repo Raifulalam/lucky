@@ -26,9 +26,11 @@ const OrderComponent = () => {
     }, []);
 
     const fetchOrders = async () => {
+        setLoading(true);
+        setError("");
         try {
             const data = await authRequest("/orders/orders");
-            setOrders(data);
+            setOrders(Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []);
         } catch (err) {
             setError(err.message || "Failed to load orders.");
         } finally {
@@ -37,7 +39,7 @@ const OrderComponent = () => {
     };
 
     const getNextStatus = (status) => {
-        const idx = STATUS_FLOW.indexOf(status);
+        const idx = STATUS_FLOW.indexOf(String(status || "").trim());
         return idx < STATUS_FLOW.length - 1 ? STATUS_FLOW[idx + 1] : null;
     };
 
@@ -67,13 +69,16 @@ const OrderComponent = () => {
 
     const filteredOrders = useMemo(() => {
         return orders.filter((order) => {
+            const orderId = String(order?._id || "");
+            const name = String(order?.name || "");
+            const phone = String(order?.phone || "");
             const textMatch =
-                order._id.toLowerCase().includes(search.toLowerCase()) ||
-                order.name.toLowerCase().includes(search.toLowerCase()) ||
-                order.phone.includes(search);
+                orderId.toLowerCase().includes(search.toLowerCase()) ||
+                name.toLowerCase().includes(search.toLowerCase()) ||
+                phone.includes(search);
 
-            const statusMatch = statusFilter ? order.status === statusFilter : true;
-            const created = new Date(order.createdAt);
+            const statusMatch = statusFilter ? String(order?.status || "") === statusFilter : true;
+            const created = new Date(order?.createdAt || Date.now());
             const afterStart = startDate ? created >= new Date(startDate) : true;
             const beforeEnd = endDate ? created <= new Date(endDate) : true;
 
@@ -85,9 +90,9 @@ const OrderComponent = () => {
         const now = new Date();
         return {
             total: orders.length,
-            today: orders.filter((order) => new Date(order.createdAt).toDateString() === now.toDateString()).length,
-            last7: orders.filter((order) => now - new Date(order.createdAt) <= 7 * 86400000).length,
-            last30: orders.filter((order) => now - new Date(order.createdAt) <= 30 * 86400000).length,
+            today: orders.filter((order) => new Date(order?.createdAt || Date.now()).toDateString() === now.toDateString()).length,
+            last7: orders.filter((order) => now - new Date(order?.createdAt || Date.now()) <= 7 * 86400000).length,
+            last30: orders.filter((order) => now - new Date(order?.createdAt || Date.now()) <= 30 * 86400000).length,
         };
     }, [orders]);
 
@@ -97,11 +102,11 @@ const OrderComponent = () => {
     const exportCSV = () => {
         const headers = ["Order ID", "User", "Phone", "Status", "Date"];
         const rows = filteredOrders.map((order) => [
-            `"${order._id}"`,
-            `"${order.name}"`,
-            `"${order.phone}"`,
-            `"${order.status}"`,
-            `"${new Date(order.createdAt).toLocaleString()}"`,
+            `"${order?._id || ""}"`,
+            `"${order?.name || ""}"`,
+            `"${order?.phone || ""}"`,
+            `"${order?.status || ""}"`,
+            `"${new Date(order?.createdAt || Date.now()).toLocaleString()}"`,
         ]);
 
         const csv =
@@ -172,10 +177,10 @@ const OrderComponent = () => {
                             <tbody>
                                 {paginatedOrders.map((order) => (
                                     <tr key={order._id}>
-                                        <td>{order._id}</td>
+                                        <td>{order._id || "N/A"}</td>
                                         <td>
-                                            <span className={`status ${order.status.toLowerCase()}`}>
-                                                {order.status}
+                                            <span className={`status ${String(order.status || "placed").toLowerCase()}`}>
+                                                {order.status || "Placed"}
                                             </span>
                                             {getNextStatus(order.status) && (
                                                 <button
@@ -187,9 +192,9 @@ const OrderComponent = () => {
                                                 </button>
                                             )}
                                         </td>
-                                        <td>{order.name}</td>
-                                        <td>{order.phone}</td>
-                                        <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                        <td>{order.name || "N/A"}</td>
+                                        <td>{order.phone || "N/A"}</td>
+                                        <td>{new Date(order.createdAt || Date.now()).toLocaleDateString()}</td>
                                         <td className="actions">
                                             <button onClick={() => navigate(`/admin/orders/${order._id}`)}><FaEye /></button>
                                             <button onClick={() => handleDelete(order._id)}><FaTrash /></button>

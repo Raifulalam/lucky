@@ -13,6 +13,7 @@ import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../..
 import "./Details.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
+const getProductImage = (product) => product?.images?.[0] || product?.image || "/lucky-logo.png";
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -62,7 +63,7 @@ const ProductDetails = () => {
         dispatch({
             type: "ADD_ITEM",
             id: productData._id,
-            image: productData.image,
+            image: getProductImage(productData),
             name: productData.name,
             mrp: productData.mrp,
             price: productData.price,
@@ -102,7 +103,7 @@ const ProductDetails = () => {
         );
     }
 
-    const imageUrl = productData?.image ? `${productData.image}` : "/lucky-logo.png";
+    const imageUrl = getProductImage(productData);
     const isOutOfStock = Number(productData?.stock) <= 0;
 
     return (

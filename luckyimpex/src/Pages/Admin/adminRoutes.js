@@ -4,8 +4,6 @@ import {
     FaCube,
     FaHome,
     FaStar,
-    FaUserCog,
-    FaUserTie,
     FaUsers,
 } from "react-icons/fa";
 
@@ -14,19 +12,13 @@ export const adminRoutes = [
         label: "Overview",
         path: "/admin",
         icon: FaHome,
-        description: "Workforce and operations overview",
+        description: "Store performance and quick actions",
     },
     {
         label: "Users",
         path: "/admin/users",
         icon: FaUsers,
         description: "Customer and account management",
-    },
-    {
-        label: "Employees",
-        path: "/admin/employees",
-        icon: FaUserTie,
-        description: "HR workspace and employee operations",
     },
     {
         label: "Orders",
@@ -52,21 +44,13 @@ export const adminRoutes = [
         icon: FaCube,
         description: "Primary catalog management",
     },
-    {
-        label: "Inventory Lab",
-        path: "/admin/inventory",
-        icon: FaUserCog,
-        description: "Quick product CRUD workspace",
-    },
 ];
 
 export const legacyAdminRedirects = [
     { from: "/dashboard", to: "/admin" },
     { from: "/admindashboard", to: "/admin/users" },
-    { from: "/employee-manage", to: "/admin/employees" },
     { from: "/orders", to: "/admin/orders" },
     { from: "/complaints", to: "/admin/complaints" },
     { from: "/feedback", to: "/admin/feedback" },
     { from: "/manage-products", to: "/admin/products" },
-    { from: "/manageproducts", to: "/admin/inventory" },
 ];

@@ -1,15 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    FaArrowRight,
     FaBoxOpen,
-    FaChartLine,
     FaClipboardList,
     FaExclamationTriangle,
-    FaMoneyBillWave,
+    FaStar,
     FaShoppingCart,
-    FaUserCheck,
-    FaUserClock,
     FaUsers,
 } from "react-icons/fa";
 import {
@@ -17,8 +13,6 @@ import {
     BarChart,
     CartesianGrid,
     Cell,
-    Line,
-    LineChart,
     Pie,
     PieChart,
     ResponsiveContainer,
@@ -38,34 +32,44 @@ const formatCurrency = (value) =>
         maximumFractionDigits: 0,
     }).format(Number(value || 0));
 
-const formatPercent = (value) => `${Number(value || 0).toFixed(1)}%`;
-
 export default function Dashboard() {
     const navigate = useNavigate();
     const token = localStorage.getItem("authToken");
 
-    const [storeStats, setStoreStats] = useState({});
-    const [employeeStats, setEmployeeStats] = useState({});
-    const [employees, setEmployees] = useState([]);
+    const [storeStats, setStoreStats] = useState({
+        orders: 0,
+        users: 0,
+        products: 0,
+        complaints: 0,
+        reviews: 0,
+        revenue: 0,
+        outOfStockProducts: 0,
+    });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchAll = async () => {
+        const fetchStats = async () => {
             try {
                 const headers = { Authorization: `Bearer ${token}` };
-                const [storeRes, hrRes, employeeRes] = await Promise.all([
+                const [storeRes, complaintRes, feedbackRes] = await Promise.all([
                     fetch(`${BASE_URL}/dashboard/stats`, { headers }),
-                    fetch(`${BASE_URL}/employees/admin-dashboard`, { headers }),
-                    fetch(`${BASE_URL}/employees/admin-employeeStats`, { headers }),
+                    fetch(`${BASE_URL}/complaints/complaints`, { headers }),
+                    fetch(`${BASE_URL}/contact/contact`, { headers }),
                 ]);
 
                 const storeData = await storeRes.json();
-                const hrData = await hrRes.json();
-                const employeeData = await employeeRes.json();
+                const complaintData = await complaintRes.json();
+                const feedbackData = await feedbackRes.json();
 
-                setStoreStats(storeData.data || {});
-                setEmployeeStats(hrData.stats || {});
-                setEmployees(employeeData.employees || []);
+                setStoreStats({
+                    orders: storeData.data?.orders || 0,
+                    users: storeData.data?.users || 0,
+                    products: storeData.data?.products || 0,
+                    complaints: Array.isArray(complaintData) ? complaintData.length : 0,
+                    reviews: Array.isArray(feedbackData) ? feedbackData.length : 0,
+                    revenue: storeData.data?.revenue || 0,
+                    outOfStockProducts: storeData.data?.outOfStockProducts || 0,
+                });
             } catch (error) {
                 console.error("Dashboard fetch failed", error);
             } finally {
@@ -73,161 +77,57 @@ export default function Dashboard() {
             }
         };
 
-        fetchAll();
+        fetchStats();
     }, [token]);
 
-    const derived = useMemo(() => {
-        const activeEmployees = employees.filter((employee) =>
-            ["active", "Active"].includes(employee.status)
-        ).length;
-        const inactiveEmployees = employees.filter((employee) =>
-            ["inactive", "Inactive"].includes(employee.status)
-        ).length;
-        const totalLeaves = employees.reduce((sum, employee) => sum + Number(employee.totalLeaves || 0), 0);
-        const totalPresent = employees.reduce((sum, employee) => sum + Number(employee.totalPresent || 0), 0);
-        const totalAbsent = employees.reduce((sum, employee) => sum + Number(employee.totalAbsent || 0), 0);
-        const attendanceRate =
-            totalPresent + totalAbsent > 0 ? (totalPresent / (totalPresent + totalAbsent)) * 100 : 0;
+    const summaryCards = [
+        { title: "Orders", value: storeStats.orders, icon: <FaClipboardList /> },
+        { title: "Customers", value: storeStats.users, icon: <FaUsers /> },
+        { title: "Products", value: storeStats.products, icon: <FaBoxOpen /> },
+        { title: "Complaints", value: storeStats.complaints, icon: <FaExclamationTriangle /> },
+        { title: "Feedback", value: storeStats.reviews, icon: <FaStar /> },
+        { title: "Revenue", value: formatCurrency(storeStats.revenue), icon: <FaShoppingCart /> },
+    ];
 
-        const departmentMap = employees.reduce((accumulator, employee) => {
-            const key = employee.department || "Unassigned";
-            accumulator[key] = (accumulator[key] || 0) + 1;
-            return accumulator;
-        }, {});
-
-        const departmentData = Object.entries(departmentMap)
-            .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 6);
-
-        const attendanceSplit = [
-            { name: "Present", value: totalPresent },
-            { name: "Absent", value: totalAbsent },
-            { name: "Leaves", value: totalLeaves },
-        ];
-
-        const payrollExposure = [...employees]
-            .sort((a, b) => Number(b.totalSalaryPaid || 0) - Number(a.totalSalaryPaid || 0))
-            .slice(0, 6)
-            .map((employee) => ({
-                name: employee.name?.split(" ")[0] || "Employee",
-                salary: Number(employee.totalSalaryPaid || 0),
-            }));
-
-        const spotlightEmployees = [...employees]
-            .sort(
-                (a, b) =>
-                    Number(b.totalPresent || 0) - Number(a.totalPresent || 0) ||
-                    Number(b.totalSalaryPaid || 0) - Number(a.totalSalaryPaid || 0)
-            )
-            .slice(0, 4);
-
-        return {
-            activeEmployees,
-            inactiveEmployees,
-            totalLeaves,
-            totalPresent,
-            totalAbsent,
-            attendanceRate,
-            departmentData,
-            attendanceSplit,
-            payrollExposure,
-            spotlightEmployees,
-        };
-    }, [employees]);
+    const chartData = useMemo(
+        () => [
+            { name: "Orders", value: storeStats.orders },
+            { name: "Customers", value: storeStats.users },
+            { name: "Products", value: storeStats.products },
+            { name: "Complaints", value: storeStats.complaints },
+            { name: "Feedback", value: storeStats.reviews },
+        ],
+        [storeStats]
+    );
 
     if (loading) {
-        return <div className="loading">Loading employee dashboard...</div>;
+        return <div className="loading">Loading store dashboard...</div>;
     }
-
-    const metricCards = [
-        {
-            title: "Employees",
-            value: employeeStats.totalEmployees || employees.length || 0,
-            note: `${derived.activeEmployees} active, ${derived.inactiveEmployees} inactive`,
-            icon: <FaUsers />,
-            tone: "blue",
-        },
-        {
-            title: "Attendance Health",
-            value: formatPercent(derived.attendanceRate),
-            note: `${derived.totalPresent} present / ${derived.totalAbsent} absent`,
-            icon: <FaUserCheck />,
-            tone: "green",
-        },
-        {
-            title: "Salary Paid",
-            value: formatCurrency(employeeStats.totalSalaryPaid || 0),
-            note: "Total employee salary exposure",
-            icon: <FaMoneyBillWave />,
-            tone: "amber",
-        },
-        {
-            title: "Leave Requests",
-            value: employeeStats.totalLeaves || derived.totalLeaves || 0,
-            note: "Tracked across employee records",
-            icon: <FaUserClock />,
-            tone: "violet",
-        },
-        {
-            title: "Orders",
-            value: storeStats.orders || 0,
-            note: `${storeStats.users || 0} registered customers`,
-            icon: <FaShoppingCart />,
-            tone: "slate",
-        },
-        {
-            title: "Inventory Alerts",
-            value: storeStats.outOfStockProducts || 0,
-            note: `${storeStats.products || 0} listed products`,
-            icon: <FaExclamationTriangle />,
-            tone: "rose",
-        },
-    ];
-
-    const quickActions = [
-        {
-            title: "Manage employees",
-            description: "Add new employees, edit roles, and maintain payroll-ready details.",
-            to: "/admin/employees",
-        },
-        {
-            title: "Review user accounts",
-            description: "Audit customer/admin roles and export account records.",
-            to: "/admin/users",
-        },
-        {
-            title: "Track fulfillment",
-            description: "Watch order flow, complaints, and review activity.",
-            to: "/admin/orders",
-        },
-    ];
 
     return (
         <div className="dashboard-main">
             <section className="dashboard-hero">
                 <div>
                     <p className="hero-kicker">Admin overview</p>
-                    <h1 className="main-title">Employee-first command center</h1>
+                    <h1 className="main-title">Store control center</h1>
                     <p className="hero-copy">
-                        This dashboard prioritizes workforce visibility while still keeping the store’s operational health in view.
+                        Keep the ecommerce flow in view with orders, catalog, customer accounts, complaints, and feedback.
                     </p>
                 </div>
                 <div className="hero-pulse">
-                    <span>Live snapshot</span>
-                    <strong>{formatCurrency(employeeStats.totalSalaryPaid || 0)}</strong>
-                    <p>Payroll processed across {employeeStats.totalEmployees || employees.length || 0} employees</p>
+                    <span>Current revenue</span>
+                    <strong>{formatCurrency(storeStats.revenue)}</strong>
+                    <p>{storeStats.outOfStockProducts} products need restocking</p>
                 </div>
             </section>
 
             <div className="stats-grid">
-                {metricCards.map((card) => (
-                    <article className={`stat-card tone-${card.tone}`} key={card.title}>
+                {summaryCards.map((card) => (
+                    <article className="stat-card tone-blue" key={card.title}>
                         <div className="stat-icon">{card.icon}</div>
                         <div>
                             <p className="stat-title">{card.title}</p>
                             <h3 className="stat-value">{card.value}</h3>
-                            <p className="stat-note">{card.note}</p>
                         </div>
                     </article>
                 ))}
@@ -237,17 +137,17 @@ export default function Dashboard() {
                 <article className="panel-card panel-large">
                     <div className="panel-head">
                         <div>
-                            <p className="panel-kicker">Departments</p>
-                            <h3>Team distribution</h3>
+                            <p className="panel-kicker">Operations</p>
+                            <h3>Store snapshot</h3>
                         </div>
                     </div>
                     <ResponsiveContainer height={280}>
-                        <BarChart data={derived.departmentData}>
+                        <BarChart data={chartData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#dbe4f0" />
                             <XAxis dataKey="name" />
                             <YAxis allowDecimals={false} />
                             <Tooltip />
-                            <Bar dataKey="count" radius={[10, 10, 0, 0]} fill="#2563eb" />
+                            <Bar dataKey="value" radius={[10, 10, 0, 0]} fill="#2563eb" />
                         </BarChart>
                     </ResponsiveContainer>
                 </article>
@@ -255,20 +155,17 @@ export default function Dashboard() {
                 <article className="panel-card">
                     <div className="panel-head">
                         <div>
-                            <p className="panel-kicker">Attendance</p>
-                            <h3>Presence split</h3>
+                            <p className="panel-kicker">Actions</p>
+                            <h3>Quick access</h3>
                         </div>
                     </div>
-                    <ResponsiveContainer height={280}>
-                        <PieChart>
-                            <Pie data={derived.attendanceSplit} dataKey="value" innerRadius={60} outerRadius={95} paddingAngle={3}>
-                                {derived.attendanceSplit.map((entry, index) => (
-                                    <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                        </PieChart>
-                    </ResponsiveContainer>
+                    <div className="quick-actions">
+                        <button onClick={() => navigate("/admin/orders")}>Open orders</button>
+                        <button onClick={() => navigate("/admin/users")}>Manage users</button>
+                        <button onClick={() => navigate("/products")}>Edit catalog</button>
+                        <button onClick={() => navigate("/admin/complaints")}>Review complaints</button>
+                        <button onClick={() => navigate("/admin/feedback")}>Read feedback</button>
+                    </div>
                 </article>
             </section>
 
@@ -276,89 +173,27 @@ export default function Dashboard() {
                 <article className="panel-card panel-large">
                     <div className="panel-head">
                         <div>
-                            <p className="panel-kicker">Payroll</p>
-                            <h3>Top salary exposure</h3>
+                            <p className="panel-kicker">Distribution</p>
+                            <h3>Activity mix</h3>
                         </div>
                     </div>
-                    <ResponsiveContainer height={300}>
-                        <LineChart data={derived.payrollExposure}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#dbe4f0" />
-                            <XAxis dataKey="name" />
-                            <YAxis />
+                    <ResponsiveContainer height={280}>
+                        <PieChart>
+                            <Pie
+                                data={chartData}
+                                dataKey="value"
+                                nameKey="name"
+                                outerRadius={100}
+                                innerRadius={60}
+                                paddingAngle={2}
+                            >
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
                             <Tooltip />
-                            <Line type="monotone" dataKey="salary" stroke="#16a34a" strokeWidth={3} />
-                        </LineChart>
+                        </PieChart>
                     </ResponsiveContainer>
-                </article>
-
-                <article className="panel-card">
-                    <div className="panel-head">
-                        <div>
-                            <p className="panel-kicker">Operations</p>
-                            <h3>Store signals</h3>
-                        </div>
-                    </div>
-                    <ul className="signal-list">
-                        <li>
-                            <FaBoxOpen />
-                            <span>{storeStats.products || 0} active products</span>
-                        </li>
-                        <li>
-                            <FaClipboardList />
-                            <span>{storeStats.complaints || 0} complaints logged</span>
-                        </li>
-                        <li>
-                            <FaChartLine />
-                            <span>{storeStats.reviews || 0} review messages collected</span>
-                        </li>
-                    </ul>
-                </article>
-            </section>
-
-            <section className="dashboard-panels">
-                <article className="panel-card">
-                    <div className="panel-head">
-                        <div>
-                            <p className="panel-kicker">Quick actions</p>
-                            <h3>Jump into admin work</h3>
-                        </div>
-                    </div>
-
-                    <div className="action-list">
-                        {quickActions.map((action) => (
-                            <button className="action-card" key={action.title} onClick={() => navigate(action.to)}>
-                                <div>
-                                    <strong>{action.title}</strong>
-                                    <p>{action.description}</p>
-                                </div>
-                                <FaArrowRight />
-                            </button>
-                        ))}
-                    </div>
-                </article>
-
-                <article className="panel-card">
-                    <div className="panel-head">
-                        <div>
-                            <p className="panel-kicker">Spotlight</p>
-                            <h3>Top employee records</h3>
-                        </div>
-                    </div>
-
-                    <div className="employee-list">
-                        {derived.spotlightEmployees.map((employee) => (
-                            <div className="employee-row" key={employee.empId}>
-                                <div>
-                                    <strong>{employee.name}</strong>
-                                    <p>{employee.department || "General"} · {employee.designation || "Employee"}</p>
-                                </div>
-                                <div className="employee-meta">
-                                    <span>{employee.totalPresent || 0} present</span>
-                                    <span>{formatCurrency(employee.totalSalaryPaid || 0)}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
                 </article>
             </section>
         </div>

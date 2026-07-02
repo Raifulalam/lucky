@@ -35,8 +35,6 @@ const ComplaintsComponent = lazy(() => import("./Pages/Admin/Complaints"));
 const FeedbackList = lazy(() => import("./Pages/Admin/FeedbackMessage/Feedback"));
 const ManageProducts = lazy(() => import("./Pages/Admin/ManageProducts"));
 const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
-const EmployeeManager = lazy(() => import("./Pages/Admin/ManageEmployee"));
-const AdminProduct = lazy(() => import("./Pages/Admin/manageProducts/manageProducts"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
 
 function App() {
@@ -153,13 +151,11 @@ function App() {
                     >
                       <Route index element={<Dashboard />} />
                       <Route path="users" element={<AdminDashboard />} />
-                      <Route path="employees" element={<EmployeeManager />} />
                       <Route path="orders" element={<OrderComponent />} />
                       <Route path="orders/:orderId" element={<ReviewPage />} />
                       <Route path="complaints" element={<ComplaintsComponent />} />
                       <Route path="feedback" element={<FeedbackList />} />
-                      <Route path="products" element={<AdminProduct />} />
-                      <Route path="inventory" element={<ManageProducts />} />
+                      <Route path="products" element={<ManageProducts />} />
                     </Route>
 
                     {legacyAdminRedirects.map((route) => (

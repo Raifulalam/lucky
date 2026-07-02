@@ -7,6 +7,9 @@ const Product = require("../Models/products");
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const redisClient = require("../config/redis");
+const uploadProductImage = require("../middlewares/uploadProductImage");
+const cloudinary = require("../utils/cloudinary");
+const streamifier = require("streamifier");
 
 const toSlug = (value) =>
     String(value || "")
@@ -88,6 +91,7 @@ router.post(
     "/products",
     auth,
     isAdmin,
+    uploadProductImage.single("image"),
     [
         body("name").notEmpty().trim(),
         body("price").isNumeric(),
@@ -98,8 +102,31 @@ router.post(
     validate,
     async (req, res) => {
         try {
+            let uploadedImage = null;
+
+            if (req.file) {
+                uploadedImage = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { folder: "products" },
+                        (error, result) => {
+                            if (error) return reject(error);
+                            resolve(result?.secure_url || null);
+                        }
+                    );
+
+                    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+                });
+            }
+
+            const bodyImages = Array.isArray(req.body.images)
+                ? req.body.images
+                : typeof req.body.images === "string" && req.body.images
+                    ? req.body.images.split(",").map((item) => item.trim()).filter(Boolean)
+                    : [];
+
             const payload = {
                 ...req.body,
+                images: uploadedImage ? [uploadedImage] : bodyImages,
                 slug: req.body.slug || toSlug(`${req.body.name || ""}-${req.body.model || ""}`),
             };
 
@@ -278,8 +305,30 @@ router.get(
 /* ===========================================================
    UPDATE PRODUCT (ADMIN)
    =========================================================== */
-router.put("/products/:id", auth, isAdmin, async (req, res) => {
+router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), async (req, res) => {
     try {
+        let uploadedImage = null;
+
+        if (req.file) {
+            uploadedImage = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream(
+                    { folder: "products" },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result?.secure_url || null);
+                    }
+                );
+
+                streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+            });
+        }
+
+        const bodyImages = Array.isArray(req.body.images)
+            ? req.body.images
+            : typeof req.body.images === "string" && req.body.images
+                ? req.body.images.split(",").map((item) => item.trim()).filter(Boolean)
+                : [];
+
         const allowedFields = (({
             name,
             price,
@@ -287,6 +336,7 @@ router.put("/products/:id", auth, isAdmin, async (req, res) => {
             brand,
             model,
             description,
+            image,
             images,
             stock,
             slug,
@@ -297,7 +347,7 @@ router.put("/products/:id", auth, isAdmin, async (req, res) => {
             brand,
             model,
             description,
-            images,
+            images: uploadedImage ? [uploadedImage] : (images || (image ? [image] : bodyImages)),
             stock,
             slug,
         }))(req.body);

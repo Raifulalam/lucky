@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import './Modal.css'; // Make sure you have a CSS file for styling
+import React, { useEffect, useState } from "react";
+import "./Modal.css";
+
+const getProductImage = (product) => product?.images?.[0] || product?.image || "";
 
 const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
     const [editedProduct, setEditedProduct] = useState({});
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
 
     useEffect(() => {
         if (product) {
             setEditedProduct({ ...product });
+            setSelectedImage(null);
+            setImagePreview(getProductImage(product));
         }
     }, [product]);
 
@@ -18,9 +24,30 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0] || null;
+        setSelectedImage(file);
+        setImagePreview(file ? URL.createObjectURL(file) : getProductImage(product));
+    };
+
     const handleSave = () => {
-        onSave(editedProduct);
-        onClose();  // Close modal after save
+        const formData = new FormData();
+        formData.append("name", editedProduct.name || "");
+        formData.append("category", editedProduct.category || "");
+        formData.append("description", editedProduct.description || "");
+        formData.append("brand", editedProduct.brand || "");
+        formData.append("model", editedProduct.model || "");
+        formData.append("price", editedProduct.price || "");
+        formData.append("mrp", editedProduct.mrp || "");
+        formData.append("stock", editedProduct.stock || "");
+        if (selectedImage) {
+            formData.append("image", selectedImage);
+        } else if (getProductImage(editedProduct)) {
+            formData.append("images", getProductImage(editedProduct));
+        }
+
+        onSave({ _id: editedProduct._id, payload: formData });
+        onClose();
     };
 
     if (!isOpen) return null;
@@ -29,71 +56,76 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
         <div className="modal-overlay">
             <div className="modal-content">
                 <h2>Edit Product</h2>
+
                 <input
                     type="text"
                     name="name"
-                    value={editedProduct.name || ''}
+                    value={editedProduct.name || ""}
                     onChange={handleChange}
-                    placeholder='Name of product'
+                    placeholder="Name of product"
                 />
                 <input
                     type="text"
                     name="category"
-                    value={editedProduct.category || ''}
+                    value={editedProduct.category || ""}
                     onChange={handleChange}
-                    placeholder='Category of product'
+                    placeholder="Category of product"
                 />
                 <input
                     type="text"
                     name="description"
-                    value={editedProduct.description || ''}
+                    value={editedProduct.description || ""}
                     onChange={handleChange}
-                    placeholder='description of product'
-
+                    placeholder="Description of product"
                 />
                 <input
                     type="text"
                     name="brand"
-                    value={editedProduct.brand || ''}
+                    value={editedProduct.brand || ""}
                     onChange={handleChange}
-                    placeholder='Brand Name'
+                    placeholder="Brand Name"
                 />
                 <input
-                    type='text'
-                    name='model'
-                    value={editedProduct.model}
+                    type="text"
+                    name="model"
+                    value={editedProduct.model || ""}
                     onChange={handleChange}
-                    placeholder='Model'
+                    placeholder="Model"
                     required
                 />
                 <input
                     type="number"
                     name="price"
-                    value={editedProduct.price || ''}
+                    value={editedProduct.price || ""}
                     onChange={handleChange}
-                    placeholder='Price of product'
+                    placeholder="Price of product"
                 />
                 <input
                     type="number"
                     name="mrp"
-                    value={editedProduct.mrp || ''}
+                    value={editedProduct.mrp || ""}
                     onChange={handleChange}
-                    placeholder='MRP of product'
+                    placeholder="MRP of product"
                 />
+
+                <div className="image-upload-preview">
+                    {imagePreview ? <img src={imagePreview} alt="Product preview" /> : <span>No image</span>}
+                </div>
                 <input
-                    type="text"
+                    type="file"
                     name="image"
-                    value={editedProduct.image || ''}
-                    onChange={handleChange}
-                    placeholder='Image URL of product'
+                    accept="image/*"
+                    onChange={handleImageChange}
                 />
+
                 <input
                     type="number"
                     name="stock"
-                    value={editedProduct.stock}
+                    value={editedProduct.stock || ""}
                     onChange={handleChange}
                     placeholder="Stock"
                 />
+
                 <div className="modal-buttons">
                     <button onClick={onClose}>Cancel</button>
                     <button onClick={handleSave}>Save</button>
