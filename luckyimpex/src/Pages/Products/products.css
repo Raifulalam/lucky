@@ -1503,7 +1503,7 @@ p {
     .secondary-btn,
     .add-to-cart-button,
     .quick-view-add-btn {
-        width: 100%;
+
         justify-content: center;
     }
 
@@ -1567,7 +1567,7 @@ p {
     .brand-chip-btn,
     .brand-nav-chip,
     .feature-pill {
-        width: 100%;
+
         justify-content: center;
     }
 
