@@ -138,6 +138,7 @@ const OrderPage = () => {
                             <div style={{ display: "none" }}>
                                 <Invoice order={order} company={company} />
                             </div>
+                            <button>Track Order</button>
 
                             <div className="order-top">
                                 <div className="order-top-copy">
