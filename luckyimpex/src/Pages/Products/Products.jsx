@@ -16,9 +16,9 @@ import PageSeo from "../../Components/PageSeo";
 import { categories as categoryCatalog, brands as brandCatalog } from "../HomePage/Constants";
 import { authRequest, BASE_URL } from "../../api/api";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
+import { buildCatalogCacheKey, clearCatalogCache, clearPersistedQueryCache, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
 import ProductQuickViewModal from "./ProductQuickViewModal";
-import { Eye, Search, X, SlidersHorizontal, Check } from "lucide-react";
+import { Eye, Search, X, SlidersHorizontal, Check, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const getImageSrc = (src, fallbackSrc) => {
@@ -166,8 +166,11 @@ const Products = () => {
                 isFormData: payload instanceof FormData,
             });
         },
-        onSuccess: () => {
+        onSuccess: async () => {
+            await clearCatalogCache();
+            clearPersistedQueryCache();
             queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ["product-details"] });
             setIsModalOpen(false);
             addNotification({
                 title: "Success!",
@@ -192,8 +195,11 @@ const Products = () => {
         mutationFn: async (productId) => {
             return authRequest(`/products/products/${productId}`, { method: "DELETE" });
         },
-        onSuccess: (data, productId) => {
+        onSuccess: async (data, productId) => {
+            await clearCatalogCache();
+            clearPersistedQueryCache();
             queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ["product-details"] });
             dispatch({ type: "DELETE_PRODUCT", payload: productId });
             setIsDeleteModalOpen(false);
             addNotification({
@@ -223,8 +229,11 @@ const Products = () => {
                 isFormData: productData instanceof FormData,
             });
         },
-        onSuccess: () => {
+        onSuccess: async () => {
+            await clearCatalogCache();
+            clearPersistedQueryCache();
             queryClient.invalidateQueries({ queryKey: ["products"] });
+            queryClient.invalidateQueries({ queryKey: ["product-details"] });
             setIsAddModalOpen(false);
             setNewProduct({
                 name: "", mrp: "", bestBuyPrice: "", category: "", model: "",
@@ -729,7 +738,7 @@ const Products = () => {
                                             }}
                                             aria-label="Quick view"
                                         >
-                                            <Eye size={16} /> Quick View
+                                            <Eye size={16} />
                                         </button>
                                     </div>
 
@@ -788,14 +797,14 @@ const Products = () => {
                                         {userRole === "admin" ? (
                                             <div className="product-actions">
                                                 <button
-                                                    className="edit-btn"
+                                                    className="edit-btn action-btn"
                                                     onClick={() => handleEdit(product)}
                                                     disabled={saveMutation.isPending}
                                                 >
                                                     Edit
                                                 </button>
                                                 <button
-                                                    className="delete-btn"
+                                                    className="delete-btn action-btn"
                                                     onClick={() => handleDelete(product._id)}
                                                     disabled={deleteMutation.isPending}
                                                 >
@@ -805,13 +814,15 @@ const Products = () => {
                                         ) : (
                                             <div className="product-actions customer-actions">
                                                 <button
-                                                    className="details-btn"
+                                                    className="details-btn action-btn"
                                                     onClick={() => handleDetails(product.slug || product._id)}
+                                                    aria-label="Know more"
                                                 >
-                                                    View Details
+                                                    <Eye size={16} className="details-btn-icon" />
+                                                    <span className="details-btn-text">Know More</span>
                                                 </button>
                                                 <button
-                                                    className="add-to-cart-button button-primary"
+                                                    className="add-to-cart-button button-primary action-btn"
                                                     onClick={() => handleAddToCart(product)}
                                                     disabled={isOutOfStock || isAdding}
                                                 >
@@ -820,9 +831,12 @@ const Products = () => {
                                                             <Check size={14} className="check-icon-spin" /> Adding...
                                                         </span>
                                                     ) : isOutOfStock ? (
-                                                        "Unavailable"
+                                                        <span className="cart-btn-text">Unavailable</span>
                                                     ) : (
-                                                        "Add to Cart"
+                                                        <>
+                                                            <ShoppingCart size={16} className="cart-btn-icon" />
+                                                            <span className="cart-btn-text">Add to Cart</span>
+                                                        </>
                                                     )}
                                                 </button>
                                             </div>

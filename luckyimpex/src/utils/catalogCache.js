@@ -104,3 +104,26 @@ export const deleteCatalogCache = async (key) => {
   }
 };
 
+export const clearCatalogCache = async () => {
+  try {
+    await withStore("readwrite", (store) =>
+      new Promise((resolve, reject) => {
+        const request = store.clear();
+        request.onsuccess = () => resolve(true);
+        request.onerror = () => reject(request.error);
+      })
+    );
+  } catch {
+    // Ignore cache clear failures.
+  }
+};
+
+export const clearPersistedQueryCache = () => {
+  try {
+    if (typeof window === "undefined") return;
+    window.localStorage.removeItem("lucky-query-cache-v1");
+  } catch {
+    // Ignore localStorage failures.
+  }
+};
+
