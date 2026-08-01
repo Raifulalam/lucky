@@ -2,7 +2,27 @@ const API_ROOT = process.env.REACT_APP_API_BASE_URL || "https://lucky-1-6ma5.onr
 
 export const BASE_URL = API_ROOT;
 export const HRMS_BASE_URL = `${API_ROOT}/hrms`;
-export const getAuthToken = () => localStorage.getItem("authToken");
+export const getAuthToken = () => {
+    try {
+        return localStorage.getItem("authToken");
+    } catch {
+        return null;
+    }
+};
+
+export const setAuthToken = (token) => {
+    try {
+        if (token) {
+            localStorage.setItem("authToken", token);
+        } else {
+            localStorage.removeItem("authToken");
+        }
+    } catch {
+        // Ignore storage failures in privacy-restricted contexts.
+    }
+};
+
+export const clearAuthToken = () => setAuthToken(null);
 
 function buildUrl(baseUrl, endpoint) {
     if (!endpoint.startsWith("/")) {
@@ -13,7 +33,11 @@ function buildUrl(baseUrl, endpoint) {
 }
 
 async function request(baseUrl, endpoint, options = {}) {
-    const response = await fetch(buildUrl(baseUrl, endpoint), options);
+    const { signal, ...fetchOptions } = options;
+    const response = await fetch(buildUrl(baseUrl, endpoint), {
+        ...fetchOptions,
+        signal,
+    });
     const contentType = response.headers.get("content-type") || "";
     const payload = contentType.includes("application/json")
         ? await response.json()
@@ -45,35 +69,38 @@ function withAuthHeaders(token, extraHeaders = {}) {
     };
 }
 
-export const getData = async (endpoint) => request(BASE_URL, endpoint);
+export const getData = async (endpoint, options = {}) => request(BASE_URL, endpoint, options);
 
-export const postData = async (endpoint, data) =>
+export const postData = async (endpoint, data, options = {}) =>
     request(BASE_URL, endpoint, {
         method: "POST",
         headers: withJsonHeaders(),
         body: JSON.stringify(data),
+        ...options,
     });
 
-export const putData = async (endpoint, data) =>
+export const putData = async (endpoint, data, options = {}) =>
     request(BASE_URL, endpoint, {
         method: "PUT",
         headers: withJsonHeaders(),
         body: JSON.stringify(data),
+        ...options,
     });
 
-export const patchData = async (endpoint, data) =>
+export const patchData = async (endpoint, data, options = {}) =>
     request(BASE_URL, endpoint, {
         method: "PATCH",
         headers: withJsonHeaders(),
         body: JSON.stringify(data),
+        ...options,
     });
 
-export const deleteData = async (endpoint) =>
-    request(BASE_URL, endpoint, { method: "DELETE" });
+export const deleteData = async (endpoint, options = {}) =>
+    request(BASE_URL, endpoint, { method: "DELETE", ...options });
 
 export const authRequest = async (
     endpoint,
-    { token = getAuthToken(), method = "GET", body, headers, isFormData = false } = {}
+    { token = getAuthToken(), method = "GET", body, headers, isFormData = false, signal } = {}
 ) =>
     request(BASE_URL, endpoint, {
         method,
@@ -85,11 +112,13 @@ export const authRequest = async (
                 ? body
                 : JSON.stringify(body)
             : undefined,
+        signal,
     });
 
-export const hrmsRequest = async (endpoint, { token, method = "GET", body, headers } = {}) =>
+export const hrmsRequest = async (endpoint, { token, method = "GET", body, headers, signal } = {}) =>
     request(HRMS_BASE_URL, endpoint, {
         method,
         headers: withJsonHeaders(token || getAuthToken(), headers),
         body: body ? JSON.stringify(body) : undefined,
+        signal,
     });

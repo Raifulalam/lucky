@@ -1,0 +1,8 @@
+{
+  "name": "lucky-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm run build --prefix luckyimpex && npm run build --prefix Employee/employee"
+  }
+}

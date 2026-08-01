@@ -6,7 +6,7 @@ import Footer from "../../Components/Footer";
 import { useCartDispatch } from "../../Components/CreateReducer";
 import { useNotification } from "../../Components/NotificationContext";
 import useGoBack from "../../hooks/useGoback";
-import { BASE_URL } from "../../api/api";
+import { getData } from "../../api/api";
 import { useQuery } from "@tanstack/react-query";
 import PageSeo from "../../Components/PageSeo";
 import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
@@ -31,14 +31,10 @@ const ProductDetails = () => {
             const cached = await readCatalogCache(cacheKey);
 
             try {
-                const response = await fetch(`${BASE_URL}/products/products/${id}`, { signal });
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error("Product not found");
-                    }
-                    throw new Error("Failed to fetch product details");
+                const data = await getData(`/products/products/${id}`, { signal });
+                if (!data) {
+                    throw new Error("Product not found");
                 }
-                const data = await response.json();
                 await writeCatalogCache(cacheKey, data);
                 return data;
             } catch (err) {
@@ -129,6 +125,9 @@ const ProductDetails = () => {
                                 className="details-product-image"
                                 src={imageUrl}
                                 alt={productData?.name || "Product image"}
+                                loading="eager"
+                                decoding="async"
+                                fetchPriority="high"
                                 onError={(e) => {
                                     e.currentTarget.onerror = null;
                                     e.currentTarget.src = "/lucky-logo.png";

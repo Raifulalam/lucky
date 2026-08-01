@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { authRequest } from "../api/api";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
+import { authRequest, clearAuthToken, getAuthToken } from "../api/api";
 
 const UserContext = createContext();
 
@@ -8,7 +8,7 @@ const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const loadUser = async (token) => {
+    const loadUser = useCallback(async (token) => {
         if (!token) {
             setUser(null);
             return null;
@@ -17,16 +17,17 @@ const UserProvider = ({ children }) => {
         const data = await authRequest("/users/me", { token });
         setUser(data);
         return data;
-    };
+    }, []);
 
-    const logout = () => {
-        localStorage.removeItem("authToken");
+    const logout = useCallback(() => {
+        clearAuthToken();
         setUser(null);
-    };
+        setError(null);
+    }, []);
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const token = localStorage.getItem("authToken");
+            const token = getAuthToken();
             if (!token) {
                 setLoading(false);
                 return;
@@ -50,9 +51,9 @@ const UserProvider = ({ children }) => {
         };
 
         fetchUserData();
-    }, []);
+    }, [loadUser, logout]);
 
-    const value = {
+    const value = useMemo(() => ({
         user,
         loading,
         error,
@@ -63,7 +64,7 @@ const UserProvider = ({ children }) => {
         isUser: user?.role === "user",
         logout,
         refreshUser: loadUser,
-    };
+    }), [user, loading, error, logout, loadUser]);
 
     return (
         <UserContext.Provider value={value}>

@@ -7,7 +7,6 @@ import { legacyAdminRedirects } from "./Pages/Admin/adminRoutes";
 import { CartProvider } from "./Components/CreateReducer";
 import { UserProvider } from "./Components/UserContext";
 import { NotificationProvider } from "./Components/NotificationContext";
-import { ProductProvider } from "./Components/ProductContext";
 import ProtectedRoute from './Components/ProtectedRoutes';
 import ErrorBoundary from "./Components/ErrorBoundary";
 
@@ -48,39 +47,38 @@ function App() {
     <ErrorBoundary>
       <NotificationProvider>
         <UserProvider>
-          <ProductProvider>
-            <CartProvider>
-              <BrowserRouter>
-                <Suspense fallback={
+          <CartProvider>
+            <BrowserRouter>
+              <Suspense fallback={
+                <div style={{
+                  minHeight: '100vh',
+                  display: 'grid',
+                  placeItems: 'center',
+                  background: 'linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%)',
+                  color: '#17324d',
+                  fontFamily: 'system-ui, sans-serif'
+                }}>
                   <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100vh',
-                    fontFamily: 'sans-serif',
-                    color: '#2563eb',
-                    fontSize: '1.25rem',
-                    fontWeight: '500'
+                    width: 'min(720px, calc(100vw - 40px))',
+                    padding: '28px',
+                    borderRadius: '24px',
+                    background: '#fff',
+                    boxShadow: '0 18px 40px rgba(16, 33, 58, 0.08)',
+                    border: '1px solid rgba(217, 225, 232, 0.9)'
                   }}>
-                    <div style={{
-                      border: '3px solid #e2e8f0',
-                      borderTop: '3px solid #2563eb',
-                      borderRadius: '50%',
-                      width: '32px',
-                      height: '32px',
-                      animation: 'spin 1s linear infinite',
-                      marginRight: '12px'
-                    }}></div>
-                    Loading Lucky Impex...
-                    <style>{`
-                      @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                      }
-                    `}</style>
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <div style={{ width: '48%', height: '18px', borderRadius: '999px', background: '#e9eef4' }} />
+                      <div style={{ width: '72%', height: '34px', borderRadius: '14px', background: '#e9eef4' }} />
+                      <div style={{ display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+                        <div style={{ height: '120px', borderRadius: '18px', background: '#eef3f8' }} />
+                        <div style={{ height: '120px', borderRadius: '18px', background: '#eef3f8' }} />
+                        <div style={{ height: '120px', borderRadius: '18px', background: '#eef3f8' }} />
+                      </div>
+                    </div>
                   </div>
-                }>
-                  <Routes>
+                </div>
+              }>
+                <Routes>
                     {/* ================= PUBLIC ROUTES ================= */}
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginComponent />} />
@@ -178,11 +176,10 @@ function App() {
                         </ProtectedRoute>
                       }
                     />
-                  </Routes>
-                </Suspense>
-              </BrowserRouter>
-            </CartProvider>
-          </ProductProvider>
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </CartProvider>
         </UserProvider>
       </NotificationProvider>
     </ErrorBoundary>

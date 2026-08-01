@@ -14,12 +14,14 @@ import Modal from "../../Components/Modal";
 import { useNotification } from "../../Components/NotificationContext";
 import PageSeo from "../../Components/PageSeo";
 import { categories as categoryCatalog, brands as brandCatalog } from "../HomePage/Constants";
-import { authRequest, BASE_URL } from "../../api/api";
+import { authRequest, getData } from "../../api/api";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { buildCatalogCacheKey, clearCatalogCache, clearPersistedQueryCache, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
+import { buildCatalogCacheKey, clearCatalogCache, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import { Eye, Search, X, SlidersHorizontal, Check, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
+
+const HERO_IMAGES = [backimg, back01, back02, back03, luckyImage];
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -130,13 +132,11 @@ const Products = () => {
             const cached = await readCatalogCache(cacheKey);
 
             try {
-                let url = `${BASE_URL}/products/products?page=${pageParam}&limit=20`;
+                let url = `/products/products?page=${pageParam}&limit=20`;
                 if (selectedCategory) url += `&category=${selectedCategory}`;
                 if (debouncedSearch) url += `&search=${debouncedSearch}`;
 
-                const response = await fetch(url, { signal });
-                if (!response.ok) throw new Error("Failed to fetch products");
-                const payload = await response.json();
+                const payload = await getData(url, { signal });
                 await writeCatalogCache(cacheKey, payload);
                 return payload;
             } catch (err) {
@@ -168,7 +168,6 @@ const Products = () => {
         },
         onSuccess: async () => {
             await clearCatalogCache();
-            clearPersistedQueryCache();
             queryClient.invalidateQueries({ queryKey: ["products"] });
             queryClient.invalidateQueries({ queryKey: ["product-details"] });
             setIsModalOpen(false);
@@ -197,7 +196,6 @@ const Products = () => {
         },
         onSuccess: async (data, productId) => {
             await clearCatalogCache();
-            clearPersistedQueryCache();
             queryClient.invalidateQueries({ queryKey: ["products"] });
             queryClient.invalidateQueries({ queryKey: ["product-details"] });
             dispatch({ type: "DELETE_PRODUCT", payload: productId });
@@ -231,7 +229,6 @@ const Products = () => {
         },
         onSuccess: async () => {
             await clearCatalogCache();
-            clearPersistedQueryCache();
             queryClient.invalidateQueries({ queryKey: ["products"] });
             queryClient.invalidateQueries({ queryKey: ["product-details"] });
             setIsAddModalOpen(false);
@@ -312,25 +309,27 @@ const Products = () => {
         return sortedProducts.filter((product) => Number(product.stock) > 0).length;
     }, [sortedProducts]);
 
-    const activeFilterCount = [
-        selectedCategory,
-        selectedBrand,
-        debouncedSearch,
-        minPrice,
-        maxPrice,
-        showInStockOnly ? "instock" : ""
-    ].filter(Boolean).length;
+    const activeFilterCount = useMemo(
+        () => [
+            selectedCategory,
+            selectedBrand,
+            debouncedSearch,
+            minPrice,
+            maxPrice,
+            showInStockOnly ? "instock" : ""
+        ].filter(Boolean).length,
+        [selectedCategory, selectedBrand, debouncedSearch, minPrice, maxPrice, showInStockOnly]
+    );
 
     // Hero Slider logic
     const [currentSlide, setCurrentSlide] = useState(0);
-    const images = [backimg, back01, back02, back03, luckyImage];
     useEffect(() => {
         const intervalId = setInterval(
-            () => setCurrentSlide((prev) => (prev + 1) % images.length),
+            () => setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length),
             4000
         );
         return () => clearInterval(intervalId);
-    }, [images.length]);
+    }, []);
 
     // IntersectionObserver scroll setup
     const autoLoadTriggerRef = useCallback(
@@ -518,7 +517,7 @@ const Products = () => {
                         </div>
                     </div>
                     <img
-                        src={images[currentSlide]}
+                        src={HERO_IMAGES[currentSlide]}
                         alt={`Slide ${currentSlide + 1}`}
                         className="slider-image-new"
                     />

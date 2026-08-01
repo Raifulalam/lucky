@@ -43,10 +43,12 @@ const quickLinks = [
     { label: "Contact", to: "/contact" },
 ];
 
+const EMPTY_CART = [];
+
 const formatCategory = (value) => value.replace(/([A-Z])/g, " $1").trim();
 
 const Header = () => {
-    const { user } = useContext(UserContext);
+    const { user, logout } = useContext(UserContext);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -69,13 +71,15 @@ const Header = () => {
         [isAdmin, isUser]
     );
 
-    const cart = useCartState() || [];
-    const cartQty = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+    const cart = useCartState() || EMPTY_CART;
+    const cartQty = useMemo(
+        () => cart.reduce((total, item) => total + (item.quantity || 1), 0),
+        [cart]
+    );
 
-    const logout = () => {
-        localStorage.removeItem("authToken");
+    const handleLogout = () => {
+        logout();
         navigate("/");
-        window.location.reload();
     };
 
     const closeMobileMenu = () => setMenuOpen(false);
@@ -180,7 +184,7 @@ const Header = () => {
                                 <div className="user-dropdown">
                                     {isUser && <Link to="/profile">Profile</Link>}
                                     {isAdmin && <Link to="/admin">Dashboard</Link>}
-                                    <button type="button" onClick={logout}>Logout</button>
+                                    <button type="button" onClick={handleLogout}>Logout</button>
                                 </div>
                             </div>
                         ) : (
@@ -255,7 +259,7 @@ const Header = () => {
 
                 <div className="mobile-menu-footer">
                     {user ? (
-                        <button type="button" className="mobile-auth-btn" onClick={logout}>
+                        <button type="button" className="mobile-auth-btn" onClick={handleLogout}>
                             Logout
                         </button>
                     ) : (

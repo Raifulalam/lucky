@@ -1,13 +1,15 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Trash2, ShoppingCart, Plus, Minus, ArrowRight } from "lucide-react";
 import { useCartState, useCartDispatch } from "./CreateReducer";
 import "./CartDrawer.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
+const EMPTY_CART = [];
 
 const CartDrawer = ({ isOpen, onClose }) => {
-    const cart = useCartState() || [];
+    const cartState = useCartState();
+    const cart = cartState ?? EMPTY_CART;
     const dispatch = useCartDispatch();
     const navigate = useNavigate();
     const drawerRef = useRef(null);
@@ -45,10 +47,16 @@ const CartDrawer = ({ isOpen, onClose }) => {
         }
     };
 
-    const subtotal = cart.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 1), 0);
-    const tax = subtotal * 0.13;
-    const total = subtotal + tax;
-    const totalQty = cart.reduce((total, item) => total + (item.quantity || 1), 0);
+    const { subtotal, tax, total, totalQty } = useMemo(() => {
+        const nextSubtotal = cart.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 1), 0);
+        const nextTax = nextSubtotal * 0.13;
+        return {
+            subtotal: nextSubtotal,
+            tax: nextTax,
+            total: nextSubtotal + nextTax,
+            totalQty: cart.reduce((total, item) => total + (item.quantity || 1), 0),
+        };
+    }, [cart]);
 
     return (
         <div className={`cart-drawer-overlay ${isOpen ? "open" : ""}`} onClick={handleBackdropClick}>
@@ -79,7 +87,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                             {cart.map((item) => (
                                 <div key={item.id} className="cart-drawer-item">
                                     <div className="drawer-item-img-container">
-                                        <img src={item.image || "/lucky-logo.png"} alt={item.name} className="drawer-item-img" onError={(e) => {
+                                        <img src={item.image || "/lucky-logo.png"} alt={item.name} className="drawer-item-img" loading="lazy" decoding="async" onError={(e) => {
                                             e.currentTarget.onerror = null;
                                             e.currentTarget.src = "/lucky-logo.png";
                                         }} />

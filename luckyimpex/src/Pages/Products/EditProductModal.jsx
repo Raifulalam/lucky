@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import "./Modal.css";
 
 const getProductImage = (product) => product?.images?.[0] || product?.image || "";
@@ -15,6 +15,14 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
             setImagePreview(getProductImage(product));
         }
     }, [product]);
+
+    useEffect(() => {
+        return () => {
+            if (imagePreview && imagePreview.startsWith("blob:")) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -109,7 +117,7 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
                 />
 
                 <div className="image-upload-preview">
-                    {imagePreview ? <img src={imagePreview} alt="Product preview" /> : <span>No image</span>}
+                    {imagePreview ? <img src={imagePreview} alt="Product preview" loading="lazy" decoding="async" /> : <span>No image</span>}
                 </div>
                 <input
                     type="file"
@@ -135,4 +143,4 @@ const EditProductModal = ({ isOpen, onClose, product, onSave }) => {
     );
 };
 
-export default EditProductModal;
+export default memo(EditProductModal);

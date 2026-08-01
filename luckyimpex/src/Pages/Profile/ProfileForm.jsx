@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { authRequest } from "../../api/api";
+import { authRequest, getAuthToken } from "../../api/api";
 import { UserContext } from "../../Components/UserContext";
-import { clearPersistedQueryCache } from "../../utils/catalogCache";
 
 const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
     const [formData, setFormData] = useState({
@@ -58,8 +57,7 @@ const ProfileForm = ({ userData, setUserData, setIsEditing }) => {
             });
 
             setUserData(data);
-            await refreshUser(localStorage.getItem("authToken"));
-            clearPersistedQueryCache();
+            await refreshUser(getAuthToken());
             setIsEditing(false);
             navigate("/profile");
         } catch (err) {

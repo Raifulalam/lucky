@@ -7,7 +7,7 @@ import Footer from "../../Components/Footer";
 import { useCartDispatch, useCartState } from "../../Components/CreateReducer";
 import { UserContext } from "../../Components/UserContext";
 import { useNotification } from "../../Components/NotificationContext";
-import { BASE_URL } from "../../api/api";
+import { BASE_URL, getAuthToken } from "../../api/api";
 import useGoBack from "../../hooks/useGoback";
 import "./Cart.css";
 
@@ -31,7 +31,7 @@ const CartComponent = () => {
     const cart = useCartState();
     const dispatch = useCartDispatch();
     const { addNotification } = useNotification();
-    const token = localStorage.getItem("authToken");
+    const token = getAuthToken();
     const goBack = useGoBack();
 
     const [deliveryDetails, setDeliveryDetails] = useState({
@@ -226,7 +226,7 @@ const CartComponent = () => {
                                 {cart.map((item) => (
                                     <article key={item.id} className="cart-item-card">
                                         <div className="cart-item-media">
-                                            <img className="item-image" src={item.image} alt={item.name} />
+                                            <img className="item-image" src={item.image} alt={item.name} loading="lazy" decoding="async" />
                                         </div>
 
                                         <div className="cart-item-content">

@@ -50,28 +50,22 @@ export const CartProvider = ({ children }) => {
     const readInitialCart = () => {
         try {
             if (typeof window === "undefined") return [];
-            return JSON.parse(localStorage.getItem('cart')) || [];
+            return JSON.parse(sessionStorage.getItem('cart')) || [];
         } catch {
             return [];
         }
     };
 
-    // Try to load cart from localStorage, or default to an empty array
-    const initialState = readInitialCart();
+    // Load cart once on mount, then keep it in memory for the active session.
+    const [state, dispatch] = useReducer(reducer, undefined, readInitialCart);
 
-    // Use the reducer to manage cart state
-    const [state, dispatch] = useReducer(reducer, initialState);
-
-    // Persist cart to localStorage whenever it changes
     useEffect(() => {
         if (state.length > 0) {
-            // Save the cart state to localStorage when cart changes
-            localStorage.setItem('cart', JSON.stringify(state));
+            sessionStorage.setItem('cart', JSON.stringify(state));
         } else {
-            // If the cart is empty, remove it from localStorage
-            localStorage.removeItem('cart');
+            sessionStorage.removeItem('cart');
         }
-    }, [state]); // This effect runs every time `state` changes
+    }, [state]);
 
     return (
         <CartStateContext.Provider value={state}>

@@ -4,7 +4,7 @@ import './LoginPage.css';
 import Header from '../../Components/Header';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../../Components/NotificationContext'; // Import notification context
-import { BASE_URL } from '../../api/api';
+import { BASE_URL, setAuthToken } from '../../api/api';
 import PageSeo from '../../Components/PageSeo';
 import { useUser } from '../../Components/UserContext';
 
@@ -49,7 +49,6 @@ function LoginComponent() {
             const data = await response.json();
 
             if (!response.ok) {
-                setLoading(false);
                 addNotification({
                     title: 'Error!',
                     message: data.message || 'Something went wrong!',
@@ -61,15 +60,13 @@ function LoginComponent() {
             }
 
             if (data.success) {
-                localStorage.setItem("authToken", data.authToken);
+                setAuthToken(data.authToken);
                 await refreshUser(data.authToken);
-                setLoading(false);
 
-                // Show success notification
                 addNotification({
                     title: 'Success!',
                     message: 'Login successful. Redirecting...',
-                    type: 'success', // Notification type 'success'
+                    type: 'success',
                     container: 'top-right',
                     dismiss: { duration: 5000 },
                 });
@@ -80,16 +77,15 @@ function LoginComponent() {
             }
         } catch (err) {
             setError(err.message);
-            setLoading(false);
-
-            // Show error notification if exception occurs
             addNotification({
                 title: 'Error!',
                 message: err.message || 'An unexpected error occurred.',
-                type: 'error', // Notification type 'error'
+                type: 'error',
                 container: 'top-right',
                 dismiss: { duration: 5000 },
             });
+        } finally {
+            setLoading(false);
         }
     };
 

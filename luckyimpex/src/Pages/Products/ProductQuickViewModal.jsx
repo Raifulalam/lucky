@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { X, ShoppingCart, Truck, ShieldCheck, BadgePercent, PackageCheck } from "lucide-react";
 import "./ProductQuickViewModal.css";
 
@@ -54,7 +54,7 @@ const ProductQuickViewModal = ({ isOpen, product, onClose, onAddToCart }) => {
                     {/* Left: Product Image Section */}
                     <div className="quick-view-image-section">
                         <div className="quick-view-image-frame">
-                            <img src={imageUrl} alt={product.name || "Product image"} className="quick-view-image" onError={(e) => {
+                            <img src={imageUrl} alt={product.name || "Product image"} className="quick-view-image" loading="lazy" decoding="async" onError={(e) => {
                                 e.currentTarget.onerror = null;
                                 e.currentTarget.src = "/lucky-logo.png";
                             }} />
@@ -129,4 +129,4 @@ const ProductQuickViewModal = ({ isOpen, product, onClose, onAddToCart }) => {
     );
 };
 
-export default ProductQuickViewModal;
+export default memo(ProductQuickViewModal);

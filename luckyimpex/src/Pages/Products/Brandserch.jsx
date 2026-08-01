@@ -26,10 +26,11 @@ import backimg from "../../Images/backimg.jpg";
 import back01 from "../../Images/back01.png";
 import back02 from "../../Images/back04.jpg";
 import back03 from "../../Images/back03.jpg";
-import { authRequest, BASE_URL } from "../../api/api";
+import { authRequest, getData } from "../../api/api";
 import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
 
 const getImageSrc = (src, fallbackSrc) => (src ? `${src}` : fallbackSrc);
+const HERO_IMAGES = [backimg, back01, back02, back03, luckyImage];
 
 const formatCurrency = (value) => {
     const amount = Number(value);
@@ -81,7 +82,6 @@ const BrandSearch = () => {
     });
 
     const placeholderImage = "/lucky-logo.png";
-    const heroImages = [backimg, back01, back02, back03, luckyImage];
     const normalizedBrand = decodeURIComponent(brand || "").replace(/-/g, " ");
     const brandLogo = `/${normalizedBrand.toLowerCase()}.png`;
 
@@ -95,15 +95,7 @@ const BrandSearch = () => {
             const cached = await readCatalogCache(cacheKey);
 
             try {
-                const response = await fetch(`${BASE_URL}/products/products/brand/${brand}?page=1&limit=200`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                    signal,
-                });
-
-                if (!response.ok) throw new Error("Failed to fetch products");
-
-                const result = await response.json();
+                const result = await getData(`/products/products/brand/${brand}?page=1&limit=200`, { signal });
                 await writeCatalogCache(cacheKey, result);
                 return result;
             } catch (err) {
@@ -122,11 +114,11 @@ const BrandSearch = () => {
 
     useEffect(() => {
         const intervalId = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+            setCurrentSlide((prev) => (prev + 1) % HERO_IMAGES.length);
         }, 4500);
 
         return () => clearInterval(intervalId);
-    }, [heroImages.length]);
+    }, []);
 
     const filteredProducts = useMemo(() => {
         const loweredSearch = searchTerm.trim().toLowerCase();
@@ -297,10 +289,13 @@ const BrandSearch = () => {
 
             <main className="brand-page-main">
                 <section className="brand-hero">
-                    <img
-                        src={heroImages[currentSlide]}
+                        <img
+                        src={HERO_IMAGES[currentSlide]}
                         alt={`${normalizedBrand} collection hero`}
                         className="brand-hero-image"
+                        loading="eager"
+                        decoding="async"
+                        fetchPriority="high"
                     />
                     <div className="brand-hero-overlay">
                         <div className="brand-brandmark">
@@ -480,6 +475,8 @@ const BrandSearch = () => {
                                                 className="product-image"
                                                 src={getImageSrc(product.image, placeholderImage)}
                                                 alt={product.name || "Product image"}
+                                                loading="lazy"
+                                                decoding="async"
                                                 onError={(e) => {
                                                     e.currentTarget.onerror = null;
                                                     e.currentTarget.src = placeholderImage;
