@@ -1,6 +1,6 @@
 import "./App.css";
 import React, { useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 
 /* CONTEXTS & HELPERS (Static Imports) */
 import { legacyAdminRedirects } from "./Pages/Admin/adminRoutes";
@@ -9,6 +9,7 @@ import { UserProvider } from "./Components/UserContext";
 import { NotificationProvider } from "./Components/NotificationContext";
 import ProtectedRoute from './Components/ProtectedRoutes';
 import ErrorBoundary from "./Components/ErrorBoundary";
+import GoogleAnalytics from "./Components/GoogleAnalytics";
 
 /* PAGES (Lazy Loaded) */
 const LoginComponent = lazy(() => import("./Pages/LoginPage/LoginPage"));
@@ -36,6 +37,13 @@ const ManageProducts = lazy(() => import("./Pages/Admin/ManageProducts"));
 const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
 
+const LegacyAboutRedirect = () => <Navigate to="/store" replace />;
+
+const LegacyProductDetailsRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/product/${id}`} replace />;
+};
+
 function App() {
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -49,6 +57,7 @@ function App() {
         <UserProvider>
           <CartProvider>
             <BrowserRouter>
+              <GoogleAnalytics />
               <Suspense fallback={
                 <div style={{
                   minHeight: '100vh',
@@ -87,9 +96,10 @@ function App() {
                     <Route path="/products" element={<Products />} />
                     <Route path="/products/:category" element={<Products />} />
                     <Route path="/products/brand/:brand" element={<BrandSearch />} />
-                    <Route path="/productdetails/:id" element={<ProductDetails />} />
+                    <Route path="/product/:id" element={<ProductDetails />} />
+                    <Route path="/productdetails/:id" element={<LegacyProductDetailsRedirect />} />
                     <Route path="/contact" element={<ContactComponent />} />
-                    <Route path="/about" element={<StoreComponent />} />
+                    <Route path="/about" element={<LegacyAboutRedirect />} />
                     <Route path="/store" element={<StoreComponent />} />
 
                     {/* ================= USER ROUTES ================= */}

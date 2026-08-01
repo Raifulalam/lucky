@@ -18,7 +18,6 @@
 .branch-section,
 .awards-section,
 .store-contact-shell {
-    width: min(1200px, calc(100% - 40px));
     margin: 0 auto;
 }
 

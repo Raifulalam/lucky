@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Helmet } from "react-helmet";
 import "./Feedback.css";
 import { useNotification } from "../../../Components/NotificationContext";
 import { BASE_URL } from "../../../api/api";
+import PageSeo from "../../../Components/PageSeo";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -158,10 +158,12 @@ const FeedbackList = () => {
 
     return (
         <section className="feedback-page">
-            <Helmet>
-                <title>Admin Contact Messages | Lucky Impex</title>
-                <meta name="robots" content="noindex, nofollow" />
-            </Helmet>
+            <PageSeo
+                title="Admin Contact Messages | Lucky Impex"
+                description="Manage Lucky Impex customer contact messages."
+                canonicalPath="/admin/feedback"
+                noIndex
+            />
 
             <h1>Contact Messages</h1>
 

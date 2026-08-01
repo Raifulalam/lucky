@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "./ContactComponent.css";
-import { Helmet } from "react-helmet";
 import {
     FaFacebook,
     FaInstagram,
@@ -9,6 +8,9 @@ import {
 } from "react-icons/fa";
 
 import { BASE_URL } from "../../api/api";
+import PageSeo from "../../Components/PageSeo";
+import Breadcrumbs from "../../Components/Breadcrumbs";
+import { SITE_CONFIG } from "../../seo/siteConfig";
 
 export const ContactComponent = ({ embedded = false }) => {
     const [formData, setFormData] = useState({
@@ -99,35 +101,22 @@ export const ContactComponent = ({ embedded = false }) => {
 
             {/* ================= SEO ================= */}
             {!embedded && (
-                <Helmet>
-                    <title>
-                        Contact Lucky Impex | AC, LED TV & Appliances in Birgunj
-                    </title>
-
-                    <meta
-                        name="description"
-                        content="Contact Lucky Impex in Birgunj for Air Conditioners, Refrigerators, LED TVs, Washing Machines and home appliances. Call 051531789 or WhatsApp us today."
+                <>
+                    <PageSeo
+                        title="Contact Lucky Impex | AC, LED TV & Appliances in Birgunj"
+                        description="Contact Lucky Impex in Birgunj for Air Conditioners, Refrigerators, LED TVs, Washing Machines and home appliances."
+                        canonicalPath="/contact"
+                        localBusiness
+                        breadcrumbs={[
+                            { label: "Home", to: "/" },
+                            { label: "Contact" },
+                        ]}
                     />
-
-                    <meta
-                        name="keywords"
-                        content="Lucky Impex Birgunj, electronics shop Nepal, AC store Birgunj, LED TV Nepal"
-                    />
-
-                    <meta name="author" content="Lucky Impex" />
-
-                    <meta property="og:title" content="Contact Lucky Impex - Birgunj" />
-                    <meta
-                        property="og:description"
-                        content="Visit Lucky Impex for premium electronics and appliances in Birgunj."
-                    />
-                    <meta property="og:type" content="website" />
-                    <meta property="og:url" content="https://luckyimpex.vercel.app/contact" />
-
-                    <meta name="twitter:card" content="summary_large_image" />
-
-                    <link rel="canonical" href="https://luckyimpex.vercel.app/contact" />
-                </Helmet>
+                    <Breadcrumbs items={[
+                        { label: "Home", to: "/" },
+                        { label: "Contact" },
+                    ]} />
+                </>
             )}
 
             {/* ================= HEADER ================= */}
@@ -146,15 +135,15 @@ export const ContactComponent = ({ embedded = false }) => {
                 <div className="contact-left">
                     <h2>Get in Touch</h2>
                     <ul>
-                        <li><strong>Email:</strong> luckyimpex4u@gmail.com</li>
-                        <li><strong>Phone:</strong> 051531789</li>
-                        <li><strong>Address:</strong> Ghantaghar Link Road, Birgunj, Nepal</li>
+                        <li><strong>Email:</strong> {SITE_CONFIG.supportEmail}</li>
+                        <li><strong>Phone:</strong> {SITE_CONFIG.phone}</li>
+                        <li><strong>Address:</strong> {SITE_CONFIG.address.streetAddress}, {SITE_CONFIG.address.addressLocality}, Nepal</li>
                         <li><strong>Hours:</strong> 10:00 AM – 8:00 PM (Sun–Sat)</li>
                     </ul>
 
                     {/* WhatsApp Direct Button */}
                     <a
-                        href="https://wa.me/9779809278236"
+                        href={SITE_CONFIG.whatsapp}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="whatsapp-button"
@@ -258,42 +247,17 @@ export const ContactComponent = ({ embedded = false }) => {
             <div className="social-media">
                 <h3>Follow Lucky Impex</h3>
                 <div className="social-icons">
-                    <a href="https://facebook.com/yourpage" target="_blank" rel="noopener noreferrer">
+                    <a href={SITE_CONFIG.socialLinks[0]} target="_blank" rel="noopener noreferrer">
                         <FaFacebook />
                     </a>
-                    <a href="https://instagram.com/yourpage" target="_blank" rel="noopener noreferrer">
+                    <a href={SITE_CONFIG.socialLinks[1]} target="_blank" rel="noopener noreferrer">
                         <FaInstagram />
                     </a>
-                    <a href="https://youtube.com/yourchannel" target="_blank" rel="noopener noreferrer">
+                    <a href={SITE_CONFIG.socialLinks[2]} target="_blank" rel="noopener noreferrer">
                         <FaYoutube />
                     </a>
                 </div>
             </div>
-
-            {/* ================= STRUCTURED DATA ================= */}
-            {!embedded && (
-                <script type="application/ld+json">
-                    {JSON.stringify({
-                        "@context": "https://schema.org",
-                        "@type": "ElectronicsStore",
-                        name: "Lucky Impex",
-                        address: {
-                            "@type": "PostalAddress",
-                            streetAddress: "Ghantaghar Link Road",
-                            addressLocality: "Birgunj",
-                            addressCountry: "NP"
-                        },
-                        telephone: "051531789",
-                        email: "luckyimpex4u@gmail.com",
-                        sameAs: [
-                            "https://www.facebook.com/luckyimpex4u/",
-                            "https://instagram.com/yourpage",
-                            "https://youtube.com/yourchannel"
-                        ]
-                    })}
-                </script>
-            )}
-
         </div>
     );
 };

@@ -13,6 +13,7 @@ import EditProductModal from "./EditProductModal";
 import Modal from "../../Components/Modal";
 import { useNotification } from "../../Components/NotificationContext";
 import PageSeo from "../../Components/PageSeo";
+import Breadcrumbs from "../../Components/Breadcrumbs";
 import { categories as categoryCatalog, brands as brandCatalog } from "../HomePage/Constants";
 import { authRequest, getData } from "../../api/api";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ import { buildCatalogCacheKey, clearCatalogCache, readCatalogCache, writeCatalog
 import ProductQuickViewModal from "./ProductQuickViewModal";
 import { Eye, Search, X, SlidersHorizontal, Check, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
+import { trackAddToCart, trackSearch } from "../../Components/GoogleAnalytics";
 
 const HERO_IMAGES = [backimg, back01, back02, back03, luckyImage];
 
@@ -47,6 +49,8 @@ const getSavings = (mrp, price) => {
     const percentage = Math.round((amount / original) * 100);
     return { amount, percentage };
 };
+
+const formatCategoryLabel = (value = "") => value.replace(/([A-Z])/g, " $1").trim();
 
 const Products = () => {
     const { category } = useParams();
@@ -108,6 +112,14 @@ const Products = () => {
         }, 400);
         return () => clearTimeout(handler);
     }, [searchTerm]);
+
+    useEffect(() => {
+        if (!debouncedSearch.trim()) return;
+
+        trackSearch(debouncedSearch.trim(), {
+            item_list_name: selectedCategory || "all-products",
+        });
+    }, [debouncedSearch, selectedCategory]);
 
     // Update state category when URL parameter changes
     useEffect(() => {
@@ -321,6 +333,26 @@ const Products = () => {
         [selectedCategory, selectedBrand, debouncedSearch, minPrice, maxPrice, showInStockOnly]
     );
 
+    const pageTitle = selectedCategory
+        ? `${formatCategoryLabel(selectedCategory)} Products`
+        : "Buy Products Online";
+    const pageDescription = selectedCategory
+        ? `Shop ${formatCategoryLabel(selectedCategory).toLowerCase()} and other appliance categories from Lucky Impex.`
+        : "Shop high quality electronics and appliances from Lucky Impex at best prices.";
+    const canonicalPath = selectedCategory ? `/products/${selectedCategory}` : "/products";
+    const breadcrumbs = useMemo(() => {
+        const items = [
+            { label: "Home", to: "/" },
+            { label: "Products", to: "/products" },
+        ];
+
+        if (selectedCategory) {
+            items.push({ label: formatCategoryLabel(selectedCategory) });
+        }
+
+        return items;
+    }, [selectedCategory]);
+
     // Hero Slider logic
     const [currentSlide, setCurrentSlide] = useState(0);
     useEffect(() => {
@@ -409,6 +441,8 @@ const Products = () => {
             price: product.price,
         });
 
+        trackAddToCart(product);
+
         // Simulating loading callback state
         setTimeout(() => {
             setAddingItems((prev) => ({ ...prev, [product._id]: false }));
@@ -423,7 +457,7 @@ const Products = () => {
     };
 
     const handleDetails = (productId) => {
-        navigate(`/productdetails/${productId}`);
+        navigate(`/product/${productId}`);
     };
 
     const clearFilters = () => {
@@ -480,11 +514,13 @@ const Products = () => {
     return (
         <>
             <PageSeo
-                title="Buy Products Online"
-                description="Shop high quality electronics and appliances from Lucky Impex at best prices."
-                canonicalPath="/products"
+                title={pageTitle}
+                description={pageDescription}
+                canonicalPath={canonicalPath}
+                breadcrumbs={breadcrumbs}
             />
             <Header />
+            <Breadcrumbs items={breadcrumbs} />
 
             {isFetching && !isFetchingNextPage && (
                 <div className="slow-loading-banner">

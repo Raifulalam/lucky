@@ -1,6 +1,5 @@
 import React, { useContext, useMemo, useState } from "react";
-import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, Headphones, LayoutDashboard, Menu, Phone, ShoppingCart, Store, User, X } from "lucide-react";
 import { UserContext } from "./UserContext";
 import { useCartState } from "./CreateReducer";
@@ -20,9 +19,7 @@ const categories = [
 ];
 
 const MENU = {
-    guest: [
-        { label: "Products", to: "/products" },
-    ],
+    guest: [{ label: "Products", to: "/products" }],
     user: [
         { label: "Products", to: "/products" },
         { label: "Service", to: "/service" },
@@ -56,13 +53,6 @@ const Header = () => {
     const [catOpen, setCatOpen] = useState(false);
     const [cartOpen, setCartOpen] = useState(false);
 
-    const handleCartClick = (e) => {
-        if (location.pathname !== "/cart") {
-            e.preventDefault();
-            setCartOpen(true);
-        }
-    };
-
     const isAdmin = user?.role === "admin";
     const isUser = user && !isAdmin;
 
@@ -72,33 +62,33 @@ const Header = () => {
     );
 
     const cart = useCartState() || EMPTY_CART;
-    const cartQty = useMemo(
-        () => cart.reduce((total, item) => total + (item.quantity || 1), 0),
-        [cart]
-    );
+    const cartQty = useMemo(() => cart.reduce((total, item) => total + (item.quantity || 1), 0), [cart]);
+
+    const closeMobileMenu = () => setMenuOpen(false);
 
     const handleLogout = () => {
         logout();
         navigate("/");
     };
 
-    const closeMobileMenu = () => setMenuOpen(false);
+    const handleCartClick = (e) => {
+        if (location.pathname !== "/cart") {
+            e.preventDefault();
+            setCartOpen(true);
+        }
+    };
 
     return (
         <div className="header-shell">
-            <Helmet>
-                <title>Lucky Impex – Home Appliances Store</title>
-                <meta
-                    name="description"
-                    content="Buy AC, TV, Refrigerator and home appliances from Lucky Impex."
-                />
-            </Helmet>
-
             <div className="header-topbar">
                 <div className="header-topbar-inner">
                     <div className="topbar-left">
-                        <span><Phone size={14} /> 051531789</span>
-                        <span><Headphones size={14} /> Customer guidance for appliances and electronics</span>
+                        <span>
+                            <Phone size={14} /> 051531789
+                        </span>
+                        <span>
+                            <Headphones size={14} /> Customer guidance for appliances and electronics
+                        </span>
                     </div>
                     <div className="topbar-right">
                         {quickLinks.map((item) => (
@@ -184,7 +174,9 @@ const Header = () => {
                                 <div className="user-dropdown">
                                     {isUser && <Link to="/profile">Profile</Link>}
                                     {isAdmin && <Link to="/admin">Dashboard</Link>}
-                                    <button type="button" onClick={handleLogout}>Logout</button>
+                                    <button type="button" onClick={handleLogout}>
+                                        Logout
+                                    </button>
                                 </div>
                             </div>
                         ) : (
@@ -225,7 +217,13 @@ const Header = () => {
                         </Link>
                     ))}
                     {!isAdmin && (
-                        <Link to="/cart" onClick={(e) => { closeMobileMenu(); handleCartClick(e); }}>
+                        <Link
+                            to="/cart"
+                            onClick={(e) => {
+                                closeMobileMenu();
+                                handleCartClick(e);
+                            }}
+                        >
                             Cart
                         </Link>
                     )}

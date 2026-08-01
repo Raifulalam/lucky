@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BadgePercent, PackageCheck, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
 import Header from "../../Components/Header";
@@ -9,7 +9,10 @@ import useGoBack from "../../hooks/useGoback";
 import { getData } from "../../api/api";
 import { useQuery } from "@tanstack/react-query";
 import PageSeo from "../../Components/PageSeo";
+import Breadcrumbs from "../../Components/Breadcrumbs";
 import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
+import { trackAddToCart, trackViewItem } from "../../Components/GoogleAnalytics";
+import { toTitleCase } from "../../seo/siteConfig";
 import "./Details.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
@@ -53,6 +56,12 @@ const ProductDetails = () => {
         return { amount, percent };
     }, [productData]);
 
+    useEffect(() => {
+        if (productData) {
+            trackViewItem(productData);
+        }
+    }, [productData]);
+
     const handleAddToCart = () => {
         if (!productData) return;
 
@@ -64,6 +73,8 @@ const ProductDetails = () => {
             mrp: productData.mrp,
             price: productData.price,
         });
+
+        trackAddToCart(productData);
 
         addNotification({
             title: "Success",
@@ -101,17 +112,27 @@ const ProductDetails = () => {
 
     const imageUrl = getProductImage(productData);
     const isOutOfStock = Number(productData?.stock) <= 0;
+    const breadcrumbs = [
+        { label: "Home", to: "/" },
+        { label: "Products", to: "/products" },
+        ...(productData?.category ? [{ label: toTitleCase(productData.category), to: `/products/${productData.category}` }] : []),
+        { label: productData?.name || "Product" },
+    ];
 
     return (
         <div className="details-page">
             <PageSeo
                 title={productData?.name || "Product Details"}
                 description={`Buy ${productData?.name || "this product"} from Lucky Impex.`}
-                canonicalPath={`/productdetails/${productData?.slug || id}`}
+                canonicalPath={`/product/${productData?.slug || id}`}
                 image={imageUrl}
+                product={productData}
+                breadcrumbs={breadcrumbs}
+                ogType="product"
             />
 
             <Header />
+            <Breadcrumbs items={breadcrumbs} />
 
             <main className="product-detail-container">
                 <button className="details-back-btn" onClick={goBack}>

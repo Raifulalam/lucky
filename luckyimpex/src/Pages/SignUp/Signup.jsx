@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Signup.css';
 import Header from '../../Components/Header';
-import { Helmet } from 'react-helmet';
 import { useNotification } from '../../Components/NotificationContext';
 import { BASE_URL } from '../../api/api';
+import PageSeo from '../../Components/PageSeo';
 
 function SignupComponent() {
     const [email, setEmail] = useState('');
@@ -80,10 +80,12 @@ function SignupComponent() {
 
     return (
         <div>
-            <Helmet>
-                <title>Sign Up</title>
-                <meta name="description" content="Sign up for an account" />
-            </Helmet>
+            <PageSeo
+                title="Sign Up"
+                description="Sign up for a Lucky Impex account."
+                canonicalPath="/signup"
+                noIndex
+            />
             <Header />
             <section className="auth-page auth-page-register">
                 <div className="auth-shell">

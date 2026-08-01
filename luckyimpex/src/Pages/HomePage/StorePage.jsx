@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Helmet } from "react-helmet";
 import { Award, Clock3, Headphones, MapPinned, MoveRight, Phone, ShieldCheck, Store, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import MapComponent from "../../Components/Leaflet";
 import { ContactComponent } from "../Contact/Contact";
+import PageSeo from "../../Components/PageSeo";
+import Breadcrumbs from "../../Components/Breadcrumbs";
 import "./StoreComponent.css";
 
 const StoreComponent = () => {
@@ -128,20 +129,22 @@ const StoreComponent = () => {
 
     return (
         <div className="store-page">
-            <Helmet>
-                <title>About & Stores | Lucky Impex</title>
-                <meta
-                    name="description"
-                    content="Learn about Lucky Impex, explore branch locations, and connect with our store team for electronics and appliance shopping support."
-                />
-                <meta
-                    name="keywords"
-                    content="Lucky Impex stores, Lucky Impex about, Birgunj electronics store, appliance showroom Nepal"
-                />
-                <link rel="canonical" href="https://luckyimpex.netlify.app/store" />
-            </Helmet>
+            <PageSeo
+                title="About & Stores | Lucky Impex"
+                description="Learn about Lucky Impex, explore branch locations, and connect with our store team for electronics and appliance shopping support."
+                canonicalPath="/store"
+                localBusiness
+                breadcrumbs={[
+                    { label: "Home", to: "/" },
+                    { label: "Stores" },
+                ]}
+            />
 
             <Header />
+            <Breadcrumbs items={[
+                { label: "Home", to: "/" },
+                { label: "Stores" },
+            ]} />
 
             <main className="store-main">
                 <section className="store-hero">

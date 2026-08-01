@@ -27,6 +27,7 @@
     "webpack": "^5.97.1"
   },
   "scripts": {
+    "prebuild": "node scripts/generate-seo-assets.js",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

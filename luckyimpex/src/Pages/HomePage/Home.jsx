@@ -12,6 +12,7 @@ import PromoBanner from "./PromoBanner";
 import BrandsCarousel from "./BrandsCarousel";
 import WhyChooseUs from "./WhyChooseUs";
 import CustomerSupport from "./CustomerSupport";
+import { SITE_CONFIG } from "../../seo/siteConfig";
 
 import "./Home.css";
 
@@ -44,9 +45,11 @@ const Home = () => {
 
             {/* SEO */}
             <PageSeo
-                title="Home"
-                description="Your one-stop shop for electronics and home appliances."
+                title="Electronics & Home Appliances Store in Birgunj"
+                description="Shop electronics and home appliances from Lucky Impex with trusted local support, clear product discovery, and fast browsing."
                 canonicalPath="/"
+                localBusiness
+                faq={SITE_CONFIG.faqs}
             />
 
             {/* 🔥 PROMO MODAL (ADS POPUP) */}
@@ -149,6 +152,24 @@ const Home = () => {
 
                 <WhyChooseUs />
                 <CustomerSupport />
+
+                <section className="home-faq">
+                    <div className="home-editorial-copy">
+                        <span className="section-kicker">Frequently Asked Questions</span>
+                        <h2>Common shopping questions answered.</h2>
+                        <p>
+                            These answers help new customers understand delivery, store visits, support, and browsing options.
+                        </p>
+                    </div>
+                    <div className="home-faq-list">
+                        {SITE_CONFIG.faqs.map((item) => (
+                            <details key={item.question} className="home-faq-item">
+                                <summary>{item.question}</summary>
+                                <p>{item.answer}</p>
+                            </details>
+                        ))}
+                    </div>
+                </section>
             </main>
 
             {/* WhatsApp Floating Button */}

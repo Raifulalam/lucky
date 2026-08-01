@@ -2,6 +2,9 @@ User-agent: *
 Disallow: /cart
 Disallow: /profile
 Disallow: /orderpage
+Disallow: /login
+Disallow: /signup
+Disallow: /admin
 Disallow: /dashboard
 Disallow: /admindashboard
 Disallow: /manage-products
@@ -11,5 +14,9 @@ Disallow: /feedback
 Disallow: /complaints
 Disallow: /orders
 Disallow: /review/
+Disallow: /productdetails/
+
+Allow: /product/
+Allow: /products/
 
 Sitemap: https://luckyimpex4u.com/sitemap.xml

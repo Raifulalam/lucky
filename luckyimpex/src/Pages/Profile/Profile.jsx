@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle2, Mail, ShieldCheck, ShoppingBag, UserCircle2 } from "lucide-react";
 import { UserContext } from "../../Components/UserContext";
 import ProfileForm from "./ProfileForm";
 import Header from "../../Components/Header";
+import PageSeo from "../../Components/PageSeo";
 import "./Profile.css";
 
 const Profile = () => {
@@ -61,10 +61,12 @@ const Profile = () => {
 
     return (
         <>
-            <Helmet>
-                <title>Your Profile - Lucky Impex</title>
-                <meta name="description" content="Manage your Lucky Impex account, profile, and orders." />
-            </Helmet>
+            <PageSeo
+                title="Your Profile"
+                description="Manage your Lucky Impex account, profile, and orders."
+                canonicalPath="/profile"
+                noIndex
+            />
             <Header />
             <main className="profile-page">
                 <section className="profile-hero">

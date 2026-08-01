@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEye, FaTrash, FaTruck } from "react-icons/fa";
-import { Helmet } from "react-helmet";
 import "./OrderComponent.css";
 import { authRequest } from "../../api/api";
+import PageSeo from "../../Components/PageSeo";
 
 const ITEMS_PER_PAGE = 8;
 const STATUS_FLOW = ["Placed", "Shipped", "Delivered"];
@@ -123,10 +123,12 @@ const OrderComponent = () => {
 
     return (
         <section className="order-page">
-            <Helmet>
-                <title>Order Management | Admin</title>
-                <meta name="robots" content="noindex, nofollow" />
-            </Helmet>
+            <PageSeo
+                title="Order Management | Admin"
+                description="Manage Lucky Impex orders."
+                canonicalPath="/admin/orders"
+                noIndex
+            />
 
             <h1>Order Management</h1>
 

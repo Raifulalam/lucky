@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { SITE_CONFIG } from "../seo/siteConfig";
 import "./Footer.css";
 
 const Footer = () => {
@@ -18,17 +19,14 @@ const Footer = () => {
                         the Lucky Impex team for guidance before and after purchase.
                     </p>
                     <div className="footer-social">
-                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <a href={SITE_CONFIG.socialLinks[0]} target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                             <FaFacebook />
                         </a>
-                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                            <FaTwitter />
-                        </a>
-                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                        <a href={SITE_CONFIG.socialLinks[1]} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                             <FaInstagram />
                         </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                            <FaLinkedin />
+                        <a href={SITE_CONFIG.socialLinks[2]} target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                            <FaYoutube />
                         </a>
                     </div>
                 </div>
@@ -52,15 +50,15 @@ const Footer = () => {
                     <h4>Contact</h4>
                     <div className="footer-contact-item">
                         <Phone size={16} />
-                        <span>051531789</span>
+                        <a href={`tel:${SITE_CONFIG.phone}`}>{SITE_CONFIG.phone}</a>
                     </div>
                     <div className="footer-contact-item">
                         <Mail size={16} />
-                        <span>luckyimpex4u@gmail.com</span>
+                        <a href={`mailto:${SITE_CONFIG.supportEmail}`}>{SITE_CONFIG.supportEmail}</a>
                     </div>
                     <div className="footer-contact-item">
                         <MapPin size={16} />
-                        <span>Ghantaghar Link Road, Birgunj, Nepal</span>
+                        <span>{SITE_CONFIG.address.streetAddress}, {SITE_CONFIG.address.addressLocality}, Nepal</span>
                     </div>
                 </div>
             </div>

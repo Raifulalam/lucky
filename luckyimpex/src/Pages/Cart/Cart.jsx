@@ -1,5 +1,4 @@
 import React, { useContext, useMemo, useState } from "react";
-import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { ArrowLeft, CreditCard, MapPin, ShieldCheck, ShoppingBag, Trash2, Truck } from "lucide-react";
 import Header from "../../Components/Header";
@@ -9,6 +8,8 @@ import { UserContext } from "../../Components/UserContext";
 import { useNotification } from "../../Components/NotificationContext";
 import { BASE_URL, getAuthToken } from "../../api/api";
 import useGoBack from "../../hooks/useGoback";
+import PageSeo from "../../Components/PageSeo";
+import { trackPurchase } from "../../Components/GoogleAnalytics";
 import "./Cart.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(0)}`;
@@ -155,12 +156,22 @@ const CartComponent = () => {
                 return;
             }
 
+            const responseData = await response.json().catch(() => ({}));
+
             addNotification({
                 title: "Success",
                 message: "Order placed successfully.",
                 type: "success",
                 container: "top-right",
                 dismiss: { duration: 5000 },
+            });
+
+            trackPurchase({
+                _id: responseData?._id || responseData?.order?._id,
+                totalPrice: total,
+                tax,
+                shipping: 0,
+                items: orderData.items,
             });
 
             dispatch({ type: "CLEAR_CART" });
@@ -173,10 +184,12 @@ const CartComponent = () => {
 
     return (
         <div className="cart-page">
-            <Helmet>
-                <title>Cart | Lucky Impex</title>
-                <meta name="description" content="Review the products in your Lucky Impex cart and place your order." />
-            </Helmet>
+            <PageSeo
+                title="Cart"
+                description="Review the products in your Lucky Impex cart and place your order."
+                canonicalPath="/cart"
+                noIndex
+            />
 
             <Header />
 

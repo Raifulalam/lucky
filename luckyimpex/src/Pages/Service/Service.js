@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './Service.css';
 import Header from '../../Components/Header';
 import { BASE_URL } from "../../api/api";
+import PageSeo from '../../Components/PageSeo';
+import Breadcrumbs from '../../Components/Breadcrumbs';
 
 // Sample data for reviews
 const sampleReviews = [
@@ -126,7 +128,21 @@ const LuckyImpexServicePage = () => {
 
     return (
         <>
+            <PageSeo
+                title="Service & Customer Reviews"
+                description="Register complaints, view customer reviews, and get support from Lucky Impex."
+                canonicalPath="/service"
+                breadcrumbs={[
+                    { label: "Home", to: "/" },
+                    { label: "Service" },
+                ]}
+                reviews={reviews}
+            />
             <Header />
+            <Breadcrumbs items={[
+                { label: "Home", to: "/" },
+                { label: "Service" },
+            ]} />
             <div className="service-page-container">
                 <h1>Welcome to Lucky Impex Service</h1>
 

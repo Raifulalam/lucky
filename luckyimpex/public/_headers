@@ -1,6 +1,10 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob: https:; script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com; connect-src 'self' https://lucky-1-6ma5.onrender.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self' data:; frame-src https://www.google.com https://www.google.com/maps; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 
 /static/*
   Cache-Control: public, max-age=31536000, immutable

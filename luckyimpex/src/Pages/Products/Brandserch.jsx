@@ -20,6 +20,7 @@ import EditProductModal from "./EditProductModal";
 import Modal from "../../Components/Modal";
 import { useNotification } from "../../Components/NotificationContext";
 import PageSeo from "../../Components/PageSeo";
+import Breadcrumbs from "../../Components/Breadcrumbs";
 import { brands as brandCatalog } from "../HomePage/Constants";
 import luckyImage from "../../Images/lucky.png";
 import backimg from "../../Images/backimg.jpg";
@@ -28,6 +29,7 @@ import back02 from "../../Images/back04.jpg";
 import back03 from "../../Images/back03.jpg";
 import { authRequest, getData } from "../../api/api";
 import { buildCatalogCacheKey, readCatalogCache, writeCatalogCache } from "../../utils/catalogCache";
+import { trackAddToCart, trackSearch } from "../../Components/GoogleAnalytics";
 
 const getImageSrc = (src, fallbackSrc) => (src ? `${src}` : fallbackSrc);
 const HERO_IMAGES = [backimg, back01, back02, back03, luckyImage];
@@ -84,6 +86,18 @@ const BrandSearch = () => {
     const placeholderImage = "/lucky-logo.png";
     const normalizedBrand = decodeURIComponent(brand || "").replace(/-/g, " ");
     const brandLogo = `/${normalizedBrand.toLowerCase()}.png`;
+    const pageTitle = normalizedBrand ? `${normalizedBrand} Products` : "Brand Products";
+    const pageDescription = normalizedBrand
+        ? `Browse ${normalizedBrand} products, pricing, and offers at Lucky Impex.`
+        : "Browse brand collections, pricing, and offers at Lucky Impex.";
+    const breadcrumbs = useMemo(
+        () => [
+            { label: "Home", to: "/" },
+            { label: "Products", to: "/products" },
+            { label: normalizedBrand || "Brand" },
+        ],
+        [normalizedBrand]
+    );
 
     const brandQueryKey = useMemo(() => ["brand-products", brand], [brand]);
 
@@ -111,6 +125,18 @@ const BrandSearch = () => {
     useEffect(() => {
         setNewProduct((prev) => ({ ...prev, brand: normalizedBrand || "" }));
     }, [normalizedBrand]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (!searchTerm.trim()) return;
+
+            trackSearch(searchTerm.trim(), {
+                item_list_name: normalizedBrand || "brand-products",
+            });
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm, normalizedBrand]);
 
     useEffect(() => {
         const intervalId = setInterval(() => {
@@ -202,6 +228,8 @@ const BrandSearch = () => {
             price: product.price,
         });
 
+        trackAddToCart(product);
+
         addNotification({
             title: "Success",
             message: "Item added to cart.",
@@ -212,7 +240,7 @@ const BrandSearch = () => {
     };
 
     const handleDetails = (productId) => {
-        navigate(`/productdetails/${productId}`);
+        navigate(`/product/${productId}`);
     };
 
     const handleNewProductChange = (e) => {
@@ -273,12 +301,14 @@ const BrandSearch = () => {
     return (
         <div className="brand-page-shell">
             <PageSeo
-                title={`${normalizedBrand} Products`}
-                description={`Browse ${normalizedBrand} products, pricing, and offers at Lucky Impex.`}
+                title={pageTitle}
+                description={pageDescription}
                 canonicalPath={`/products/brand/${brand}`}
+                breadcrumbs={breadcrumbs}
             />
 
             <Header />
+            <Breadcrumbs items={breadcrumbs} />
 
             {isFetching && !isLoading && (
                 <div className="slow-loading-banner">

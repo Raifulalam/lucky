@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { ArrowLeft, PackageSearch, Printer, ReceiptText, Trash2, Truck } from "lucide-react";
 import { UserContext } from "../../Components/UserContext";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
+import PageSeo from "../../Components/PageSeo";
 import "./OrderPage.css";
 import useGoBack from "../../hooks/useGoback";
 import Invoice from "../../Components/invoice";
@@ -224,10 +224,12 @@ const OrderPage = () => {
 
     return (
         <div className="orders-page">
-            <Helmet>
-                <title>Orders | Lucky Impex</title>
-                <meta name="description" content="Track your Lucky Impex orders, print invoices, and review shipping details." />
-            </Helmet>
+            <PageSeo
+                title="Orders"
+                description="Track your Lucky Impex orders, print invoices, and review shipping details."
+                canonicalPath="/orderpage"
+                noIndex
+            />
 
             <Header />
 

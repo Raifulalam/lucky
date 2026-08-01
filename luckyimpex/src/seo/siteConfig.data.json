@@ -1,0 +1,91 @@
+{
+  "name": "Lucky Impex",
+  "description": "Lucky Impex is an electronics and home appliances retailer in Birgunj, Nepal.",
+  "siteUrl": "https://luckyimpex4u.com",
+  "defaultImage": "/lucky-logo.png",
+  "themeColor": "#0f5bd8",
+  "supportEmail": "luckyimpex4u@gmail.com",
+  "phone": "051531789",
+  "whatsapp": "https://wa.me/9779809278236",
+  "whatsappDisplay": "+977 9809278236",
+  "googleAnalyticsId": "G-N8H0F7KBS1",
+  "googleSiteVerification": "",
+  "address": {
+    "streetAddress": "Ghantaghar Link Road",
+    "addressLocality": "Birgunj",
+    "addressRegion": "Madhesh Province",
+    "postalCode": "44300",
+    "addressCountry": "NP"
+  },
+  "geo": {
+    "latitude": 27.0138387,
+    "longitude": 84.8803044
+  },
+  "hours": [
+    {
+      "day": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Sunday"],
+      "opens": "10:00",
+      "closes": "20:00"
+    },
+    {
+      "day": ["Saturday"],
+      "opens": "10:00",
+      "closes": "15:00"
+    }
+  ],
+  "socialLinks": [
+    "https://www.facebook.com/luckyimpex4u/",
+    "https://www.instagram.com/luckyimpex4u/",
+    "https://www.youtube.com/@luckyimpex"
+  ],
+  "staticRoutes": [
+    "/",
+    "/products",
+    "/service",
+    "/store",
+    "/contact",
+    "/emi",
+    "/exchange"
+  ],
+  "categories": [
+    "AirConditioners",
+    "Refrigerators",
+    "WashingMachines",
+    "LEDTelevisions",
+    "KitchenAppliances",
+    "Chimney",
+    "HomeAppliances",
+    "HomeTheater",
+    "AirCooler",
+    "ChestFreezer"
+  ],
+  "brands": [
+    "LG",
+    "Samsung",
+    "Whirlpool",
+    "Haier",
+    "CG",
+    "Videocon",
+    "Skyworth",
+    "Symphony",
+    "Bajaj"
+  ],
+  "faqs": [
+    {
+      "question": "Do you deliver appliances across Birgunj and nearby areas?",
+      "answer": "Yes. Lucky Impex can help customers place appliance orders and arrange delivery support for Birgunj and nearby service areas."
+    },
+    {
+      "question": "Can I visit the store before buying online?",
+      "answer": "Yes. Customers can visit the store, compare products in person, and speak with the team before making a purchase decision."
+    },
+    {
+      "question": "Do you offer support for warranty or service questions?",
+      "answer": "Yes. The service team can help with product questions, warranty guidance, and complaint registration."
+    },
+    {
+      "question": "Can I browse by brand or category?",
+      "answer": "Yes. Lucky Impex supports both category-led and brand-led browsing so shoppers can narrow down products faster."
+    }
+  ]
+}
