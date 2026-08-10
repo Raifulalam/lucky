@@ -3,19 +3,17 @@ import './Exchange.css';
 import { BASE_URL } from "../../api/api";
 import { useNotification } from "../../Components/NotificationContext";
 import { 
-    RefreshCw, 
-    ArrowRight, 
+  
+   
     CheckCircle2, 
     ChevronRight, 
     ChevronLeft, 
     Search, 
-    Check, 
     Tv, 
     IceCream, 
     Wind, 
     Sparkles, 
     AlertTriangle, 
-    HelpCircle 
 } from "lucide-react";
 
 // Categories catalog for trade-in

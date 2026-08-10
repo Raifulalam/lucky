@@ -1,3 +1,4 @@
+import socket from "../../socket"
 import React, { useState, useEffect, useContext, useCallback, useRef, useMemo } from "react";
 import "./products.css";
 import Header from "../../Components/Header";
@@ -481,36 +482,108 @@ const Products = () => {
         setNewProductPreview(file ? URL.createObjectURL(file) : "");
     };
 
-    const handleAddNewProduct = (e) => {
-        e.preventDefault();
-        const productData = new FormData();
-        productData.append("name", newProduct.name);
-        productData.append("mrp", newProduct.mrp);
-        productData.append("price", newProduct.bestBuyPrice);
-        productData.append("category", newProduct.category);
-        productData.append("model", newProduct.model);
-        productData.append("description", newProduct.description);
-        productData.append("keywords", newProduct.keywords);
-        productData.append("brand", newProduct.brand);
-        productData.append("capacity", newProduct.capacity);
-        productData.append("stock", newProduct.stock);
-        if (newProductImage) {
-            productData.append("image", newProductImage);
-        } else if (newProduct.image) {
-            productData.append("images", newProduct.image);
-        }
-        addMutation.mutate(productData);
-    };
+   const handleAddNewProduct = (e) => {
+    e.preventDefault();
 
-    if (isError) {
-        return (
-            <div className="error-container">
-                <div>Error: {error.message || "Failed to load products."}</div>
-                <button onClick={() => refetch()}>Retry</button>
-            </div>
-        );
+    const productData = new FormData();
+
+    productData.append("name", newProduct.name);
+    productData.append("mrp", newProduct.mrp);
+    productData.append("price", newProduct.bestBuyPrice);
+    productData.append("category", newProduct.category);
+    productData.append("model", newProduct.model);
+    productData.append("description", newProduct.description);
+    productData.append("keywords", newProduct.keywords);
+    productData.append("brand", newProduct.brand);
+    productData.append("capacity", newProduct.capacity);
+    productData.append("stock", newProduct.stock);
+
+    if (newProductImage) {
+        productData.append("image", newProductImage);
+    } else if (newProduct.image) {
+        productData.append("images", newProduct.image);
     }
 
+    addMutation.mutate(productData);
+};
+
+
+/* ===========================================================
+   SOCKET.IO REAL-TIME PRODUCT UPDATES
+   =========================================================== */
+
+useEffect(() => {
+    const handleProductCreated = (product) => {
+        console.log("🟢 Product created:", product);
+
+        clearCatalogCache().catch(console.error);
+
+        queryClient.invalidateQueries({
+            queryKey: ["products"],
+        });
+
+        queryClient.invalidateQueries({
+            queryKey: ["product-details"],
+        });
+    };
+
+    const handleProductUpdated = (product) => {
+        console.log("🟡 Product updated:", product);
+
+        clearCatalogCache().catch(console.error);
+
+        queryClient.invalidateQueries({
+            queryKey: ["products"],
+        });
+
+        queryClient.invalidateQueries({
+            queryKey: ["product-details"],
+        });
+    };
+
+    const handleProductDeleted = ({ productId }) => {
+        console.log("🔴 Product deleted:", productId);
+
+        clearCatalogCache().catch(console.error);
+
+        queryClient.invalidateQueries({
+            queryKey: ["products"],
+        });
+
+        queryClient.invalidateQueries({
+            queryKey: ["product-details"],
+        });
+    };
+
+    socket.on("productCreated", handleProductCreated);
+    socket.on("productUpdated", handleProductUpdated);
+    socket.on("productDeleted", handleProductDeleted);
+
+    return () => {
+        socket.off("productCreated", handleProductCreated);
+        socket.off("productUpdated", handleProductUpdated);
+        socket.off("productDeleted", handleProductDeleted);
+    };
+}, [queryClient]);
+
+
+/* ===========================================================
+   ERROR STATE
+   =========================================================== */
+
+if (isError) {
+    return (
+        <div className="error-container">
+            <div>
+                Error: {error.message || "Failed to load products."}
+            </div>
+
+            <button onClick={() => refetch()}>
+                Retry
+            </button>
+        </div>
+    );
+}
     return (
         <>
             <PageSeo

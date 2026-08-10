@@ -3,19 +3,16 @@ import './EMI.css';
 import { BASE_URL } from "../../api/api";
 import { useNotification } from "../../Components/NotificationContext";
 import { 
-    Calculator, 
-    Percent, 
-    Calendar, 
+ 
     ArrowRight, 
     CheckCircle2, 
     ChevronDown, 
     ChevronUp, 
-    Search, 
-    Info, 
-    Smartphone, 
+    Search,    
     Tv, 
     Wind, 
     IceCream, 
+
     Sparkles 
 } from "lucide-react";
 
