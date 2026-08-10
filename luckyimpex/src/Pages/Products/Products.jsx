@@ -128,147 +128,399 @@ const Products = () => {
     }, [category]);
 
     // TanStack Query: Infinite products fetcher
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-        isFetching,
-        isError,
-        error,
-        refetch
-    } = useInfiniteQuery({
-        queryKey: ["products", { category: selectedCategory, search: debouncedSearch }],
-        queryFn: async ({ pageParam = 1, signal }) => {
-            const cacheKey = buildCatalogCacheKey("products", selectedCategory, debouncedSearch, pageParam);
-            const cached = await readCatalogCache(cacheKey);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+} = useInfiniteQuery({
+    queryKey: [
+        "products",
+        {
+            category: selectedCategory,
+            search: debouncedSearch,
+        },
+    ],
 
-            try {
-                let url = `/products/products?page=${pageParam}&limit=20`;
-                if (selectedCategory) url += `&category=${selectedCategory}`;
-                if (debouncedSearch) url += `&search=${debouncedSearch}`;
+    queryFn: async ({ pageParam = 1, signal }) => {
+        const cacheKey = buildCatalogCacheKey(
+            "products",
+            selectedCategory,
+            debouncedSearch,
+            pageParam
+        );
 
-                const payload = await getData(url, { signal });
-                await writeCatalogCache(cacheKey, payload);
-                return payload;
-            } catch (err) {
-                if (cached) return cached;
-                throw err;
+        // Read cache only as a fallback
+        const cached = await readCatalogCache(cacheKey);
+
+        try {
+            let url = `/products/products?page=${pageParam}&limit=20`;
+
+            if (selectedCategory) {
+                url += `&category=${encodeURIComponent(selectedCategory)}`;
             }
-        },
-        initialPageParam: 1,
-        getNextPageParam: (lastPage, allPages) => {
-            const nextPage = allPages.length + 1;
-            return nextPage <= lastPage.pages ? nextPage : undefined;
-        },
-        staleTime: 5 * 60 * 1000, // Cache active for 5 mins
-    });
+
+            if (debouncedSearch) {
+                url += `&search=${encodeURIComponent(debouncedSearch)}`;
+            }
+
+            const payload = await getData(url, { signal });
+
+            // Update your secondary catalog cache
+            await writeCatalogCache(cacheKey, payload);
+
+            return payload;
+        } catch (err) {
+            // Only use old cache if backend request actually fails
+            if (cached) {
+                console.warn("Using catalog cache because API failed:", err);
+                return cached;
+            }
+
+            throw err;
+        }
+    },
+
+    initialPageParam: 1,
+
+    getNextPageParam: (lastPage, allPages) => {
+        const nextPage = allPages.length + 1;
+
+        return nextPage <= lastPage.pages
+            ? nextPage
+            : undefined;
+    },
+
+    staleTime: 60 * 1000,
+
+    refetchOnWindowFocus: false,
+});
 
     // Derive flat array of products from pages
     const products = useMemo(() => {
         return data?.pages.flatMap((page) => page.products) || [];
     }, [data]);
 
+    const updateProductInQueries = useCallback(
+    (updatedProduct) => {
+        queryClient.setQueriesData(
+            {
+                queryKey: ["products"],
+            },
+            (oldData) => {
+                if (!oldData?.pages) {
+                    return oldData;
+                }
+
+                return {
+                    ...oldData,
+                    pages: oldData.pages.map((page) => ({
+                        ...page,
+                        products: Array.isArray(page.products)
+                            ? page.products.map((product) =>
+                                product._id === updatedProduct._id
+                                    ? { ...product, ...updatedProduct }
+                                    : product
+                            )
+                            : page.products,
+                    })),
+                };
+            }
+        );
+
+        // Update product-details cache if it exists
+        queryClient.setQueriesData(
+            {
+                queryKey: ["product-details"],
+            },
+            (oldData) => {
+                if (!oldData) return oldData;
+
+                if (oldData._id === updatedProduct._id) {
+                    return {
+                        ...oldData,
+                        ...updatedProduct,
+                    };
+                }
+
+                if (oldData.product?._id === updatedProduct._id) {
+                    return {
+                        ...oldData,
+                        product: {
+                            ...oldData.product,
+                            ...updatedProduct,
+                        },
+                    };
+                }
+
+                return oldData;
+            }
+        );
+    },
+    [queryClient]
+);
+
+
+const removeProductFromQueries = useCallback(
+    (productId) => {
+        queryClient.setQueriesData(
+            {
+                queryKey: ["products"],
+            },
+            (oldData) => {
+                if (!oldData?.pages) {
+                    return oldData;
+                }
+
+                return {
+                    ...oldData,
+                    pages: oldData.pages.map((page) => ({
+                        ...page,
+                        products: Array.isArray(page.products)
+                            ? page.products.filter(
+                                (product) => product._id !== productId
+                            )
+                            : page.products,
+                    })),
+                };
+            }
+        );
+
+        queryClient.removeQueries({
+            queryKey: ["product-details", productId],
+        });
+    },
+    [queryClient]
+);
+
+
+const addProductToQueries = useCallback(
+    (newProduct) => {
+        queryClient.setQueriesData(
+            {
+                queryKey: ["products"],
+            },
+            (oldData) => {
+                if (!oldData?.pages?.length) {
+                    return oldData;
+                }
+
+                const alreadyExists = oldData.pages.some((page) =>
+                    page.products?.some(
+                        (product) => product._id === newProduct._id
+                    )
+                );
+
+                if (alreadyExists) {
+                    return oldData;
+                }
+
+                return {
+                    ...oldData,
+                    pages: oldData.pages.map((page, index) => {
+                        if (index !== 0) {
+                            return page;
+                        }
+
+                        return {
+                            ...page,
+                            products: [
+                                newProduct,
+                                ...(page.products || []),
+                            ],
+                        };
+                    }),
+                };
+            }
+        );
+    },
+    [queryClient]
+);
     // Mutations for admin actions
-    const saveMutation = useMutation({
-        mutationFn: async ({ id, payload }) => {
-            return authRequest(`/products/products/${id}`, {
-                method: "PUT",
-                body: payload,
-                isFormData: payload instanceof FormData,
-            });
-        },
-        onSuccess: async () => {
-            await clearCatalogCache();
-            queryClient.invalidateQueries({ queryKey: ["products"] });
-            queryClient.invalidateQueries({ queryKey: ["product-details"] });
-            setIsModalOpen(false);
-            addNotification({
-                title: "Success!",
-                message: "Product updated successfully.",
-                type: "success",
-                container: "top-right",
-                dismiss: { duration: 3000 },
-            });
-        },
-        onError: (err) => {
-            addNotification({
-                title: "Failed!",
-                message: err.message || "Failed to update product.",
-                type: "danger",
-                container: "top-right",
-                dismiss: { duration: 5000 },
-            });
-        }
-    });
+  const saveMutation = useMutation({
+    mutationFn: async ({ id, payload }) => {
+        return authRequest(`/products/products/${id}`, {
+            method: "PUT",
+            body: payload,
+            isFormData: payload instanceof FormData,
+        });
+    },
 
-    const deleteMutation = useMutation({
-        mutationFn: async (productId) => {
-            return authRequest(`/products/products/${productId}`, { method: "DELETE" });
-        },
-        onSuccess: async (data, productId) => {
-            await clearCatalogCache();
-            queryClient.invalidateQueries({ queryKey: ["products"] });
-            queryClient.invalidateQueries({ queryKey: ["product-details"] });
-            dispatch({ type: "DELETE_PRODUCT", payload: productId });
-            setIsDeleteModalOpen(false);
-            addNotification({
-                title: "Deleted!",
-                message: "Product has been deleted.",
-                type: "success",
-                container: "top-right",
-                dismiss: { duration: 3000 },
-            });
-        },
-        onError: (err) => {
-            addNotification({
-                title: "Failed!",
-                message: err.message || "Failed to delete product.",
-                type: "danger",
-                container: "top-right",
-                dismiss: { duration: 5000 },
-            });
-        }
-    });
+    onSuccess: async (data, variables) => {
+        console.log("✅ Product updated:", data);
 
-    const addMutation = useMutation({
-        mutationFn: async (productData) => {
-            return authRequest("/products/products", {
-                method: "POST",
-                body: productData,
-                isFormData: productData instanceof FormData,
-            });
-        },
-        onSuccess: async () => {
-            await clearCatalogCache();
-            queryClient.invalidateQueries({ queryKey: ["products"] });
-            queryClient.invalidateQueries({ queryKey: ["product-details"] });
-            setIsAddModalOpen(false);
-            setNewProduct({
-                name: "", mrp: "", bestBuyPrice: "", category: "", model: "",
-                description: "", image: "", keywords: "", brand: "", capacity: "", stock: ""
-            });
-            setNewProductImage(null);
-            setNewProductPreview("");
-            addNotification({
-                title: "Created!",
-                message: "Product added successfully.",
-                type: "success",
-                container: "top-right",
-                dismiss: { duration: 3000 },
-            });
-        },
-        onError: (err) => {
-            addNotification({
-                title: "Failed!",
-                message: err.message || "Failed to add product.",
-                type: "danger",
-                container: "top-right",
-                dismiss: { duration: 5000 },
-            });
+        /*
+         * Backend should return the updated product.
+         * Adjust this line if your API uses another property.
+         */
+        const updatedProduct =
+            data?.product ||
+            data?.data ||
+            data;
+
+        if (updatedProduct?._id) {
+            updateProductInQueries(updatedProduct);
         }
-    });
+
+        await clearCatalogCache();
+
+        setIsModalOpen(false);
+        setSelectedProduct(null);
+
+        addNotification({
+            title: "Success!",
+            message: "Product updated successfully.",
+            type: "success",
+            container: "top-right",
+            dismiss: {
+                duration: 3000,
+            },
+        });
+    },
+
+    onError: (err) => {
+        addNotification({
+            title: "Failed!",
+            message: err.message || "Failed to update product.",
+            type: "danger",
+            container: "top-right",
+            dismiss: {
+                duration: 5000,
+            },
+        });
+    },
+});
+
+  const deleteMutation = useMutation({
+    mutationFn: async (productId) => {
+        return authRequest(
+            `/products/products/${productId}`,
+            {
+                method: "DELETE",
+            }
+        );
+    },
+
+    onSuccess: async (data, productId) => {
+        console.log("✅ Product deleted:", productId);
+
+        // 1. Remove immediately from React Query
+        removeProductFromQueries(productId);
+
+        // 2. Remove old catalog cache
+        await clearCatalogCache();
+
+        // 3. Do NOT wait for invalidateQueries
+        // The UI has already been updated.
+
+        dispatch({
+            type: "DELETE_PRODUCT",
+            payload: productId,
+        });
+
+        setIsDeleteModalOpen(false);
+        setSelectedProduct(null);
+
+        addNotification({
+            title: "Deleted!",
+            message: "Product has been deleted.",
+            type: "success",
+            container: "top-right",
+            dismiss: {
+                duration: 3000,
+            },
+        });
+    },
+
+    onError: (err) => {
+        addNotification({
+            title: "Failed!",
+            message: err.message || "Failed to delete product.",
+            type: "danger",
+            container: "top-right",
+            dismiss: {
+                duration: 5000,
+            },
+        });
+    },
+});
+
+   const addMutation = useMutation({
+    mutationFn: async (productData) => {
+        return authRequest("/products/products", {
+            method: "POST",
+            body: productData,
+            isFormData: productData instanceof FormData,
+        });
+    },
+
+    onSuccess: async (data) => {
+        console.log("✅ Product created:", data);
+
+        /*
+         * Backend should return:
+         * { product: {...} }
+         *
+         * or directly return the product.
+         */
+        const newProduct =
+            data?.product ||
+            data?.data ||
+            data;
+
+        if (newProduct?._id) {
+            addProductToQueries(newProduct);
+        }
+
+        await clearCatalogCache();
+
+        setIsAddModalOpen(false);
+
+        setNewProduct({
+            name: "",
+            mrp: "",
+            bestBuyPrice: "",
+            category: "",
+            model: "",
+            description: "",
+            image: "",
+            keywords: "",
+            brand: "",
+            capacity: "",
+            stock: "",
+        });
+
+        setNewProductImage(null);
+        setNewProductPreview("");
+
+        addNotification({
+            title: "Created!",
+            message: "Product added successfully.",
+            type: "success",
+            container: "top-right",
+            dismiss: {
+                duration: 3000,
+            },
+        });
+    },
+
+    onError: (err) => {
+        addNotification({
+            title: "Failed!",
+            message: err.message || "Failed to add product.",
+            type: "danger",
+            container: "top-right",
+            dismiss: {
+                duration: 5000,
+            },
+        });
+    },
+});
 
     const categoryOptions = useMemo(() => {
         return [...new Set([
@@ -514,57 +766,87 @@ const Products = () => {
 
 useEffect(() => {
     const handleProductCreated = (product) => {
-        console.log("🟢 Product created:", product);
+        console.log("🟢 SOCKET: Product created:", product);
 
-        clearCatalogCache().catch(console.error);
+        if (!product?._id) {
+            console.warn("Product created event has no _id:", product);
+            return;
+        }
 
-        queryClient.invalidateQueries({
-            queryKey: ["products"],
-        });
+        // Update UI immediately
+        addProductToQueries(product);
 
-        queryClient.invalidateQueries({
-            queryKey: ["product-details"],
+        // Clear secondary catalog cache
+        clearCatalogCache().catch((err) => {
+            console.error("Failed to clear catalog cache:", err);
         });
     };
+
 
     const handleProductUpdated = (product) => {
-        console.log("🟡 Product updated:", product);
+        console.log("🟡 SOCKET: Product updated:", product);
 
-        clearCatalogCache().catch(console.error);
+        if (!product?._id) {
+            console.warn("Product updated event has no _id:", product);
+            return;
+        }
 
-        queryClient.invalidateQueries({
-            queryKey: ["products"],
+        // Update UI immediately
+        updateProductInQueries(product);
+
+        // Clear secondary catalog cache
+        clearCatalogCache().catch((err) => {
+            console.error("Failed to clear catalog cache:", err);
         });
+    };
 
-        queryClient.invalidateQueries({
-            queryKey: ["product-details"],
+
+    const handleProductDeleted = (payload) => {
+        const productId =
+            typeof payload === "string"
+                ? payload
+                : payload?.productId || payload?._id;
+
+        console.log("🔴 SOCKET: Product deleted:", productId);
+
+        if (!productId) {
+            console.warn(
+                "productDeleted event received without productId:",
+                payload
+            );
+            return;
+        }
+
+        // Remove from UI immediately
+        removeProductFromQueries(productId);
+
+        // Clear secondary catalog cache
+        clearCatalogCache().catch((err) => {
+            console.error("Failed to clear catalog cache:", err);
         });
     };
 
-    const handleProductDeleted = ({ productId }) => {
-        console.log("🔴 Product deleted:", productId);
-
-        clearCatalogCache().catch(console.error);
-
-        queryClient.invalidateQueries({
-            queryKey: ["products"],
-        });
-
-        queryClient.invalidateQueries({
-            queryKey: ["product-details"],
-        });
-    };
 
     socket.on("productCreated", handleProductCreated);
     socket.on("productUpdated", handleProductUpdated);
     socket.on("productDeleted", handleProductDeleted);
 
+
+    console.log("🔌 Product Socket.IO listeners registered");
+
+
     return () => {
         socket.off("productCreated", handleProductCreated);
         socket.off("productUpdated", handleProductUpdated);
         socket.off("productDeleted", handleProductDeleted);
+
+        console.log("🔌 Product Socket.IO listeners removed");
     };
-}, [queryClient]);
+}, [
+    addProductToQueries,
+    updateProductInQueries,
+    removeProductFromQueries,
+]);
 
 
 /* ===========================================================
