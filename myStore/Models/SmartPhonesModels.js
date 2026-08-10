@@ -37,7 +37,7 @@ MobileSchema.index({ createdAt: -1 });
 MobileSchema.index({ brand: 1, createdAt: -1 });
 MobileSchema.index({ price: 1 });
 MobileSchema.index({ name: 1 });
-MobileSchema.index({ slug: 1 });
+
 MobileSchema.index({ category: 1 });
 
 // 🔍 Text search

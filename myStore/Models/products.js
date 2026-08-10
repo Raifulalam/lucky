@@ -22,13 +22,12 @@ const productSchema = new Schema(
             index: true,
         },
 
-        slug: {
-            type: String,
-            trim: true,
-            index: true,
-            unique: true,
-            sparse: true,
-        },
+      slug: {
+    type: String,
+    trim: true,
+    unique: true,
+    sparse: true,
+},
 
         description: {
             type: String,
@@ -105,7 +104,6 @@ productSchema.index({ model: 1 });
 productSchema.index({ category: 1 });
 productSchema.index({ brand: 1 });
 productSchema.index({ name: 1 });
-productSchema.index({ slug: 1 });
 productSchema.index({ category: 1, createdAt: -1 });
 productSchema.index({ brand: 1, createdAt: -1 });
 

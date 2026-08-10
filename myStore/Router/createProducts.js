@@ -141,6 +141,12 @@ router.post(
 
             const product = await Product.create(payload);
             await clearProductCache();
+            // Notify all connected users
+const io = req.app.get("io");
+
+if (io) {
+    io.emit("productCreated", product);
+}
             res.status(201).json(product);
         } catch (err) {
             await deleteCloudinaryImage(uploadedImageResult?.public_id);
@@ -373,6 +379,12 @@ router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), a
         );
         if (!product) return res.status(404).json({ message: "Product not found" });
         await clearProductCache();
+        // Notify all connected users
+const io = req.app.get("io");
+
+if (io) {
+    io.emit("productUpdated", product);
+}
 
         res.json(product);
     } catch {
@@ -385,12 +397,38 @@ router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), a
    DELETE PRODUCT (ADMIN)
    =========================================================== */
 router.delete("/products/:id", auth, isAdmin, async (req, res) => {
-    const product = await Product.findByIdAndDelete(req.params.id);
+    try {
+        const product = await Product.findByIdAndDelete(req.params.id);
 
-    if (!product) return res.status(404).json({ message: "Product not found" });
-    await clearProductCache();
+        if (!product) {
+            return res.status(404).json({
+                message: "Product not found"
+            });
+        }
 
-    res.json({ message: "Product deleted successfully" });
+        await clearProductCache();
+
+        // Notify all connected users
+        const io = req.app.get("io");
+
+        if (io) {
+            io.emit("productDeleted", {
+                productId: req.params.id
+            });
+        }
+
+        res.json({
+            message: "Product deleted successfully",
+            productId: req.params.id
+        });
+
+    } catch (error) {
+        console.error("Delete product error:", error);
+
+        res.status(500).json({
+            message: "Failed to delete product"
+        });
+    }
 });
 
 module.exports = router;
