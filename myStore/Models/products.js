@@ -38,6 +38,7 @@ const productSchema = new Schema(
             type: String,
             required: true,
             trim: true,
+            index: true
         },
 
         brand: {

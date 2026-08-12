@@ -140,52 +140,70 @@ const Products = () => {
     refetch,
 } = useInfiniteQuery({
     queryKey: [
+    "products",
+    debouncedSearch,
+    selectedCategory,
+    selectedBrand,
+    minPrice,
+    maxPrice,
+    showInStockOnly,
+    sortBy,
+],
+
+   queryFn: async ({ pageParam = 1, signal }) => {
+    const cacheKey = buildCatalogCacheKey(
         "products",
-        {
-            category: selectedCategory,
-            search: debouncedSearch,
-        },
-    ],
+        selectedCategory,
+        debouncedSearch,
+        pageParam
+    );
 
-    queryFn: async ({ pageParam = 1, signal }) => {
-        const cacheKey = buildCatalogCacheKey(
-            "products",
-            selectedCategory,
-            debouncedSearch,
-            pageParam
-        );
+    // Read cache only as a fallback
+    const cached = await readCatalogCache(cacheKey);
 
-        // Read cache only as a fallback
-        const cached = await readCatalogCache(cacheKey);
+    try {
+        let url;
 
-        try {
-            let url = `/products/products?page=${pageParam}&limit=20`;
-
-            if (selectedCategory) {
-                url += `&category=${encodeURIComponent(selectedCategory)}`;
-            }
-
-            if (debouncedSearch) {
-                url += `&search=${encodeURIComponent(debouncedSearch)}`;
-            }
-
-            const payload = await getData(url, { signal });
-
-            // Update your secondary catalog cache
-            await writeCatalogCache(cacheKey, payload);
-
-            return payload;
-        } catch (err) {
-            // Only use old cache if backend request actually fails
-            if (cached) {
-                console.warn("Using catalog cache because API failed:", err);
-                return cached;
-            }
-
-            throw err;
+        // 🔎 SEARCH — searches ALL products in MongoDB
+        if (debouncedSearch.trim()) {
+            url = `/products/products/search/${encodeURIComponent(
+                debouncedSearch.trim()
+            )}?page=${pageParam}&limit=20`;
         }
-    },
 
+        // 📦 NORMAL PRODUCT LIST
+        else {
+            url = `/products/products?page=${pageParam}&limit=20`;
+        }
+
+        // Category filter
+        if (selectedCategory) {
+            url += `&category=${encodeURIComponent(selectedCategory)}`;
+        }
+
+        console.log("🔎 API REQUEST:", url);
+
+        const payload = await getData(url, { signal });
+
+        // Update your secondary catalog cache
+        await writeCatalogCache(cacheKey, payload);
+
+        return payload;
+
+    } catch (err) {
+        // Only use old cache if backend request actually fails
+        if (cached) {
+            console.warn(
+                "Using catalog cache because API failed:",
+                err
+            );
+
+            return cached;
+        }
+
+        throw err;
+    }
+},
     initialPageParam: 1,
 
     getNextPageParam: (lastPage, allPages) => {
@@ -537,21 +555,45 @@ const addProductToQueries = useCallback(
     }, [products]);
 
     const filteredProducts = useMemo(() => {
-        return products.filter((product) => {
-            const matchesCategory = selectedCategory === "" || product.category === selectedCategory;
-            const matchesBrand = selectedBrand === "" || product.brand === selectedBrand;
+    return products.filter((product) => {
+        const matchesCategory =
+            selectedCategory === "" ||
+            product.category === selectedCategory;
 
-            // Price range check
-            const priceVal = Number(product.price || 0);
-            const matchesMinPrice = minPrice === "" || priceVal >= Number(minPrice);
-            const matchesMaxPrice = maxPrice === "" || priceVal <= Number(maxPrice);
+        const matchesBrand =
+            selectedBrand === "" ||
+            product.brand === selectedBrand;
 
-            // In stock check
-            const matchesStock = !showInStockOnly || Number(product.stock || 0) > 0;
+        const priceVal = Number(product.price || 0);
 
-            return matchesCategory && matchesBrand && matchesMinPrice && matchesMaxPrice && matchesStock;
-        });
-    }, [products, selectedCategory, selectedBrand, minPrice, maxPrice, showInStockOnly]);
+        const matchesMinPrice =
+            minPrice === "" ||
+            priceVal >= Number(minPrice);
+
+        const matchesMaxPrice =
+            maxPrice === "" ||
+            priceVal <= Number(maxPrice);
+
+        const matchesStock =
+            !showInStockOnly ||
+            Number(product.stock || 0) > 0;
+
+        return (
+            matchesCategory &&
+            matchesBrand &&
+            matchesMinPrice &&
+            matchesMaxPrice &&
+            matchesStock
+        );
+    });
+}, [
+    products,
+    selectedCategory,
+    selectedBrand,
+    minPrice,
+    maxPrice,
+    showInStockOnly,
+]);
 
     const sortedProducts = useMemo(() => {
         return [...filteredProducts].sort((a, b) => {
