@@ -1431,8 +1431,9 @@ p {
     .details-actions,
     .modal-buttons,
     .profile-form-actions {
-        flex-direction: column;
+       margin-top: 6px;
         align-items: stretch;
+
     }
 
     .filter-header-buttons,
