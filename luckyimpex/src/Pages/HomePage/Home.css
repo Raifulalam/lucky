@@ -490,13 +490,14 @@
 }
 
 .home-page .benefits-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
     gap: 18px;
 }
 
 .home-page .benefit {
-    padding: 24px;
+    padding: 14px;
     border-radius: 24px;
     background: linear-gradient(180deg, #fff 0%, #f8fbfd 100%);
     border: 1px solid rgba(219, 226, 233, 0.9);
@@ -511,18 +512,26 @@
 
 .home-page .benefit svg {
     color: #0f67c8;
-    margin-bottom: 16px;
+    
+}
+.home-page .benefits-item{
+    display: flex;
+    align-items: center;
+    gap:14px;
 }
 
 .home-page .benefit h4 {
-    margin-bottom: 8px;
+    
     color: #152433;
-    font-size: 1.08rem;
+    font-size: 0.96rem;
+    margin: 0%;
 }
 
 .home-page .benefit p {
     color: #617082;
     line-height: 1.6;
+    margin:0%;
+    margin-left:14px;
 }
 
 .home-page .home-faq {

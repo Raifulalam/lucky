@@ -11,8 +11,10 @@ const WhyChooseUs = () => (
         <div className="benefits-grid">
             {benefits.map((b, idx) => (
                 <div key={idx} className="benefit">
-                    {b.icon}
+                    <div className="benefits-item">
+                        {b.icon}
                     <h4>{b.title}</h4>
+                    </div>
                     <p>{b.text}</p>
                 </div>
             ))}

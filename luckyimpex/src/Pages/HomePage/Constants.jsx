@@ -38,8 +38,8 @@ export const brands = [
 ];
 
 export const benefits = [
-    { icon: <Truck size={40} />, title: "Fast Shipping", text: "Quick and reliable delivery." },
-    { icon: <ShieldCheck size={40} />, title: "Trusted Quality", text: "Warranty & reliable products." },
-    { icon: <Percent size={40} />, title: "Exclusive Offers", text: "Deals & discounts every week." },
-    { icon: <Star size={40} />, title: "Customer Satisfaction", text: "Rated highly by our customers." },
+    { icon: <Truck size={20} />, title: "Fast Shipping", text: "Quick and reliable delivery." },
+    { icon: <ShieldCheck size={20} />, title: "Trusted Quality", text: "Warranty & reliable products." },
+    { icon: <Percent size={20} />, title: "Exclusive Offers", text: "Deals & discounts every week." },
+    { icon: <Star size={20} />, title: "Customer Satisfaction", text: "Rated highly by our customers." },
 ];
