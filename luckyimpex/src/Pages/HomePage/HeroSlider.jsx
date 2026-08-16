@@ -22,8 +22,7 @@ const HeroSlider = () => {
                     src={images[currentSlide]}
                     alt={`Lucky Impex Slide ${currentSlide + 1}`}
                     className="hero-img"
-                    width="1135"
-                    height="890"
+                  
                     loading={currentSlide === 0 ? "eager" : "lazy"}
                     fetchPriority={currentSlide === 0 ? "high" : "auto"}
                 />

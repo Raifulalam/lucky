@@ -881,16 +881,11 @@ p {
 }
 
 .infinite-loader,
-.brand-inline-loader,
-.loading-container {
+.brand-inline-loader {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-}
-
-.loading-container {
-    min-height: 60vh;
 }
 
 .skeleton-card {
@@ -943,11 +938,6 @@ p {
 
 .highlighted {
     animation: flash 1s ease-in-out;
-}
-
-.image-wrapper {
-    display: flex;
-    overflow: auto;
 }
 
 .brand-page-shell {
@@ -1318,7 +1308,6 @@ p {
     border: 1px solid #e5ebf2;
 }
 
-.loading-container,
 .error-container {
     min-height: 60vh;
     display: flex;

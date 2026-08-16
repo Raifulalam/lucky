@@ -213,13 +213,6 @@
     font-weight: 500;
 }
 
-.empty-message {
-    padding: 20px;
-    text-align: center;
-    color: #6b7280;
-    font-size: 15px;
-}
-
 .loading {
     padding: 30px;
     text-align: center;

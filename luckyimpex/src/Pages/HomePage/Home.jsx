@@ -69,35 +69,43 @@ const Home = () => {
                 {/* TRUST STRIP */}
                 <section className="home-proof-strip">
                     <div className="home-proof-item">
-                        <ShieldCheck size={22} />
-                        <div>
+                       
+                        <div className="home-proof-item-content">
+                             <ShieldCheck size={22} />
                             <strong>Authorized multi-brand dealer</strong>
-                            <span>Trusted electronics and appliance partners.</span>
+
                         </div>
+                                                    <span>Trusted electronics and appliance partners.</span>
                     </div>
 
                     <div className="home-proof-item">
-                        <BadgePercent size={22} />
-                        <div>
+                       
+                        <div className="home-proof-item-content">
+                             <BadgePercent size={22} />
                             <strong>Offers that stay practical</strong>
-                            <span>EMI, exchange deals, and seasonal promotions.</span>
+                           
                         </div>
+                         <span>EMI, exchange deals, and seasonal promotions.</span>
                     </div>
 
                     <div className="home-proof-item">
-                        <MapPin size={22} />
-                        <div>
+                       
+                        <div className="home-proof-item-content">
+
                             <strong>Physical store presence</strong>
-                            <span>Reach branches, support, and local guidance easily.</span>
+                           
                         </div>
+                         <span>Reach branches, support, and local guidance easily.</span>
                     </div>
 
                     <div className="home-proof-item">
-                        <Headphones size={22} />
-                        <div>
+                        
+                        <div className="home-proof-item-content">
+                            <Headphones size={22} />
                             <strong>Real customer assistance</strong>
-                            <span>Product help before and after purchase.</span>
+                           
                         </div>
+                         <span>Product help before and after purchase.</span>
                     </div>
                 </section>
 
@@ -107,48 +115,57 @@ const Home = () => {
                 <BrandsCarousel />
 
                 {/* EDITORIAL SECTION */}
-                <section className="home-editorial">
-                    <div className="home-editorial-copy">
-                        <span className="section-kicker">Store Experience</span>
-                        <h2>
-                            Built for customers buying real appliances, not just browsing banners.
-                        </h2>
-                        <p>
-                            Lucky Impex is positioned like a modern retail storefront: category-led
-                            discovery, dependable brand access, practical financing routes, and
-                            customer support that stays visible across the buying journey.
-                        </p>
-                    </div>
+               <section className="home-editorial">
+    <div className="home-editorial-copy">
+        <span className="section-kicker">Store Experience</span>
 
-                    <div className="home-editorial-grid">
-                        <article className="editorial-card">
-                            <span className="editorial-index">01</span>
-                            <h3>Category-first shopping</h3>
-                            <p>
-                                ACs, refrigerators, washing machines, TVs, and kitchen products are
-                                surfaced clearly for faster decisions.
-                            </p>
-                        </article>
+        <h2>Built for a better appliance shopping experience</h2>
 
-                        <article className="editorial-card">
-                            <span className="editorial-index">02</span>
-                            <h3>Brand trust with local support</h3>
-                            <p>
-                                Recognized appliance brands are backed by a visible physical business
-                                presence and customer contact path.
-                            </p>
-                        </article>
+        <p>
+            Lucky Impex is positioned like a modern retail storefront: category-led
+            discovery, dependable brand access, practical financing routes, and
+            customer support that stays visible across the buying journey.
+        </p>
+    </div>
 
-                        <article className="editorial-card">
-                            <span className="editorial-index">03</span>
-                            <h3>Conversion-focused offers</h3>
-                            <p>
-                                EMI and exchange journeys are not hidden. They are placed where customers
-                                expect them during product discovery.
-                            </p>
-                        </article>
-                    </div>
-                </section>
+    <div className="home-editorial-grid">
+        <article className="editorial-card">
+            <div className="editorial-head">
+                <span className="editorial-index">01</span>
+                <h3>Category-first shopping</h3>
+            </div>
+
+            <p>
+                ACs, refrigerators, washing machines, TVs, and kitchen products are
+                surfaced clearly for faster decisions.
+            </p>
+        </article>
+
+        <article className="editorial-card">
+            <div className="editorial-head">
+                <span className="editorial-index">02</span>
+                <h3>Brand trust with local support</h3>
+            </div>
+
+            <p>
+                Recognized appliance brands are backed by a visible physical business
+                presence and customer contact path.
+            </p>
+        </article>
+
+        <article className="editorial-card">
+            <div className="editorial-head">
+                <span className="editorial-index">03</span>
+                <h3>Conversion-focused offers</h3>
+            </div>
+
+            <p>
+                EMI and exchange journeys are not hidden. They are placed where customers
+                expect them during product discovery.
+            </p>
+        </article>
+    </div>
+</section>
 
                 <WhyChooseUs />
                 <CustomerSupport />

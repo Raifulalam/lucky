@@ -75,11 +75,15 @@ Please contact me for early offers and launch updates.
                     launch discounts, and priority service.
                 </p>
 
-                <img
-                    src="/commingsoon.webp"
-                    alt="New branch coming soon"
-                    className="promo-image"
-                />
+            <img
+  src="/commingsoon.webp"
+  alt="New branch coming soon"
+  className="promo-image"
+  width="579"
+  height="386"
+  loading="lazy"
+  decoding="async"
+/>
 
                 {!submitted ? (
                     <form className="prebook-form" onSubmit={handleSubmit}>

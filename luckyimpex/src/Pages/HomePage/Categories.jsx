@@ -21,8 +21,10 @@ const Categories = () => {
                         className="category-card"
                         onClick={() => navigate(`/products/${c.name}`)}
                     >
-                        <span className="category-icon">{c.icon}</span>
+                       <div className="category-header">
+                         <span className="category-icon">{c.icon}</span>
                         <h3>{formatCategory(c.name)}</h3>
+                       </div>
                         <p>{c.description}</p>
                         <span className="category-link">Explore collection</span>
                     </button>
