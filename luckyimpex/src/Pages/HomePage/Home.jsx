@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BadgePercent, Headphones, MapPin, ShieldCheck } from "lucide-react";
+import { BadgePercent, Headphones,  ShieldCheck } from "lucide-react";
 
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
