@@ -398,6 +398,7 @@ const addProductToQueries = useCallback(
             dismiss: {
                 duration: 3000,
             },
+            dedupeKey: updatedProduct?._id ? `productUpdated:${updatedProduct._id}` : undefined,
         });
     },
 
@@ -452,6 +453,7 @@ const addProductToQueries = useCallback(
             dismiss: {
                 duration: 3000,
             },
+            dedupeKey: productId ? `productDeleted:${productId}` : undefined,
         });
     },
 
@@ -524,6 +526,7 @@ const addProductToQueries = useCallback(
             dismiss: {
                 duration: 3000,
             },
+            dedupeKey: newProduct?._id ? `productCreated:${newProduct._id}` : undefined,
         });
     },
 

@@ -1,32 +1,591 @@
-import React, { createContext, useContext, useState } from 'react';
-import './notification.css'
-const NotificationContext = createContext();
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Bell, BellRing, CheckCircle2, Clock3, Inbox, ShieldAlert, Sparkles, X } from "lucide-react";
+import socket from "../socket";
+import "./notification.css";
 
-export const NotificationProvider = ({ children }) => {
-    const [notifications, setNotifications] = useState([]);
+const NotificationContext = createContext(null);
 
-    const addNotification = (notification) => {
-        setNotifications((prev) => [...prev, notification]);
-    };
+const STORAGE_KEY = "luckyimpex.notificationHistory.v1";
+const MAX_HISTORY = 60;
+const DEFAULT_TOAST_DURATION = 5000;
 
-    const removeNotification = (index) => {
-        setNotifications((prev) => prev.filter((_, i) => i !== index));
-    };
+const supportsBrowserNotifications = () =>
+    typeof window !== "undefined" && "Notification" in window;
+
+const createId = () => {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID();
+    }
+
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
+const safeJsonParse = (value, fallback) => {
+    try {
+        return JSON.parse(value);
+    } catch {
+        return fallback;
+    }
+};
+
+const normalizeNotificationType = (type) => {
+    if (type === "danger") return "error";
+    if (type === "success" || type === "error" || type === "warning" || type === "info") {
+        return type;
+    }
+
+    return "info";
+};
+
+const normalizeStoredRecord = (record) => ({
+    ...record,
+    type: normalizeNotificationType(record?.type),
+    browserStatus: record?.browserStatus || "pending",
+});
+
+const formatTimestamp = (value) =>
+    new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+    }).format(new Date(value));
+
+const getTypeLabel = (type) => {
+    if (type === "danger") return "Error";
+    if (type === "success") return "Success";
+    if (type === "error") return "Error";
+    if (type === "warning") return "Warning";
+    return "Info";
+};
+
+const getRecordIcon = (type) => {
+    if (type === "danger") return <ShieldAlert size={16} />;
+    if (type === "success") return <CheckCircle2 size={16} />;
+    if (type === "warning") return <ShieldAlert size={16} />;
+    if (type === "error") return <ShieldAlert size={16} />;
+    return <Sparkles size={16} />;
+};
+
+const mapSocketPayloadToMessage = (eventName, payload) => {
+    const productName =
+        payload?.name ||
+        payload?.productName ||
+        payload?.title ||
+        payload?.product?.name ||
+        payload?._id ||
+        "Product";
+
+    if (eventName === "productCreated") {
+        return {
+            title: "Catalog update",
+            message: `${productName} was added successfully.`,
+            type: "success",
+        };
+    }
+
+    if (eventName === "productUpdated") {
+        return {
+            title: "Catalog update",
+            message: `${productName} was updated successfully.`,
+            type: "info",
+        };
+    }
+
+    if (eventName === "productDeleted") {
+        return {
+            title: "Catalog update",
+            message: `${productName} was removed from the catalog.`,
+            type: "warning",
+        };
+    }
+
+    return null;
+};
+
+const ToastCard = ({ notification, onDismiss }) => {
+    useEffect(() => {
+        const duration =
+            typeof notification.dismiss?.duration === "number"
+                ? notification.dismiss.duration
+                : DEFAULT_TOAST_DURATION;
+
+        if (!duration || duration < 0) {
+            return undefined;
+        }
+
+        const timer = window.setTimeout(() => {
+            onDismiss(notification.id);
+        }, duration);
+
+        return () => window.clearTimeout(timer);
+    }, [notification.id, notification.dismiss?.duration, onDismiss]);
 
     return (
-        <NotificationContext.Provider value={{ addNotification, removeNotification }}>
-            {children}
-            <div className="notification-container">
-                {notifications.map((notification, index) => (
-                    <div
-                        key={index}
-                        className={`notification ${notification.type}`}
-                        style={{ animation: `fadeIn 0.5s, fadeOut 0.5s ${notification.dismiss?.duration / 1000}s` }}
-                    >
-                        <h4>{notification.title}</h4>
-                        <p>{notification.message}</p>
-                        <button onClick={() => removeNotification(index)}>X</button>
+        <article className={`notification-toast ${notification.type}`}>
+            <div className="notification-toast-icon" aria-hidden="true">
+                {getRecordIcon(notification.type)}
+            </div>
+
+            <div className="notification-toast-copy">
+                <strong>{notification.title}</strong>
+                <p>{notification.message}</p>
+                <span>{formatTimestamp(notification.createdAt)}</span>
+            </div>
+
+            <button
+                type="button"
+                className="notification-toast-close"
+                onClick={() => onDismiss(notification.id)}
+                aria-label="Dismiss notification"
+            >
+                <X size={16} />
+            </button>
+        </article>
+    );
+};
+
+const NotificationPrompt = ({
+    visible,
+    permissionStatus,
+    onAllow,
+    onClose,
+}) => {
+    if (!visible) {
+        return null;
+    }
+
+    const bodyCopy =
+        permissionStatus === "default"
+            ? "Allow browser notifications so Lucky Impex can alert you about new updates and their status."
+            : permissionStatus === "denied"
+                ? "Notifications are blocked in this browser. You can enable them later in browser settings."
+                : "This browser does not support native notifications.";
+
+    return (
+        <aside className="notification-prompt" role="status" aria-live="polite">
+            <div className="notification-prompt-icon" aria-hidden="true">
+                <BellRing size={18} />
+            </div>
+
+            <div className="notification-prompt-copy">
+                <strong>Enable update alerts</strong>
+                <p>{bodyCopy}</p>
+            </div>
+
+            <div className="notification-prompt-actions">
+                {permissionStatus === "default" && (
+                    <button type="button" className="notification-button primary" onClick={onAllow}>
+                        Allow notifications
+                    </button>
+                )}
+                <button type="button" className="notification-button ghost" onClick={onClose}>
+                    {permissionStatus === "default" ? "Not now" : "Close"}
+                </button>
+            </div>
+        </aside>
+    );
+};
+
+const NotificationCenter = ({
+    open,
+    onToggle,
+    history,
+    permissionStatus,
+    onAllow,
+    onClear,
+}) => {
+    const latestRecord = history[0];
+
+    return (
+        <section className="notification-center">
+            <button
+                type="button"
+                className="notification-fab"
+                onClick={onToggle}
+                aria-expanded={open}
+                aria-controls="notification-center-panel"
+            >
+                <Bell size={18} />
+                <span>Notifications</span>
+                <strong>{history.length}</strong>
+            </button>
+
+            {open && (
+                <div className="notification-panel" id="notification-center-panel">
+                    <header className="notification-panel-header">
+                        <div>
+                            <span className="notification-panel-kicker">Notification center</span>
+                            <h3>Update history</h3>
+                        </div>
+
+                        <button
+                            type="button"
+                            className="notification-panel-close"
+                            onClick={onToggle}
+                            aria-label="Close notification center"
+                        >
+                            <X size={18} />
+                        </button>
+                    </header>
+
+                    <div className={`notification-status ${permissionStatus}`}>
+                        <div className="notification-status-icon" aria-hidden="true">
+                            <Clock3 size={16} />
+                        </div>
+
+                        <div>
+                            <strong>
+                                {permissionStatus === "granted"
+                                    ? "Browser notifications enabled"
+                                    : permissionStatus === "denied"
+                                        ? "Browser notifications blocked"
+                                        : permissionStatus === "unsupported"
+                                            ? "Browser notifications unsupported"
+                                            : "Browser notification permission pending"}
+                            </strong>
+                            <p>
+                                {permissionStatus === "granted"
+                                    ? "Lucky Impex can send browser alerts for new activity."
+                                    : permissionStatus === "denied"
+                                        ? "You can still see every update here in the notification center."
+                                        : permissionStatus === "unsupported"
+                                            ? "This browser can still show in-app update records."
+                                            : "Allow notifications to receive browser alerts for new updates."}
+                            </p>
+                        </div>
+
+                        {permissionStatus === "default" && (
+                            <button type="button" className="notification-button primary" onClick={onAllow}>
+                                Allow
+                            </button>
+                        )}
                     </div>
+
+                    <div className="notification-panel-actions">
+                        <button type="button" className="notification-button ghost" onClick={onClear}>
+                            Clear history
+                        </button>
+
+                        <span className="notification-panel-meta">
+                            {latestRecord ? `Latest: ${latestRecord.title}` : "No notifications yet"}
+                        </span>
+                    </div>
+
+                    <div className="notification-history">
+                        {history.length === 0 ? (
+                            <div className="notification-empty">
+                                <Inbox size={22} />
+                                <strong>No notification records yet</strong>
+                                <p>When the site updates, the history will appear here with status details.</p>
+                            </div>
+                        ) : (
+                            history.map((notification) => (
+                                <article key={notification.id} className={`notification-record ${notification.type}`}>
+                                    <div className="notification-record-leading">
+                                        <span className="notification-record-icon" aria-hidden="true">
+                                            {getRecordIcon(notification.type)}
+                                        </span>
+                                    </div>
+
+                                    <div className="notification-record-copy">
+                                        <div className="notification-record-topline">
+                                            <strong>{notification.title}</strong>
+                                            <span className={`notification-record-chip ${notification.type}`}>
+                                                {getTypeLabel(notification.type)}
+                                            </span>
+                                        </div>
+                                        <p>{notification.message}</p>
+                                        <div className="notification-record-footer">
+                                            <span>{formatTimestamp(notification.createdAt)}</span>
+                                            <span>
+                                                Browser:{" "}
+                                                {notification.browserStatus === "delivered"
+                                                    ? "Sent"
+                                                    : notification.browserStatus === "blocked"
+                                                        ? "Blocked"
+                                                        : notification.browserStatus === "unsupported"
+                                                            ? "Unsupported"
+                                                            : "Pending"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+        </section>
+    );
+};
+
+export const NotificationProvider = ({ children }) => {
+    const [history, setHistory] = useState([]);
+    const [toasts, setToasts] = useState([]);
+    const [panelOpen, setPanelOpen] = useState(false);
+    const [permissionStatus, setPermissionStatus] = useState("default");
+    const [promptVisible, setPromptVisible] = useState(false);
+    const recentDedupeKeys = useRef(new Map());
+
+    const pruneDedupeKeys = useCallback(() => {
+        const now = Date.now();
+
+        for (const [key, timestamp] of recentDedupeKeys.current.entries()) {
+            if (now - timestamp > 8000) {
+                recentDedupeKeys.current.delete(key);
+            }
+        }
+    }, []);
+
+    const rememberDedupeKey = useCallback((dedupeKey) => {
+        if (!dedupeKey) {
+            return;
+        }
+
+        pruneDedupeKeys();
+        recentDedupeKeys.current.set(dedupeKey, Date.now());
+    }, [pruneDedupeKeys]);
+
+    const hasRecentDedupeKey = useCallback((dedupeKey) => {
+        if (!dedupeKey) {
+            return false;
+        }
+
+        pruneDedupeKeys();
+        const timestamp = recentDedupeKeys.current.get(dedupeKey);
+
+        if (!timestamp) {
+            return false;
+        }
+
+        return Date.now() - timestamp <= 8000;
+    }, [pruneDedupeKeys]);
+
+    useEffect(() => {
+        const browserSupported = supportsBrowserNotifications();
+        setPermissionStatus(browserSupported ? Notification.permission : "unsupported");
+        setPromptVisible(browserSupported ? Notification.permission === "default" : false);
+
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        try {
+            const savedHistory = window.localStorage.getItem(STORAGE_KEY);
+            if (savedHistory) {
+                const parsed = safeJsonParse(savedHistory, []);
+                if (Array.isArray(parsed)) {
+                    setHistory(parsed.slice(0, MAX_HISTORY).map(normalizeStoredRecord));
+                }
+            }
+        } catch {
+            // Ignore storage failures and keep the app working.
+        }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)));
+        } catch {
+            // Ignore storage failures and keep the app working.
+        }
+    }, [history]);
+
+    const appendNotification = useCallback((notification, options = {}) => {
+        const now = new Date().toISOString();
+        const recordId = createId();
+        const nextNotification = {
+            id: recordId,
+            title: notification?.title || "Update",
+            message: notification?.message || "",
+            type: normalizeNotificationType(notification?.type),
+            dismiss: notification?.dismiss || { duration: DEFAULT_TOAST_DURATION },
+            createdAt: now,
+            browserStatus: "pending",
+            source: notification?.source || options.source || "app",
+            dedupeKey: notification?.dedupeKey || options.dedupeKey || null,
+        };
+
+        let browserStatus = "pending";
+
+        if (supportsBrowserNotifications()) {
+            if (Notification.permission === "granted") {
+                try {
+                    new Notification(nextNotification.title, {
+                        body: nextNotification.message,
+                        tag: recordId,
+                    });
+                    browserStatus = "delivered";
+                } catch {
+                    browserStatus = "failed";
+                }
+            } else if (Notification.permission === "denied") {
+                browserStatus = "blocked";
+            } else {
+                browserStatus = "pending";
+            }
+        } else {
+            browserStatus = "unsupported";
+        }
+
+        const record = {
+            ...nextNotification,
+            browserStatus,
+        };
+
+        rememberDedupeKey(record.dedupeKey);
+
+        setHistory((prev) => [record, ...prev].slice(0, MAX_HISTORY));
+        setToasts((prev) => [record, ...prev]);
+
+        return record.id;
+    }, [rememberDedupeKey]);
+
+    const removeNotification = useCallback((notificationId) => {
+        setToasts((prev) =>
+            prev.filter((item, index) => item.id !== notificationId && index !== notificationId)
+        );
+    }, []);
+
+    const clearNotificationHistory = useCallback(() => {
+        setHistory([]);
+        setToasts([]);
+    }, []);
+
+    const requestBrowserPermission = useCallback(async () => {
+        if (!supportsBrowserNotifications()) {
+            setPermissionStatus("unsupported");
+            setPromptVisible(false);
+            return "unsupported";
+        }
+
+        if (Notification.permission === "granted") {
+            setPermissionStatus("granted");
+            setPromptVisible(false);
+            return "granted";
+        }
+
+        if (Notification.permission === "denied") {
+            setPermissionStatus("denied");
+            setPromptVisible(false);
+            return "denied";
+        }
+
+        try {
+            const result = await Notification.requestPermission();
+            setPermissionStatus(result);
+            setPromptVisible(result === "default");
+
+            if (result === "granted") {
+                appendNotification(
+                    {
+                        title: "Notifications enabled",
+                        message: "You will now receive Lucky Impex browser alerts for new updates.",
+                        type: "success",
+                        dismiss: { duration: 4000 },
+                        source: "permission",
+                    },
+                    { source: "permission" }
+                );
+            }
+
+            return result;
+        } catch {
+            setPermissionStatus(Notification.permission || "default");
+            return Notification.permission || "default";
+        }
+    }, [appendNotification]);
+
+    useEffect(() => {
+        const mapAndNotify = (eventName, payload) => {
+            const mapped = mapSocketPayloadToMessage(eventName, payload);
+            if (!mapped) {
+                return;
+            }
+
+            const socketDedupeKey = `${eventName}:${payload?._id || payload?.productId || payload?.id || payload?.name || ""}`;
+            if (hasRecentDedupeKey(socketDedupeKey)) {
+                return;
+            }
+
+            appendNotification({
+                ...mapped,
+                source: "socket",
+                dedupeKey: socketDedupeKey,
+                dismiss: { duration: 5000 },
+            });
+        };
+
+        const handleProductCreated = (payload) => mapAndNotify("productCreated", payload);
+        const handleProductUpdated = (payload) => mapAndNotify("productUpdated", payload);
+        const handleProductDeleted = (payload) => mapAndNotify("productDeleted", payload);
+
+        socket.on("productCreated", handleProductCreated);
+        socket.on("productUpdated", handleProductUpdated);
+        socket.on("productDeleted", handleProductDeleted);
+
+        return () => {
+            socket.off("productCreated", handleProductCreated);
+            socket.off("productUpdated", handleProductUpdated);
+            socket.off("productDeleted", handleProductDeleted);
+        };
+    }, [appendNotification, hasRecentDedupeKey]);
+
+    const contextValue = useMemo(
+        () => ({
+            addNotification: appendNotification,
+            removeNotification,
+            clearNotificationHistory,
+            requestBrowserPermission,
+            notifications: toasts,
+            notificationHistory: history,
+            permissionStatus,
+            promptVisible,
+            setPromptVisible,
+            setPanelOpen,
+        }),
+        [
+            appendNotification,
+            clearNotificationHistory,
+            history,
+            permissionStatus,
+            promptVisible,
+            removeNotification,
+            requestBrowserPermission,
+            toasts,
+        ]
+    );
+
+    return (
+        <NotificationContext.Provider value={contextValue}>
+            {children}
+
+            <NotificationPrompt
+                visible={promptVisible}
+                permissionStatus={permissionStatus}
+                onAllow={requestBrowserPermission}
+                onClose={() => setPromptVisible(false)}
+            />
+
+            <NotificationCenter
+                open={panelOpen}
+                onToggle={() => setPanelOpen((prev) => !prev)}
+                history={history}
+                permissionStatus={permissionStatus}
+                onAllow={requestBrowserPermission}
+                onClear={clearNotificationHistory}
+            />
+
+            <div className="notification-toast-stack" aria-live="polite" aria-atomic="true">
+                {toasts.map((notification) => (
+                    <ToastCard
+                        key={notification.id}
+                        notification={notification}
+                        onDismiss={removeNotification}
+                    />
                 ))}
             </div>
         </NotificationContext.Provider>
@@ -34,5 +593,11 @@ export const NotificationProvider = ({ children }) => {
 };
 
 export const useNotification = () => {
-    return useContext(NotificationContext);
+    const context = useContext(NotificationContext);
+
+    if (!context) {
+        throw new Error("useNotification must be used within a NotificationProvider");
+    }
+
+    return context;
 };
