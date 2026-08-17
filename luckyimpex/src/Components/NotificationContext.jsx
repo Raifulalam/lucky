@@ -28,6 +28,53 @@ const safeJsonParse = (value, fallback) => {
     }
 };
 
+const decodeBase64Url = (value) => {
+    if (!value) return "";
+
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+
+    if (typeof window === "undefined" || typeof window.atob !== "function") {
+        return "";
+    }
+
+    try {
+        return window.atob(padded);
+    } catch {
+        return "";
+    }
+};
+
+const parseJwt = (token) => {
+    if (!token || typeof token !== "string" || token.split(".").length < 2) {
+        return null;
+    }
+
+    const payload = decodeBase64Url(token.split(".")[1]);
+    if (!payload) return null;
+
+    try {
+        return JSON.parse(payload);
+    } catch {
+        return null;
+    }
+};
+
+const getSessionFromToken = (token) => {
+    const payload = parseJwt(token);
+
+    if (!payload) {
+        return { userId: null, role: null, email: null, name: null };
+    }
+
+    return {
+        userId: payload.userId || payload.id || payload._id || payload.sub || null,
+        role: payload.role || null,
+        email: payload.email || null,
+        name: payload.name || payload.username || null,
+    };
+};
+
 const normalizeNotificationType = (type) => {
     if (type === "danger") return "error";
     if (type === "success" || type === "error" || type === "warning" || type === "info") {
@@ -63,6 +110,94 @@ const getRecordIcon = (type) => {
     if (type === "warning") return <ShieldAlert size={16} />;
     if (type === "error") return <ShieldAlert size={16} />;
     return <Sparkles size={16} />;
+};
+
+const getOrderData = (payload) => payload?.order || payload?.data || payload || {};
+
+const getOrderId = (payload) =>
+    getOrderData(payload)?._id ||
+    getOrderData(payload)?.orderId ||
+    getOrderData(payload)?.id ||
+    payload?._id ||
+    payload?.orderId ||
+    payload?.id ||
+    null;
+
+const getOrderStatus = (payload) =>
+    String(getOrderData(payload)?.status || payload?.status || "Placed").trim();
+
+const getOrderUserId = (payload) =>
+    getOrderData(payload)?.user?.userId ||
+    getOrderData(payload)?.userId ||
+    getOrderData(payload)?.customerId ||
+    payload?.user?.userId ||
+    payload?.userId ||
+    payload?.customerId ||
+    null;
+
+const getOrderCustomerName = (payload) =>
+    getOrderData(payload)?.name ||
+    getOrderData(payload)?.user?.name ||
+    getOrderData(payload)?.customer?.name ||
+    payload?.name ||
+    payload?.user?.name ||
+    "Customer";
+
+const shortOrderId = (orderId) => (orderId ? String(orderId).slice(-6) : "------");
+
+const normalizeOrderEvent = (eventName, payload, session) => {
+    const orderId = getOrderId(payload);
+    const status = getOrderStatus(payload);
+    const ownerId = getOrderUserId(payload);
+    const customerName = getOrderCustomerName(payload);
+    const statusLower = status.toLowerCase();
+    const isAdmin = session?.role === "admin";
+    const isOwner = !!session?.userId && !!ownerId && String(session.userId) === String(ownerId);
+
+    const eventKey = `${eventName}:${orderId || statusLower}`;
+    const dedupeKey = `order:${orderId || "unknown"}:${statusLower}`;
+
+    if (
+        eventName === "orderCreated" ||
+        eventName === "newOrder" ||
+        eventName === "orderPlaced" ||
+        eventName === "orderAdded"
+    ) {
+        if (!isAdmin && !isOwner) {
+            return null;
+        }
+
+        return {
+            title: isAdmin ? "New order received" : "Order placed",
+            message: isAdmin
+                ? `${customerName} placed order #${shortOrderId(orderId)}.`
+                : `Your order #${shortOrderId(orderId)} was placed successfully.`,
+            type: isAdmin ? "success" : "success",
+            dedupeKey,
+            eventKey,
+        };
+    }
+
+    if (
+        eventName === "orderUpdated" ||
+        eventName === "orderStatusUpdated" ||
+        eventName === "orderStatusChanged" ||
+        eventName === "orderModified"
+    ) {
+        if (!isOwner) {
+            return null;
+        }
+
+        return {
+            title: "Order status updated",
+            message: `Your order #${shortOrderId(orderId)} is now ${status}.`,
+            type: statusLower === "delivered" ? "success" : "info",
+            dedupeKey,
+            eventKey,
+        };
+    }
+
+    return null;
 };
 
 const mapSocketPayloadToMessage = (eventName, payload) => {
@@ -325,6 +460,7 @@ export const NotificationProvider = ({ children }) => {
     const [permissionStatus, setPermissionStatus] = useState("default");
     const [promptVisible, setPromptVisible] = useState(false);
     const recentDedupeKeys = useRef(new Map());
+    const [session, setSession] = useState(() => getSessionFromToken(typeof window !== "undefined" ? window.localStorage.getItem("authToken") : null));
 
     const pruneDedupeKeys = useCallback(() => {
         const now = Date.now();
@@ -380,6 +516,39 @@ export const NotificationProvider = ({ children }) => {
         } catch {
             // Ignore storage failures and keep the app working.
         }
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return undefined;
+        }
+
+        const syncSession = () => {
+            const nextSession = getSessionFromToken(window.localStorage.getItem("authToken"));
+            setSession((prev) => {
+                if (
+                    prev.userId === nextSession.userId &&
+                    prev.role === nextSession.role &&
+                    prev.email === nextSession.email
+                ) {
+                    return prev;
+                }
+
+                return nextSession;
+            });
+        };
+
+        syncSession();
+        const timer = window.setInterval(syncSession, 1500);
+
+        window.addEventListener("storage", syncSession);
+        window.addEventListener("focus", syncSession);
+
+        return () => {
+            window.clearInterval(timer);
+            window.removeEventListener("storage", syncSession);
+            window.removeEventListener("focus", syncSession);
+        };
     }, []);
 
     useEffect(() => {
@@ -501,12 +670,16 @@ export const NotificationProvider = ({ children }) => {
 
     useEffect(() => {
         const mapAndNotify = (eventName, payload) => {
-            const mapped = mapSocketPayloadToMessage(eventName, payload);
+            const mapped =
+                mapSocketPayloadToMessage(eventName, payload) ||
+                normalizeOrderEvent(eventName, payload, session);
+
             if (!mapped) {
                 return;
             }
 
-            const socketDedupeKey = `${eventName}:${payload?._id || payload?.productId || payload?.id || payload?.name || ""}`;
+            const socketDedupeKey = mapped.dedupeKey ||
+                `${eventName}:${payload?._id || payload?.productId || payload?.id || payload?.name || payload?.orderId || ""}`;
             if (hasRecentDedupeKey(socketDedupeKey)) {
                 return;
             }
@@ -522,17 +695,35 @@ export const NotificationProvider = ({ children }) => {
         const handleProductCreated = (payload) => mapAndNotify("productCreated", payload);
         const handleProductUpdated = (payload) => mapAndNotify("productUpdated", payload);
         const handleProductDeleted = (payload) => mapAndNotify("productDeleted", payload);
+        const handleOrderCreated = (payload) => mapAndNotify("orderCreated", payload);
+        const handleNewOrder = (payload) => mapAndNotify("newOrder", payload);
+        const handleOrderPlaced = (payload) => mapAndNotify("orderPlaced", payload);
+        const handleOrderUpdated = (payload) => mapAndNotify("orderUpdated", payload);
+        const handleOrderStatusUpdated = (payload) => mapAndNotify("orderStatusUpdated", payload);
+        const handleOrderStatusChanged = (payload) => mapAndNotify("orderStatusChanged", payload);
 
         socket.on("productCreated", handleProductCreated);
         socket.on("productUpdated", handleProductUpdated);
         socket.on("productDeleted", handleProductDeleted);
+        socket.on("orderCreated", handleOrderCreated);
+        socket.on("newOrder", handleNewOrder);
+        socket.on("orderPlaced", handleOrderPlaced);
+        socket.on("orderUpdated", handleOrderUpdated);
+        socket.on("orderStatusUpdated", handleOrderStatusUpdated);
+        socket.on("orderStatusChanged", handleOrderStatusChanged);
 
         return () => {
             socket.off("productCreated", handleProductCreated);
             socket.off("productUpdated", handleProductUpdated);
             socket.off("productDeleted", handleProductDeleted);
+            socket.off("orderCreated", handleOrderCreated);
+            socket.off("newOrder", handleNewOrder);
+            socket.off("orderPlaced", handleOrderPlaced);
+            socket.off("orderUpdated", handleOrderUpdated);
+            socket.off("orderStatusUpdated", handleOrderStatusUpdated);
+            socket.off("orderStatusChanged", handleOrderStatusChanged);
         };
-    }, [appendNotification, hasRecentDedupeKey]);
+    }, [appendNotification, hasRecentDedupeKey, session]);
 
     const contextValue = useMemo(
         () => ({

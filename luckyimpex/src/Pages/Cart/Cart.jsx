@@ -157,13 +157,23 @@ const CartComponent = () => {
             }
 
             const responseData = await response.json().catch(() => ({}));
+            const createdOrderId =
+                responseData?._id ||
+                responseData?.order?._id ||
+                responseData?.data?._id ||
+                responseData?.orderId ||
+                responseData?.order?.orderId ||
+                null;
 
             addNotification({
                 title: "Success",
-                message: "Order placed successfully.",
+                message: createdOrderId
+                    ? `Order #${String(createdOrderId).slice(-6)} placed successfully.`
+                    : "Order placed successfully.",
                 type: "success",
                 container: "top-right",
                 dismiss: { duration: 5000 },
+                dedupeKey: createdOrderId ? `orderCreated:${createdOrderId}` : undefined,
             });
 
             trackPurchase({

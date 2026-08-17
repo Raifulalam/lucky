@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaEye, FaTrash, FaTruck } from "react-icons/fa";
 import "./OrderComponent.css";
 import { authRequest } from "../../api/api";
+import { useNotification } from "../../Components/NotificationContext";
 import PageSeo from "../../Components/PageSeo";
 
 const ITEMS_PER_PAGE = 8;
@@ -20,6 +21,7 @@ const OrderComponent = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [page, setPage] = useState(1);
+    const { addNotification } = useNotification();
 
     useEffect(() => {
         fetchOrders();
@@ -50,8 +52,23 @@ const OrderComponent = () => {
                 body: { status },
             });
             setOrders((prev) => prev.map((order) => (order._id === updated._id ? updated : order)));
+            addNotification({
+                title: "Order updated",
+                message: `Order #${String(updated?._id || id).slice(-6)} moved to ${updated?.status || status}.`,
+                type: "success",
+                container: "top-right",
+                dismiss: { duration: 5000 },
+                dedupeKey: `orderStatusUpdated:${updated?._id || id}:${updated?.status || status}`,
+            });
         } catch (err) {
             alert(err.message || "Status update failed");
+            addNotification({
+                title: "Order update failed",
+                message: err.message || "Status update failed",
+                type: "error",
+                container: "top-right",
+                dismiss: { duration: 5000 },
+            });
         }
     };
 
