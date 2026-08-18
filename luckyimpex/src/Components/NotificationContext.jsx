@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BellRing, CheckCircle2, Clock3, Inbox, ShieldAlert, Sparkles, X } from "lucide-react";
 import socket from "../socket";
+import { triggerTestPushNotification, subscribeUserToPush } from "../utils/pushNotification";
 import "./notification.css";
 
 const NotificationContext = createContext(null);
@@ -647,10 +648,12 @@ export const NotificationProvider = ({ children }) => {
         if (supportsBrowserNotifications()) {
             if (Notification.permission === "granted") {
                 try {
-                    new Notification(nextNotification.title, {
+                    triggerTestPushNotification(nextNotification.title, {
                         body: nextNotification.message,
                         tag: recordId,
-                    });
+                        icon: "/lucky-logo.png",
+                        data: { url: "/profile" },
+                    }).catch(() => {});
                     browserStatus = "delivered";
                 } catch {
                     browserStatus = "failed";
