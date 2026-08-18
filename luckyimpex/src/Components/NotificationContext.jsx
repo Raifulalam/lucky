@@ -176,6 +176,9 @@ const getOrderUserId = (payload) =>
     null;
 
 const getOrderCustomerName = (payload) =>
+    payload?.customerName ||
+    payload?.placedByName ||
+    payload?.actor?.name ||
     getOrderData(payload)?.name ||
     getOrderData(payload)?.user?.name ||
     getOrderData(payload)?.customer?.name ||
@@ -229,11 +232,12 @@ const normalizeOrderEvent = (eventName, payload, session) => {
         }
 
         const isApproved = statusLower === "approved";
+        const updatedByName = payload?.updatedByName || payload?.actor?.name || "admin";
 
         return {
             title: isApproved ? "Order approved" : "Order status updated",
             message: isApproved
-                ? `Your order #${shortOrderId(orderId)} was approved by admin.`
+                ? `Your order #${shortOrderId(orderId)} was approved by ${updatedByName}.`
                 : `Your order #${shortOrderId(orderId)} is now ${status}.`,
             type: statusLower === "delivered" ? "success" : "info",
             dedupeKey,
@@ -562,6 +566,21 @@ export const NotificationProvider = ({ children }) => {
             window.removeEventListener("focus", syncSession);
         };
     }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        const token = window.localStorage.getItem("authToken") || "";
+        socket.auth = { token };
+
+        if (socket.connected) {
+            socket.disconnect();
+        }
+
+        socket.connect();
+    }, [session.userId, session.role, session.email]);
 
     useEffect(() => {
         if (typeof window === "undefined") {

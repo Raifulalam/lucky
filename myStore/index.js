@@ -11,6 +11,7 @@ const compression = require("compression");
 const mongoSanitize = require("express-mongo-sanitize");
 const rateLimit = require("express-rate-limit");
 const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
 
 // Base API router
 const apiRoutes = require("./Router/index");
@@ -52,6 +53,31 @@ app.set("io", io);
 
 io.on("connection", (socket) => {
     console.log("🔌 User connected:", socket.id);
+
+    const token = socket.handshake?.auth?.token;
+
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || "change-me-in-env");
+
+            if (decoded?.id) {
+                socket.data.user = {
+                    id: decoded.id,
+                    role: decoded.role || "user",
+                    name: decoded.name || "",
+                    email: decoded.email || "",
+                };
+
+                if (decoded.role === "admin") {
+                    socket.join("admins");
+                } else {
+                    socket.join(`user:${decoded.id}`);
+                }
+            }
+        } catch (error) {
+            console.warn("Socket auth failed:", error.message);
+        }
+    }
 
     socket.on("disconnect", () => {
         console.log("🔌 User disconnected:", socket.id);

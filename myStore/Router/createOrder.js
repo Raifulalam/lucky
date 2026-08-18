@@ -6,6 +6,7 @@ const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+const toPlainOrder = (order) => (typeof order?.toObject === "function" ? order.toObject() : order);
 
 /**
  * CREATE ORDER (USER)
@@ -70,6 +71,21 @@ router.post("/orders", authenticateToken, async (req, res) => {
         });
 
         await newOrder.save();
+
+        const io = req.app.get("io");
+        if (io) {
+            io.to("admins").emit("orderCreated", {
+                order: toPlainOrder(newOrder),
+                customerName: req.user.name,
+                placedByName: req.user.name,
+                placedById: req.user.id,
+                actor: {
+                    id: req.user.id,
+                    name: req.user.name,
+                    role: req.user.role,
+                },
+            });
+        }
 
         res.status(201).json({
             success: true,
@@ -182,6 +198,25 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
 
         if (!updatedOrder)
             return res.status(404).json({ message: "Order not found" });
+
+        const io = req.app.get("io");
+        if (io?.to) {
+            const ownerId = updatedOrder?.user?.userId;
+
+            if (ownerId) {
+                io.to(`user:${ownerId}`).emit("orderStatusUpdated", {
+                    order: toPlainOrder(updatedOrder),
+                    customerName: updatedOrder?.user?.name || updatedOrder?.name || "",
+                    updatedByName: req.user.name,
+                    updatedById: req.user.id,
+                    actor: {
+                        id: req.user.id,
+                        name: req.user.name,
+                        role: req.user.role,
+                    },
+                });
+            }
+        }
 
         res.json(updatedOrder);
     } catch (error) {
