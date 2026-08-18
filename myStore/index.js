@@ -178,24 +178,35 @@ app.use((err, req, res, next) => {
     });
 });
 
+// Handle server port errors gracefully
+server.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+        console.error(`❌ Error: Port ${PORT} is already in use by another running process!`);
+        console.error(`💡 Tip: Close any other terminal running 'node index.js' or kill process on port ${PORT}.`);
+        process.exit(1);
+    } else {
+        console.error("❌ Server error:", err);
+    }
+});
+
+// -------------------- HTTP SERVER START (IMMEDIATE PORT BINDING FOR RENDER) --------------------
+
+server.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`🔌 Socket.IO is ready`);
+});
+
 // -------------------- DATABASE CONNECTION --------------------
 
-mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log("✅ MongoDB connected");
-
-        // Ensure indexes for product search
-       
-
-        // IMPORTANT:
-        // Use server.listen(), NOT app.listen()
-        server.listen(PORT, () => {
-            console.log(`🚀 Server is running on port ${PORT}`);
-            console.log(`🔌 Socket.IO is ready`);
+if (process.env.MONGO_URI) {
+    mongoose
+        .connect(process.env.MONGO_URI)
+        .then(() => {
+            console.log("✅ MongoDB connected successfully");
+        })
+        .catch((err) => {
+            console.error("❌ Error connecting to MongoDB:", err.message);
         });
-    })
-    .catch((err) => {
-        console.error("❌ Error connecting to MongoDB:", err);
-        process.exit(1);
-    });
+} else {
+    console.warn("⚠️ MONGO_URI missing in environment variables!");
+}

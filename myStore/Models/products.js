@@ -19,15 +19,14 @@ const productSchema = new Schema(
             type: String,
             required: true,
             trim: true,
-            index: true,
         },
 
-      slug: {
-    type: String,
-    trim: true,
-    unique: true,
-    sparse: true,
-},
+        slug: {
+            type: String,
+            trim: true,
+            unique: true,
+            sparse: true,
+        },
 
         description: {
             type: String,
@@ -38,21 +37,18 @@ const productSchema = new Schema(
             type: String,
             required: true,
             trim: true,
-            index: true
         },
 
         brand: {
             type: String,
             required: true,
             trim: true,
-            index: true,
         },
 
         category: {
             type: String,
             required: true,
             trim: true,
-            index: true,
         },
 
         capacity: {

@@ -1,4 +1,10 @@
-const webpush = require("web-push");
+let webpush = null;
+try {
+    webpush = require("web-push");
+} catch (err) {
+    console.warn("⚠️ [Push Service] 'web-push' package is not installed yet. Please run 'npm install' in myStore folder.");
+}
+
 const PushSubscription = require("../Models/PushSubscription");
 
 // Standard VAPID Key configuration
@@ -6,8 +12,8 @@ let publicVapidKey = process.env.VAPID_PUBLIC_KEY;
 let privateVapidKey = process.env.VAPID_PRIVATE_KEY;
 const vapidSubject = process.env.VAPID_SUBJECT || "mailto:admin@luckyimpex.com";
 
-// If keys are not set in environment, generate persistent keys
-if (!publicVapidKey || !privateVapidKey) {
+// If keys are not set in environment and webpush is available, generate persistent keys
+if (webpush && (!publicVapidKey || !privateVapidKey)) {
     try {
         const vapidKeys = webpush.generateVAPIDKeys();
         publicVapidKey = vapidKeys.publicKey;
@@ -19,7 +25,7 @@ if (!publicVapidKey || !privateVapidKey) {
     }
 }
 
-if (publicVapidKey && privateVapidKey) {
+if (webpush && publicVapidKey && privateVapidKey) {
     try {
         webpush.setVapidDetails(vapidSubject, publicVapidKey, privateVapidKey);
     } catch (err) {
@@ -39,6 +45,11 @@ function getVapidPublicKey() {
  * @param {Object} payloadData - Notification details { title, body, icon, data, actions }
  */
 async function sendPushToAdmins(payloadData) {
+    if (!webpush) {
+        console.warn("⚠️ [Push Service] Cannot send push notification: 'web-push' package not loaded.");
+        return { error: "web-push module missing" };
+    }
+
     try {
         const adminSubscriptions = await PushSubscription.find({ role: "admin" }).lean();
         if (!adminSubscriptions || adminSubscriptions.length === 0) {
@@ -73,7 +84,7 @@ async function sendPushToAdmins(payloadData) {
                 sentCount++;
             } catch (err) {
                 failedCount++;
-                console.warn(`[Push Service] Push delivery status for ${sub.endpoint.slice(0, 30)}...: ${err.statusCode || err.message}`);
+                console.warn(`[Push Service] Push delivery status for ${sub.endpoint ? sub.endpoint.slice(0, 30) : "endpoint"}...: ${err.statusCode || err.message}`);
                 
                 // If subscription expired or invalid (404 Not Found, 410 Gone)
                 if (err.statusCode === 404 || err.statusCode === 410) {
@@ -96,6 +107,8 @@ async function sendPushToAdmins(payloadData) {
  * Send push notification to a specific user by ID
  */
 async function sendPushToUser(userId, payloadData) {
+    if (!webpush) return { error: "web-push module missing" };
+
     try {
         const userSubscriptions = await PushSubscription.find({ userId }).lean();
         if (!userSubscriptions || userSubscriptions.length === 0) return { sent: 0 };

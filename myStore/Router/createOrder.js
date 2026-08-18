@@ -8,6 +8,8 @@ const { sendPushToAdmins } = require("../utils/pushService");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const toPlainOrder = (order) => (typeof order?.toObject === "function" ? order.toObject() : order);
+
+/**
  * CREATE ORDER (USER)
  */
 router.post("/orders", authenticateToken, async (req, res) => {
