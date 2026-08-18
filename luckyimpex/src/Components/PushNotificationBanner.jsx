@@ -16,13 +16,13 @@ export default function PushNotificationBanner() {
   useEffect(() => {
     if (isPushNotificationSupported()) {
       const currentPerm = getNotificationPermissionStatus();
-      // Hide banner if permission is already granted or dismissed
-      const dismissed = localStorage.getItem("lucky_push_banner_dismissed");
-      if (currentPerm === "granted" || dismissed === "true") {
-        setIsVisible(false);
+      if (currentPerm === "granted") {
+        setStatusMessage("Notifications are enabled! Tap 'Test Notification' below.");
+      } else if (currentPerm === "denied") {
+        setStatusMessage("Notifications are blocked in your browser settings.");
       }
     } else {
-      setIsVisible(false);
+      setStatusMessage("Push Notifications not supported in this browser.");
     }
   }, []);
 
@@ -32,17 +32,30 @@ export default function PushNotificationBanner() {
     try {
       const result = await requestNotificationPermission();
       if (result === "granted") {
-        setStatusMessage("Notifications enabled! Sending test notification...");
-        await triggerTestPushNotification("Welcome to Lucky Impex Notifications! 🔔", {
-          body: "You will now receive order updates, EMI alerts & special deals even when the app is closed.",
+        setStatusMessage("Permission granted! Sending test push...");
+        await triggerTestPushNotification("Lucky Impex Alert 🔔", {
+          body: "Background notifications are now active! You will receive updates even when the app is closed.",
         });
-        setTimeout(() => setIsVisible(false), 3000);
       } else if (result === "denied") {
-        setStatusMessage("Notifications blocked. You can enable them in browser settings.");
+        setStatusMessage("Notifications blocked in browser settings.");
       }
     } catch (err) {
       console.error("Error enabling notifications:", err);
-      setStatusMessage("Failed to request permission.");
+      setStatusMessage(err.message || "Failed to request permission.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTestPush = async () => {
+    setIsSubmitting(true);
+    try {
+      await triggerTestPushNotification("Lucky Impex Test Push 🔔", {
+        body: "Success! Push notification working while app is closed/in background.",
+      });
+      setStatusMessage("Test push notification sent!");
+    } catch (err) {
+      setStatusMessage(err.message || "Error triggering push notification.");
     } finally {
       setIsSubmitting(false);
     }
@@ -55,6 +68,8 @@ export default function PushNotificationBanner() {
 
   if (!isVisible) return null;
 
+  const currentPerm = getNotificationPermissionStatus();
+
   return (
     <div className="push-banner-container" role="alert">
       <div className="push-banner-content">
@@ -63,21 +78,31 @@ export default function PushNotificationBanner() {
         </div>
         <div className="push-banner-text">
           <div className="push-banner-title">
-            Enable Background Notifications <Sparkles className="sparkle-icon" size={16} />
+            Push Notifications <Sparkles className="sparkle-icon" size={16} />
           </div>
           <div className="push-banner-desc">
-            Get instant alerts on order updates, exclusive price drops, and EMI payment reminders even when your browser is closed.
+            Get order updates, price drops, and EMI alerts even when your app/browser is closed.
           </div>
           {statusMessage && <div className="push-banner-status">{statusMessage}</div>}
         </div>
         <div className="push-banner-actions">
-          <button
-            className="push-banner-btn-enable"
-            onClick={handleEnableNotifications}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Enabling..." : "Enable Notifications"}
-          </button>
+          {currentPerm === "granted" ? (
+            <button
+              className="push-banner-btn-enable"
+              onClick={handleTestPush}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Test Notification"}
+            </button>
+          ) : (
+            <button
+              className="push-banner-btn-enable"
+              onClick={handleEnableNotifications}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Enabling..." : "Enable Notifications"}
+            </button>
+          )}
           <button
             className="push-banner-btn-close"
             onClick={handleDismiss}

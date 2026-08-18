@@ -116,20 +116,15 @@ export async function unsubscribeUserFromPush() {
  * Send a test background notification using Service Worker
  * (Simulates a server push notification)
  */
-export async function triggerTestPushNotification(title = "Lucky Impex Test Push", options = {}) {
+export async function triggerTestPushNotification(title = "Lucky Impex Notification 🔔", options = {}) {
   if (!isPushNotificationSupported()) {
-    alert("Notifications not supported in this browser.");
-    return;
+    throw new Error("Notifications are not supported in this browser.");
   }
 
   const permission = await requestNotificationPermission();
   if (permission !== "granted") {
-    alert("Permission to send notifications was denied.");
-    return;
+    throw new Error("Notification permission denied. Please allow notifications in browser settings.");
   }
-
-  const registration = await registerPushServiceWorker();
-  await navigator.serviceWorker.ready;
 
   const defaultOptions = {
     body: "This is how push notifications look when the app is closed or running in background!",
@@ -145,5 +140,26 @@ export async function triggerTestPushNotification(title = "Lucky Impex Test Push
     renotify: true,
   };
 
-  await registration.showNotification(title, { ...defaultOptions, ...options });
+  const notificationOptions = { ...defaultOptions, ...options };
+
+  try {
+    const registration = await registerPushServiceWorker();
+    if (registration && registration.showNotification) {
+      await registration.showNotification(title, notificationOptions);
+      console.log("[Push Notification] Triggered via ServiceWorker registration.");
+      return true;
+    }
+  } catch (err) {
+    console.warn("[Push Notification] ServiceWorker showNotification error, trying fallback:", err);
+  }
+
+  // Fallback to standard browser Notification object if SW is preparing
+  if (typeof Notification !== "undefined") {
+    new Notification(title, notificationOptions);
+    console.log("[Push Notification] Triggered via standard Notification fallback.");
+    return true;
+  }
+
+  return false;
 }
+
