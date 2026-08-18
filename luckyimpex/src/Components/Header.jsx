@@ -47,7 +47,7 @@ const formatCategory = (value) => value.replace(/([A-Z])/g, " $1").trim();
 
 const Header = () => {
     const { user, logout } = useContext(UserContext);
-    const { notificationHistory, panelOpen, setPanelOpen } = useNotification();
+    const { unreadNotificationCount, panelOpen, setPanelOpen } = useNotification();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -65,8 +65,6 @@ const Header = () => {
 
     const cart = useCartState() || EMPTY_CART;
     const cartQty = useMemo(() => cart.reduce((total, item) => total + (item.quantity || 1), 0), [cart]);
-    const notificationCount = notificationHistory.length;
-
     const closeMobileMenu = () => setMenuOpen(false);
 
     const handleLogout = () => {
@@ -167,14 +165,22 @@ const Header = () => {
                             type="button"
                             className={`notification-link ${panelOpen ? "active" : ""}`}
                             onClick={toggleNotifications}
-                            aria-label={panelOpen ? "Close notifications" : `Open notifications${notificationCount ? `, ${notificationCount} items` : ""}`}
+                            aria-label={
+                                panelOpen
+                                    ? "Close notifications"
+                                    : `Open notifications${
+                                          unreadNotificationCount
+                                              ? `, ${unreadNotificationCount} unread`
+                                              : ""
+                                      }`
+                            }
                             aria-controls="notification-center-panel"
                             aria-expanded={panelOpen}
                         >
                             <Bell size={20} />
-                            {notificationCount > 0 && (
+                            {unreadNotificationCount > 0 && (
                                 <span className="notification-badge">
-                                    {notificationCount > 99 ? "99+" : notificationCount}
+                                    {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
                                 </span>
                             )}
                         </button>

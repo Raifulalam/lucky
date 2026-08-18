@@ -6,6 +6,7 @@ import "./notification.css";
 const NotificationContext = createContext(null);
 
 const STORAGE_KEY = "luckyimpex.notificationHistory.v1";
+const LAST_READ_KEY = "luckyimpex.notificationHistory.lastReadAt.v1";
 const MAX_HISTORY = 60;
 const DEFAULT_TOAST_DURATION = 5000;
 
@@ -112,19 +113,36 @@ const readStoredHistory = () => {
     }
 };
 
+const readStoredLastReadAt = () => {
+    if (typeof window === "undefined") {
+        return 0;
+    }
+
+    try {
+        const savedValue = window.localStorage.getItem(LAST_READ_KEY);
+        if (!savedValue) {
+            return 0;
+        }
+
+        const parsed = Number(savedValue);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+    } catch {
+        return 0;
+    }
+};
+
+const getLatestTimestamp = (history) => {
+    const latest = history[0]?.createdAt ? Date.parse(history[0].createdAt) : Date.now();
+    return Number.isFinite(latest) ? latest : Date.now();
+};
+
 const formatTimestamp = (value) =>
     new Intl.DateTimeFormat(undefined, {
         dateStyle: "medium",
         timeStyle: "short",
     }).format(new Date(value));
 
-const getTypeLabel = (type) => {
-    if (type === "danger") return "Error";
-    if (type === "success") return "Success";
-    if (type === "error") return "Error";
-    if (type === "warning") return "Warning";
-    return "Info";
-};
+
 
 const getRecordIcon = (type) => {
     if (type === "danger") return <ShieldAlert size={16} />;
@@ -462,6 +480,7 @@ export const NotificationProvider = ({ children }) => {
     const [history, setHistory] = useState(() => readStoredHistory());
     const [toasts, setToasts] = useState([]);
     const [panelOpen, setPanelOpen] = useState(false);
+    const [lastReadAt, setLastReadAt] = useState(() => readStoredLastReadAt());
     const [permissionStatus, setPermissionStatus] = useState("default");
     const [promptVisible, setPromptVisible] = useState(false);
     const recentDedupeKeys = useRef(new Map());
@@ -551,6 +570,39 @@ export const NotificationProvider = ({ children }) => {
             // Ignore storage failures and keep the app working.
         }
     }, [history]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(LAST_READ_KEY, String(lastReadAt));
+        } catch {
+            // Ignore storage failures and keep the app working.
+        }
+    }, [lastReadAt]);
+
+    useEffect(() => {
+        if (panelOpen) {
+            setLastReadAt((current) => Math.max(current, getLatestTimestamp(history)));
+        }
+    }, [history, panelOpen]);
+
+    const unreadNotificationCount = useMemo(() => {
+        if (!history.length) {
+            return 0;
+        }
+
+        return history.reduce((count, record) => {
+            const createdAt = Date.parse(record.createdAt);
+            if (!Number.isFinite(createdAt)) {
+                return count;
+            }
+
+            return createdAt > lastReadAt ? count + 1 : count;
+        }, 0);
+    }, [history, lastReadAt]);
 
     const appendNotification = useCallback((notification, options = {}) => {
         const now = new Date().toISOString();
@@ -722,6 +774,7 @@ export const NotificationProvider = ({ children }) => {
             requestBrowserPermission,
             notifications: toasts,
             notificationHistory: history,
+            unreadNotificationCount,
             panelOpen,
             permissionStatus,
             promptVisible,
@@ -733,6 +786,7 @@ export const NotificationProvider = ({ children }) => {
             clearNotificationHistory,
             history,
             panelOpen,
+            unreadNotificationCount,
             permissionStatus,
             promptVisible,
             removeNotification,
