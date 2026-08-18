@@ -340,7 +340,7 @@ const NotificationCenter = ({
                 aria-controls="notification-center-panel"
             >
                 <Bell size={18} />
-                <span>Notifications</span>
+                
                 <strong>{history.length}</strong>
             </button>
 
