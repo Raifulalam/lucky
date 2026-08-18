@@ -12,6 +12,7 @@ const categoryRoutes = require("./productcategory"); // Product categories
 const employeeRoutes = require("./EmployeeRoutes");  // Employee related routes
 const dashboardRoutes = require("./Dashboard");      // Dashboard stats
 const hrmsRoutes = require("../hrms/routes");        // HRMS routes
+const pushRoutes = require("./pushRouter");        // Push Notification routes
 
 // -------------------- ROUTES --------------------
 // User routes
@@ -43,5 +44,8 @@ router.use("/dashboard", dashboardRoutes);
 
 // HRMS routes
 router.use("/hrms", hrmsRoutes);
+
+// Push Notification routes
+router.use("/push", pushRoutes);
 
 module.exports = router;

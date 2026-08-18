@@ -1,10 +1,13 @@
 /**
  * Web Push Notification Utility for Lucky Impex PWA
- * Handles browser permission requests, service worker registration, push subscription, and test push triggers.
+ * Handles browser permission requests, service worker registration, push subscription, and server sync.
  */
+
+import { getData, authRequest } from "../api/api";
 
 // Helper to convert base64 VAPID Key to Uint8Array for PushManager subscribe
 export function urlBase64ToUint8Array(base64String) {
+  if (!base64String) return null;
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = window.atob(base64);
@@ -64,11 +67,24 @@ export async function registerPushServiceWorker() {
 }
 
 /**
- * Subscribe user browser to Push Notifications with optional VAPID Public Key
- * @param {string} [vapidPublicKey] - Optional VAPID Public Key from backend server
+ * Fetch VAPID Public Key from backend API
+ */
+export async function fetchVapidPublicKey() {
+  try {
+    const res = await getData("/push/vapid-key");
+    return res?.vapidPublicKey || null;
+  } catch (err) {
+    console.warn("[Push Notification] Failed to fetch VAPID key from backend:", err.message);
+    return null;
+  }
+}
+
+/**
+ * Subscribe user/admin browser to Push Notifications and register with backend server
+ * @param {string} [customVapidKey] - Optional VAPID Public Key
  * @returns {Promise<PushSubscription>}
  */
-export async function subscribeUserToPush(vapidPublicKey) {
+export async function subscribeUserToPush(customVapidKey) {
   const permission = await requestNotificationPermission();
   if (permission !== "granted") {
     throw new Error("Notification permission denied by user.");
@@ -78,25 +94,49 @@ export async function subscribeUserToPush(vapidPublicKey) {
   await navigator.serviceWorker.ready;
 
   let subscription = await registration.pushManager.getSubscription();
-  if (subscription) {
-    return subscription;
+
+  // If no subscription active or need new subscription with VAPID key
+  let vapidPublicKey = customVapidKey;
+  if (!vapidPublicKey) {
+    vapidPublicKey = await fetchVapidPublicKey();
   }
 
-  const subscribeOptions = {
-    userVisibleOnly: true,
-  };
+  if (!subscription) {
+    const subscribeOptions = {
+      userVisibleOnly: true,
+    };
 
-  if (vapidPublicKey) {
-    subscribeOptions.applicationServerKey = urlBase64ToUint8Array(vapidPublicKey);
+    if (vapidPublicKey) {
+      const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+      if (convertedKey) {
+        subscribeOptions.applicationServerKey = convertedKey;
+      }
+    }
+
+    subscription = await registration.pushManager.subscribe(subscribeOptions);
+    console.log("[Push Notification] New browser push subscription created:", subscription);
   }
 
-  subscription = await registration.pushManager.subscribe(subscribeOptions);
-  console.log("[Push Notification] User subscribed successfully:", subscription);
+  // Sync subscription to backend server database
+  try {
+    const subscriptionJson = subscription.toJSON();
+    await authRequest("/push/subscribe", {
+      method: "POST",
+      body: {
+        subscription: subscriptionJson,
+        userAgent: navigator.userAgent,
+      },
+    });
+    console.log("[Push Notification] Push subscription successfully registered with server backend.");
+  } catch (err) {
+    console.warn("[Push Notification] Warning: Push subscription server registration failed:", err.message);
+  }
+
   return subscription;
 }
 
 /**
- * Unsubscribe user from Push Notifications
+ * Unsubscribe user from Push Notifications and remove from backend
  */
 export async function unsubscribeUserFromPush() {
   if (!isPushNotificationSupported()) return false;
@@ -105,8 +145,19 @@ export async function unsubscribeUserFromPush() {
 
   const subscription = await registration.pushManager.getSubscription();
   if (subscription) {
+    const endpoint = subscription.endpoint;
     await subscription.unsubscribe();
-    console.log("[Push Notification] User unsubscribed.");
+    console.log("[Push Notification] Browser push subscription cancelled.");
+
+    try {
+      await authRequest("/push/unsubscribe", {
+        method: "POST",
+        body: { endpoint },
+      });
+      console.log("[Push Notification] Unsubscribed endpoint removed from backend database.");
+    } catch (err) {
+      console.warn("[Push Notification] Server unsubscribe notification warning:", err.message);
+    }
     return true;
   }
   return false;
@@ -162,5 +213,3 @@ export async function displayPushNotification(title = "Lucky Impex Alert", optio
 
 // Alias for backwards compatibility
 export const triggerTestPushNotification = displayPushNotification;
-
-

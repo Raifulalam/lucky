@@ -4,11 +4,10 @@ const mongoose = require("mongoose");
 const Order = require("../Models/order");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
+const { sendPushToAdmins } = require("../utils/pushService");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const toPlainOrder = (order) => (typeof order?.toObject === "function" ? order.toObject() : order);
-
-/**
  * CREATE ORDER (USER)
  */
 router.post("/orders", authenticateToken, async (req, res) => {
@@ -72,6 +71,7 @@ router.post("/orders", authenticateToken, async (req, res) => {
 
         await newOrder.save();
 
+        // 1️⃣ Real-time socket alert for online admins
         const io = req.app.get("io");
         if (io) {
             io.to("admins").emit("orderCreated", {
@@ -86,6 +86,16 @@ router.post("/orders", authenticateToken, async (req, res) => {
                 },
             });
         }
+
+        // 2️⃣ System-level background Push Notification for offline/closed app admins
+        sendPushToAdmins({
+            title: "🛒 New Order Placed!",
+            body: `${req.user.name || "Customer"} placed an order for Rs. ${Number(totalPrice).toLocaleString()} (Order #${String(newOrder._id).slice(-6)})`,
+            data: { url: "/admin/orders", orderId: String(newOrder._id) },
+            tag: `order-${newOrder._id}`,
+        }).catch((pushErr) => {
+            console.warn("⚠️ Background Push Notification dispatch error:", pushErr?.message || pushErr);
+        });
 
         res.status(201).json({
             success: true,

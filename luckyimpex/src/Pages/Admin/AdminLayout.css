@@ -125,6 +125,69 @@
     align-items: center;
     color: #1e293b;
     text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.admin-push-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-push-badge.success {
+    background: rgba(240, 253, 244, 0.95);
+    border-color: #bbf7d0;
+    color: #15803d;
+}
+
+.admin-push-badge.warning {
+    background: rgba(254, 242, 242, 0.95);
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+.admin-push-btn {
+    border-radius: 999px;
+    padding: 10px 16px;
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.admin-push-btn.enable {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+.admin-push-btn.enable:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    transform: translateY(-1px);
+}
+
+.admin-push-btn.test {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+}
+
+.admin-push-btn.test:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.admin-push-status-text {
+    font-size: 0.8rem;
+    color: #2563eb;
+    font-weight: 500;
 }
 
 .admin-content-panel {
