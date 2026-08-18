@@ -7,6 +7,7 @@ import { CartProvider } from "./Components/CreateReducer";
 import { UserProvider } from "./Components/UserContext";
 import { NotificationProvider } from "./Components/NotificationContext";
 import CookieConsentBanner from "./Components/CookieConsentBanner";
+import PushNotificationBanner from "./Components/PushNotificationBanner";
 import ProtectedRoute from './Components/ProtectedRoutes';
 import ErrorBoundary from "./Components/ErrorBoundary";
 import GoogleAnalytics from "./Components/GoogleAnalytics";
@@ -57,6 +58,7 @@ function App() {
         <UserProvider>
           <CartProvider>
             <CookieConsentBanner />
+            <PushNotificationBanner />
             <BrowserRouter>
               <GoogleAnalytics />
               <Suspense fallback={
