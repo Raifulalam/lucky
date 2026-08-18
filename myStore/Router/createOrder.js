@@ -200,22 +200,25 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
             return res.status(404).json({ message: "Order not found" });
 
         const io = req.app.get("io");
-        if (io?.to) {
+        if (io) {
             const ownerId = updatedOrder?.user?.userId;
+            const updatePayload = {
+                order: toPlainOrder(updatedOrder),
+                customerName: updatedOrder?.user?.name || updatedOrder?.name || "",
+                updatedByName: req.user.name,
+                updatedById: req.user.id,
+                actor: {
+                    id: req.user.id,
+                    name: req.user.name,
+                    role: req.user.role,
+                },
+            };
 
             if (ownerId) {
-                io.to(`user:${ownerId}`).emit("orderStatusUpdated", {
-                    order: toPlainOrder(updatedOrder),
-                    customerName: updatedOrder?.user?.name || updatedOrder?.name || "",
-                    updatedByName: req.user.name,
-                    updatedById: req.user.id,
-                    actor: {
-                        id: req.user.id,
-                        name: req.user.name,
-                        role: req.user.role,
-                    },
-                });
+                io.to(`user:${ownerId}`).emit("orderStatusUpdated", updatePayload);
             }
+            io.to("admins").emit("orderStatusUpdated", updatePayload);
+            io.emit("orderStatusUpdated", updatePayload);
         }
 
         res.json(updatedOrder);

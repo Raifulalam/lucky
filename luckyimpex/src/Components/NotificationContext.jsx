@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BellRing, CheckCircle2, Clock3, Inbox, ShieldAlert, Sparkles, X } from "lucide-react";
 import socket from "../socket";
-import { triggerTestPushNotification, subscribeUserToPush } from "../utils/pushNotification";
+import { displayPushNotification } from "../utils/pushNotification";
 import "./notification.css";
 
 const NotificationContext = createContext(null);
@@ -167,15 +167,6 @@ const getOrderId = (payload) =>
 const getOrderStatus = (payload) =>
     String(getOrderData(payload)?.status || payload?.status || "Placed").trim();
 
-const getOrderUserId = (payload) =>
-    getOrderData(payload)?.user?.userId ||
-    getOrderData(payload)?.userId ||
-    getOrderData(payload)?.customerId ||
-    payload?.user?.userId ||
-    payload?.userId ||
-    payload?.customerId ||
-    null;
-
 const getOrderCustomerName = (payload) =>
     payload?.customerName ||
     payload?.placedByName ||
@@ -192,11 +183,9 @@ const shortOrderId = (orderId) => (orderId ? String(orderId).slice(-6) : "------
 const normalizeOrderEvent = (eventName, payload, session) => {
     const orderId = getOrderId(payload);
     const status = getOrderStatus(payload);
-    const ownerId = getOrderUserId(payload);
     const customerName = getOrderCustomerName(payload);
     const statusLower = status.toLowerCase();
     const isAdmin = session?.role === "admin";
-    const isOwner = !!session?.userId && !!ownerId && String(session.userId) === String(ownerId);
 
     const eventKey = `${eventName}:${orderId || statusLower}`;
     const dedupeKey = `order:${orderId || "unknown"}:${statusLower}`;
@@ -228,18 +217,14 @@ const normalizeOrderEvent = (eventName, payload, session) => {
         eventName === "orderStatusChanged" ||
         eventName === "orderModified"
     ) {
-        if (!isOwner) {
-            return null;
-        }
-
         const isApproved = statusLower === "approved";
         const updatedByName = payload?.updatedByName || payload?.actor?.name || "admin";
 
         return {
             title: isApproved ? "Order approved" : "Order status updated",
             message: isApproved
-                ? `Your order #${shortOrderId(orderId)} was approved by ${updatedByName}.`
-                : `Your order #${shortOrderId(orderId)} is now ${status}.`,
+                ? `Order #${shortOrderId(orderId)} was approved by ${updatedByName}.`
+                : `Order #${shortOrderId(orderId)} is now ${status}.`,
             type: statusLower === "delivered" ? "success" : "info",
             dedupeKey,
             eventKey,
@@ -648,7 +633,7 @@ export const NotificationProvider = ({ children }) => {
         if (supportsBrowserNotifications()) {
             if (Notification.permission === "granted") {
                 try {
-                    triggerTestPushNotification(nextNotification.title, {
+                    displayPushNotification(nextNotification.title, {
                         body: nextNotification.message,
                         tag: recordId,
                         icon: "/lucky-logo.png",

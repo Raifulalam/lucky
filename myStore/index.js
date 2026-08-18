@@ -85,10 +85,9 @@ io.on("connection", (socket) => {
                     email: decoded.email || "",
                 };
 
+                socket.join(`user:${decoded.id}`);
                 if (decoded.role === "admin") {
                     socket.join("admins");
-                } else {
-                    socket.join(`user:${decoded.id}`);
                 }
             }
         } catch (error) {

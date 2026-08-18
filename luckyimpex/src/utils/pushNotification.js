@@ -113,30 +113,30 @@ export async function unsubscribeUserFromPush() {
 }
 
 /**
- * Send a test background notification using Service Worker
- * (Simulates a server push notification)
+ * Display background notification using Service Worker or fallback
+ * @param {string} title
+ * @param {NotificationOptions} [options]
  */
-export async function triggerTestPushNotification(title = "Lucky Impex Notification 🔔", options = {}) {
+export async function displayPushNotification(title = "Lucky Impex Alert", options = {}) {
   if (!isPushNotificationSupported()) {
-    throw new Error("Notifications are not supported in this browser.");
+    return false;
   }
 
-  const permission = await requestNotificationPermission();
-  if (permission !== "granted") {
-    throw new Error("Notification permission denied. Please allow notifications in browser settings.");
+  if (Notification.permission !== "granted") {
+    return false;
   }
 
   const defaultOptions = {
-    body: "This is how push notifications look when the app is closed or running in background!",
+    body: "You have a new update from Lucky Impex.",
     icon: "/lucky-logo.png",
     badge: "/lucky-logo.png",
     vibrate: [100, 50, 100],
     data: { url: window.location.origin },
     actions: [
-      { action: "open", title: "View Store" },
+      { action: "open", title: "View Details" },
       { action: "close", title: "Dismiss" }
     ],
-    tag: "test-notification-" + Date.now(),
+    tag: "lucky-notification-" + Date.now(),
     renotify: true,
   };
 
@@ -146,20 +146,21 @@ export async function triggerTestPushNotification(title = "Lucky Impex Notificat
     const registration = await registerPushServiceWorker();
     if (registration && registration.showNotification) {
       await registration.showNotification(title, notificationOptions);
-      console.log("[Push Notification] Triggered via ServiceWorker registration.");
       return true;
     }
   } catch (err) {
     console.warn("[Push Notification] ServiceWorker showNotification error, trying fallback:", err);
   }
 
-  // Fallback to standard browser Notification object if SW is preparing
   if (typeof Notification !== "undefined") {
     new Notification(title, notificationOptions);
-    console.log("[Push Notification] Triggered via standard Notification fallback.");
     return true;
   }
 
   return false;
 }
+
+// Alias for backwards compatibility
+export const triggerTestPushNotification = displayPushNotification;
+
 
