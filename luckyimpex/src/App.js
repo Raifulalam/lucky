@@ -6,6 +6,7 @@ import { legacyAdminRedirects } from "./Pages/Admin/adminRoutes";
 import { CartProvider } from "./Components/CreateReducer";
 import { UserProvider } from "./Components/UserContext";
 import { NotificationProvider } from "./Components/NotificationContext";
+import CookieConsentBanner from "./Components/CookieConsentBanner";
 import ProtectedRoute from './Components/ProtectedRoutes';
 import ErrorBoundary from "./Components/ErrorBoundary";
 import GoogleAnalytics from "./Components/GoogleAnalytics";
@@ -55,6 +56,7 @@ function App() {
       <NotificationProvider>
         <UserProvider>
           <CartProvider>
+            <CookieConsentBanner />
             <BrowserRouter>
               <GoogleAnalytics />
               <Suspense fallback={

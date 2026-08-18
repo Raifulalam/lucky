@@ -1,16 +1,39 @@
 const jwt = require("jsonwebtoken");
 
+const parseCookieHeader = (cookieHeader = "") =>
+    cookieHeader.split(";").reduce((acc, part) => {
+        const [rawKey, ...rawValue] = part.trim().split("=");
+        if (!rawKey) {
+            return acc;
+        }
+
+        const key = rawKey.trim();
+        const value = rawValue.join("=").trim();
+        if (key) {
+            acc[key] = decodeURIComponent(value || "");
+        }
+
+        return acc;
+    }, {});
+
 const authenticate = (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
+        const cookies = parseCookieHeader(req.headers.cookie || "");
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        let token = null;
+
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            token = authHeader.split(" ")[1];
+        } else if (cookies.authToken) {
+            token = cookies.authToken;
+        }
+
+        if (!token) {
             return res.status(401).json({
                 message: "Access denied. Token missing.",
             });
         }
-
-        const token = authHeader.split(" ")[1];
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "change-me-in-env");
 

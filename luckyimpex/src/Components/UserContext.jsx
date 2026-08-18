@@ -9,17 +9,13 @@ const UserProvider = ({ children }) => {
     const [error, setError] = useState(null);
 
     const loadUser = useCallback(async (token) => {
-        if (!token) {
-            setUser(null);
-            return null;
-        }
-
-        const data = await authRequest("/users/me", { token });
+        const data = await authRequest("/users/me", { token: token || undefined });
         setUser(data);
         return data;
     }, []);
 
     const logout = useCallback(() => {
+        void authRequest("/users/logout", { method: "POST" }).catch(() => {});
         clearAuthToken();
         setUser(null);
         setError(null);
@@ -28,16 +24,16 @@ const UserProvider = ({ children }) => {
     useEffect(() => {
         const fetchUserData = async () => {
             const token = getAuthToken();
-            if (!token) {
-                setLoading(false);
-                return;
-            }
 
             try {
                 await loadUser(token);
             } catch (err) {
+                if (err.message === "Access denied. Token missing.") {
+                    setUser(null);
+                    return;
+                }
+
                 if (
-                    err.message === "Access denied. Token missing." ||
                     err.message === "Token expired. Please login again." ||
                     err.message === "Invalid or malformed token"
                 ) {

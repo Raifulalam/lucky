@@ -1,25 +1,45 @@
 const API_ROOT = process.env.REACT_APP_API_BASE_URL || "https://lucky-1-6ma5.onrender.com/api";
+const COOKIE_CONSENT_KEY = "luckyimpex.cookieConsent.v1";
 
 export const BASE_URL = API_ROOT;
 export const HRMS_BASE_URL = `${API_ROOT}/hrms`;
-export const getAuthToken = () => {
+
+const readStorage = (key) => {
     try {
-        return localStorage.getItem("authToken");
+        return localStorage.getItem(key);
     } catch {
         return null;
     }
 };
 
-export const setAuthToken = (token) => {
+const writeStorage = (key, value) => {
     try {
-        if (token) {
-            localStorage.setItem("authToken", token);
+        if (value == null) {
+            localStorage.removeItem(key);
         } else {
-            localStorage.removeItem("authToken");
+            localStorage.setItem(key, value);
         }
     } catch {
         // Ignore storage failures in privacy-restricted contexts.
     }
+};
+
+export const getAuthToken = () => {
+    return readStorage("authToken");
+};
+
+export const setAuthToken = (token) => {
+    writeStorage("authToken", token || null);
+};
+
+export const getCookieConsent = () => readStorage(COOKIE_CONSENT_KEY);
+
+export const setCookieConsent = (value) => {
+    writeStorage(COOKIE_CONSENT_KEY, value || null);
+};
+
+export const clearCookieConsent = () => {
+    writeStorage(COOKIE_CONSENT_KEY, null);
 };
 
 export const clearAuthToken = () => setAuthToken(null);
@@ -35,6 +55,7 @@ function buildUrl(baseUrl, endpoint) {
 async function request(baseUrl, endpoint, options = {}) {
     const { signal, ...fetchOptions } = options;
     const response = await fetch(buildUrl(baseUrl, endpoint), {
+        credentials: "include",
         ...fetchOptions,
         signal,
     });

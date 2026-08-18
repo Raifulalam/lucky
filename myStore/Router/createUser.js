@@ -10,6 +10,14 @@ const uploadUserAvatar = require("../middlewares/uploadUserAvatar");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
 
+const getSessionCookieOptions = () => ({
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+});
+
 /* ===================== VALIDATION HANDLER ===================== */
 const validate = (req, res, next) => {
     const errors = validationResult(req);
@@ -120,6 +128,28 @@ router.post(
         }
     }
 );
+
+router.post("/session", (req, res) => {
+    const { token, rememberSession } = req.body || {};
+
+    if (!token) {
+        res.clearCookie("authToken", getSessionCookieOptions());
+        return res.json({ success: true, message: "Session cleared." });
+    }
+
+    if (rememberSession) {
+        res.cookie("authToken", token, getSessionCookieOptions());
+    } else {
+        res.clearCookie("authToken", getSessionCookieOptions());
+    }
+
+    return res.json({ success: true, message: "Session updated." });
+});
+
+router.post("/logout", (req, res) => {
+    res.clearCookie("authToken", getSessionCookieOptions());
+    res.json({ success: true, message: "Logged out successfully." });
+});
 
 /* ===========================================================
    GET LOGGED-IN USER PROFILE

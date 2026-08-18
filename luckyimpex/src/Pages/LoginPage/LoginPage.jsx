@@ -4,7 +4,7 @@ import './LoginPage.css';
 import Header from '../../Components/Header';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../../Components/NotificationContext'; // Import notification context
-import { BASE_URL, setAuthToken } from '../../api/api';
+import { BASE_URL, getCookieConsent, setAuthToken } from '../../api/api';
 import PageSeo from '../../Components/PageSeo';
 import { useUser } from '../../Components/UserContext';
 
@@ -61,6 +61,17 @@ function LoginComponent() {
 
             if (data.success) {
                 setAuthToken(data.authToken);
+                await fetch(`${BASE_URL}/users/session`, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        token: data.authToken,
+                        rememberSession: getCookieConsent() === "accepted",
+                    }),
+                }).catch(() => null);
                 await refreshUser(data.authToken);
 
                 addNotification({

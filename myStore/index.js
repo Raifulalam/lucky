@@ -48,13 +48,30 @@ const io = new Server(server, {
     },
 });
 
+const parseCookieHeader = (cookieHeader = "") =>
+    cookieHeader.split(";").reduce((acc, part) => {
+        const [rawKey, ...rawValue] = part.trim().split("=");
+        if (!rawKey) {
+            return acc;
+        }
+
+        const key = rawKey.trim();
+        const value = rawValue.join("=").trim();
+        if (key) {
+            acc[key] = decodeURIComponent(value || "");
+        }
+
+        return acc;
+    }, {});
+
 // Make Socket.IO available inside routes using req.app.get("io")
 app.set("io", io);
 
 io.on("connection", (socket) => {
     console.log("🔌 User connected:", socket.id);
 
-    const token = socket.handshake?.auth?.token;
+    const cookies = parseCookieHeader(socket.handshake?.headers?.cookie || "");
+    const token = socket.handshake?.auth?.token || cookies.authToken;
 
     if (token) {
         try {
