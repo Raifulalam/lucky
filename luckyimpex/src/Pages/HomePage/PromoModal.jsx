@@ -80,7 +80,7 @@ Please contact me for early offers and launch updates.
   alt="New branch coming soon"
   className="promo-image"
   width="579"
-  height="386"
+  height="186"
   loading="lazy"
   decoding="async"
 />

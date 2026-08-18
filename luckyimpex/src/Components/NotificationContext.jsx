@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { Bell, BellRing, CheckCircle2, Clock3, Inbox, ShieldAlert, Sparkles, X } from "lucide-react";
+import { BellRing, CheckCircle2, Clock3, Inbox, ShieldAlert, Sparkles, X } from "lucide-react";
 import socket from "../socket";
 import "./notification.css";
 
@@ -89,6 +89,28 @@ const normalizeStoredRecord = (record) => ({
     type: normalizeNotificationType(record?.type),
     browserStatus: record?.browserStatus || "pending",
 });
+
+const readStoredHistory = () => {
+    if (typeof window === "undefined") {
+        return [];
+    }
+
+    try {
+        const savedHistory = window.localStorage.getItem(STORAGE_KEY);
+        if (!savedHistory) {
+            return [];
+        }
+
+        const parsed = safeJsonParse(savedHistory, []);
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+
+        return parsed.slice(0, MAX_HISTORY).map(normalizeStoredRecord);
+    } catch {
+        return [];
+    }
+};
 
 const formatTimestamp = (value) =>
     new Intl.DateTimeFormat(undefined, {
@@ -200,7 +222,11 @@ const normalizeOrderEvent = (eventName, payload, session) => {
     return null;
 };
 
-const mapSocketPayloadToMessage = (eventName, payload) => {
+const mapSocketPayloadToMessage = (eventName, payload, session) => {
+    if (session?.role !== "admin") {
+        return null;
+    }
+
     const productName =
         payload?.name ||
         payload?.productName ||
@@ -211,24 +237,24 @@ const mapSocketPayloadToMessage = (eventName, payload) => {
 
     if (eventName === "productCreated") {
         return {
-            title: "Catalog update",
-            message: `${productName} was added successfully.`,
+            title: "Admin added product",
+            message: `Admin added ${productName} to the catalog.`,
             type: "success",
         };
     }
 
     if (eventName === "productUpdated") {
         return {
-            title: "Catalog update",
-            message: `${productName} was updated successfully.`,
+            title: "Admin updated product",
+            message: `Admin updated ${productName}.`,
             type: "info",
         };
     }
 
     if (eventName === "productDeleted") {
         return {
-            title: "Catalog update",
-            message: `${productName} was removed from the catalog.`,
+            title: "Admin deleted product",
+            message: `Admin deleted ${productName} from the catalog.`,
             type: "warning",
         };
     }
@@ -322,7 +348,7 @@ const NotificationPrompt = ({
 
 const NotificationCenter = ({
     open,
-    onToggle,
+    onClose,
     history,
     permissionStatus,
     onAllow,
@@ -332,30 +358,18 @@ const NotificationCenter = ({
 
     return (
         <section className="notification-center">
-            <button
-                type="button"
-                className="notification-fab"
-                onClick={onToggle}
-                aria-expanded={open}
-                aria-controls="notification-center-panel"
-            >
-                <Bell size={18} />
-                
-                <strong>{history.length}</strong>
-            </button>
-
             {open && (
                 <div className="notification-panel" id="notification-center-panel">
                     <header className="notification-panel-header">
                         <div>
                             <span className="notification-panel-kicker">Notification center</span>
-                            <h3>Update history</h3>
+                           
                         </div>
 
                         <button
                             type="button"
                             className="notification-panel-close"
-                            onClick={onToggle}
+                            onClick={onClose}
                             aria-label="Close notification center"
                         >
                             <X size={18} />
@@ -377,15 +391,7 @@ const NotificationCenter = ({
                                             ? "Browser notifications unsupported"
                                             : "Browser notification permission pending"}
                             </strong>
-                            <p>
-                                {permissionStatus === "granted"
-                                    ? "Lucky Impex can send browser alerts for new activity."
-                                    : permissionStatus === "denied"
-                                        ? "You can still see every update here in the notification center."
-                                        : permissionStatus === "unsupported"
-                                            ? "This browser can still show in-app update records."
-                                            : "Allow notifications to receive browser alerts for new updates."}
-                            </p>
+                          
                         </div>
 
                         {permissionStatus === "default" && (
@@ -424,13 +430,12 @@ const NotificationCenter = ({
                                     <div className="notification-record-copy">
                                         <div className="notification-record-topline">
                                             <strong>{notification.title}</strong>
-                                            <span className={`notification-record-chip ${notification.type}`}>
-                                                {getTypeLabel(notification.type)}
-                                            </span>
+                                          
+                                             <span>{formatTimestamp(notification.createdAt)}</span>
                                         </div>
                                         <p>{notification.message}</p>
-                                        <div className="notification-record-footer">
-                                            <span>{formatTimestamp(notification.createdAt)}</span>
+                                        {/* <div className="notification-record-footer">
+                                           
                                             <span>
                                                 Browser:{" "}
                                                 {notification.browserStatus === "delivered"
@@ -441,7 +446,7 @@ const NotificationCenter = ({
                                                             ? "Unsupported"
                                                             : "Pending"}
                                             </span>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </article>
                             ))
@@ -454,7 +459,7 @@ const NotificationCenter = ({
 };
 
 export const NotificationProvider = ({ children }) => {
-    const [history, setHistory] = useState([]);
+    const [history, setHistory] = useState(() => readStoredHistory());
     const [toasts, setToasts] = useState([]);
     const [panelOpen, setPanelOpen] = useState(false);
     const [permissionStatus, setPermissionStatus] = useState("default");
@@ -500,22 +505,6 @@ export const NotificationProvider = ({ children }) => {
         const browserSupported = supportsBrowserNotifications();
         setPermissionStatus(browserSupported ? Notification.permission : "unsupported");
         setPromptVisible(browserSupported ? Notification.permission === "default" : false);
-
-        if (typeof window === "undefined") {
-            return;
-        }
-
-        try {
-            const savedHistory = window.localStorage.getItem(STORAGE_KEY);
-            if (savedHistory) {
-                const parsed = safeJsonParse(savedHistory, []);
-                if (Array.isArray(parsed)) {
-                    setHistory(parsed.slice(0, MAX_HISTORY).map(normalizeStoredRecord));
-                }
-            }
-        } catch {
-            // Ignore storage failures and keep the app working.
-        }
     }, []);
 
     useEffect(() => {
@@ -671,7 +660,7 @@ export const NotificationProvider = ({ children }) => {
     useEffect(() => {
         const mapAndNotify = (eventName, payload) => {
             const mapped =
-                mapSocketPayloadToMessage(eventName, payload) ||
+                mapSocketPayloadToMessage(eventName, payload, session) ||
                 normalizeOrderEvent(eventName, payload, session);
 
             if (!mapped) {
@@ -733,6 +722,7 @@ export const NotificationProvider = ({ children }) => {
             requestBrowserPermission,
             notifications: toasts,
             notificationHistory: history,
+            panelOpen,
             permissionStatus,
             promptVisible,
             setPromptVisible,
@@ -742,6 +732,7 @@ export const NotificationProvider = ({ children }) => {
             appendNotification,
             clearNotificationHistory,
             history,
+            panelOpen,
             permissionStatus,
             promptVisible,
             removeNotification,
@@ -763,7 +754,7 @@ export const NotificationProvider = ({ children }) => {
 
             <NotificationCenter
                 open={panelOpen}
-                onToggle={() => setPanelOpen((prev) => !prev)}
+                onClose={() => setPanelOpen(false)}
                 history={history}
                 permissionStatus={permissionStatus}
                 onAllow={requestBrowserPermission}

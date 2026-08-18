@@ -158,49 +158,21 @@
 
 .notification-center {
     position: fixed;
-    left: -18px;
+    left: 18px;
     bottom: 18px;
     z-index: 1160;
 }
 
-.notification-fab {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 48px;
-    padding: 0 14px;
-    border: 1px solid rgba(214, 223, 231, 0.95);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.96);
-    color: #102235;
-    box-shadow: 0 18px 38px rgba(15, 32, 54, 0.16);
-    cursor: pointer;
-    font-weight: 700;
-}
-
-.notification-fab strong {
-    min-width: 24px;
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 7px;
-    border-radius: 999px;
-    background: #0d63c0;
-    color: #fff;
-    font-size: 0.75rem;
-}
-
 .notification-panel {
    position: absolute;
-    left: 20px;
+    left: 0;
     bottom: calc(100% + 12px);
     width: min(420px, calc(100vw - 36px));
     max-height: min(720vh, 680px);
     display: grid;
     gap: 14px;
-    padding: 16px;
-    border-radius: 24px;
+    padding: 5px;
+    border-radius: 10px;
     border: 1px solid rgba(214, 223, 231, 0.94);
     background: rgba(255, 255, 255, 0.98);
     box-shadow: 0 28px 70px rgba(15, 32, 54, 0.22);
@@ -298,7 +270,7 @@
     appearance: none;
     border: 1px solid transparent;
     border-radius: 999px;
-    min-height: 38px;
+    font-size: small;
     padding: 0 14px;
     font-weight: 700;
     cursor: pointer;
@@ -332,8 +304,8 @@
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: 12px;
-    padding: 14px;
-    border-radius: 18px;
+    padding: 4px;
+    border-radius: 5px;
     background: #fbfcfe;
     border: 1px solid rgba(214, 223, 231, 0.84);
 }
@@ -347,12 +319,13 @@
     justify-content: space-between;
     gap: 10px;
     align-items: center;
-    margin-bottom: 6px;
+    margin: 0%;
+    font-size: 0.60rem;
 }
 
 .notification-record-topline strong {
     color: #102235;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
 }
 
 .notification-record-chip {
@@ -390,10 +363,10 @@
 }
 
 .notification-record p {
-    margin: 0 0 8px;
+    margin: 0 0 0px;
     color: #556678;
-    font-size: 0.88rem;
-    line-height: 1.45;
+    font-size: 0.75rem;
+    line-height: 1;
 }
 
 .notification-record-footer {
@@ -405,13 +378,18 @@
 }
 
 .notification-record-icon {
-    width: 34px;
-    height: 34px;
-    display: grid;
+  
+    display: flex;
     place-items: center;
+align-items: center;
     border-radius: 12px;
     background: #eef4fa;
     color: #0d63c0;
+}
+.notification-record-leading{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .notification-record.success .notification-record-icon {
@@ -482,8 +460,8 @@
     }
 
     .notification-center {
-        left: -10px;
-        bottom: 10;
+        left: 10px;
+        bottom: 10px;
     }
 
     .notification-panel {

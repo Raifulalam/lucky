@@ -1,7 +1,8 @@
 import React, { useContext, useMemo, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Headphones, LayoutDashboard, Menu, Phone, ShoppingCart, Store, User, X } from "lucide-react";
+import { Bell, ChevronDown, Headphones, LayoutDashboard, Menu, Phone, ShoppingCart, Store, User, X } from "lucide-react";
 import { UserContext } from "./UserContext";
+import { useNotification } from "./NotificationContext";
 import { useCartState } from "./CreateReducer";
 import luckyLogo from "../Images/lucky-logo.png";
 import CartDrawer from "./CartDrawer";
@@ -46,6 +47,7 @@ const formatCategory = (value) => value.replace(/([A-Z])/g, " $1").trim();
 
 const Header = () => {
     const { user, logout } = useContext(UserContext);
+    const { notificationHistory, panelOpen, setPanelOpen } = useNotification();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -63,6 +65,7 @@ const Header = () => {
 
     const cart = useCartState() || EMPTY_CART;
     const cartQty = useMemo(() => cart.reduce((total, item) => total + (item.quantity || 1), 0), [cart]);
+    const notificationCount = notificationHistory.length;
 
     const closeMobileMenu = () => setMenuOpen(false);
 
@@ -76,6 +79,10 @@ const Header = () => {
             e.preventDefault();
             setCartOpen(true);
         }
+    };
+
+    const toggleNotifications = () => {
+        setPanelOpen((prev) => !prev);
     };
 
     return (
@@ -156,6 +163,22 @@ const Header = () => {
                     </nav>
 
                     <div className="header-actions">
+                        <button
+                            type="button"
+                            className={`notification-link ${panelOpen ? "active" : ""}`}
+                            onClick={toggleNotifications}
+                            aria-label={panelOpen ? "Close notifications" : `Open notifications${notificationCount ? `, ${notificationCount} items` : ""}`}
+                            aria-controls="notification-center-panel"
+                            aria-expanded={panelOpen}
+                        >
+                            <Bell size={20} />
+                            {notificationCount > 0 && (
+                                <span className="notification-badge">
+                                    {notificationCount > 99 ? "99+" : notificationCount}
+                                </span>
+                            )}
+                        </button>
+
                         {!isAdmin && (
                             <Link to="/cart" className="cart-link" aria-label="View cart" onClick={handleCartClick}>
                                 <ShoppingCart size={20} />
