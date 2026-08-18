@@ -203,7 +203,7 @@ const normalizeOrderEvent = (eventName, payload, session) => {
         eventName === "orderPlaced" ||
         eventName === "orderAdded"
     ) {
-        if (!isAdmin && !isOwner) {
+        if (!isAdmin) {
             return null;
         }
 
@@ -228,9 +228,13 @@ const normalizeOrderEvent = (eventName, payload, session) => {
             return null;
         }
 
+        const isApproved = statusLower === "approved";
+
         return {
-            title: "Order status updated",
-            message: `Your order #${shortOrderId(orderId)} is now ${status}.`,
+            title: isApproved ? "Order approved" : "Order status updated",
+            message: isApproved
+                ? `Your order #${shortOrderId(orderId)} was approved by admin.`
+                : `Your order #${shortOrderId(orderId)} is now ${status}.`,
             type: statusLower === "delivered" ? "success" : "info",
             dedupeKey,
             eventKey,
