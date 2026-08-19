@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const Order = require("../Models/order");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
-const { sendPushToAdmins } = require("../utils/pushService");
+const { sendPushToAdmins, sendPushToUser } = require("../utils/pushService");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const toPlainOrder = (order) => (typeof order?.toObject === "function" ? order.toObject() : order);
@@ -202,35 +202,87 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
     }
 
     try {
+        const existingOrder = await Order.findById(req.params.id);
+        if (!existingOrder)
+            return res.status(404).json({ message: "Order not found" });
+
+        const isStatusChange = Boolean(req.body.status && req.body.status !== existingOrder.status);
+
         const updatedOrder = await Order.findByIdAndUpdate(
             req.params.id,
             req.body,
             { new: true }
         );
 
-        if (!updatedOrder)
-            return res.status(404).json({ message: "Order not found" });
-
         const io = req.app.get("io");
-        if (io) {
-            const ownerId = updatedOrder?.user?.userId;
-            const updatePayload = {
-                order: toPlainOrder(updatedOrder),
-                customerName: updatedOrder?.user?.name || updatedOrder?.name || "",
-                updatedByName: req.user.name,
-                updatedById: req.user.id,
-                actor: {
-                    id: req.user.id,
-                    name: req.user.name,
-                    role: req.user.role,
-                },
-            };
+        const ownerId = updatedOrder?.user?.userId;
+        const shortId = String(updatedOrder._id).slice(-6);
 
-            if (ownerId) {
-                io.to(`user:${ownerId}`).emit("orderStatusUpdated", updatePayload);
+        const updatePayload = {
+            order: toPlainOrder(updatedOrder),
+            customerName: updatedOrder?.user?.name || updatedOrder?.name || "",
+            updatedByName: req.user.name,
+            updatedById: req.user.id,
+            previousStatus: existingOrder.status,
+            status: updatedOrder.status,
+            actor: {
+                id: req.user.id,
+                name: req.user.name,
+                role: req.user.role,
+            },
+        };
+
+        if (isStatusChange) {
+            // 1️⃣ Notify SPECIFIC USER who placed order (Socket.io)
+            if (ownerId && io) {
+                io.to(`user:${ownerId}`).emit("orderStatusUpdated", {
+                    ...updatePayload,
+                    title: "Order Status Updated",
+                    message: `Your order #${shortId} status is now "${updatedOrder.status}".`,
+                });
             }
-            io.to("admins").emit("orderStatusUpdated", updatePayload);
-            io.emit("orderStatusUpdated", updatePayload);
+
+            // 2️⃣ Notify SPECIFIC USER who placed order (Web Push)
+            if (ownerId) {
+                sendPushToUser(ownerId, {
+                    title: "📦 Order Status Updated!",
+                    body: `Your order #${shortId} status is now "${updatedOrder.status}".`,
+                    icon: "/lucky-logo.png",
+                    badge: "/lucky-logo.png",
+                    data: { url: "/profile", orderId: String(updatedOrder._id) },
+                    tag: `order-status-${updatedOrder._id}`,
+                }).catch((pushErr) => {
+                    console.warn("⚠️ User push error:", pushErr?.message || pushErr);
+                });
+            }
+
+            // 3️⃣ Notify ALL ADMINS that an order status was updated (Socket.io & Push)
+            if (io) {
+                io.to("admins").emit("orderStatusUpdated", {
+                    ...updatePayload,
+                    title: "Admin Updated Order Status",
+                    message: `Admin ${req.user.name} updated order #${shortId} status to "${updatedOrder.status}".`,
+                });
+            }
+            sendPushToAdmins({
+                title: "⚙️ Admin Status Change",
+                body: `Admin ${req.user.name} updated order #${shortId} status to "${updatedOrder.status}".`,
+                data: { url: "/admin/orders", orderId: String(updatedOrder._id) },
+            }).catch(() => {});
+        } else {
+            // General order change by admin -> Notify ALL ADMINS ONLY
+            if (io) {
+                io.to("admins").emit("adminChange", {
+                    ...updatePayload,
+                    title: "Admin Updated Order Details",
+                    message: `Admin ${req.user.name} updated details for order #${shortId}.`,
+                });
+            }
+            sendPushToAdmins({
+                title: "⚙️ Admin Order Update",
+                body: `Admin ${req.user.name} modified details for order #${shortId}.`,
+                data: { url: "/admin/orders", orderId: String(updatedOrder._id) },
+            }).catch(() => {});
         }
 
         res.json(updatedOrder);
@@ -252,6 +304,24 @@ router.delete("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
         const deletedOrder = await Order.findByIdAndDelete(req.params.id);
         if (!deletedOrder)
             return res.status(404).json({ message: "Order not found" });
+
+        const io = req.app.get("io");
+        const shortId = String(deletedOrder._id).slice(-6);
+
+        // Notify ALL ADMINS ONLY when admin deletes an order
+        if (io) {
+            io.to("admins").emit("adminChange", {
+                type: "orderDeleted",
+                title: "Admin Deleted Order",
+                message: `Admin ${req.user.name} deleted order #${shortId}.`,
+                orderId: deletedOrder._id,
+            });
+        }
+        sendPushToAdmins({
+            title: "🗑️ Admin Deleted Order",
+            body: `Admin ${req.user.name} deleted order #${shortId}.`,
+            data: { url: "/admin/orders" },
+        }).catch(() => {});
 
         res.json({ message: "Order deleted successfully" });
     } catch (error) {

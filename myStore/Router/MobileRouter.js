@@ -4,6 +4,7 @@ const MobileProduct = require("../Models/SmartPhonesModels");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const redisClient = require("../config/redis");
+const { sendPushToAdmins } = require("../utils/pushService");
 
 const router = express.Router();
 
@@ -78,6 +79,21 @@ router.post(
 
             const product = await MobileProduct.create(payload);
             await clearMobileCache();
+
+            const io = req.app.get("io");
+            if (io) {
+                io.to("admins").emit("adminChange", {
+                    type: "mobileCreated",
+                    title: "Admin Added Mobile Product",
+                    message: `Admin ${req.user?.name || "Admin"} added mobile "${product.name}".`,
+                    product,
+                });
+            }
+            sendPushToAdmins({
+                title: "📱 Admin Added Mobile",
+                body: `Admin ${req.user?.name || "Admin"} added mobile "${product.name}".`,
+                data: { url: "/admin/products" },
+            }).catch(() => {});
 
             res.status(201).json({
                 success: true,
@@ -201,6 +217,21 @@ router.put(
 
             await clearMobileCache();
 
+            const io = req.app.get("io");
+            if (io) {
+                io.to("admins").emit("adminChange", {
+                    type: "mobileUpdated",
+                    title: "Admin Updated Mobile Product",
+                    message: `Admin ${req.user?.name || "Admin"} updated mobile "${updated.name}".`,
+                    product: updated,
+                });
+            }
+            sendPushToAdmins({
+                title: "📱 Admin Updated Mobile",
+                body: `Admin ${req.user?.name || "Admin"} updated mobile "${updated.name}".`,
+                data: { url: "/admin/products" },
+            }).catch(() => {});
+
             res.status(200).json({
                 success: true,
                 message: "Product updated",
@@ -232,6 +263,21 @@ router.delete(
             }
 
             await clearMobileCache();
+
+            const io = req.app.get("io");
+            if (io) {
+                io.to("admins").emit("adminChange", {
+                    type: "mobileDeleted",
+                    title: "Admin Deleted Mobile Product",
+                    message: `Admin ${req.user?.name || "Admin"} deleted mobile "${deleted.name || req.params.id}".`,
+                    productId: req.params.id,
+                });
+            }
+            sendPushToAdmins({
+                title: "📱 Admin Deleted Mobile",
+                body: `Admin ${req.user?.name || "Admin"} deleted mobile product.`,
+                data: { url: "/admin/products" },
+            }).catch(() => {});
 
             res.status(200).json({
                 success: true,

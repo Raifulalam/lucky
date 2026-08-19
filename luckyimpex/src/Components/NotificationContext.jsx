@@ -196,17 +196,16 @@ const normalizeOrderEvent = (eventName, payload, session) => {
         eventName === "orderPlaced" ||
         eventName === "orderAdded"
     ) {
+        // Order creation notifications are strictly for admins!
         if (!isAdmin) {
             return null;
         }
 
         return {
-            title: isAdmin ? "New order received" : "Order placed",
-            message: isAdmin
-                ? `${customerName} placed order #${shortOrderId(orderId)}.`
-                : `Your order #${shortOrderId(orderId)} was placed successfully.`,
-            type: isAdmin ? "success" : "success",
-            dedupeKey,
+            title: payload?.title || "New order received",
+            message: payload?.message || `${customerName} placed order #${shortOrderId(orderId)}.`,
+            type: "success",
+            dedupeKey: `orderCreated:${orderId || Date.now()}`,
             eventKey,
         };
     }
@@ -220,13 +219,25 @@ const normalizeOrderEvent = (eventName, payload, session) => {
         const isApproved = statusLower === "approved";
         const updatedByName = payload?.updatedByName || payload?.actor?.name || "admin";
 
+        if (payload?.title && payload?.message) {
+            return {
+                title: payload.title,
+                message: payload.message,
+                type: statusLower === "delivered" ? "success" : "info",
+                dedupeKey: `orderStatus:${orderId}:${statusLower}`,
+                eventKey,
+            };
+        }
+
         return {
             title: isApproved ? "Order approved" : "Order status updated",
-            message: isApproved
-                ? `Order #${shortOrderId(orderId)} was approved by ${updatedByName}.`
-                : `Order #${shortOrderId(orderId)} is now ${status}.`,
+            message: isAdmin
+                ? (isApproved
+                    ? `Order #${shortOrderId(orderId)} was approved by ${updatedByName}.`
+                    : `Order #${shortOrderId(orderId)} status updated to ${status} by ${updatedByName}.`)
+                : `Your order #${shortOrderId(orderId)} status is now ${status}.`,
             type: statusLower === "delivered" ? "success" : "info",
-            dedupeKey,
+            dedupeKey: `orderStatus:${orderId}:${statusLower}`,
             eventKey,
         };
     }
@@ -235,8 +246,17 @@ const normalizeOrderEvent = (eventName, payload, session) => {
 };
 
 const mapSocketPayloadToMessage = (eventName, payload, session) => {
+    // Admin changes are strictly for admins!
     if (session?.role !== "admin") {
         return null;
+    }
+
+    if (eventName === "adminChange") {
+        return {
+            title: payload?.title || "Admin Change Alert",
+            message: payload?.message || "An admin update was made to the store.",
+            type: "info",
+        };
     }
 
     const productName =
@@ -744,6 +764,7 @@ export const NotificationProvider = ({ children }) => {
             });
         };
 
+        const handleAdminChange = (payload) => mapAndNotify("adminChange", payload);
         const handleProductCreated = (payload) => mapAndNotify("productCreated", payload);
         const handleProductUpdated = (payload) => mapAndNotify("productUpdated", payload);
         const handleProductDeleted = (payload) => mapAndNotify("productDeleted", payload);
@@ -754,6 +775,7 @@ export const NotificationProvider = ({ children }) => {
         const handleOrderStatusUpdated = (payload) => mapAndNotify("orderStatusUpdated", payload);
         const handleOrderStatusChanged = (payload) => mapAndNotify("orderStatusChanged", payload);
 
+        socket.on("adminChange", handleAdminChange);
         socket.on("productCreated", handleProductCreated);
         socket.on("productUpdated", handleProductUpdated);
         socket.on("productDeleted", handleProductDeleted);
@@ -765,6 +787,7 @@ export const NotificationProvider = ({ children }) => {
         socket.on("orderStatusChanged", handleOrderStatusChanged);
 
         return () => {
+            socket.off("adminChange", handleAdminChange);
             socket.off("productCreated", handleProductCreated);
             socket.off("productUpdated", handleProductUpdated);
             socket.off("productDeleted", handleProductDeleted);

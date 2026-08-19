@@ -10,6 +10,7 @@ const redisClient = require("../config/redis");
 const uploadProductImage = require("../middlewares/uploadProductImage");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
+const { sendPushToAdmins } = require("../utils/pushService");
 
 const toSlug = (value) =>
     String(value || "")
@@ -141,12 +142,22 @@ router.post(
 
             const product = await Product.create(payload);
             await clearProductCache();
-            // Notify all connected users
-const io = req.app.get("io");
+            const io = req.app.get("io");
+            if (io) {
+                io.to("admins").emit("productCreated", product);
+                io.to("admins").emit("adminChange", {
+                    type: "productCreated",
+                    title: "Admin Added Product",
+                    message: `Admin ${req.user?.name || "Admin"} added product "${product.name}".`,
+                    product,
+                });
+            }
+            sendPushToAdmins({
+                title: "📦 Admin Added Product",
+                body: `Admin ${req.user?.name || "Admin"} added "${product.name}" to the catalog.`,
+                data: { url: "/admin/products" },
+            }).catch(() => {});
 
-if (io) {
-    io.emit("productCreated", product);
-}
             res.status(201).json(product);
         } catch (err) {
             await deleteCloudinaryImage(uploadedImageResult?.public_id);
@@ -379,12 +390,21 @@ router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), a
         );
         if (!product) return res.status(404).json({ message: "Product not found" });
         await clearProductCache();
-        // Notify all connected users
-const io = req.app.get("io");
-
-if (io) {
-    io.emit("productUpdated", product);
-}
+        const io = req.app.get("io");
+        if (io) {
+            io.to("admins").emit("productUpdated", product);
+            io.to("admins").emit("adminChange", {
+                type: "productUpdated",
+                title: "Admin Updated Product",
+                message: `Admin ${req.user?.name || "Admin"} updated product "${product.name}".`,
+                product,
+            });
+        }
+        sendPushToAdmins({
+            title: "✏️ Admin Updated Product",
+            body: `Admin ${req.user?.name || "Admin"} updated "${product.name}".`,
+            data: { url: "/admin/products" },
+        }).catch(() => {});
 
         res.json(product);
     } catch {
@@ -408,14 +428,23 @@ router.delete("/products/:id", auth, isAdmin, async (req, res) => {
 
         await clearProductCache();
 
-        // Notify all connected users
         const io = req.app.get("io");
-
         if (io) {
-            io.emit("productDeleted", {
-                productId: req.params.id
+            io.to("admins").emit("productDeleted", {
+                productId: req.params.id,
+            });
+            io.to("admins").emit("adminChange", {
+                type: "productDeleted",
+                title: "Admin Deleted Product",
+                message: `Admin ${req.user?.name || "Admin"} deleted product "${product.name || req.params.id}".`,
+                productId: req.params.id,
             });
         }
+        sendPushToAdmins({
+            title: "🗑️ Admin Deleted Product",
+            body: `Admin ${req.user?.name || "Admin"} deleted product "${product.name || req.params.id}".`,
+            data: { url: "/admin/products" },
+        }).catch(() => {});
 
         res.json({
             message: "Product deleted successfully",
