@@ -31,7 +31,7 @@ export default function AdminLayout() {
             setPushStatus(status);
             if (status === "granted") {
                 // Auto renew/sync push subscription with backend on load
-                subscribeUserToPush().catch(() => {});
+                subscribeUserToPush().catch(() => { });
             }
         } else {
             setPushStatus("unsupported");

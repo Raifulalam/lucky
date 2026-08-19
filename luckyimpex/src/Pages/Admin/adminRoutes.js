@@ -1,7 +1,7 @@
 import {
     FaComments,
     FaClipboardList,
-    FaCube,
+    // FaCube,
     FaHome,
     FaStar,
     FaUsers,
@@ -38,12 +38,12 @@ export const adminRoutes = [
         icon: FaStar,
         description: "Contact and review inbox",
     },
-    {
-        label: "Products",
-        path: "/admin/products",
-        icon: FaCube,
-        description: "Primary catalog management",
-    },
+    // {
+    //     label: "Products",
+    //     path: "/products",
+    //     icon: FaCube,
+    //     description: "Primary catalog management",
+    // },
 ];
 
 export const legacyAdminRedirects = [
@@ -52,5 +52,5 @@ export const legacyAdminRedirects = [
     { from: "/orders", to: "/admin/orders" },
     { from: "/complaints", to: "/admin/complaints" },
     { from: "/feedback", to: "/admin/feedback" },
-    { from: "/manage-products", to: "/admin/products" },
+    // { from: "/manage-products", to: "/admin/products" },
 ];

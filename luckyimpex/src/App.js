@@ -34,7 +34,7 @@ const AdminDashboard = lazy(() => import("./Pages/Admin/AdminDashboard"));
 const OrderComponent = lazy(() => import("./Pages/Admin/Orders"));
 const ComplaintsComponent = lazy(() => import("./Pages/Admin/Complaints"));
 const FeedbackList = lazy(() => import("./Pages/Admin/FeedbackMessage/Feedback"));
-const ManageProducts = lazy(() => import("./Pages/Admin/ManageProducts"));
+// const ManageProducts = lazy(() => import("./Pages/Admin/ManageProducts"));
 const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
 
@@ -91,104 +91,104 @@ function App() {
                 </div>
               }>
                 <Routes>
-                    {/* ================= PUBLIC ROUTES ================= */}
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/login" element={<LoginComponent />} />
-                    <Route path="/signup" element={<SignUpcomponent />} />
-                    <Route path="/service" element={<LuckyImpexServicePage />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/products/:category" element={<Products />} />
-                    <Route path="/products/brand/:brand" element={<BrandSearch />} />
-                    <Route path="/product/:id" element={<ProductDetails />} />
-                    <Route path="/productdetails/:id" element={<LegacyProductDetailsRedirect />} />
-                    <Route path="/contact" element={<ContactComponent />} />
-                    <Route path="/about" element={<LegacyAboutRedirect />} />
-                    <Route path="/store" element={<StoreComponent />} />
+                  {/* ================= PUBLIC ROUTES ================= */}
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<LoginComponent />} />
+                  <Route path="/signup" element={<SignUpcomponent />} />
+                  <Route path="/service" element={<LuckyImpexServicePage />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/products/:category" element={<Products />} />
+                  <Route path="/products/brand/:brand" element={<BrandSearch />} />
+                  <Route path="/product/:id" element={<ProductDetails />} />
+                  <Route path="/productdetails/:id" element={<LegacyProductDetailsRedirect />} />
+                  <Route path="/contact" element={<ContactComponent />} />
+                  <Route path="/about" element={<LegacyAboutRedirect />} />
+                  <Route path="/store" element={<StoreComponent />} />
 
-                    {/* ================= USER ROUTES ================= */}
+                  {/* ================= USER ROUTES ================= */}
+                  <Route
+                    path="/cart"
+                    element={
+                      <ProtectedRoute allowedRoles={["user", "admin"]}>
+                        <CartComponent />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute allowedRoles={["user", "admin"]}>
+                        <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/orderpage"
+                    element={
+                      <ProtectedRoute allowedRoles={["user"]}>
+                        <OrderPage />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/emi"
+                    element={
+                      <ProtectedRoute allowedRoles={["user", "admin"]}>
+                        <EMI />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/exchange"
+                    element={
+                      <ProtectedRoute allowedRoles={["user", "admin"]}>
+                        <Exchange />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* ================= ADMIN ROUTES ================= */}
+                  <Route
+                    path="/admin"
+                    element={
+                      <ProtectedRoute allowedRoles={["admin"]}>
+                        <AdminLayout />
+                      </ProtectedRoute>
+                    }
+                  >
+                    <Route index element={<Dashboard />} />
+                    <Route path="users" element={<AdminDashboard />} />
+                    <Route path="orders" element={<OrderComponent />} />
+                    <Route path="orders/:orderId" element={<ReviewPage />} />
+                    <Route path="complaints" element={<ComplaintsComponent />} />
+                    <Route path="feedback" element={<FeedbackList />} />
+                    {/* <Route path="products" element={<ManageProducts />} /> */}
+                  </Route>
+
+                  {legacyAdminRedirects.map((route) => (
                     <Route
-                      path="/cart"
-                      element={
-                        <ProtectedRoute allowedRoles={["user", "admin"]}>
-                          <CartComponent />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/profile"
-                      element={
-                        <ProtectedRoute allowedRoles={["user", "admin"]}>
-                          <Profile />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/orderpage"
-                      element={
-                        <ProtectedRoute allowedRoles={["user"]}>
-                          <OrderPage />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/emi"
-                      element={
-                        <ProtectedRoute allowedRoles={["user", "admin"]}>
-                          <EMI />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    <Route
-                      path="/exchange"
-                      element={
-                        <ProtectedRoute allowedRoles={["user", "admin"]}>
-                          <Exchange />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    {/* ================= ADMIN ROUTES ================= */}
-                    <Route
-                      path="/admin"
-                      element={
-                        <ProtectedRoute allowedRoles={["admin"]}>
-                          <AdminLayout />
-                        </ProtectedRoute>
-                      }
-                    >
-                      <Route index element={<Dashboard />} />
-                      <Route path="users" element={<AdminDashboard />} />
-                      <Route path="orders" element={<OrderComponent />} />
-                      <Route path="orders/:orderId" element={<ReviewPage />} />
-                      <Route path="complaints" element={<ComplaintsComponent />} />
-                      <Route path="feedback" element={<FeedbackList />} />
-                      <Route path="products" element={<ManageProducts />} />
-                    </Route>
-
-                    {legacyAdminRedirects.map((route) => (
-                      <Route
-                        key={route.from}
-                        path={route.from}
-                        element={
-                          <ProtectedRoute allowedRoles={["admin"]}>
-                            <Navigate to={route.to} replace />
-                          </ProtectedRoute>
-                        }
-                      />
-                    ))}
-
-                    <Route
-                      path="/review/:orderId"
+                      key={route.from}
+                      path={route.from}
                       element={
                         <ProtectedRoute allowedRoles={["admin"]}>
-                          <Navigate to="/admin/orders" replace />
+                          <Navigate to={route.to} replace />
                         </ProtectedRoute>
                       }
                     />
+                  ))}
+
+                  <Route
+                    path="/review/:orderId"
+                    element={
+                      <ProtectedRoute allowedRoles={["admin"]}>
+                        <Navigate to="/admin/orders" replace />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Routes>
               </Suspense>
             </BrowserRouter>

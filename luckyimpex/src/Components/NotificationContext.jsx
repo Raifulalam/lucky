@@ -188,7 +188,7 @@ const normalizeOrderEvent = (eventName, payload, session) => {
     const isAdmin = session?.role === "admin";
 
     const eventKey = `${eventName}:${orderId || statusLower}`;
-    const dedupeKey = `order:${orderId || "unknown"}:${statusLower}`;
+
 
     if (
         eventName === "orderCreated" ||
@@ -395,7 +395,7 @@ const NotificationCenter = ({
                     <header className="notification-panel-header">
                         <div>
                             <span className="notification-panel-kicker">Notification center</span>
-                           
+
                         </div>
 
                         <button
@@ -423,7 +423,7 @@ const NotificationCenter = ({
                                             ? "Browser notifications unsupported"
                                             : "Browser notification permission pending"}
                             </strong>
-                          
+
                         </div>
 
                         {permissionStatus === "default" && (
@@ -462,8 +462,8 @@ const NotificationCenter = ({
                                     <div className="notification-record-copy">
                                         <div className="notification-record-topline">
                                             <strong>{notification.title}</strong>
-                                          
-                                             <span>{formatTimestamp(notification.createdAt)}</span>
+
+                                            <span>{formatTimestamp(notification.createdAt)}</span>
                                         </div>
                                         <p>{notification.message}</p>
                                         {/* <div className="notification-record-footer">
@@ -658,7 +658,7 @@ export const NotificationProvider = ({ children }) => {
                         tag: recordId,
                         icon: "/lucky-logo.png",
                         data: { url: "/profile" },
-                    }).catch(() => {});
+                    }).catch(() => { });
                     browserStatus = "delivered";
                 } catch {
                     browserStatus = "failed";

@@ -168,11 +168,10 @@ const Header = () => {
                             aria-label={
                                 panelOpen
                                     ? "Close notifications"
-                                    : `Open notifications${
-                                          unreadNotificationCount
-                                              ? `, ${unreadNotificationCount} unread`
-                                              : ""
-                                      }`
+                                    : `Open notifications${unreadNotificationCount
+                                        ? `, ${unreadNotificationCount} unread`
+                                        : ""
+                                    }`
                             }
                             aria-controls="notification-center-panel"
                             aria-expanded={panelOpen}
