@@ -101,7 +101,7 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
 
     /* =========================================================
        FILTER USERS
