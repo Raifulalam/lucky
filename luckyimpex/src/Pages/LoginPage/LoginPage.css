@@ -292,3 +292,154 @@
         flex-direction: column;
     }
 }
+/* =========================================
+   FORGOT PASSWORD MODAL
+========================================= */
+
+.forgot-password-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(5px);
+
+    animation: forgotOverlayIn 0.2s ease;
+}
+
+.forgot-password-modal {
+    position: relative;
+
+    width: 100%;
+    max-width: 440px;
+
+    padding: 34px;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.2);
+
+    animation: forgotModalIn 0.25s ease;
+}
+
+.forgot-password-close {
+    position: absolute;
+
+    top: 14px;
+    right: 16px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: transparent;
+
+    color: #6b7280;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    border-radius: 50%;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.forgot-password-close:hover {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.forgot-password-close:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.forgot-password-modal .auth-card-header {
+    padding-right: 25px;
+}
+
+.forgot-password-modal .auth-card-header h2 {
+    margin-bottom: 8px;
+}
+
+.forgot-password-modal .auth-card-header p {
+    margin-bottom: 25px;
+}
+
+.forgot-password-modal .submit-button {
+    width: 100%;
+}
+
+.forgot-password-back {
+    margin-top: 18px;
+
+    text-align: center;
+}
+
+.forgot-password-back button {
+    border: none;
+    background: transparent;
+
+    color: #6b7280;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+.forgot-password-back button:hover {
+    color: #111827;
+    text-decoration: underline;
+}
+
+.forgot-password-back button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+@keyframes forgotOverlayIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes forgotModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 500px) {
+    .forgot-password-modal {
+        padding: 28px 20px;
+        border-radius: 14px;
+    }
+}
