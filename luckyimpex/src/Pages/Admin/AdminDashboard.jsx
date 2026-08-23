@@ -96,7 +96,7 @@ const fetchUsers = useCallback(async () => {
     } finally {
         setLoading(false);
     }
-}, []); 
+}, [token]); // Add external dependencies here
 
 
     useEffect(() => {
