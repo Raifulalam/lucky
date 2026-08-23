@@ -78,6 +78,13 @@ function SignupComponent() {
         }
     };
 
+    const passwordRequirements = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+};
     return (
         <div>
             <PageSeo
@@ -158,28 +165,59 @@ function SignupComponent() {
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label htmlFor="password">Password</label>
-                                <div className="password-container">
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        id="password"
-                                        name="password"
-                                        value={password}
-                                        onChange={handlePasswordChange}
-                                        required
-                                        placeholder="Create a secure password"
-                                    />
-                                    <button
-                                        type="button"
-                                        className="toggle-password"
-                                        onClick={handlePasswordVisibilityToggle}
-                                        aria-label={showPassword ? "Hide password" : "Show password"}
-                                    >
-                                        {showPassword ? "Hide" : "Show"}
-                                    </button>
-                                </div>
-                            </div>
+                          <div className="form-group">
+    <label htmlFor="password">Password</label>
+
+    <div className="password-container">
+        <input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            name="password"
+            value={password}
+            onChange={handlePasswordChange}
+            required
+            placeholder="Create a secure password"
+        />
+
+        <button
+            type="button"
+            className="toggle-password"
+            onClick={handlePasswordVisibilityToggle}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+            {showPassword ? "Hide" : "Show"}
+        </button>
+    </div>
+
+    <div className="password-requirements">
+        <p>Your password must contain:</p>
+
+        <div className={passwordRequirements.length ? "requirement valid" : "requirement"}>
+            <span>{passwordRequirements.length ? "✓" : "○"}</span>
+            At least 8 characters
+        </div>
+
+        <div className={passwordRequirements.uppercase ? "requirement valid" : "requirement"}>
+            <span>{passwordRequirements.uppercase ? "✓" : "○"}</span>
+            At least one uppercase letter
+        </div>
+
+        <div className={passwordRequirements.lowercase ? "requirement valid" : "requirement"}>
+            <span>{passwordRequirements.lowercase ? "✓" : "○"}</span>
+            At least one lowercase letter
+        </div>
+
+        <div className={passwordRequirements.number ? "requirement valid" : "requirement"}>
+            <span>{passwordRequirements.number ? "✓" : "○"}</span>
+            At least one number
+        </div>
+
+        <div className={passwordRequirements.special ? "requirement valid" : "requirement"}>
+            <span>{passwordRequirements.special ? "✓" : "○"}</span>
+            At least one special character
+        </div>
+    </div>
+</div>
 
                             {error && <div className="error-message">{error}</div>}
                             {success && <div className="success-message">{success}</div>}

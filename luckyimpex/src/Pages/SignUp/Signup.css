@@ -281,3 +281,34 @@
         border-radius: 22px;
     }
 }
+.password-requirements {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.password-requirements p {
+    margin: 0 0 7px;
+    font-weight: 600;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 4px 0;
+    color: #777;
+    transition: all 0.2s ease;
+}
+
+.requirement span {
+    width: 18px;
+    font-weight: 700;
+}
+
+.requirement.valid {
+    color: #16a34a;
+}
+
+.requirement.valid span {
+    color: #16a34a;
+}
