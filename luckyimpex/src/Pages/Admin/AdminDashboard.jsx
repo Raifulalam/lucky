@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
     FaSearch,
     FaUser,
@@ -73,31 +73,31 @@ const AdminDashboard = () => {
        FETCH USERS
     ========================================================= */
 
-    const fetchUsers = async () => {
-        try {
-            setLoading(true);
-            setError("");
+const fetchUsers = useCallback(async () => {
+    try {
+        setLoading(true);
+        setError("");
 
-            const res = await fetch(`${BASE_URL}/users/users`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+        const res = await fetch(`${BASE_URL}/users/users`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
-            if (!res.ok) {
-                throw new Error("Failed to fetch users");
-            }
-
-            const data = await res.json();
-
-            setUsers(Array.isArray(data) ? data : []);
-        } catch (err) {
-            console.error("Fetch users error:", err);
-            setError(err.message || "Unable to load users.");
-        } finally {
-            setLoading(false);
+        if (!res.ok) {
+            throw new Error("Failed to fetch users");
         }
-    };
+
+        const data = await res.json();
+        setUsers(Array.isArray(data) ? data : []);
+    } catch (err) {
+        console.error("Fetch users error:", err);
+        setError(err.message || "Unable to load users.");
+    } finally {
+        setLoading(false);
+    }
+}, [BASE_URL, token]); // Add external dependencies here
+
 
     useEffect(() => {
         fetchUsers();
