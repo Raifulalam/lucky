@@ -26,6 +26,7 @@ const EMI = lazy(() => import("./Pages/EMI/EMI"));
 const Exchange = lazy(() => import("./Pages/Exchange/Exchange"));
 const StoreComponent = lazy(() => import("./Pages/HomePage/StorePage"));
 const OrderPage = lazy(() => import("./Pages/Customer/OrderPage"));
+const CustomerReviewPage= lazy(()=> import("./Pages/Reviews/Reviews"))
 
 /* ADMIN / EMPLOYEE (Lazy Loaded) */
 const Dashboard = lazy(() => import("./Pages/Admin/Dashboard"));
@@ -102,6 +103,7 @@ function App() {
                     <Route path="/contact" element={<ContactComponent />} />
                     <Route path="/about" element={<LegacyAboutRedirect />} />
                     <Route path="/store" element={<StoreComponent />} />
+                    <Route path="/review" element={<CustomerReviewPage/>}/>
 
                     {/* ================= USER ROUTES ================= */}
                     <Route

@@ -39,6 +39,7 @@ const quickLinks = [
     { label: "EMI", to: "/emi" },
     { label: "Exchange", to: "/exchange" },
     { label: "Contact", to: "/contact" },
+    {label:"Review", to:"/review"},
 ];
 
 const EMPTY_CART = [];

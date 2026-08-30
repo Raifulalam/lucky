@@ -6,6 +6,7 @@ import "./Reviews.css";
 import Header from "../../Components/Header";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import PageSeo from "../../Components/PageSeo";
+import GoogleReviews from "../../Components/GoogleReviews"
 
 import { BASE_URL } from "../../api/api";
 
@@ -40,7 +41,7 @@ const Reviews = () => {
             setLoading(true);
 
             const response = await fetch(
-                `${BASE_URL}/reviews`
+                `${BASE_URL}/review`
             );
 
             const data = await response.json();
@@ -145,7 +146,7 @@ const Reviews = () => {
             setSubmitting(true);
 
             const response = await fetch(
-                `${BASE_URL}/reviews`,
+                `${BASE_URL}/review`,
                 {
                     method: "POST",
 
@@ -734,14 +735,11 @@ const Reviews = () => {
                             saying about Lucky Impex on
                             Google.
                         </p>
-
+ <GoogleReviews />
                     </div>
 
 
-                    <div
-                        className="sk-ww-google-reviews"
-                        data-embed-id="25709454"
-                    ></div>
+                 
 
                 </section>
 
