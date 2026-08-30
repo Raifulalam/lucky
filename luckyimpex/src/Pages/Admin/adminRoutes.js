@@ -33,11 +33,17 @@ export const adminRoutes = [
         description: "Customer complaint resolution",
     },
     {
-        label: "Feedback",
+        label: "Contacts",
         path: "/admin/feedback",
         icon: FaStar,
         description: "Contact and review inbox",
     },
+    {
+        label: "Reviews",
+        path: "/admin/reviews",
+        icon: FaStar,
+        description: "Customer reviews and feedback",
+    }
   
 ];
 
@@ -47,5 +53,7 @@ export const legacyAdminRedirects = [
     { from: "/orders", to: "/admin/orders" },
     { from: "/complaints", to: "/admin/complaints" },
     { from: "/feedback", to: "/admin/feedback" },
+
+    { from: "/reviews", to: "/admin/reviews" },
    
 ];

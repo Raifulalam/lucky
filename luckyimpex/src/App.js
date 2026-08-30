@@ -37,7 +37,7 @@ const FeedbackList = lazy(() => import("./Pages/Admin/FeedbackMessage/Feedback")
 const ManageProducts = lazy(() => import("./Pages/Admin/ManageProducts"));
 const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
-
+const Reviews=lazy(()=>import("./Pages/Admin/Reviews/Reviews"));
 const LegacyAboutRedirect = () => <Navigate to="/store" replace />;
 
 const LegacyProductDetailsRedirect = () => {
@@ -167,6 +167,7 @@ function App() {
                       <Route path="complaints" element={<ComplaintsComponent />} />
                       <Route path="feedback" element={<FeedbackList />} />
                       <Route path="products" element={<ManageProducts />} />
+                      <Route path="reviews" element={<Reviews />} />
                     </Route>
 
                     {legacyAdminRedirects.map((route) => (
