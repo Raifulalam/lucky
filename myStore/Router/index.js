@@ -12,6 +12,7 @@ const categoryRoutes = require("./productcategory"); // Product categories
 const employeeRoutes = require("./EmployeeRoutes");  // Employee related routes
 const dashboardRoutes = require("./Dashboard");      // Dashboard stats
 const hrmsRoutes = require("../hrms/routes");        // HRMS routes
+const reviewRoutes =require("./reviewRoutes")
 
 // -------------------- ROUTES --------------------
 // User routes
@@ -43,5 +44,6 @@ router.use("/dashboard", dashboardRoutes);
 
 // HRMS routes
 router.use("/hrms", hrmsRoutes);
+ router.use("/review",reviewRoutes)
 
 module.exports = router;
