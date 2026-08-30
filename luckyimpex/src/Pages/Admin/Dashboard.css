@@ -531,9 +531,7 @@
 }
 
 @media (max-width: 550px) {
-    .dashboard-kpis {
-        grid-template-columns: 1fr;
-    }
+   
 
     .quick-actions {
         grid-template-columns: 1fr;

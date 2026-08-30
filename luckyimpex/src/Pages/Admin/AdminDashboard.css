@@ -879,9 +879,7 @@
         flex: 1;
     }
 
-    .user-stat-grid {
-        grid-template-columns: 1fr;
-    }
+
 
     .toolbar-actions {
         flex-direction: column;
@@ -898,10 +896,6 @@
 
     .filter-control select {
         flex: 1;
-    }
-
-    .advanced-filters {
-        flex-wrap: wrap;
     }
 
     .users-table {

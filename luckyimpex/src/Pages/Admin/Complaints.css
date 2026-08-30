@@ -1,144 +1,445 @@
-.complaints-admin {
-    padding: 24px;
-    background: #f8fafc;
-}
 
-h2 {
-    margin-bottom: 15px;
-}
+/* =========================================================
+   COMPLAINTS DASHBOARD
+   ========================================================= */
 
-.analytics {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.analytics div {
-    background: white;
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-.toolbar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.toolbar input,
-.toolbar select,
-.toolbar button {
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-
-.toolbar button {
-    background: #2563eb;
-    color: white;
-    cursor: pointer;
-}
-
-.table-wrap {
-    overflow-x: auto;
-    background: white;
-    border-radius: 10px;
-}
-
-table {
+.complaints-container {
     width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 28px;
+    box-sizing: border-box;
+    color: #1f2937;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.complaints-container h2 {
+    margin: 0 0 24px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* =========================================================
+   STATISTICS
+   ========================================================= */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.stats > div {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 22px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stats > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.stats > div:first-child {
+    border-left: 4px solid #2563eb;
+}
+
+.stats .pending {
+    border-left: 4px solid #f59e0b;
+}
+
+.stats .progress {
+    border-left: 4px solid #3b82f6;
+}
+
+.stats .resolved {
+    border-left: 4px solid #16a34a;
+}
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 22px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.filters input,
+.filters select {
+    height: 42px;
+    padding: 0 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.filters input:first-child {
+    min-width: 250px;
+    flex: 1;
+}
+
+.filters input:focus,
+.filters select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.filters button {
+    height: 42px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.filters button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table-wrapper table {
+    width: 100%;
+    min-width: 900px;
     border-collapse: collapse;
 }
 
-th,
-td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+.table-wrapper thead {
+    background: #f8fafc;
 }
 
-th {
-    position: sticky;
-    top: 0;
-    background: #1e293b;
-    color: white;
+.table-wrapper th {
+    padding: 15px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
 }
+
+.table-wrapper td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eef0f3;
+    font-size: 14px;
+    color: #374151;
+    vertical-align: middle;
+}
+
+.table-wrapper tbody tr {
+    transition: background 0.2s ease;
+}
+
+.table-wrapper tbody tr:hover {
+    background: #f8fafc;
+}
+
+.table-wrapper tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* =========================================================
+   STATUS SELECT
+   ========================================================= */
 
 .status {
-    padding: 6px 10px;
-    border-radius: 6px;
+    min-width: 125px;
+    padding: 7px 30px 7px 10px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    font-size: 13px;
     font-weight: 600;
-    color: #000;
-}
-
-.status-Pending {
-    background: #fde68a;
-}
-
-.status-In-Progress {
-    background: #93c5fd;
-}
-
-.status-Resolved {
-    background: #bbf7d0;
-}
-
-.status-Closed {
-    background: #e5e7eb;
-}
-
-
-td img {
-    width: 40px;
-    height: 40px;
     cursor: pointer;
-    border-radius: 4px;
+    outline: none;
 }
+
+/* Pending */
+.status-Pending {
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+/* In Progress */
+.status-In-Progress {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
+/* Resolved */
+.status-Resolved {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #bbf7d0;
+}
+
+/* =========================================================
+   IMAGE
+   ========================================================= */
+
+.table-wrapper td img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.table-wrapper td img:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================================================
+   DELETE BUTTON
+   ========================================================= */
+
+.delete-btn {
+    padding: 8px 13px;
+    border: none;
+    border-radius: 7px;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
 
 .pagination {
-    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin-top: 22px;
 }
 
 .pagination button {
-    margin-right: 5px;
-    padding: 6px 10px;
+    min-width: 80px;
+    height: 38px;
+    padding: 0 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.pagination .active {
+.pagination button:hover:not(:disabled) {
     background: #2563eb;
-    color: white;
+    color: #ffffff;
+    border-color: #2563eb;
 }
+
+.pagination button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    min-width: 70px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.loading {
+    padding: 50px;
+    text-align: center;
+    font-size: 16px;
+    color: #64748b;
+}
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.error {
+    margin: 25px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    font-size: 14px;
+}
+
+/* =========================================================
+   IMAGE MODAL
+   ========================================================= */
 
 .image-modal {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, .7);
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.78);
+    cursor: pointer;
 }
 
 .image-modal img {
-    max-width: 80%;
-    max-height: 80%;
+    max-width: min(900px, 90vw);
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 6px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
-.loading,
-.error {
-    padding: 30px;
-    text-align: center;
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+    .complaints-container {
+        padding: 22px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filters {
+        align-items: stretch;
+    }
+
+    .filters input,
+    .filters select,
+    .filters button {
+        flex: 1;
+        min-width: 160px;
+    }
+
+    .filters input:first-child {
+        min-width: 220px;
+    }
 }
 
-.delete-btn {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+    .complaints-container {
+        padding: 15px;
+    }
+
+    .complaints-container h2 {
+        font-size: 23px;
+        margin-bottom: 18px;
+    }
+
+   
+
+    .stats > div {
+        padding: 17px 18px;
+    }
+
+    .filters {
+        flex-direction: column;
+        padding: 14px;
+    }
+
+    .filters input,
+    .filters select,
+    .filters button,
+    .filters input:first-child {
+        width: 100%;
+        min-width: 0;
+        flex: none;
+    }
+
+    .table-wrapper {
+        border-radius: 9px;
+    }
+
+    .table-wrapper th,
+    .table-wrapper td {
+        padding: 12px;
+    }
+
+    .pagination {
+        gap: 10px;
+    }
+
+    .pagination button {
+        min-width: 70px;
+    }
+
+    .image-modal {
+        padding: 15px;
+    }
+
+    .image-modal img {
+        max-width: 95vw;
+        max-height: 80vh;
+    }
 }
 
-.delete-btn:hover {
-    background: #c0392b;
-}

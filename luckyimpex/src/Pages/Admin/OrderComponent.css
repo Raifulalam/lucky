@@ -1,131 +1,476 @@
+
+/* =========================================================
+   ORDER MANAGEMENT PAGE
+   ========================================================= */
+
 .order-page {
-    padding: 24px;
-    background: #f5f7fa;
+    width: 100%;
+    padding: 28px;
+    box-sizing: border-box;
+    background: #f6f8fb;
     min-height: 100vh;
-    font-family: "Inter", sans-serif;
+    color: #1f2937;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Page Title */
 .order-page h1 {
-    margin-bottom: 18px;
-    font-size: 24px;
+    margin: 0 0 25px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
 }
+
+/* =========================================================
+   ANALYTICS CARDS
+   ========================================================= */
 
 .analytics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
 }
 
-.card {
-    background: #fff;
-    padding: 16px;
-    border-radius: 8px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+.analytics-grid .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    transition: 0.2s ease;
 }
 
-.card h3 {
-    font-size: 13px;
+.analytics-grid .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.analytics-grid .card h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 600;
     color: #6b7280;
-    margin-bottom: 6px;
 }
 
-.card p {
-    font-size: 24px;
+.analytics-grid .card p {
+    margin: 0;
+    font-size: 28px;
     font-weight: 700;
+    color: #111827;
 }
+
+/* =========================================================
+   FILTER BAR
+   ========================================================= */
 
 .filter-bar {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
     flex-wrap: wrap;
-    margin-bottom: 14px;
+    padding: 18px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
 }
 
 .filter-bar input,
 .filter-bar select {
-    padding: 8px 10px;
+    height: 42px;
+    padding: 0 13px;
     border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
 }
 
-.export-btn {
-    margin-left: auto;
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 6px;
-    cursor: pointer;
+.filter-bar input:first-child {
+    min-width: 260px;
+    flex: 1;
 }
+
+.filter-bar input:focus,
+.filter-bar select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.filter-bar select {
+    min-width: 145px;
+}
+
+/* Export Button */
+.export-btn {
+    height: 42px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 8px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.export-btn:hover {
+    background: #000000;
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   TABLE CONTAINER
+   ========================================================= */
 
 .table-container {
-    background: white;
-    border-radius: 8px;
-    overflow: auto;
-    max-height: 65vh;
+    width: 100%;
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
 }
+
+/* =========================================================
+   ORDERS TABLE
+   ========================================================= */
 
 .orders-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 850px;
 }
 
-.orders-table th,
+.orders-table thead {
+    background: #f9fafb;
+}
+
+.orders-table th {
+    padding: 15px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4b5563;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
 .orders-table td {
-    padding: 12px;
-    border-bottom: 1px solid #000000;
+    padding: 15px 16px;
+    font-size: 14px;
+    color: #374151;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
 }
 
-.orders-table thead th {
-    position: sticky;
-    top: 0;
-    background: #000000;
+.orders-table tbody tr {
+    transition: background 0.15s ease;
 }
+
+.orders-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.orders-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Order ID */
+.orders-table td:first-child {
+    font-family: monospace;
+    font-size: 13px;
+    color: #374151;
+}
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
 
 .status {
-    padding: 4px 10px;
-    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 75px;
+    padding: 6px 11px;
+    border-radius: 20px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
+    margin-right: 8px;
+    text-transform: capitalize;
 }
 
+/* Placed */
 .status.placed {
-    background: #e0f2fe;
-    color: #0369a1;
-}
-
-.status.shipped {
-    background: #fef3c7;
     color: #92400e;
+    background: #fef3c7;
 }
 
-.status.delivered {
-    background: #dcfce7;
-    color: #166534;
+/* Shipped */
+.status.shipped {
+    color: #1e40af;
+    background: #dbeafe;
 }
+
+/* Delivered */
+.status.delivered {
+    color: #166534;
+    background: #dcfce7;
+}
+
+/* =========================================================
+   STATUS UPDATE BUTTON
+   ========================================================= */
 
 .status-btn {
-    margin-left: 8px;
-    background: transparent;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: none;
-    cursor: pointer;
+    border-radius: 7px;
+    background: #eff6ff;
     color: #2563eb;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.status-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.status-btn svg {
+    font-size: 14px;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .actions button {
-    background: none;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: none;
+    border-radius: 7px;
     cursor: pointer;
-    margin-right: 8px;
-    font-size: 16px;
-    color: #000000;
+    transition: 0.2s ease;
 }
+
+/* View */
+.actions button:first-child {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.actions button:first-child:hover {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* Delete */
+.actions button:last-child {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.actions button:last-child:hover {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.actions svg {
+    font-size: 14px;
+}
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
 
 .pagination {
     display: flex;
     justify-content: center;
-    gap: 14px;
-    margin-top: 16px;
+    align-items: center;
+    gap: 18px;
+    margin-top: 22px;
+    padding-bottom: 10px;
+}
+
+.pagination button {
+    min-width: 80px;
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: #111827;
+    border-color: #111827;
+    color: #ffffff;
+}
+
+.pagination button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    min-width: 60px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+/* =========================================================
+   LOADING / ERROR
+   ========================================================= */
+
+.order-page > p {
+    font-size: 15px;
+    color: #6b7280;
+}
+
+.error-message {
+    padding: 13px 16px;
+    margin: 15px 0;
+    border-radius: 8px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c !important;
+    font-size: 14px !important;
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.order-page .empty-state {
+    padding: 50px 20px;
+    text-align: center;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    color: #6b7280;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filter-bar input:first-child {
+        min-width: 220px;
+    }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+    .order-page {
+        padding: 18px 12px;
+    }
+
+    .order-page h1 {
+        font-size: 23px;
+        margin-bottom: 18px;
+    }
+
+    .analytics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .analytics-grid .card {
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .analytics-grid .card h3 {
+        font-size: 12px;
+    }
+
+    .analytics-grid .card p {
+        font-size: 23px;
+    }
+
+    .filter-bar {
+        padding: 13px;
+        gap: 9px;
+    }
+
+    .filter-bar input,
+    .filter-bar select,
+    .export-btn {
+        width: 100%;
+    }
+
+    .filter-bar input:first-child {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .table-container {
+        border-radius: 10px;
+    }
+
+    .orders-table {
+        min-width: 800px;
+    }
+
+    .orders-table th,
+    .orders-table td {
+        padding: 12px;
+    }
+
+    .pagination {
+        gap: 12px;
+    }
+}
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+    .analytics-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .analytics-grid .card p {
+        font-size: 20px;
+    }
+
+    .pagination button {
+        min-width: 70px;
+    }
 }
