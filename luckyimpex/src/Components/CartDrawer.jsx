@@ -47,16 +47,33 @@ const CartDrawer = ({ isOpen, onClose }) => {
         }
     };
 
-    const { subtotal, tax, total, totalQty } = useMemo(() => {
-        const nextSubtotal = cart.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 1), 0);
-        const nextTax = nextSubtotal * 0.13;
-        return {
-            subtotal: nextSubtotal,
-            tax: nextTax,
-            total: nextSubtotal + nextTax,
-            totalQty: cart.reduce((total, item) => total + (item.quantity || 1), 0),
-        };
-    }, [cart]);
+  const { subtotal, tax, total, totalQty } = useMemo(() => {
+    const grossTotal = cart.reduce(
+        (acc, item) =>
+            acc +
+            Number(item.price || 0) * Number(item.quantity || 1),
+        0
+    );
+
+    // Taxable amount excluding 13% VAT
+    const nextSubtotal = grossTotal / 1.13;
+
+    // 13% VAT
+    const nextTax = nextSubtotal * 0.13;
+
+    // Final total including VAT
+    const nextTotal = nextSubtotal + nextTax;
+
+    return {
+        subtotal: nextSubtotal,
+        tax: nextTax,
+        total: nextTotal,
+        totalQty: cart.reduce(
+            (total, item) => total + Number(item.quantity || 1),
+            0
+        ),
+    };
+}, [cart]);
 
     return (
         <div className={`cart-drawer-overlay ${isOpen ? "open" : ""}`} onClick={handleBackdropClick}>

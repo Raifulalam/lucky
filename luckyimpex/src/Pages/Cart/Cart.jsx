@@ -20,11 +20,25 @@ const formatDate = (date) => {
 };
 
 const calculatePrices = (cart) => {
-    const subtotal = cart.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 1), 0);
-    const tax = subtotal * 0.13;
-    const total = subtotal + tax;
+    // Total price including 13% VAT
+    const total = cart.reduce(
+        (acc, item) =>
+            acc +
+            Number(item.price || 0) * Number(item.quantity || 1),
+        0
+    );
 
-    return { subtotal, tax, total };
+    // Taxable amount excluding 13% VAT
+    const subtotal = total / 1.13;
+
+    // 13% VAT
+    const tax = subtotal * 0.13;
+
+    return {
+        subtotal,
+        tax,
+        total,
+    };
 };
 
 const CartComponent = () => {
