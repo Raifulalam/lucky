@@ -633,7 +633,7 @@
 
 @media (max-width: 1100px) {
 
-    .home-page .hero-metrics,
+  
     .home-page .home-proof-strip,
     .home-page .home-editorial {
         grid-template-columns: 1fr 1fr;
