@@ -1,29 +1,45 @@
+
 {
   "id": "/",
   "name": "Lucky Impex",
-  "short_name": "Lucky",
-  "description": "Lucky Impex online store for electronics, home appliances, and mobile products.",
+  "short_name": "Lucky Impex",
+  "description": "Lucky Impex – Shop electronics, home appliances, mobiles and more.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
- "theme_color": "#030305",
-"background_color": "#030305",
+  "orientation": "portrait",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
   "lang": "en",
-  "categories": ["shopping", "business", "lifestyle"],
+  "dir": "ltr",
+  "categories": [
+    "shopping",
+    "business"
+  ],
   "icons": [
     {
-      "src": "lucky-logo.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "lucky-logo.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -31,19 +47,38 @@
       "name": "Shop Products",
       "short_name": "Products",
       "url": "/products",
-      "icons": [{ "src": "lucky-logo.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Shop Mobiles",
       "short_name": "Mobiles",
       "url": "/phones",
-      "icons": [{ "src": "lucky-logo.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
-      "name": "Store Page",
+      "name": "Store",
       "short_name": "Store",
       "url": "/store",
-      "icons": [{ "src": "lucky-logo.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
+
