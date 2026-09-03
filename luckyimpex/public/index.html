@@ -1,44 +1,972 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
+
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f5bd8" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:large" />
-  <meta name="description" content="Lucky Impex is an electronics and home appliances retailer in Birgunj, Nepal." />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+
+  <meta name="theme-color" content="#030305" />
+
+  <meta
+    name="format-detection"
+    content="telephone=no"
+  />
+
+  <meta
+    name="robots"
+    content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+  />
+
+  <meta
+    name="description"
+    content="Lucky Impex is an electronics and home appliances retailer in Birgunj, Nepal."
+  />
+
   <meta name="author" content="Lucky Impex" />
-  <meta name="google-site-verification" content="%REACT_APP_GOOGLE_SITE_VERIFICATION%" />
+
+  <meta
+    name="google-site-verification"
+    content="%REACT_APP_GOOGLE_SITE_VERIFICATION%"
+  />
+
   <title>Lucky Impex | Electronics & Home Appliances Store</title>
-  <link rel="canonical" href="https://luckyimpex4u.com/" />
-  <link rel="icon" href="%PUBLIC_URL%/lucky-logo.png" sizes="32x32" type="image/png" />
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/lucky-logo.png" />
-  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-  <link rel="preload" as="image" href="%PUBLIC_URL%/lucky-logo.png" type="image/png" fetchpriority="high" />
-  <link rel="preconnect" href="https://lucky-1-6ma5.onrender.com" crossorigin />
-  <link rel="dns-prefetch" href="//lucky-1-6ma5.onrender.com" />
-  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
-  <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-  <link rel="preconnect" href="https://unpkg.com" crossorigin />
-  <link rel="preload" href="https://unpkg.com/leaflet/dist/leaflet.css" as="style" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" media="print" onload="this.media='all'" crossorigin="anonymous" />
+
+  <!-- Favicon -->
+  <link
+    rel="icon"
+    href="%PUBLIC_URL%/lucky-logo.png"
+    sizes="32x32"
+    type="image/png"
+  />
+
+  <link
+    rel="apple-touch-icon"
+    href="%PUBLIC_URL%/lucky-logo.png"
+  />
+
+  <link
+    rel="manifest"
+    href="%PUBLIC_URL%/manifest.json"
+  />
+
+  <!-- Preload logo so splash appears immediately -->
+  <link
+    rel="preload"
+    as="image"
+    href="%PUBLIC_URL%/lucky-logo.png"
+    type="image/png"
+    fetchpriority="high"
+  />
+
+  <!-- ========================= -->
+  <!-- PREMIUM SPLASH CSS -->
+  <!-- ========================= -->
+
+  <style>
+
+    /* Prevent white flash before React loads */
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #030305;
+    }
+
+    /* =========================
+       SPLASH SCREEN
+    ========================= */
+
+    #lucky-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 50% 45%,
+          rgba(35, 75, 130, 0.12),
+          transparent 35%
+        ),
+        #030305;
+
+      transition:
+        opacity 0.8s ease,
+        visibility 0.8s ease,
+        transform 0.8s ease;
+    }
+
+    /* Fade out */
+    #lucky-splash.hide {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(1.03);
+      pointer-events: none;
+    }
+
+    /* =========================
+       BACKGROUND GLOW
+    ========================= */
+
+    .splash-glow-pink {
+      position: absolute;
+
+      width: 450px;
+      height: 450px;
+
+      left: -180px;
+      top: -180px;
+
+      border-radius: 50%;
+
+      background: rgba(236, 30, 130, 0.16);
+
+      filter: blur(120px);
+
+      animation: pinkGlow 4s ease-in-out infinite alternate;
+    }
+
+    .splash-glow-blue {
+      position: absolute;
+
+      width: 500px;
+      height: 500px;
+
+      right: -220px;
+      bottom: -220px;
+
+      border-radius: 50%;
+
+      background: rgba(0, 174, 255, 0.16);
+
+      filter: blur(130px);
+
+      animation: blueGlow 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes pinkGlow {
+      from {
+        opacity: 0.5;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+    }
+
+    @keyframes blueGlow {
+      from {
+        opacity: 0.5;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+    }
+
+    /* =========================
+       LIGHT STREAKS
+    ========================= */
+
+    .splash-light-top {
+      position: absolute;
+
+      width: 400px;
+      height: 2px;
+
+      top: 0;
+      left: -100px;
+
+      transform: rotate(-32deg);
+
+      background: linear-gradient(
+        90deg,
+        transparent,
+        #ff1493,
+        transparent
+      );
+
+      filter: blur(1px);
+
+      opacity: 0.8;
+
+      animation: lightMove 3s ease-in-out infinite;
+    }
+
+    .splash-light-bottom {
+      position: absolute;
+
+      width: 450px;
+      height: 2px;
+
+      right: -120px;
+      bottom: 50px;
+
+      transform: rotate(-32deg);
+
+      background: linear-gradient(
+        90deg,
+        transparent,
+        #00c6ff,
+        transparent
+      );
+
+      filter: blur(1px);
+
+      opacity: 0.8;
+
+      animation: lightMove 3.5s ease-in-out infinite reverse;
+    }
+
+    @keyframes lightMove {
+      0% {
+        opacity: 0.2;
+        transform: translateX(-80px) rotate(-32deg);
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.2;
+        transform: translateX(80px) rotate(-32deg);
+      }
+    }
+
+    /* =========================
+       CONTENT
+    ========================= */
+
+    .splash-content {
+      position: relative;
+      z-index: 5;
+
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
+
+      text-align: center;
+
+      padding: 30px;
+    }
+
+    /* =========================
+       LOGO
+    ========================= */
+
+    .splash-logo-wrapper {
+      position: relative;
+
+      width: 205px;
+      height: 205px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      animation: logoAppear 1.2s cubic-bezier(
+        0.16,
+        1,
+        0.3,
+        1
+      ) forwards;
+
+      opacity: 0;
+
+      transform: scale(0.65);
+    }
+
+    @keyframes logoAppear {
+      0% {
+        opacity: 0;
+        transform: scale(0.65);
+      }
+
+      60% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Outer glowing ring */
+
+    .splash-ring {
+      position: absolute;
+
+      inset: -12px;
+
+      border-radius: 50%;
+
+      background: conic-gradient(
+        from 0deg,
+        #ff1493,
+        #8b5cf6,
+        #00c6ff,
+        #ff1493
+      );
+
+      animation: rotateRing 5s linear infinite;
+
+      opacity: 0.9;
+
+      filter:
+        drop-shadow(0 0 8px rgba(255, 20, 147, 0.7))
+        drop-shadow(0 0 15px rgba(0, 198, 255, 0.5));
+    }
+
+    .splash-ring::after {
+      content: "";
+
+      position: absolute;
+
+      inset: 3px;
+
+      border-radius: 50%;
+
+      background: #030305;
+    }
+
+    @keyframes rotateRing {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Second ring */
+
+    .splash-ring-two {
+      position: absolute;
+
+      inset: -22px;
+
+      border-radius: 50%;
+
+      border: 1px solid rgba(255, 255, 255, 0.12);
+
+      animation:
+        ringPulse 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes ringPulse {
+      from {
+        opacity: 0.3;
+        transform: scale(0.98);
+      }
+
+      to {
+        opacity: 0.8;
+        transform: scale(1.03);
+      }
+    }
+
+    /* Logo itself */
+
+    .splash-logo {
+      position: relative;
+
+      z-index: 4;
+
+      width: 190px;
+      height: 190px;
+
+      object-fit: contain;
+
+      border-radius: 50%;
+
+      background: #000;
+
+      box-shadow:
+        0 0 20px rgba(255, 20, 147, 0.25),
+        0 0 45px rgba(0, 198, 255, 0.2);
+
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    /* =========================
+       BRAND NAME
+    ========================= */
+
+    .splash-title {
+      margin-top: 48px;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      font-size: clamp(
+        38px,
+        8vw,
+        68px
+      );
+
+      line-height: 1;
+
+      font-weight: 900;
+
+      letter-spacing: 0.12em;
+
+      text-transform: uppercase;
+
+      color: white;
+
+      opacity: 0;
+
+      transform: translateY(30px);
+
+      animation:
+        titleAppear 1s
+        cubic-bezier(
+          0.16,
+          1,
+          0.3,
+          1
+        )
+        0.45s
+        forwards;
+    }
+
+    .splash-title span {
+      background:
+        linear-gradient(
+          90deg,
+          #00c6ff,
+          #5b8cff,
+          #ff1493
+        );
+
+      -webkit-background-clip: text;
+      background-clip: text;
+
+      color: transparent;
+    }
+
+    @keyframes titleAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* =========================
+       TAGLINE
+    ========================= */
+
+    .splash-tagline {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      gap: 14px;
+
+      margin-top: 20px;
+
+      opacity: 0;
+
+      transform: translateY(15px);
+
+      animation:
+        taglineAppear 0.8s
+        ease
+        0.9s
+        forwards;
+    }
+
+    .splash-tagline-line {
+      width: 45px;
+      height: 1px;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          #ff1493
+        );
+    }
+
+    .splash-tagline-line.right {
+      background:
+        linear-gradient(
+          90deg,
+          #00c6ff,
+          transparent
+        );
+    }
+
+    .splash-tagline-text {
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      font-size: 12px;
+
+      font-weight: 500;
+
+      letter-spacing: 0.32em;
+
+      text-transform: uppercase;
+
+      color: rgba(
+        255,
+        255,
+        255,
+        0.7
+      );
+    }
+
+    @keyframes taglineAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* =========================
+       LOADING BAR
+    ========================= */
+
+    .splash-loader {
+      width: 190px;
+
+      height: 2px;
+
+      margin-top: 38px;
+
+      overflow: hidden;
+
+      border-radius: 10px;
+
+      background: rgba(
+        255,
+        255,
+        255,
+        0.1
+      );
+
+      opacity: 0;
+
+      animation:
+        loaderAppear 0.5s
+        ease
+        1.15s
+        forwards;
+    }
+
+    .splash-loader-bar {
+      width: 100%;
+      height: 100%;
+
+      transform:
+        translateX(-100%);
+
+      background:
+        linear-gradient(
+          90deg,
+          #ff1493,
+          #8b5cf6,
+          #00c6ff
+        );
+
+      animation:
+        loading 1.3s
+        ease-in-out
+        1.25s
+        forwards;
+    }
+
+    @keyframes loaderAppear {
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes loading {
+      to {
+        transform:
+          translateX(0);
+      }
+    }
+
+    /* =========================
+       WELCOME
+    ========================= */
+
+    .splash-welcome {
+      margin-top: 12px;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      font-size: 9px;
+
+      letter-spacing: 0.4em;
+
+      text-transform: uppercase;
+
+      color: rgba(
+        255,
+        255,
+        255,
+        0.35
+      );
+
+      opacity: 0;
+
+      animation:
+        welcomeAppear 0.5s
+        ease
+        1.3s
+        forwards;
+    }
+
+    @keyframes welcomeAppear {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+
+      .splash-logo-wrapper {
+        width: 170px;
+        height: 170px;
+      }
+
+      .splash-logo {
+        width: 158px;
+        height: 158px;
+      }
+
+      .splash-title {
+        margin-top: 40px;
+        font-size: 38px;
+        letter-spacing: 0.08em;
+      }
+
+      .splash-tagline-text {
+        font-size: 9px;
+        letter-spacing: 0.2em;
+      }
+
+      .splash-tagline-line {
+        width: 25px;
+      }
+
+      .splash-loader {
+        width: 160px;
+      }
+    }
+
+  </style>
+
+  <!-- Existing external resources -->
+
+  <link
+    rel="preconnect"
+    href="https://lucky-1-6ma5.onrender.com"
+    crossorigin
+  />
+
+  <link
+    rel="dns-prefetch"
+    href="//lucky-1-6ma5.onrender.com"
+  />
+
+  <link
+    rel="preconnect"
+    href="https://www.googletagmanager.com"
+    crossorigin
+  />
+
+  <link
+    rel="dns-prefetch"
+    href="//www.googletagmanager.com"
+  />
+
+  <link
+    rel="preconnect"
+    href="https://unpkg.com"
+    crossorigin
+  />
+
+  <link
+    rel="preload"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+    as="style"
+    crossorigin="anonymous"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+    media="print"
+    onload="this.media='all'"
+    crossorigin="anonymous"
+  />
+
   <noscript>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" crossorigin="anonymous" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet/dist/leaflet.css"
+      crossorigin="anonymous"
+    />
   </noscript>
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Lucky Impex" />
-  <meta property="og:title" content="Lucky Impex | Electronics & Home Appliances Store" />
-  <meta property="og:description" content="Shop electronics, appliances, and mobile products online at Lucky Impex." />
-  <meta property="og:url" content="https://luckyimpex4u.com/" />
-  <meta property="og:image" content="https://luckyimpex4u.com/lucky-logo.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Lucky Impex | Electronics & Home Appliances Store" />
-  <meta name="twitter:description" content="Shop electronics, appliances, and mobile products online at Lucky Impex." />
-  <meta name="twitter:image" content="https://luckyimpex4u.com/lucky-logo.png" />
+
+  <!-- Open Graph -->
+
+  <meta
+    property="og:type"
+    content="website"
+  />
+
+  <meta
+    property="og:site_name"
+    content="Lucky Impex"
+  />
+
+  <meta
+    property="og:title"
+    content="Lucky Impex | Electronics & Home Appliances Store"
+  />
+
+  <meta
+    property="og:description"
+    content="Shop electronics, appliances, and mobile products online at Lucky Impex."
+  />
+
+  <meta
+    property="og:url"
+    content="https://luckyimpex4u.com/"
+  />
+
+  <meta
+    property="og:image"
+    content="https://luckyimpex4u.com/lucky-logo.png"
+  />
+
+  <meta
+    name="twitter:card"
+    content="summary_large_image"
+  />
+
+  <meta
+    name="twitter:title"
+    content="Lucky Impex | Electronics & Home Appliances Store"
+  />
+
+  <meta
+    name="twitter:description"
+    content="Shop electronics, appliances, and mobile products online at Lucky Impex."
+  />
+
+  <meta
+    name="twitter:image"
+    content="https://luckyimpex4u.com/lucky-logo.png"
+  />
+
 </head>
+
+
 <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
+
+  <!-- ========================= -->
+  <!-- LUCKY IMPEX INTRO -->
+  <!-- ========================= -->
+
+  <div id="lucky-splash">
+
+    <div class="splash-glow-pink"></div>
+
+    <div class="splash-glow-blue"></div>
+
+    <div class="splash-light-top"></div>
+
+    <div class="splash-light-bottom"></div>
+
+
+    <div class="splash-content">
+
+      <!-- Logo -->
+
+      <div class="splash-logo-wrapper">
+
+        <div class="splash-ring"></div>
+
+        <div class="splash-ring-two"></div>
+
+        <img
+          src="%PUBLIC_URL%/lucky-logo.png"
+          alt="Lucky Impex"
+          class="splash-logo"
+        />
+
+      </div>
+
+
+      <!-- Brand -->
+
+      <div class="splash-title">
+
+        LUCKY
+        <span>IMPEX</span>
+
+      </div>
+
+
+      <!-- Tagline -->
+
+      <div class="splash-tagline">
+
+        <div class="splash-tagline-line"></div>
+
+        <div class="splash-tagline-text">
+          Your Trust · Our Priority
+        </div>
+
+        <div class="splash-tagline-line right"></div>
+
+      </div>
+
+
+      <!-- Loading -->
+
+      <div class="splash-loader">
+
+        <div class="splash-loader-bar"></div>
+
+      </div>
+
+
+      <div class="splash-welcome">
+        Welcome
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- React -->
+
+  <noscript>
+    You need to enable JavaScript to run this app.
+  </noscript>
+
   <div id="root"></div>
+
+
+  <!-- ========================= -->
+  <!-- SPLASH CONTROL -->
+  <!-- ========================= -->
+
+  <script>
+
+    (function () {
+
+      function hideSplash() {
+
+        var splash =
+          document.getElementById(
+            "lucky-splash"
+          );
+
+        if (!splash) return;
+
+        /*
+         * Give React a moment to render
+         * before revealing the website.
+         */
+
+        setTimeout(function () {
+
+          splash.classList.add("hide");
+
+          /*
+           * Completely remove it after
+           * the fade animation.
+           */
+
+          setTimeout(function () {
+
+            if (splash.parentNode) {
+              splash.parentNode.removeChild(
+                splash
+              );
+            }
+
+          }, 900);
+
+        }, 2300);
+
+      }
+
+
+      /*
+       * Start after page resources
+       * are ready.
+       */
+
+      if (
+        document.readyState ===
+        "complete"
+      ) {
+
+        hideSplash();
+
+      } else {
+
+        window.addEventListener(
+          "load",
+          hideSplash
+        );
+
+      }
+
+    })();
+
+  </script>
+
 </body>
+
 </html>
