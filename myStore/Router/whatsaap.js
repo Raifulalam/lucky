@@ -4,7 +4,7 @@ const router = express.Router();
 const {
     verifyWebhook,
     receiveWebhook,
-} = require("../controllers/whatsappController");
+} = require("../controllers/whatsaapController");
 
 // Meta webhook verification
 router.get("/webhook", verifyWebhook);
