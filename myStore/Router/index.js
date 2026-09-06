@@ -13,7 +13,7 @@ const employeeRoutes = require("./EmployeeRoutes");  // Employee related routes
 const dashboardRoutes = require("./Dashboard");      // Dashboard stats
 const hrmsRoutes = require("../hrms/routes");        // HRMS routes
 const reviewRoutes =require("./reviewRoutes");
-const whatsaaap = require("./whatsaap");
+const whatsaapRoutes= require("./whatsaap");
 
 
 // -------------------- ROUTES --------------------
@@ -45,11 +45,10 @@ router.use("/employees", employeeRoutes);
 router.use("/dashboard", dashboardRoutes);
 
 //Whatsaap routes
-router.use("/whatsaap",whatsaaap);
 
 // HRMS routes
 router.use("/hrms", hrmsRoutes);
  router.use("/review",reviewRoutes);
-
+router.use("/whatsaap",whatsaapRoutes)
 
 module.exports = router;
