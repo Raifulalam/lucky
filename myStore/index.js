@@ -21,6 +21,8 @@ const hrmsRoutes = require("./hrms/routes");
 const Product = require("./Models/products");
 const Mobile = require("./Models/SmartPhonesModels");
 
+const whatsaapRoutes= require("./Router/whatsaap");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -111,7 +113,7 @@ app.use(
         credentials: true,
     })
 );
-
+app.use("/api/whatsapp", whatsaapRoutes);
 app.use(helmet());
 app.use(compression());
 app.use(mongoSanitize());
@@ -154,6 +156,7 @@ app.get("/", (req, res) => {
 
 app.use("/api", apiRoutes);
 app.use("/api/hrms", hrmsRoutes);
+
 
 // -------------------- 404 HANDLER --------------------
 

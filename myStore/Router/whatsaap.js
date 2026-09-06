@@ -8,29 +8,27 @@ const router = express.Router();
 // =====================================================
 
 router.get("/webhook", (req, res) => {
+    console.log("====================================");
+    console.log("WhatsApp webhook verification");
+    console.log("URL:", req.originalUrl);
+    console.log("QUERY:", req.query);
+    console.log("PARAMS:", req.params);
+    console.log("====================================");
+
     const mode = req.query["hub.mode"];
     const token = req.query["hub.verify_token"];
     const challenge = req.query["hub.challenge"];
-
-    console.log("====================================");
-    console.log("WhatsApp webhook verification");
-    console.log("Mode:", mode);
-    console.log("Token received:", token ? "YES" : "NO");
-    console.log("Challenge:", challenge);
-    console.log("====================================");
 
     if (
         mode === "subscribe" &&
         token === process.env.WHATSAPP_VERIFY_TOKEN
     ) {
         console.log("✅ WhatsApp webhook verified successfully");
-
         return res.status(200).send(challenge);
     }
 
     console.log("❌ WhatsApp webhook verification failed");
-
-    return res.sendStatus(403);
+    return res.status(403).send("Forbidden");
 });
 
 
