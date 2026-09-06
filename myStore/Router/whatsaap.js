@@ -4,9 +4,9 @@ const router = express.Router();
 const {
     verifyWebhook,
     receiveWebhook,
-} = require("../controllers/whatsaapController");
+} = require("../controllers/whatsappController");
 
-// Meta webhook verification
+// Meta verification
 router.get("/webhook", verifyWebhook);
 
 // Incoming WhatsApp messages
