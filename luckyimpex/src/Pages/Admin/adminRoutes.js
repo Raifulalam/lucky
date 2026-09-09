@@ -1,10 +1,10 @@
 import {
     FaComments,
     FaClipboardList,
-
     FaHome,
     FaStar,
     FaUsers,
+    FaWhatsapp,
 } from "react-icons/fa";
 
 export const adminRoutes = [
@@ -43,8 +43,13 @@ export const adminRoutes = [
         path: "/admin/reviews",
         icon: FaStar,
         description: "Customer reviews and feedback",
-    }
-  
+    },
+    {
+        label: "WhatsApp",
+        path: "/admin/whatsapp",
+        icon: FaWhatsapp,
+        description: "WhatsApp agent & live messages",
+    },
 ];
 
 export const legacyAdminRedirects = [

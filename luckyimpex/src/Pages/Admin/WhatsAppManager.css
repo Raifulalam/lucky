@@ -1,0 +1,493 @@
+/* ================================================================
+   WhatsApp Manager – Admin Dashboard
+   ================================================================ */
+
+.wa-manager {
+    padding: 0 0 40px 0;
+    max-width: 1200px;
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.wa-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.wa-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.wa-icon-ring {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+    flex-shrink: 0;
+}
+
+.wa-header-left h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0f1f30;
+    margin: 0 0 2px;
+}
+
+.wa-header-left p {
+    font-size: 0.85rem;
+    color: #7a90a6;
+    margin: 0;
+}
+
+.wa-header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* ── Status Badge ─────────────────────────────────────────────── */
+.wa-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.82rem;
+}
+
+.badge-connected {
+    background: #eef9f1;
+    color: #0d7a3a;
+    border: 1.5px solid rgba(37, 211, 102, 0.3);
+}
+
+.badge-qr {
+    background: #fff8ec;
+    color: #9a5f00;
+    border: 1.5px solid rgba(255, 165, 0, 0.3);
+}
+
+.badge-connecting {
+    background: #eef5ff;
+    color: #1a5bc4;
+    border: 1.5px solid rgba(30, 100, 220, 0.2);
+}
+
+.badge-disconnected {
+    background: #fff1f1;
+    color: #b83535;
+    border: 1.5px solid rgba(200, 50, 50, 0.2);
+}
+
+/* ── Grid Layout ──────────────────────────────────────────────── */
+.wa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .wa-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.wa-col-left,
+.wa-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ── Card ─────────────────────────────────────────────────────── */
+.wa-card {
+    background: #fff;
+    border: 1px solid rgba(222, 230, 237, 0.85);
+    border-radius: 20px;
+    padding: 22px 24px;
+    box-shadow: 0 4px 16px rgba(16, 33, 58, 0.05);
+}
+
+.wa-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    color: #3d5268;
+}
+
+.wa-card-header h3 {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #0f1f30;
+    margin: 0;
+    flex: 1;
+}
+
+.wa-card-header svg {
+    color: #25d366;
+    flex-shrink: 0;
+}
+
+/* ── QR Panel ─────────────────────────────────────────────────── */
+.wa-qr-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 0;
+}
+
+.wa-qr-hint {
+    font-size: 0.87rem;
+    color: #5a6f82;
+    text-align: center;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.wa-qr-frame {
+    width: 220px;
+    height: 220px;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 3px solid #25d366;
+    box-shadow: 0 12px 32px rgba(37, 211, 102, 0.22);
+    display: grid;
+    place-items: center;
+    background: #fff;
+    animation: qrPulse 2s ease-in-out infinite;
+}
+
+@keyframes qrPulse {
+    0%, 100% { box-shadow: 0 12px 32px rgba(37, 211, 102, 0.22); }
+    50%       { box-shadow: 0 12px 40px rgba(37, 211, 102, 0.45); }
+}
+
+.wa-qr-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.wa-qr-refresh {
+    font-size: 0.78rem;
+    color: #9eaeb8;
+    margin: 0;
+    text-align: center;
+}
+
+/* ── Connected Panel ──────────────────────────────────────────── */
+.wa-connected-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0;
+    text-align: center;
+}
+
+.wa-connected-icon {
+    color: #25d366;
+    animation: popIn 0.4s ease;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
+
+.wa-connected-panel h4 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0d7a3a;
+    margin: 0;
+}
+
+.wa-connected-panel p {
+    font-size: 0.87rem;
+    color: #4d6072;
+    margin: 0;
+}
+
+/* ── Waiting Panel ────────────────────────────────────────────── */
+.wa-waiting-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+    text-align: center;
+}
+
+.wa-waiting-icon {
+    color: #9eaeb8;
+}
+
+.wa-waiting-panel h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #3d5268;
+    margin: 0;
+}
+
+.wa-waiting-panel p {
+    font-size: 0.86rem;
+    color: #7a90a6;
+    margin: 0;
+}
+
+/* ── Features List ────────────────────────────────────────────── */
+.wa-features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wa-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.87rem;
+    color: #3d5268;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #f7fafc;
+    border: 1px solid rgba(222, 230, 237, 0.7);
+}
+
+.wa-feature-item span:first-child {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────── */
+.wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.18s ease;
+    text-decoration: none;
+}
+
+.wa-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wa-btn-primary {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(37, 211, 102, 0.28);
+}
+
+.wa-btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(37, 211, 102, 0.38);
+}
+
+.wa-btn-ghost {
+    background: #f4f7fb;
+    color: #3d5268;
+    border: 1px solid rgba(222, 230, 237, 0.8);
+}
+
+.wa-btn-ghost:hover:not(:disabled) {
+    background: #e8eef5;
+}
+
+.wa-btn-danger {
+    background: #fff1f1;
+    color: #b83535;
+    border: 1px solid rgba(200, 50, 50, 0.2);
+}
+
+.wa-btn-danger:hover:not(:disabled) {
+    background: #ffe0e0;
+}
+
+.wa-btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ── Send Form ────────────────────────────────────────────────── */
+.wa-send-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.wa-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wa-input-group label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #5a6f82;
+}
+
+.wa-input-group input,
+.wa-input-group textarea {
+    padding: 11px 14px;
+    border: 1.5px solid rgba(213, 222, 232, 0.9);
+    border-radius: 12px;
+    font-size: 0.88rem;
+    color: #1a2d40;
+    background: #fafcfe;
+    outline: none;
+    transition: border-color 0.18s;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.wa-input-group input:focus,
+.wa-input-group textarea:focus {
+    border-color: #25d366;
+    background: #fff;
+}
+
+.wa-form-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #9eaeb8;
+    margin: 0;
+}
+
+.wa-send-result {
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin: 0;
+}
+
+.wa-send-result.ok {
+    background: #eef9f1;
+    color: #0d7a3a;
+}
+
+.wa-send-result.err {
+    background: #fff1f1;
+    color: #b83535;
+}
+
+/* ── Feed ─────────────────────────────────────────────────────── */
+.wa-card-feed {
+    display: flex;
+    flex-direction: column;
+}
+
+.wa-badge-pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #eef9f1;
+    color: #0d7a3a;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.wa-badge-count {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #e5edff;
+    color: #1a5bc4;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+}
+
+.wa-feed {
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+
+.wa-feed::-webkit-scrollbar {
+    width: 5px;
+}
+.wa-feed::-webkit-scrollbar-thumb {
+    background: rgba(37, 211, 102, 0.3);
+    border-radius: 99px;
+}
+
+.wa-feed-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 28px 0;
+    color: #b2c2cf;
+    text-align: center;
+}
+
+.wa-feed-empty p {
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.wa-feed-item {
+    background: #f4faf6;
+    border: 1px solid rgba(37, 211, 102, 0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wa-feed-from {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #25d366;
+}
+
+.wa-feed-text {
+    font-size: 0.88rem;
+    color: #1a2d40;
+    word-break: break-word;
+}
+
+.wa-feed-time {
+    font-size: 0.74rem;
+    color: #9eaeb8;
+}
+
+/* ── Spin Utility ─────────────────────────────────────────────── */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}

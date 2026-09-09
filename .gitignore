@@ -14,3 +14,6 @@ luckyimpex/build/
 
 # Logs
 *.log
+
+# WhatsApp Baileys session (DO NOT COMMIT - contains auth credentials)
+myStore/auth_info_baileys/

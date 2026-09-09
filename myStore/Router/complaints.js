@@ -7,6 +7,7 @@ const upload = require("../middlewares/uploadComplaints");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
 const { body, validationResult } = require("express-validator");
+const { sendWhatsAppComplaintNotification } = require("../utils/whatsappService");
 
 /**
  * SUBMIT COMPLAINT (PUBLIC / USER)
@@ -46,6 +47,11 @@ router.post(
                         });
 
                         await complaint.save();
+
+                        // 📱 Send Live WhatsApp Hook Notification to Store Admin
+                        sendWhatsAppComplaintNotification(complaint).catch((waErr) => {
+                            console.error("WhatsApp complaint alert dispatch failed:", waErr);
+                        });
 
                         res.status(201).json({
                             success: true,

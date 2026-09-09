@@ -21,7 +21,9 @@ const hrmsRoutes = require("./hrms/routes");
 const Product = require("./Models/products");
 const Mobile = require("./Models/SmartPhonesModels");
 
-const whatsaapRoutes= require("./Router/whatsaap");
+const whatsaapRoutes = require("./Router/whatsaap");
+const { initBaileysClient } = require("./utils/baileysClient");
+const { handleIncomingMessage } = require("./utils/whatsappBotAgent");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -113,14 +115,13 @@ app.use(
         credentials: true,
     })
 );
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api/whatsapp", whatsaapRoutes);
 app.use(helmet());
 app.use(compression());
 app.use(mongoSanitize());
 app.use(morgan("combined"));
-
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // -------------------- GLOBAL RATE LIMITER --------------------
 
@@ -198,6 +199,12 @@ mongoose
         server.listen(PORT, () => {
             console.log(`🚀 Server is running on port ${PORT}`);
             console.log(`🔌 Socket.IO is ready`);
+
+            // ── WhatsApp Baileys Agent ──
+            // Starts automatically after server is up
+            // Scan the QR in Admin Dashboard → /admin/whatsapp
+            initBaileysClient(io, handleIncomingMessage)
+                .catch((err) => console.error("❌ Baileys init error:", err.message));
         });
     })
     .catch((err) => {

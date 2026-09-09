@@ -4,6 +4,10 @@ const mongoose = require("mongoose");
 const Order = require("../Models/order");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
+const {
+    sendWhatsAppOrderNotification,
+    sendWhatsAppOrderStatusUpdate,
+} = require("../utils/whatsappService");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const toPlainOrder = (order) => (typeof order?.toObject === "function" ? order.toObject() : order);
@@ -86,6 +90,15 @@ router.post("/orders", authenticateToken, async (req, res) => {
                 },
             });
         }
+
+        // 📱 Send Live WhatsApp Hook Notifications (Admin alert + Customer confirmation)
+        sendWhatsAppOrderNotification({
+            order: newOrder,
+            customerPhone: phone || additionalPhone,
+            customerName: name || req.user.name,
+        }).catch((waErr) => {
+            console.error("WhatsApp notification dispatch failed:", waErr);
+        });
 
         res.status(201).json({
             success: true,
@@ -216,6 +229,16 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
                     },
                 });
             }
+        }
+
+        // 📱 Send Live WhatsApp notification on order status change
+        if (req.body.status) {
+            sendWhatsAppOrderStatusUpdate({
+                order: updatedOrder,
+                newStatus: req.body.status,
+            }).catch((waErr) => {
+                console.error("WhatsApp status update notification failed:", waErr);
+            });
         }
 
         res.json(updatedOrder);

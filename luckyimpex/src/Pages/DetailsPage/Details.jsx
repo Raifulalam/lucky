@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BadgePercent, PackageCheck, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import { useCartDispatch } from "../../Components/CreateReducer";
@@ -215,6 +216,17 @@ const ProductDetails = () => {
                                 <ShoppingCart size={18} />
                                 {isOutOfStock ? "Unavailable" : "Add to Cart"}
                             </button>
+                            <a
+                                href={`https://wa.me/9779809278236?text=${encodeURIComponent(
+                                    `Namaste Lucky Impex! 🙏 I have an inquiry about ${productData.name} (Brand: ${productData.brand || "Lucky Impex"}, Model: ${productData.model || "N/A"}, Price: ${formatCurrency(productData.price)}). Is this available?`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="details-whatsapp-btn"
+                            >
+                                <FaWhatsapp size={19} />
+                                Inquire on WhatsApp
+                            </a>
                             <button className="details-secondary-btn" onClick={() => navigate("/products")}>
                                 Explore More Products
                             </button>
