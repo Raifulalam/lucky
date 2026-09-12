@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./ContactComponent.css";
+import "./Contact.css";
 import {
     FaFacebook,
     FaInstagram,
@@ -97,6 +97,7 @@ export const ContactComponent = ({ embedded = false }) => {
     };
 
     return (
+        
         <div className="contact">
 
             {/* ================= SEO ================= */}
@@ -112,6 +113,7 @@ export const ContactComponent = ({ embedded = false }) => {
                             { label: "Contact" },
                         ]}
                     />
+                 
                     <Breadcrumbs items={[
                         { label: "Home", to: "/" },
                         { label: "Contact" },

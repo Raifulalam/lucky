@@ -1,0 +1,689 @@
+
+/* =========================================================
+   LUCKYIMPEX4U - CONTACT PAGE
+   Premium Modern E-Commerce Design
+
+   Primary: #0F172A
+   Accent: #F97316
+   Accent Dark: #EA580C
+   Background: #F8FAFC
+   White: #FFFFFF
+========================================================= */
+
+
+/* =========================================================
+   CONTACT PAGE
+========================================================= */
+
+.contact {
+    width: 100%;
+    min-height: 100vh;
+
+    padding: 80px 5%;
+
+    background: #f8fafc;
+    color: #0f172a;
+
+    overflow: hidden;
+}
+
+.contact *,
+.contact *::before,
+.contact *::after {
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CONTACT HEADER
+========================================================= */
+
+.contact-header {
+    max-width: 850px;
+
+    margin: 0 auto 60px;
+
+    text-align: center;
+}
+
+.contact-header h1 {
+    margin: 0 0 20px;
+
+    color: #0f172a;
+
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: 850;
+    line-height: 1.15;
+    letter-spacing: -1.2px;
+}
+
+.contact-header p {
+    max-width: 650px;
+
+    margin: 0 auto;
+
+    color: #64748b;
+
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   MAIN CONTACT CONTAINER
+========================================================= */
+
+.contact-container {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 0.9fr)
+        minmax(0, 1.1fr);
+
+    gap: 35px;
+
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   LEFT CONTACT INFORMATION
+========================================================= */
+
+.contact-left {
+    padding: 38px;
+
+    background: #0f172a;
+
+    border: 1px solid #1e293b;
+    border-radius: 22px;
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.12);
+}
+
+.contact-left h2 {
+    margin: 0 0 28px;
+
+    color: #ffffff;
+
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.contact-left ul {
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+
+    padding: 0;
+    margin: 0 0 30px;
+
+    list-style: none;
+}
+
+.contact-left li {
+    display: block;
+
+    padding-bottom: 20px;
+
+    color: #cbd5e1;
+
+    font-size: 14px;
+    line-height: 1.8;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    overflow-wrap: anywhere;
+}
+
+.contact-left li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.contact-left li strong {
+    display: inline-block;
+
+    margin-right: 6px;
+
+    color: #ffffff;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   WHATSAPP BUTTON
+========================================================= */
+
+.whatsapp-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    width: 100%;
+
+    min-height: 54px;
+
+    padding: 15px 20px;
+
+    background: #22c55e;
+    color: #ffffff;
+
+    border: 1px solid #22c55e;
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.whatsapp-button svg {
+    width: 21px;
+    height: 21px;
+    flex-shrink: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .whatsapp-button:hover {
+        background: #16a34a;
+        border-color: #16a34a;
+
+        transform: translateY(-3px);
+
+        box-shadow:
+            0 10px 25px rgba(34, 197, 94, 0.2);
+    }
+}
+
+.whatsapp-button:focus-visible {
+    outline: 3px solid #86efac;
+    outline-offset: 4px;
+}
+
+
+/* =========================================================
+   GOOGLE MAP
+========================================================= */
+
+.map-container {
+    width: 100%;
+
+    height: 300px;
+
+    margin-top: 30px;
+
+    overflow: hidden;
+
+    border: 1px solid #334155;
+    border-radius: 15px;
+
+    background: #1e293b;
+}
+
+.map-container iframe {
+    display: block;
+
+    width: 100%;
+    height: 300px;
+
+    border: 0;
+}
+
+
+/* =========================================================
+   RIGHT CONTACT FORM
+========================================================= */
+
+.contact-right {
+    padding: 38px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+
+    box-shadow:
+        0 15px 40px rgba(15, 23, 42, 0.06);
+}
+
+.contact-right form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 22px;
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   FORM GROUP
+========================================================= */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    gap: 9px;
+
+    width: 100%;
+}
+
+.form-group label {
+    color: #0f172a;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   INPUTS / SELECT / TEXTAREA
+========================================================= */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+
+    padding: 14px 16px;
+
+    background: #f8fafc;
+    color: #0f172a;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.form-group input,
+.form-group select {
+    min-height: 50px;
+}
+
+.form-group textarea {
+    min-height: 125px;
+
+    resize: vertical;
+
+    line-height: 1.7;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #94a3b8;
+}
+
+
+/* =========================================================
+   FORM FOCUS
+========================================================= */
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    background: #ffffff;
+
+    border-color: #f97316;
+
+    box-shadow:
+        0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+.form-group input:hover,
+.form-group select:hover,
+.form-group textarea:hover {
+    border-color: #94a3b8;
+}
+
+
+/* =========================================================
+   SELECT ARROW / OPTIONS
+========================================================= */
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group select option {
+    color: #0f172a;
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON
+========================================================= */
+
+.contact-right form > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+
+    min-height: 54px;
+
+    padding: 15px 24px;
+
+    background: #f97316;
+    color: #ffffff;
+
+    border: 1px solid #f97316;
+    border-radius: 10px;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        opacity 0.25s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .contact-right form > button:hover:not(:disabled) {
+        background: #ea580c;
+        border-color: #ea580c;
+
+        transform: translateY(-3px);
+
+        box-shadow:
+            0 10px 25px rgba(249, 115, 22, 0.2);
+    }
+}
+
+.contact-right form > button:focus-visible {
+    outline: 3px solid #fdba74;
+    outline-offset: 4px;
+}
+
+.contact-right form > button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   FORM STATUS MESSAGES
+========================================================= */
+
+.error-msg,
+.success-msg {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    border-radius: 10px;
+
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.error-msg {
+    color: #b91c1c;
+
+    background: #fef2f2;
+
+    border: 1px solid #fecaca;
+}
+
+.success-msg {
+    color: #166534;
+
+    background: #f0fdf4;
+
+    border: 1px solid #bbf7d0;
+}
+
+
+/* =========================================================
+   SOCIAL MEDIA
+========================================================= */
+
+.social-media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 20px;
+
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 65px auto 0;
+
+    padding-top: 40px;
+
+    border-top: 1px solid #e2e8f0;
+}
+
+.social-media h3 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 22px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.social-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.social-icons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+
+    color: #0f172a;
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+
+    font-size: 20px;
+
+    text-decoration: none;
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.25s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .social-icons a:hover {
+        background: #f97316;
+        color: #ffffff;
+        border-color: #f97316;
+
+        transform: translateY(-4px);
+    }
+}
+
+.social-icons a:focus-visible {
+    outline: 3px solid #f97316;
+    outline-offset: 4px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .contact {
+        padding: 70px 4%;
+    }
+
+    .contact-container {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .contact-left,
+    .contact-right {
+        padding: 32px;
+    }
+
+    .contact-header {
+        margin-bottom: 45px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .contact {
+        padding: 50px 16px;
+    }
+
+    .contact-header {
+        margin-bottom: 35px;
+    }
+
+    .contact-header h1 {
+        font-size: 30px;
+        letter-spacing: -0.6px;
+    }
+
+    .contact-header p {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .contact-left,
+    .contact-right {
+        padding: 25px 20px;
+
+        border-radius: 18px;
+    }
+
+    .contact-left h2 {
+        font-size: 25px;
+    }
+
+    .contact-left ul {
+        gap: 18px;
+    }
+
+    .contact-left li {
+        font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 14px;
+    }
+
+    .contact-right form {
+        gap: 20px;
+    }
+
+    .map-container {
+        height: 250px;
+    }
+
+    .map-container iframe {
+        height: 250px;
+    }
+
+    .social-media {
+        margin-top: 45px;
+        padding-top: 30px;
+    }
+
+    .social-media h3 {
+        font-size: 20px;
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .contact {
+        padding: 40px 12px;
+    }
+
+    .contact-header h1 {
+        font-size: 27px;
+    }
+
+    .contact-left,
+    .contact-right {
+        padding: 22px 16px;
+    }
+
+    .social-icons a {
+        width: 44px;
+        height: 44px;
+    }
+
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .contact *,
+    .contact *::before,
+    .contact *::after {
+        transition: none !important;
+        animation: none !important;
+    }
+
+}

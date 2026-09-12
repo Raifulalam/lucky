@@ -65,7 +65,7 @@ const Footer = () => {
                 {/* Brand & Contact Column */}
                 <div className="footer-brand-col">
                     <div className="footer-logo-row">
-                        <span className="brand-logo-text">luckyimpex<span className="accent">4u</span></span>
+                        <span className="brand-logo-text">Lucky Impex</span>
                         <span className="brand-sub-badge">Birgunj Showroom</span>
                     </div>
                     <p className="footer-bio">
