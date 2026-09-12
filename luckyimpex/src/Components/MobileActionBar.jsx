@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
 import { Phone, ShoppingCart, Store } from "lucide-react";
 import { useCartState } from "./CreateReducer";
@@ -8,7 +8,7 @@ import "./MobileActionBar.css";
 const EMPTY_CART = [];
 
 const MobileActionBar = () => {
-    const navigate = useNavigate();
+
     const cart = useCartState() || EMPTY_CART;
     const cartQty = useMemo(
         () => cart.reduce((total, item) => total + (item.quantity || 1), 0),

@@ -9,7 +9,6 @@ import {
     MapPin,
     Phone,
     ShieldCheck,
-    Store,
     Truck
 } from "lucide-react";
 import { SITE_CONFIG } from "../seo/siteConfig";
