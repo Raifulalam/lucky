@@ -111,7 +111,7 @@ const Header = () => {
     return (
         <div className="header-shell">
             {/* TOP UTILITY MINI BAR */}
-            {/* <div className="header-top-mini-bar">
+            <div className="header-top-mini-bar">
                 <div className="mini-bar-inner">
                     <div className="mini-bar-left">
                         <span className="location-badge">
@@ -140,10 +140,10 @@ const Header = () => {
                             Authorized Dealer & Wholesaler in Nepal
                         </span>
 
-                       
+
                     </div>
                 </div>
-            </div> */}
+            </div>
 
             {/* MAIN STICKY HEADER */}
             <header className="header">
