@@ -4,11 +4,10 @@ import {
     CheckCircle2,
     Clock,
     FileSpreadsheet,
-    MessageSquare,
+
     PhoneCall,
-    Send,
-    ShieldAlert,
-    Sparkles,
+
+
     Truck
 } from "lucide-react";
 import { useWholesale } from "../../Components/WholesaleContext";
@@ -50,9 +49,8 @@ const WholesaleRFQBanner = () => {
         setTimeout(() => {
             setStatus("success");
             // Auto format WhatsApp message for immediate callback if wanted
-            const message = `Hello Lucky Impex B2B Desk! I am requesting a wholesale dealer callback.\n\nName/Business: ${fullName}\nContact: ${phone}\nInterested In: ${category}${
-                selectedRfqProduct ? `\nModel: ${selectedRfqProduct.title}` : ""
-            }`;
+            const message = `Hello Lucky Impex B2B Desk! I am requesting a wholesale dealer callback.\n\nName/Business: ${fullName}\nContact: ${phone}\nInterested In: ${category}${selectedRfqProduct ? `\nModel: ${selectedRfqProduct.title}` : ""
+                }`;
 
             // Optional direct WhatsApp ping
             window.open(

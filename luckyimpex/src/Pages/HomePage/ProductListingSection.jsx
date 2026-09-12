@@ -1,14 +1,14 @@
 import React, { useState, useRef } from "react";
-import { Link } from "react-router-dom";
+
 import {
-    ArrowRight,
+
     Building2,
     CheckCircle,
     ChevronLeft,
     ChevronRight,
     FileText,
     Percent,
-    Plus,
+
     ShoppingCart,
     Star,
     Zap

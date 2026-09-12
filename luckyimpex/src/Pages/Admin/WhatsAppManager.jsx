@@ -16,14 +16,14 @@ import {
 import { BASE_URL, authRequest } from "../../api/api";
 import "./WhatsAppManager.css";
 
-const WA_BASE = `${BASE_URL}/whatsapp`;
+
 
 const StatusBadge = ({ status }) => {
     const map = {
-        connected:    { label: "Connected",       className: "badge-connected",    Icon: CheckCircle2 },
-        qr:           { label: "Scan QR Code",    className: "badge-qr",           Icon: QrCode       },
-        connecting:   { label: "Connecting...",   className: "badge-connecting",   Icon: Clock        },
-        disconnected: { label: "Disconnected",    className: "badge-disconnected", Icon: WifiOff      },
+        connected: { label: "Connected", className: "badge-connected", Icon: CheckCircle2 },
+        qr: { label: "Scan QR Code", className: "badge-qr", Icon: QrCode },
+        connecting: { label: "Connecting...", className: "badge-connecting", Icon: Clock },
+        disconnected: { label: "Disconnected", className: "badge-disconnected", Icon: WifiOff },
     };
     const { label, className, Icon } = map[status] || map.disconnected;
     return (
@@ -35,13 +35,13 @@ const StatusBadge = ({ status }) => {
 };
 
 export default function WhatsAppManager() {
-    const [status, setStatus]     = useState("disconnected");
-    const [qrDataUrl, setQrData]  = useState(null);
+    const [status, setStatus] = useState("disconnected");
+    const [qrDataUrl, setQrData] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [testTo, setTestTo]     = useState("");
-    const [testMsg, setTestMsg]   = useState("");
-    const [sending, setSending]   = useState(false);
-    const [loading, setLoading]   = useState(false);
+    const [testTo, setTestTo] = useState("");
+    const [testMsg, setTestMsg] = useState("");
+    const [sending, setSending] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [sendStatus, setSendStatus] = useState(null);
     const feedRef = useRef(null);
 
