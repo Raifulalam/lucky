@@ -1,5 +1,5 @@
 import React, { useContext, useMemo, useState } from "react";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     Bell,
     ChevronDown,
@@ -63,7 +63,7 @@ const formatCategory = (value) => value.replace(/([A-Z])/g, " $1").trim();
 const Header = () => {
     const { user, logout } = useContext(UserContext);
     const { unreadNotificationCount, panelOpen, setPanelOpen } = useNotification();
-    const { isWholesale, toggleMode, currency, setCurrency } = useWholesale();
+    const { isWholesale, toggleMode } = useWholesale();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -154,7 +154,7 @@ const Header = () => {
                             <img src={luckyLogo} alt="luckyimpex logo" />
                             <div className="logo-copy">
                                 <div className="logo-title-row">
-                                    <strong className="brand-name">luckyimpex</strong>
+                                    <strong className="brand-name">Lucky Impex</strong>
 
                                 </div>
                                 <span className="tagline">Dream comes true </span>
