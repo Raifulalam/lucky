@@ -1,0 +1,312 @@
+/* =========================================================
+   luckyimpex4u - WHOLESALE B2B RFQ BANNER
+   High-contrast navy & amber aesthetics
+========================================================= */
+
+.wholesale-rfq-section {
+    padding: 40px 16px 20px;
+}
+
+.wholesale-rfq-inner {
+    width: min(1380px, 100%);
+    margin: 0 auto;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+    border-radius: 28px;
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.25);
+    padding: 48px;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 48px;
+    align-items: center;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.wholesale-rfq-inner::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Left Pitch Column */
+.rfq-pitch-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.rfq-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.rfq-kicker-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(249, 115, 22, 0.2);
+    border: 1px solid rgba(249, 115, 22, 0.5);
+    color: #fed7aa;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+
+.rfq-city-badge {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.rfq-title {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px 0;
+}
+
+.rfq-description {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #cbd5e1;
+    margin: 0 0 28px 0;
+    max-width: 620px;
+}
+
+.rfq-benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rfq-benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.benefit-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(249, 115, 22, 0.15);
+    border: 1px solid rgba(249, 115, 22, 0.35);
+    color: #f97316;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.rfq-benefit-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.rfq-benefit-item strong {
+    font-size: 0.95rem;
+    color: #f8fafc;
+    margin-bottom: 2px;
+}
+
+.rfq-benefit-item span {
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+/* Right Quick Form Card */
+.rfq-form-card {
+    background: #ffffff;
+    border-radius: 22px;
+    padding: 32px 28px;
+    color: #0f172a;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+}
+
+.form-card-header {
+    margin-bottom: 22px;
+}
+
+.form-header-badge {
+    display: inline-block;
+    background: #fff7ed;
+    color: #ea580c;
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.form-card-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+}
+
+.form-card-sub {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.rfq-interactive-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.field-input,
+.field-select {
+    height: 48px;
+    border-radius: 12px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    padding: 0 14px;
+    font-size: 0.92rem;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.field-input:focus,
+.field-select:focus {
+    border-color: #f97316;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.rfq-submit-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 52px;
+    border-radius: 14px;
+    background: #f97316;
+    color: #ffffff;
+    border: none;
+    font-size: 0.96rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+    transition: all 0.22s ease;
+    margin-top: 6px;
+}
+
+.rfq-submit-button:hover:not(:disabled) {
+    background: #ea580c;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(249, 115, 22, 0.5);
+}
+
+.form-disclaimer {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* Success State */
+.rfq-success-message {
+    text-align: center;
+    padding: 24px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.success-icon {
+    color: #10b981;
+}
+
+.rfq-success-message h4 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+}
+
+.rfq-success-message p {
+    font-size: 0.88rem;
+    color: #475569;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.reset-rfq-btn {
+    margin-top: 10px;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    color: #0f172a;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+    .wholesale-rfq-inner {
+        grid-template-columns: 1fr;
+        padding: 36px 28px;
+        gap: 36px;
+    }
+}
+
+@media (max-width: 600px) {
+    .wholesale-rfq-section {
+        padding: 30px 12px 14px;
+    }
+
+    .wholesale-rfq-inner {
+        padding: 26px 18px;
+        border-radius: 20px;
+    }
+
+    .rfq-title {
+        font-size: 1.6rem;
+    }
+
+    .rfq-form-card {
+        padding: 22px 18px;
+    }
+
+    .rfq-submit-button {
+        height: 48px;
+        font-size: 0.88rem;
+    }
+}

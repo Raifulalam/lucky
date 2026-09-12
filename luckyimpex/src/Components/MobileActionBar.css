@@ -1,0 +1,95 @@
+/* =========================================================
+   luckyimpex4u - FIXED MOBILE ACTION BAR
+   Min 44px touch targets for mobile devices
+========================================================= */
+
+.mobile-action-bar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.12);
+    padding: 6px 12px calc(env(safe-area-inset-bottom, 6px) + 6px);
+}
+
+.mobile-action-bar-inner {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.bar-action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    text-decoration: none;
+    color: #475569;
+    border-radius: 12px;
+    padding: 4px;
+    transition: all 0.18s ease;
+    user-select: none;
+}
+
+.bar-icon-wrap {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+}
+
+.bar-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.bar-action-item:active {
+    transform: scale(0.95);
+    background: #f1f5f9;
+}
+
+/* WhatsApp Accent */
+.bar-whatsapp {
+    color: #16a34a;
+}
+
+/* Cart & Badge */
+.bar-cart {
+    color: #0f172a;
+}
+
+.bar-cart-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #f97316;
+    color: #ffffff;
+    font-size: 0.64rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(249, 115, 22, 0.5);
+}
+
+/* Only display on screens <= 880px */
+@media (max-width: 880px) {
+    .mobile-action-bar {
+        display: block;
+    }
+}

@@ -1,0 +1,331 @@
+/* =========================================================
+   luckyimpex4u - BIRGUNJ SHOWROOM & LOCATION HUB
+========================================================= */
+
+.showroom-hub-section {
+    padding: 44px 16px 20px;
+}
+
+.showroom-hub-inner {
+    width: min(1380px, 100%);
+    margin: 0 auto;
+}
+
+/* Header */
+.showroom-header {
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto 36px;
+}
+
+.showroom-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff7ed;
+    color: #ea580c;
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+}
+
+.showroom-title {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.15;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.02em;
+}
+
+.showroom-desc {
+    font-size: 0.96rem;
+    color: #64748b;
+    line-height: 1.65;
+    margin: 0;
+}
+
+/* 2-Column Grid */
+.showroom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+}
+
+/* Column 1: Gallery */
+.showroom-card-visual {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    display: flex;
+    flex-direction: column;
+}
+
+.gallery-main-frame {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0f172a;
+}
+
+.gallery-main-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.showroom-status-pill {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 6px 14px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #ffffff;
+    font-size: 0.82rem;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+}
+
+.showroom-status-pill span {
+    color: #94a3b8;
+    font-size: 0.76rem;
+}
+
+/* Thumbnails */
+.gallery-thumbs-row {
+    display: flex;
+    gap: 10px;
+    margin: 14px 0;
+}
+
+.gallery-thumb-btn {
+    flex: 1;
+    height: 64px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    overflow: hidden;
+    padding: 0;
+    background: #f1f5f9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gallery-thumb-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gallery-thumb-btn.active {
+    border-color: #f97316;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3);
+}
+
+.showroom-features-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+.feature-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.feature-icon {
+    color: #f97316;
+}
+
+/* Column 2: Info & Map Card */
+.showroom-info-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    display: flex;
+    flex-direction: column;
+}
+
+.store-identity {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.store-title {
+    font-size: 1.32rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 4px 0;
+}
+
+.store-subtitle {
+    font-size: 0.84rem;
+    color: #f97316;
+    font-weight: 700;
+    margin: 0;
+}
+
+.store-meta-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.meta-icon {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+.meta-item div {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-item strong {
+    font-size: 0.85rem;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.meta-item p {
+    font-size: 0.84rem;
+    color: #475569;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.saturday-hours {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+/* Map Preview Shell */
+.showroom-map-wrapper {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.showroom-map-wrapper .map-container h4 {
+    display: none;
+}
+
+/* Action Buttons */
+.showroom-action-buttons {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.action-btn-directions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 50px;
+    border-radius: 14px;
+    background: #0f172a;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.action-btn-directions:hover {
+    background: #f97316;
+    box-shadow: 0 6px 18px rgba(249, 115, 22, 0.35);
+    transform: translateY(-1px);
+}
+
+.action-btn-call {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 50px;
+    border-radius: 14px;
+    background: #f8fafc;
+    color: #0f172a;
+    border: 1.5px solid #cbd5e1;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.action-btn-call:hover {
+    border-color: #f97316;
+    color: #ea580c;
+    background: #fff7ed;
+    transform: translateY(-1px);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 980px) {
+    .showroom-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-main-frame {
+        height: 280px;
+    }
+}
+
+@media (max-width: 580px) {
+    .showroom-hub-section {
+        padding: 30px 12px 14px;
+    }
+
+    .gallery-main-frame {
+        height: 220px;
+    }
+
+    .showroom-action-buttons {
+        grid-template-columns: 1fr;
+    }
+}

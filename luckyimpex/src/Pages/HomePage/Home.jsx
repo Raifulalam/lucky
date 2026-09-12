@@ -1,207 +1,139 @@
 import React, { useEffect, useState } from "react";
-import { BadgePercent, Headphones,  ShieldCheck } from "lucide-react";
-
 import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import PageSeo from "../../Components/PageSeo";
+import MobileActionBar from "../../Components/MobileActionBar";
+import { WholesaleProvider } from "../../Components/WholesaleContext";
 
-import PromoModal from "./PromoModal";
 import HeroSlider from "./HeroSlider";
-import Categories from "./Categories";
-import PromoBanner from "./PromoBanner";
+import TrustBadgesStrip from "./TrustBadgesStrip";
+import CategoryGrid from "./CategoryGrid";
+import ProductListingSection from "./ProductListingSection";
+import WholesaleRFQBanner from "./WholesaleRFQBanner";
+import ShowroomHub from "./ShowroomHub";
 import BrandsCarousel from "./BrandsCarousel";
 import WhyChooseUs from "./WhyChooseUs";
 import CustomerSupport from "./CustomerSupport";
+import PromoModal from "./PromoModal";
 import { SITE_CONFIG } from "../../seo/siteConfig";
 
 import "./Home.css";
 
-const Home = () => {
-    const [isNewYear, setIsNewYear] = useState(false);
+const HomeContent = () => {
     const [showPromo, setShowPromo] = useState(false);
 
     useEffect(() => {
-        const today = new Date();
-
-        if (today.getMonth() === 0 && today.getDate() === 1) {
-            setIsNewYear(true);
-        }
-
-        // ✅ CHECK IF ALREADY SHOWN IN THIS SESSION
+        // Show promo modal once per session
         const alreadyShown = sessionStorage.getItem("promoShown");
-
         if (!alreadyShown) {
             const timer = setTimeout(() => {
                 setShowPromo(true);
-                sessionStorage.setItem("promoShown", "true"); // mark as shown
-            }, 3000);
-
+                sessionStorage.setItem("promoShown", "true");
+            }, 3500);
             return () => clearTimeout(timer);
         }
     }, []);
 
     return (
         <div className="home-page">
-
-            {/* SEO */}
+            {/* SEO Metadata */}
             <PageSeo
-                title="Electronics & Home Appliances Store in Birgunj"
-                description="Shop electronics and home appliances from Lucky Impex with trusted local support, clear product discovery, and fast browsing."
+                title="luckyimpex4u | Electronics Retailer & Wholesale Distributor Birgunj Nepal"
+                description="Shop official electronics and home appliances in Birgunj, Nepal. Dual retail shopping and bulk wholesale dealer supply with warranty, EMI & showroom pickup."
                 canonicalPath="/"
                 localBusiness
                 faq={SITE_CONFIG.faqs}
             />
 
-            {/* 🔥 PROMO MODAL (ADS POPUP) */}
+            {/* Promotional Ad Modal */}
             <PromoModal
                 open={showPromo}
                 onClose={() => setShowPromo(false)}
             />
 
-            {/* HEADER */}
+            {/* 1. TOP UTILITY & MAIN STICKY NAVIGATION */}
             <Header />
 
-            {/* MAIN CONTENT */}
             <main className="home-main">
-
+                {/* 2. DYNAMIC DUAL-TRACK HERO SECTION */}
                 <HeroSlider />
 
-                {/* TRUST STRIP */}
-                <section className="home-proof-strip">
-                    <div className="home-proof-item">
-                       
-                        <div className="home-proof-item-content">
-                             <ShieldCheck size={22} />
-                            <strong>Authorized multi-brand dealer</strong>
+                {/* 3. TRUST BADGES STRIP */}
+                <TrustBadgesStrip />
 
+                {/* 4. VISUAL CATEGORY GRID (2x4) */}
+                <CategoryGrid />
+
+                {/* 5. HYBRID PRODUCT LISTING CARDS (Dynamic Retail / Wholesale Pricing) */}
+                <ProductListingSection />
+
+                {/* 6. INTERACTIVE B2B / WHOLESALE RFQ BANNER */}
+                <WholesaleRFQBanner />
+
+                {/* 7. BIRGUNJ SHOWROOM & LOCATION HUB */}
+                <ShowroomHub />
+
+                {/* PARTNER BRANDS CAROUSEL */}
+                <section className="home-brands-shell">
+                    <div className="home-brands-inner">
+                        <div className="brands-title-row">
+                            <span className="section-pill">Authorized Brand Partners</span>
+                            <h3>Official Brand Dealerships & Certified Distribution</h3>
                         </div>
-                                                    <span>Trusted electronics and appliance partners.</span>
-                    </div>
-
-                    <div className="home-proof-item">
-                       
-                        <div className="home-proof-item-content">
-                             <BadgePercent size={22} />
-                            <strong>Offers that stay practical</strong>
-                           
-                        </div>
-                         <span>EMI, exchange deals, and seasonal promotions.</span>
-                    </div>
-
-                    <div className="home-proof-item">
-                       
-                        <div className="home-proof-item-content">
-
-                            <strong>Physical store presence</strong>
-                           
-                        </div>
-                         <span>Reach branches, support, and local guidance easily.</span>
-                    </div>
-
-                    <div className="home-proof-item">
-                        
-                        <div className="home-proof-item-content">
-                            <Headphones size={22} />
-                            <strong>Real customer assistance</strong>
-                           
-                        </div>
-                         <span>Product help before and after purchase.</span>
+                        <BrandsCarousel />
                     </div>
                 </section>
 
-                {/* COMPONENTS */}
-                <Categories />
-                <PromoBanner isNewYear={isNewYear} />
-                <BrandsCarousel />
-
-                {/* EDITORIAL SECTION */}
-               <section className="home-editorial">
-    <div className="home-editorial-copy">
-        <span className="section-kicker">Store Experience</span>
-
-        <h2>Built for a better appliance shopping experience</h2>
-
-        <p>
-            Lucky Impex is positioned like a modern retail storefront: category-led
-            discovery, dependable brand access, practical financing routes, and
-            customer support that stays visible across the buying journey.
-        </p>
-    </div>
-
-    <div className="home-editorial-grid">
-        <article className="editorial-card">
-            <div className="editorial-head">
-                <span className="editorial-index">01</span>
-                <h3>Category-first shopping</h3>
-            </div>
-
-            <p>
-                ACs, refrigerators, washing machines, TVs, and kitchen products are
-                surfaced clearly for faster decisions.
-            </p>
-        </article>
-
-        <article className="editorial-card">
-            <div className="editorial-head">
-                <span className="editorial-index">02</span>
-                <h3>Brand trust with local support</h3>
-            </div>
-
-            <p>
-                Recognized appliance brands are backed by a visible physical business
-                presence and customer contact path.
-            </p>
-        </article>
-
-        <article className="editorial-card">
-            <div className="editorial-head">
-                <span className="editorial-index">03</span>
-                <h3>Conversion-focused offers</h3>
-            </div>
-
-            <p>
-                EMI and exchange journeys are not hidden. They are placed where customers
-                expect them during product discovery.
-            </p>
-        </article>
-    </div>
-</section>
-
+                {/* STORE VALUE PILLARS & SUPPORT */}
                 <WhyChooseUs />
                 <CustomerSupport />
 
-                <section className="home-faq">
-                    <div className="home-editorial-copy">
-                        <span className="section-kicker">Frequently Asked Questions</span>
-                        <h2>Common shopping questions answered.</h2>
-                        <p>
-                            These answers help new customers understand delivery, store visits, support, and browsing options.
-                        </p>
-                    </div>
-                    <div className="home-faq-list">
-                        {SITE_CONFIG.faqs.map((item) => (
-                            <details key={item.question} className="home-faq-item">
-                                <summary>{item.question}</summary>
-                                <p>{item.answer}</p>
+                {/* FREQUENTLY ASKED QUESTIONS */}
+                <section className="home-faq-shell">
+                    <div className="home-faq-inner">
+                        <div className="faq-header-copy">
+                            <span className="section-pill">Customer & Dealer FAQ</span>
+                            <h2>Frequently Asked Questions</h2>
+                            <p>
+                                Everything you need to know about purchasing, EMI, wholesale pricing, and showroom visits in Birgunj.
+                            </p>
+                        </div>
+                        <div className="home-faq-list">
+                            {SITE_CONFIG.faqs.map((item) => (
+                                <details key={item.question} className="home-faq-item">
+                                    <summary>{item.question}</summary>
+                                    <p>{item.answer}</p>
+                                </details>
+                            ))}
+                            <details className="home-faq-item">
+                                <summary>How does Wholesale / B2B bulk pricing work at luckyimpex4u?</summary>
+                                <p>
+                                    You can toggle the <strong>[ Wholesale ]</strong> switch at the top of the page to view minimum order quantities (MOQ) and tiered volume discounts. You can also submit the quick RFQ form on this page or message our wholesale sales desk directly on WhatsApp at +977 9809278236 for customized freight quotes and VAT invoicing.
+                                </p>
                             </details>
-                        ))}
+                            <details className="home-faq-item">
+                                <summary>Can I test and inspect products in person before purchasing?</summary>
+                                <p>
+                                    Yes, absolutely! Our primary showroom is located on <strong>Ghantaghar Link Road, Birgunj</strong>, open Sunday through Friday from 10:00 AM to 8:00 PM (Saturday till 3:00 PM). Live demos, immediate billing, and same-day takeaway are readily available.
+                                </p>
+                            </details>
+                        </div>
                     </div>
                 </section>
             </main>
 
-            {/* WhatsApp Floating Button */}
-            <a
-                href="https://wa.me/9779809278236?text=Hello%20Lucky%20Impex,%20I%20want%20more%20information."
-                className="floating-whatsapp"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                <img src="/whatsapp.png" alt="WhatsApp" />
-            </a>
-
-            {/* FOOTER */}
+            {/* 8. FOOTER & FIXED MOBILE ACTION BAR */}
             <Footer />
+            <MobileActionBar />
         </div>
+    );
+};
+
+const Home = () => {
+    return (
+        <WholesaleProvider>
+            <HomeContent />
+        </WholesaleProvider>
     );
 };
 
