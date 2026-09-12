@@ -1,5 +1,6 @@
 import React from "react";
 import { benefits } from "./Constants";
+import "./WhyChooseUs.css"
 
 const WhyChooseUs = () => (
     <section className="why-choose-us">

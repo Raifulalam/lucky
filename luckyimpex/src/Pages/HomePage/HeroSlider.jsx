@@ -34,7 +34,7 @@ const RETAIL_SLIDES = [
     },
     {
         id: "retail-2",
-        badge: "Seasonal Smart Living Festival",
+      
         title: "Beat the Heat with Inverter ACs & Coolers",
         subtitle: "Top brands: LG, Samsung, Haier, Symphony with professional delivery and prompt installation in Birgunj & Parsa.",
         ctaPrimary: { label: "Explore AC Range", link: "/products/AirConditioners" },
@@ -52,7 +52,7 @@ const RETAIL_SLIDES = [
 const WHOLESALE_SLIDES = [
     {
         id: "wholesale-1",
-        badge: "Direct Importer & B2B Distribution Hub",
+     
         title: "Bulk Electronics & Home Appliance Supplier",
         subtitle: "Special wholesale discounts & direct distribution for retailers across Madhesh Province & Nepal. Tiered volume quotes.",
         ctaPrimary: { label: "Get Wholesale Quote", action: "rfq" },
@@ -67,7 +67,7 @@ const WHOLESALE_SLIDES = [
     },
     {
         id: "wholesale-2",
-        badge: "B2B Dealer Partnership Program",
+       
         title: "Empower Your Retail Shop with Direct Stock",
         subtitle: "Direct container rates for Smart TVs, Washing Machines, Commercial Freezers & Kitchen Appliances with dedicated account management.",
         ctaPrimary: { label: "Request Price Sheet", action: "rfq" },
@@ -180,7 +180,7 @@ const HeroSlider = () => {
 
             {/* Mobile Mode Switcher Banner Strip */}
             <div className="hero-mode-pill-strip">
-                <span className="mode-strip-label">Viewing catalog as:</span>
+              
                 <button
                     type="button"
                     className={`mode-quick-btn ${!isWholesale ? "active" : ""}`}
@@ -203,13 +203,7 @@ const HeroSlider = () => {
             <div className="hero-content-container">
                 <div className="hero-content-box" key={`${isWholesale ? "w" : "r"}-${currentIndex}`}>
                     {/* Badge */}
-                    <div className="hero-badge-row">
-                        <span className={`hero-kicker-badge ${isWholesale ? "badge-wholesale" : "badge-retail"}`}>
-                            {isWholesale ? <Building2 size={14} /> : <Store size={14} />}
-                            {activeSlide.badge}
-                        </span>
-                        <span className="location-flag">📍 Birgunj, Nepal</span>
-                    </div>
+                  
 
                     {/* Headline */}
                     <h1 className="hero-heading">{activeSlide.title}</h1>

@@ -1,6 +1,7 @@
 import React from "react";
 import { brands } from "./Constants";
 import { useNavigate } from "react-router-dom";
+import "./BrandsCarousel.css"
 
 const BrandsCarousel = () => {
     const navigate = useNavigate();

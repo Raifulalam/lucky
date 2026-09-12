@@ -13,7 +13,7 @@ import WholesaleRFQBanner from "./WholesaleRFQBanner";
 import ShowroomHub from "./ShowroomHub";
 import BrandsCarousel from "./BrandsCarousel";
 import WhyChooseUs from "./WhyChooseUs";
-import CustomerSupport from "./CustomerSupport";
+
 import PromoModal from "./PromoModal";
 import { SITE_CONFIG } from "../../seo/siteConfig";
 
@@ -86,7 +86,7 @@ const HomeContent = () => {
 
                 {/* STORE VALUE PILLARS & SUPPORT */}
                 <WhyChooseUs />
-                <CustomerSupport />
+              
 
                 {/* FREQUENTLY ASKED QUESTIONS */}
                 <section className="home-faq-shell">

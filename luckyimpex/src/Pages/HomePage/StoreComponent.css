@@ -60,7 +60,7 @@
     padding: 34px;
     border-radius: 34px;
     background:
-        radial-gradient(circle at top right, rgba(255, 255, 255, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(215, 185, 185, 0.14), transparent 28%),
         linear-gradient(135deg, #0c345c 0%, #0d5587 42%, #10709d 100%);
     color: #fff;
     box-shadow: 0 24px 54px rgba(16, 40, 68, 0.18);

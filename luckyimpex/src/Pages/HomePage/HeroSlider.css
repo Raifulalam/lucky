@@ -350,6 +350,13 @@
     .hero-mode-pill-strip {
         display: flex;
     }
+    .hero-mode-pill-strip span{
+        font-size: 10px;
+    }
+    .mode-quick-btn{
+        padding: 3px;
+        font-size: 10px;
+    }
 
     .hero-content-container {
         padding: 70px 16px 40px;
