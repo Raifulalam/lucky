@@ -340,90 +340,46 @@ const buildPublicQuery = (queryParams) => {
  */
 router.get("/", async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 12,
-      sort = "newest",
-    } = req.query;
-
-    const pageNum = Math.max(
-      1,
-      Number(page) || 1
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit, 10) || 12, 1),
+      100
     );
 
-    const limitNum = Math.max(
-      1,
-      Math.min(100, Number(limit) || 12)
-    );
+    const skip = (page - 1) * limit;
 
-    const query = buildPublicQuery(req.query);
-
-    // Allowed sorting options
-    const sortOptions = {
-      newest: { createdAt: -1 },
-      oldest: { createdAt: 1 },
-      priceLow: { price: 1 },
-      priceHigh: { price: -1 },
-      nameAZ: { name: 1 },
-      featured: {
-        featuredOrder: 1,
-        createdAt: -1,
-      },
+    const filter = {
+      isActive: { $ne: false },
+      isDeleted: { $ne: true },
     };
 
-    const sortQuery =
-      sortOptions[sort] || sortOptions.newest;
-
-    const cacheKey = `mobile:public:${JSON.stringify({
-      query,
-      page: pageNum,
-      limit: limitNum,
-      sort,
-    })}`;
-
-    const cached = await getCache(cacheKey);
-
-    if (cached) {
-      return setPublicCacheHeaders(res, 180)
-        .status(200)
-        .json(cached);
-    }
-
     const [products, total] = await Promise.all([
-      MobileProduct.find(query)
-        .select("-isDeleted")
-        .skip((pageNum - 1) * limitNum)
-        .limit(limitNum)
-        .sort(sortQuery)
+      MobileProduct.find(filter)
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(limit)
         .lean(),
 
-      MobileProduct.countDocuments(query),
+      MobileProduct.countDocuments(filter),
     ]);
 
-    const response = {
+    return res.status(200).json({
       success: true,
       message: "Mobile products fetched successfully",
       total,
-      page: pageNum,
-      limit: limitNum,
-      pages: Math.ceil(total / limitNum),
+      page,
+      limit,
+      pages: Math.ceil(total / limit),
       data: products,
-    };
-
-    await setCache(cacheKey, response);
-
-    return setPublicCacheHeaders(res, 180)
-      .status(200)
-      .json(response);
+    });
   } catch (error) {
-    console.error("Public mobiles error:", error);
+    console.error("Fetch mobile products error:", error);
 
-    return errorResponse(
-      res,
-      500,
-      "Failed to fetch mobile products",
-      error
-    );
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch mobile products",
+      error: error.message,
+    });
   }
 });
 
