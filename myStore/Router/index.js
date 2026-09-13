@@ -16,6 +16,7 @@ const reviewRoutes =require("./reviewRoutes");
 const whatsaapRoutes= require("./whatsaap");
 
 
+
 // -------------------- ROUTES --------------------
 // User routes
 router.use("/users", userRoutes);
@@ -50,5 +51,6 @@ router.use("/dashboard", dashboardRoutes);
 router.use("/hrms", hrmsRoutes);
  router.use("/review",reviewRoutes);
 router.use("/whatsaap",whatsaapRoutes)
+router.use("/mobiles",mobileRoutes);
 
 module.exports = router;
