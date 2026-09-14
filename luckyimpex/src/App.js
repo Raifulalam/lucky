@@ -28,6 +28,7 @@ const StoreComponent = lazy(() => import("./Pages/HomePage/StorePage"));
 const OrderPage = lazy(() => import("./Pages/Customer/OrderPage"));
 const CustomerReviewPage= lazy(()=> import("./Pages/Reviews/Reviews"))
 const MobileLanding=lazy(()=> import("./Mobile/MobileLanding"))
+const MobileProducts=lazy(()=> import("./Mobile/Mobileshop"))
 
 /* ADMIN / EMPLOYEE (Lazy Loaded) */
 const Dashboard = lazy(() => import("./Pages/Admin/Dashboard"));
@@ -40,6 +41,7 @@ const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
 const Reviews = lazy(() => import("./Pages/Admin/Reviews/Reviews"));
 const WhatsAppManager = lazy(() => import("./Pages/Admin/WhatsAppManager"));
+
 const LegacyAboutRedirect = () => <Navigate to="/store" replace />;
 
 const LegacyProductDetailsRedirect = () => {
@@ -107,6 +109,7 @@ function App() {
                     <Route path="/store" element={<StoreComponent />} />
                     <Route path="/review" element={<CustomerReviewPage/>}/>
                     <Route path="/mobiles" element={<MobileLanding/>}/>
+                    <Route path="/mobile products" element={<MobileProducts/>}/>
 
                     {/* ================= USER ROUTES ================= */}
                     <Route

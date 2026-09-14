@@ -1,8 +1,8 @@
-import {React ,useState}from 'react'
+import {React}from 'react'
 import './mobile.css';
 import { featuredMobiles } from './data';
 export default function Featured() {
-const [data,setData]=useState([]);
+
 
     
   return (

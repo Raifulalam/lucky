@@ -12,7 +12,6 @@ export default function MobileLanding() {
     const handleExplore = () => {
         navigate('/mobile products');
     }
-
   return (
     <div>
         <Header/>
@@ -28,7 +27,7 @@ export default function MobileLanding() {
                                 <h1>Mobile Phones</h1>
                         <p>Stay Connected, Staty Ahead</p>
                             </div>
-                        
+
                         <div className="explore-button">
                             <button onClick={handleExplore}>
                                 Explore Mobiles <MoveRightIcon/>
@@ -43,7 +42,7 @@ export default function MobileLanding() {
                     </div>
                 </div>
                 <Featured/>
-                {/* <ProductListingSection/> */}
+                <ProductListingSection/>
                 <Features/>
             </div>
        </div>

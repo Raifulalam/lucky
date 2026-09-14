@@ -181,7 +181,7 @@ const Products = () => {
             url += `&category=${encodeURIComponent(selectedCategory)}`;
         }
 
-        console.log("🔎 API REQUEST:", url);
+     
 
         const payload = await getData(url, { signal });
 
