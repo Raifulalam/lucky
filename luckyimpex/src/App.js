@@ -27,6 +27,7 @@ const Exchange = lazy(() => import("./Pages/Exchange/Exchange"));
 const StoreComponent = lazy(() => import("./Pages/HomePage/StorePage"));
 const OrderPage = lazy(() => import("./Pages/Customer/OrderPage"));
 const CustomerReviewPage= lazy(()=> import("./Pages/Reviews/Reviews"))
+const MobileLanding=lazy(()=> import("./Mobile/MobileLanding"))
 
 /* ADMIN / EMPLOYEE (Lazy Loaded) */
 const Dashboard = lazy(() => import("./Pages/Admin/Dashboard"));
@@ -105,6 +106,7 @@ function App() {
                     <Route path="/about" element={<LegacyAboutRedirect />} />
                     <Route path="/store" element={<StoreComponent />} />
                     <Route path="/review" element={<CustomerReviewPage/>}/>
+                    <Route path="/mobiles" element={<MobileLanding/>}/>
 
                     {/* ================= USER ROUTES ================= */}
                     <Route
