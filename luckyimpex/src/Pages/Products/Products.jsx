@@ -136,7 +136,7 @@ const Products = () => {
             setSearchTerm(searchFromUrl);
             setDebouncedSearch(searchFromUrl);
         }
-    }, [searchParams]);
+    }, [searchParams,searchTerm]);
 
     // TanStack Query: Infinite products fetcher
   const {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, RefreshCw, ArrowUp, ArrowDown, Package } from "lucide-react";
+import { Search, RefreshCw,  Package } from "lucide-react";
 import { authRequest } from "../../api/api";
 import "./MovementLedger.css";
 
@@ -16,20 +16,28 @@ const MovementLedger = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
 
-    useEffect(() => {
-        fetchMovements();
-    }, [filters]);
-
+ useEffect(() => {
     const fetchMovements = async () => {
         setLoading(true);
+
         try {
             const params = new URLSearchParams();
-            if (filters.productId) params.append("productId", filters.productId);
-            if (filters.movementType) params.append("movementType", filters.movementType);
+
+            if (filters.productId) {
+                params.append("productId", filters.productId);
+            }
+
+            if (filters.movementType) {
+                params.append("movementType", filters.movementType);
+            }
+
             params.append("page", filters.page);
             params.append("limit", 50);
 
-            const data = await authRequest(`/inventory/movements?${params}`);
+            const data = await authRequest(
+                `/inventory/movements?${params.toString()}`
+            );
+
             setMovements(data.data || []);
         } catch (err) {
             setError(err.message);
@@ -37,6 +45,9 @@ const MovementLedger = () => {
             setLoading(false);
         }
     };
+
+    fetchMovements();
+}, [filters]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Package, Filter, RefreshCw } from "lucide-react";
+import { Search, Package, RefreshCw } from "lucide-react";
 import { authRequest, getData } from "../../api/api";
 import "./SerialNumberManagement.css";
 
@@ -18,21 +18,29 @@ const SerialNumberManagement = () => {
 
     const [searchTerm, setSearchTerm] = useState("");
 
-    useEffect(() => {
-        fetchSerialNumbers();
-        fetchProducts();
-        fetchWarehouses();
-    }, [filters]);
-
+useEffect(() => {
     const fetchSerialNumbers = async () => {
         setLoading(true);
+
         try {
             const params = new URLSearchParams();
-            if (filters.productId) params.append("productId", filters.productId);
-            if (filters.status) params.append("status", filters.status);
-            if (filters.locationId) params.append("locationId", filters.locationId);
 
-            const data = await authRequest(`/inventory/serial-numbers?${params}`);
+            if (filters.productId) {
+                params.append("productId", filters.productId);
+            }
+
+            if (filters.status) {
+                params.append("status", filters.status);
+            }
+
+            if (filters.locationId) {
+                params.append("locationId", filters.locationId);
+            }
+
+            const data = await authRequest(
+                `/inventory/serial-numbers?${params.toString()}`
+            );
+
             setSerialNumbers(data.data || []);
         } catch (err) {
             setError(err.message);
@@ -41,6 +49,10 @@ const SerialNumberManagement = () => {
         }
     };
 
+    fetchSerialNumbers();
+    fetchProducts();
+    fetchWarehouses();
+}, [filters]);
     const fetchProducts = async () => {
         try {
             const data = await getData("/products/products?page=1&limit=100");

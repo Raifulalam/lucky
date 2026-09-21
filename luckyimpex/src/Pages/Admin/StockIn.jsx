@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Package, Warehouse, Save, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Plus,  Package, Warehouse, Save, X } from "lucide-react";
+
 import { authRequest, getData } from "../../api/api";
 import "./StockOperations.css";
 
 const StockIn = () => {
     const [products, setProducts] = useState([]);
     const [warehouses, setWarehouses] = useState([]);
-    const [selectedProduct, setSelectedProduct] = useState(null);
+  
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [serialNumbers, setSerialNumbers] = useState([""]);
@@ -52,8 +52,7 @@ const StockIn = () => {
 
     const handleProductChange = (e) => {
         const productId = e.target.value;
-        const product = products.find(p => p._id === productId);
-        setSelectedProduct(product);
+      
         setFormData(prev => ({ ...prev, productId }));
     };
 
@@ -103,7 +102,7 @@ const StockIn = () => {
                 notes: ""
             });
             setSerialNumbers([""]);
-            setSelectedProduct(null);
+            
         } catch (err) {
             setError(err.message);
         } finally {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Settings, Package, Warehouse, Save } from "lucide-react";
+import {  Package, Warehouse, Save } from "lucide-react";
 import { authRequest, getData } from "../../api/api";
 import "./StockOperations.css";
 

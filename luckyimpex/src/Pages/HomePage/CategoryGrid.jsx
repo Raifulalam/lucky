@@ -175,6 +175,7 @@ const CategoryGrid = () => {
 
                 {/* 2x4 Responsive Card Grid */}
                 <div className="category-cards-grid">
+                    {isLoading}
                     {categories.map((cat) => (
                         <Link
                             key={cat.id}
