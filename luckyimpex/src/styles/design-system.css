@@ -69,22 +69,61 @@
     --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
     --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
     --shadow-2xl: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-    --shadow-accent: 0 18px 36px rgba(249, 115, 22, 0.14);
+    --shadow-accent: 0 18px 36px rgba(59, 130, 246, 0.3);
+    --shadow-neon-blue: 0 0 20px rgba(59, 130, 246, 0.5);
+    --shadow-neon-green: 0 0 20px rgba(16, 185, 129, 0.5);
+    --shadow-neon-amber: 0 0 20px rgba(245, 158, 11, 0.5);
 
     /* ================= COLORS ================= */
-    /* Primary */
-    --color-primary-50: #fff7ed;
-    --color-primary-100: #ffedd5;
-    --color-primary-200: #fed7aa;
-    --color-primary-300: #fdba74;
-    --color-primary-400: #fb923c;
-    --color-primary-500: #f97316;
-    --color-primary-600: #ea580c;
-    --color-primary-700: #c2410c;
-    --color-primary-800: #9a3412;
-    --color-primary-900: #7c2d12;
+    /* Primary - Electric Blue */
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #1e3a8a;
 
-    /* Neutral */
+    /* Emerald Green */
+    --color-emerald-50: #ecfdf5;
+    --color-emerald-100: #d1fae5;
+    --color-emerald-200: #a7f3d0;
+    --color-emerald-300: #6ee7b7;
+    --color-emerald-400: #34d399;
+    --color-emerald-500: #10b981;
+    --color-emerald-600: #059669;
+    --color-emerald-700: #047857;
+    --color-emerald-800: #065f46;
+    --color-emerald-900: #064e3b;
+
+    /* Amber for warnings */
+    --color-amber-50: #fffbeb;
+    --color-amber-100: #fef3c7;
+    --color-amber-200: #fde68a;
+    --color-amber-300: #fcd34d;
+    --color-amber-400: #fbbf24;
+    --color-amber-500: #f59e0b;
+    --color-amber-600: #d97706;
+    --color-amber-700: #b45309;
+    --color-amber-800: #92400e;
+    --color-amber-900: #78350f;
+
+    /* Red for danger */
+    --color-red-50: #fef2f2;
+    --color-red-100: #fee2e2;
+    --color-red-200: #fecaca;
+    --color-red-300: #fca5a5;
+    --color-red-400: #f87171;
+    --color-red-500: #ef4444;
+    --color-red-600: #dc2626;
+    --color-red-700: #b91c1c;
+    --color-red-800: #991b1b;
+    --color-red-900: #7f1d1d;
+
+    /* Neutral - Dark Mode */
     --color-slate-50: #f8fafc;
     --color-slate-100: #f1f5f9;
     --color-slate-200: #e2e8f0;
@@ -96,15 +135,25 @@
     --color-slate-800: #1e293b;
     --color-slate-900: #0f172a;
 
-    /* Semantic */
-    --color-background: var(--color-slate-50);
-    --color-surface: #ffffff;
-    --color-text-primary: var(--color-slate-900);
-    --color-text-secondary: var(--color-slate-500);
-    --color-text-muted: var(--color-slate-400);
-    --color-border: var(--color-slate-200);
+    /* Dark Mode Specific */
+    --color-dark-bg: #1a1a2e;
+    --color-dark-surface: #16213e;
+    --color-dark-card: #0f3460;
+    --color-dark-border: #2a2a4a;
+
+    /* Semantic - Dark Mode */
+    --color-background: var(--color-dark-bg);
+    --color-surface: var(--color-dark-surface);
+    --color-card: var(--color-dark-card);
+    --color-text-primary: #e2e8f0;
+    --color-text-secondary: #94a3b8;
+    --color-text-muted: #64748b;
+    --color-border: var(--color-dark-border);
     --color-accent: var(--color-primary-500);
     --color-accent-hover: var(--color-primary-600);
+    --color-success: var(--color-emerald-500);
+    --color-warning: var(--color-amber-500);
+    --color-danger: var(--color-red-500);
 
     /* ================= CARD SYSTEM ================= */
     --card-border-radius: var(--radius-2xl);

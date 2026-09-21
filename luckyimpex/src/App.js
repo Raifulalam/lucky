@@ -37,6 +37,15 @@ const OrderComponent = lazy(() => import("./Pages/Admin/Orders"));
 const ComplaintsComponent = lazy(() => import("./Pages/Admin/Complaints"));
 const FeedbackList = lazy(() => import("./Pages/Admin/FeedbackMessage/Feedback"));
 const InventoryManagement = lazy(() => import("./Pages/Admin/InventoryManagement"));
+const InventoryDashboard = lazy(() => import("./Pages/Admin/InventoryDashboard"));
+const StockIn = lazy(() => import("./Pages/Admin/StockIn"));
+const StockOut = lazy(() => import("./Pages/Admin/StockOut"));
+const StockTransfer = lazy(() => import("./Pages/Admin/StockTransfer"));
+const StockAdjustment = lazy(() => import("./Pages/Admin/StockAdjustment"));
+const SerialNumberManagement = lazy(() => import("./Pages/Admin/SerialNumberManagement"));
+const WarehouseManagement = lazy(() => import("./Pages/Admin/WarehouseManagement"));
+const LowStock = lazy(() => import("./Pages/Admin/LowStock"));
+const MovementLedger = lazy(() => import("./Pages/Admin/MovementLedger"));
 const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
 const Reviews = lazy(() => import("./Pages/Admin/Reviews/Reviews"));
@@ -173,6 +182,15 @@ function App() {
                       <Route path="complaints" element={<ComplaintsComponent />} />
                       <Route path="feedback" element={<FeedbackList />} />
                       <Route path="inventory" element={<InventoryManagement />} />
+                      <Route path="inventory/dashboard" element={<InventoryDashboard />} />
+                      <Route path="inventory/stock-in" element={<StockIn />} />
+                      <Route path="inventory/stock-out" element={<StockOut />} />
+                      <Route path="inventory/transfer" element={<StockTransfer />} />
+                      <Route path="inventory/adjustment" element={<StockAdjustment />} />
+                      <Route path="inventory/serial-numbers" element={<SerialNumberManagement />} />
+                      <Route path="inventory/warehouses" element={<WarehouseManagement />} />
+                      <Route path="inventory/low-stock" element={<LowStock />} />
+                      <Route path="inventory/movements" element={<MovementLedger />} />
                       <Route path="reviews" element={<Reviews />} />
                       <Route path="whatsapp" element={<WhatsAppManager />} />
                     </Route>

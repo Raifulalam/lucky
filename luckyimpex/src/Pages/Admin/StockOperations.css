@@ -1,0 +1,204 @@
+.stock-operations {
+    padding: 28px;
+    background: var(--color-dark-bg);
+    min-height: 100vh;
+    color: var(--color-text-primary);
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.header-left h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 7px 0;
+    color: var(--color-text-primary);
+}
+
+.header-left .subtitle {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.form-container {
+    background: var(--color-card);
+    border: 1px solid var(--color-dark-border);
+    border-radius: 12px;
+    padding: 28px;
+    max-width: 900px;
+}
+
+.stock-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px 14px;
+    border: 1px solid var(--color-dark-border);
+    border-radius: 8px;
+    background: var(--color-dark-bg);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: var(--color-dark-bg);
+    border-radius: 8px;
+    border: 1px solid var(--color-dark-border);
+}
+
+.form-section h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.serial-number-row {
+    display: flex;
+    gap: 12px;
+}
+
+.serial-number-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--color-dark-border);
+    border-radius: 8px;
+    background: var(--color-dark-bg);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    outline: none;
+}
+
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--color-red-400);
+    border: 1px solid var(--color-red-500);
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, var(--color-red-500) 0%, var(--color-red-600) 100%);
+    color: white;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: var(--color-dark-surface);
+    border: 1px solid var(--color-dark-border);
+    color: var(--color-text-primary);
+}
+
+.btn-secondary:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: var(--color-primary-500);
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-dark-border);
+}
+
+.error-message {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid var(--color-red-500);
+    color: var(--color-red-400);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}

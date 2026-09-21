@@ -53,4 +53,7 @@ router.use("/hrms", hrmsRoutes);
 router.use("/whatsaap",whatsaapRoutes)
 router.use("/mobiles",mobileRoutes);
 
+// Inventory routes
+router.use("/inventory", inventoryRoutes);
+
 module.exports = router;

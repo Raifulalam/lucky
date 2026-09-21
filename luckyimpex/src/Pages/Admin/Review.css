@@ -9,23 +9,24 @@ body {
 .review-container {
     max-width: 900px;
     margin: 0 auto;
-    background-color: #ffffff;
+    background-color: var(--color-dark-surface);
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     margin-top: 50px;
+    border: 1px solid var(--color-dark-border);
 }
 
 h1 {
     font-size: 2rem;
     text-align: center;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 30px;
 }
 
 .review-details {
     font-size: 1rem;
-    color: #333;
+    color: var(--color-text-primary);
 }
 
 .order-table,
@@ -41,17 +42,18 @@ h1 {
 .items-table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-dark-border);
 }
 
 .order-table th,
 .items-table th {
-    background-color: #f7f7f7;
+    background-color: var(--color-dark-bg);
+    color: var(--color-text-secondary);
 }
 
 .order-table tr:nth-child(even),
 .items-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: rgba(15, 23, 42, 0.3);
 }
 
 .items-table img {
@@ -62,14 +64,15 @@ h1 {
 
 .items-table th,
 .order-table th {
-    background-color: #f2f2f2;
+    background-color: var(--color-dark-bg);
+    color: var(--color-text-secondary);
     font-weight: bold;
 }
 
 .loading-message {
     font-size: 1.2rem;
     text-align: center;
-    color: #888;
+    color: var(--color-text-secondary);
 }
 
 @media (max-width: 768px) {

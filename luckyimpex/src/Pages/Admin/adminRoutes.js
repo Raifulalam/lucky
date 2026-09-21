@@ -6,6 +6,15 @@ import {
     FaUsers,
     FaWhatsapp,
     FaBox,
+    FaArrowRight,
+    FaArrowDown,
+    FaExchangeAlt,
+    FaTools,
+    FaBarcode,
+    FaWarehouse,
+    FaExclamationTriangle,
+    FaHistory,
+    FaChartBar,
 } from "react-icons/fa";
 
 export const adminRoutes = [
@@ -20,6 +29,60 @@ export const adminRoutes = [
         path: "/admin/inventory",
         icon: FaBox,
         description: "Product inventory and stock management",
+    },
+    {
+        label: "Inventory Dashboard",
+        path: "/admin/inventory/dashboard",
+        icon: FaChartBar,
+        description: "Inventory overview and statistics",
+    },
+    {
+        label: "Stock In",
+        path: "/admin/inventory/stock-in",
+        icon: FaArrowDown,
+        description: "Add inventory to warehouse",
+    },
+    {
+        label: "Stock Out",
+        path: "/admin/inventory/stock-out",
+        icon: FaArrowRight,
+        description: "Issue inventory from warehouse",
+    },
+    {
+        label: "Stock Transfer",
+        path: "/admin/inventory/transfer",
+        icon: FaExchangeAlt,
+        description: "Transfer stock between locations",
+    },
+    {
+        label: "Stock Adjustment",
+        path: "/admin/inventory/adjustment",
+        icon: FaTools,
+        description: "Correct inventory discrepancies",
+    },
+    {
+        label: "Serial Numbers",
+        path: "/admin/inventory/serial-numbers",
+        icon: FaBarcode,
+        description: "Track individual product serials",
+    },
+    {
+        label: "Warehouses",
+        path: "/admin/inventory/warehouses",
+        icon: FaWarehouse,
+        description: "Manage inventory locations",
+    },
+    {
+        label: "Low Stock",
+        path: "/admin/inventory/low-stock",
+        icon: FaExclamationTriangle,
+        description: "Products needing attention",
+    },
+    {
+        label: "Movement Ledger",
+        path: "/admin/inventory/movements",
+        icon: FaHistory,
+        description: "Complete audit trail",
     },
     {
         label: "Users",

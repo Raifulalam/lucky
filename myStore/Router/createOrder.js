@@ -8,6 +8,7 @@ const {
     sendWhatsAppOrderNotification,
     sendWhatsAppOrderStatusUpdate,
 } = require("../utils/whatsappService");
+const { updateStock, reserveStock, releaseReservedStock } = require("../utils/inventoryService");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 const toPlainOrder = (order) => (typeof order?.toObject === "function" ? order.toObject() : order);
@@ -203,6 +204,73 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
     }
 
     try {
+        const existingOrder = await Order.findById(req.params.id);
+        if (!existingOrder) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        const previousStatus = existingOrder.status;
+        const newStatus = req.body.status;
+
+        // Handle inventory updates based on status change
+        if (newStatus && newStatus !== previousStatus) {
+            // When order is confirmed - reserve stock
+            if (newStatus === "confirmed" && previousStatus === "pending") {
+                for (const item of existingOrder.items) {
+                    try {
+                        await reserveStock(
+                            item.itemId,
+                            item.quantity,
+                            existingOrder._id,
+                            req.user.id
+                        );
+                    } catch (stockError) {
+                        console.error("Failed to reserve stock:", stockError);
+                        // Continue with order update even if stock reservation fails
+                    }
+                }
+            }
+
+            // When order is completed/delivered - deduct stock
+            if ((newStatus === "completed" || newStatus === "delivered") && 
+                (previousStatus === "confirmed" || previousStatus === "processing")) {
+                for (const item of existingOrder.items) {
+                    try {
+                        await updateStock({
+                            productId: item.itemId,
+                            quantity: item.quantity,
+                            movementType: "SALE",
+                            referenceType: "SALE",
+                            referenceId: existingOrder._id,
+                            userId: req.user.id,
+                            reason: "Order completed",
+                            notes: `Order ${existingOrder._id}`
+                        });
+                    } catch (stockError) {
+                        console.error("Failed to deduct stock:", stockError);
+                        // Continue with order update even if stock deduction fails
+                    }
+                }
+            }
+
+            // When order is cancelled - release reserved stock
+            if (newStatus === "cancelled" && previousStatus !== "cancelled") {
+                for (const item of existingOrder.items) {
+                    try {
+                        await releaseReservedStock(
+                            item.itemId,
+                            item.quantity,
+                            existingOrder._id,
+                            req.user.id
+                        );
+                    } catch (stockError) {
+                        console.error("Failed to release reserved stock:", stockError);
+                        // Continue with order update even if stock release fails
+                    }
+                }
+            }
+        }
+
         const updatedOrder = await Order.findByIdAndUpdate(
             req.params.id,
             req.body,

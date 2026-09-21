@@ -18,12 +18,13 @@ html {
 }
 
 body {
-  margin: 0;
-  background: var(--color-background);
+  background: var(--color-dark-bg);
   color: var(--color-text-primary);
-  font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
+  font-family: var(--font-family-base);
+  margin: 0;
+  padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

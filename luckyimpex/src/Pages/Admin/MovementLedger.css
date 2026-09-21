@@ -1,0 +1,212 @@
+.movement-ledger {
+    padding: 28px;
+    background: var(--color-dark-bg);
+    min-height: 100vh;
+    color: var(--color-text-primary);
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.header-left h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 7px 0;
+    color: var(--color-text-primary);
+}
+
+.header-left .subtitle {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+}
+
+.filters-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 300px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 12px 10px 40px;
+    border: 1px solid var(--color-dark-border);
+    border-radius: 8px;
+    background: var(--color-dark-bg);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: var(--color-primary-500);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.filter-group select {
+    padding: 10px 14px;
+    border: 1px solid var(--color-dark-border);
+    border-radius: 8px;
+    background: var(--color-dark-bg);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+}
+
+.table-container {
+    background: var(--color-dark-surface);
+    border: 1px solid var(--color-dark-border);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.movement-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+.movement-table th,
+.movement-table td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-dark-border);
+    font-size: 13px;
+}
+
+.movement-table thead th {
+    background: var(--color-dark-bg);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.movement-table tbody tr:nth-child(even) {
+    background: rgba(15, 23, 42, 0.3);
+}
+
+.movement-table tbody tr:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.movement-id {
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+    color: var(--color-primary-400);
+}
+
+.type-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.type-green {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--color-emerald-400);
+    border: 1px solid var(--color-emerald-500);
+}
+
+.type-red {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--color-red-400);
+    border: 1px solid var(--color-red-500);
+}
+
+.type-blue {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--color-primary-400);
+    border: 1px solid var(--color-primary-500);
+}
+
+.type-orange {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--color-amber-400);
+    border: 1px solid var(--color-amber-500);
+}
+
+.type-purple {
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--color-purple-400);
+    border: 1px solid var(--color-purple-500);
+}
+
+.type-gray {
+    background: rgba(107, 114, 128, 0.2);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-dark-border);
+}
+
+.quantity {
+    font-weight: 600;
+}
+
+.quantity.positive {
+    color: var(--color-emerald-400);
+}
+
+.quantity.negative {
+    color: var(--color-red-400);
+}
+
+.no-data {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-text-secondary);
+}
+
+.no-data p {
+    margin: 12px 0 0 0;
+    font-size: 14px;
+}
+
+.error-message {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid var(--color-red-500);
+    color: var(--color-red-400);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    color: var(--color-text-secondary);
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

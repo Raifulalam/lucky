@@ -1,6 +1,7 @@
 .manage-products {
     font-family: Arial, sans-serif;
     padding: 20px;
+    color: var(--color-text-primary);
 }
 
 form {
@@ -13,18 +14,22 @@ textarea {
     margin: 10px 0;
     padding: 8px;
     width: 100%;
+    background: var(--color-dark-bg);
+    border: 1px solid var(--color-dark-border);
+    color: var(--color-text-primary);
 }
 
 button {
     padding: 10px 20px;
-    background-color: #4CAF50;
+    background: linear-gradient(135deg, var(--color-emerald-500) 0%, var(--color-emerald-600) 100%);
     color: white;
     border: none;
     cursor: pointer;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
 }
 
 button:hover {
-    background-color: #45a049;
+    background: linear-gradient(135deg, var(--color-emerald-600) 0%, var(--color-emerald-700) 100%);
 }
 
 .product-list {
@@ -33,10 +38,12 @@ button:hover {
 }
 
 .product-item {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-dark-border);
     padding: 15px;
     margin: 10px;
     width: 200px;
+    background: var(--color-dark-surface);
+    border-radius: 8px;
 }
 
 .actions button {
