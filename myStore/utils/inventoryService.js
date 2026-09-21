@@ -117,7 +117,7 @@ const updateStock = async ({
             previousStock,
             newStock,
             referenceType,
-            referenceId,
+           referenceId: referenceId || null,
             userId,
             reason,
             notes
@@ -161,7 +161,7 @@ const reserveStock = async (productId, quantity, referenceId, userId) => {
             previousStock: inventory.currentStock,
             newStock: inventory.currentStock,
             referenceType: "SALE",
-            referenceId,
+            referenceId: referenceId || null,
             userId,
             reason: "Stock reserved for sale"
         }], { session });
@@ -204,7 +204,7 @@ const releaseReservedStock = async (productId, quantity, referenceId, userId) =>
             previousStock: inventory.currentStock,
             newStock: inventory.currentStock,
             referenceType: "SALE",
-            referenceId,
+            referenceId: referenceId || null,
             userId,
             reason: "Reserved stock released"
         }], { session });

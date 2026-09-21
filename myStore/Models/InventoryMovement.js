@@ -58,19 +58,22 @@ const inventoryMovementSchema = new Schema(
             enum: ["PURCHASE", "SALE", "TRANSFER", "ADJUSTMENT", "RETURN", "MANUAL"],
             required: true
         },
-        referenceId: {
-            type: mongoose.Schema.Types.ObjectId,
-            index: true
-        },
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "users",
-            required: true
-        },
-        reason: {
-            type: String,
-            trim: true
-        },
+      referenceId: {
+    type: mongoose.Schema.Types.ObjectId,
+    index: true,
+    default: null
+},
+
+userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users",
+    required: true
+},
+
+reason: {
+    type: String,
+    trim: true
+},
         notes: {
             type: String,
             trim: true
