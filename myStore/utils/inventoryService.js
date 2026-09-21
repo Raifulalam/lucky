@@ -279,8 +279,15 @@ const getInventorySummary = async () => {
 // Get low stock products
 const getLowStockProducts = async () => {
     return await Inventory.find({
-        status: "ACTIVE",
-        $expr: { $lte: ["$currentStock", "$reorderLevel"] }
+       
+    status: "ACTIVE",
+    $expr: {
+        $and: [
+            { $gt: ["$currentStock", 0] },
+            { $lte: ["$currentStock", "$reorderLevel"] }
+        ]
+    }
+
     }).populate("productId");
 };
 

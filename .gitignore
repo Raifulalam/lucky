@@ -2,6 +2,7 @@
 myStore/.env
 myStore/.env.local
 myStore/.env.production
+./myStore (2).zip
 
 # Node modules
 myStore/node_modules/
