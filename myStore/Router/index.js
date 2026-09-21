@@ -14,6 +14,7 @@ const dashboardRoutes = require("./Dashboard");      // Dashboard stats
 const hrmsRoutes = require("../hrms/routes");        // HRMS routes
 const reviewRoutes =require("./reviewRoutes");
 const whatsaapRoutes= require("./whatsaap");
+const inventoryRoutes = require('./inventory');
 
 
 
