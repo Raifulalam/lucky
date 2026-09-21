@@ -258,10 +258,15 @@ const getInventorySummary = async () => {
             }
         }
     ]);
-    const lowStock = await Inventory.countDocuments({
-        status: "ACTIVE",
-        currentStock: { $gt: 0, $lte: "$reorderLevel" }
-    });
+  const lowStock = await Inventory.countDocuments({
+    status: "ACTIVE",
+    $expr: {
+        $and: [
+            { $gt: ["$currentStock", 0] },
+            { $lte: ["$currentStock", "$reorderLevel"] }
+        ]
+    }
+});
     const outOfStock = await Inventory.countDocuments({
         status: "ACTIVE",
         currentStock: 0
@@ -279,15 +284,8 @@ const getInventorySummary = async () => {
 // Get low stock products
 const getLowStockProducts = async () => {
     return await Inventory.find({
-       
-    status: "ACTIVE",
-    $expr: {
-        $and: [
-            { $gt: ["$currentStock", 0] },
-            { $lte: ["$currentStock", "$reorderLevel"] }
-        ]
-    }
-
+        status: "ACTIVE",
+        $expr: { $lte: ["$currentStock", "$reorderLevel"] }
     }).populate("productId");
 };
 
