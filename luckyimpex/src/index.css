@@ -1,3 +1,5 @@
+@import "./styles/design-system.css";
+
 :root {
   --app-bg: #f6f8fb;
   --app-text: #1c2936;
@@ -17,10 +19,11 @@ html {
 
 body {
   margin: 0;
-  background: var(--app-bg);
-  color: var(--app-text);
+  background: var(--color-background);
+  color: var(--color-text-primary);
   font-family: "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  line-height: 1.5;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

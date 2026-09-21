@@ -36,7 +36,7 @@ const AdminDashboard = lazy(() => import("./Pages/Admin/AdminDashboard"));
 const OrderComponent = lazy(() => import("./Pages/Admin/Orders"));
 const ComplaintsComponent = lazy(() => import("./Pages/Admin/Complaints"));
 const FeedbackList = lazy(() => import("./Pages/Admin/FeedbackMessage/Feedback"));
-const ManageProducts = lazy(() => import("./Pages/Admin/ManageProducts"));
+const InventoryManagement = lazy(() => import("./Pages/Admin/InventoryManagement"));
 const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
 const Reviews = lazy(() => import("./Pages/Admin/Reviews/Reviews"));
@@ -172,7 +172,7 @@ function App() {
                       <Route path="orders/:orderId" element={<ReviewPage />} />
                       <Route path="complaints" element={<ComplaintsComponent />} />
                       <Route path="feedback" element={<FeedbackList />} />
-                      <Route path="products" element={<ManageProducts />} />
+                      <Route path="inventory" element={<InventoryManagement />} />
                       <Route path="reviews" element={<Reviews />} />
                       <Route path="whatsapp" element={<WhatsAppManager />} />
                     </Route>

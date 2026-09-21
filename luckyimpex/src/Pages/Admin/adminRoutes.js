@@ -5,6 +5,7 @@ import {
     FaStar,
     FaUsers,
     FaWhatsapp,
+    FaBox,
 } from "react-icons/fa";
 
 export const adminRoutes = [
@@ -13,6 +14,12 @@ export const adminRoutes = [
         path: "/admin",
         icon: FaHome,
         description: "Store performance and quick actions",
+    },
+    {
+        label: "Inventory",
+        path: "/admin/inventory",
+        icon: FaBox,
+        description: "Product inventory and stock management",
     },
     {
         label: "Users",

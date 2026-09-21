@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext, useCallback, useRef, useMemo } 
 import "./products.css";
 import Header from "../../Components/Header";
 import { useCartDispatch } from "../../Components/CreateReducer";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import luckyImage from "../../Images/lucky.png";
 import backimg from "../../Images/backimg.jpg";
 import back01 from "../../Images/back01.png";
@@ -55,6 +55,7 @@ const formatCategoryLabel = (value = "") => value.replace(/([A-Z])/g, " $1").tri
 
 const Products = () => {
     const { category } = useParams();
+    const [searchParams] = useSearchParams();
     const queryClient = useQueryClient();
     const { addNotification } = useNotification();
     const navigate = useNavigate();
@@ -62,8 +63,9 @@ const Products = () => {
     const userRole = user?.role || "user";
     const dispatch = useCartDispatch();
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [debouncedSearch, setDebouncedSearch] = useState("");
+    const searchQueryFromUrl = searchParams.get('search') || '';
+    const [searchTerm, setSearchTerm] = useState(searchQueryFromUrl);
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQueryFromUrl);
     const [selectedCategory, setSelectedCategory] = useState(category || "");
     const [selectedBrand, setSelectedBrand] = useState("");
     const [sortBy, setSortBy] = useState("featured");
@@ -126,6 +128,15 @@ const Products = () => {
     useEffect(() => {
         setSelectedCategory(category || "");
     }, [category]);
+
+    // Update search term when URL search parameter changes
+    useEffect(() => {
+        const searchFromUrl = searchParams.get('search') || '';
+        if (searchFromUrl !== searchTerm) {
+            setSearchTerm(searchFromUrl);
+            setDebouncedSearch(searchFromUrl);
+        }
+    }, [searchParams]);
 
     // TanStack Query: Infinite products fetcher
   const {

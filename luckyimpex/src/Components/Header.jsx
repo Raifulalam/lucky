@@ -72,6 +72,9 @@ const Header = () => {
     const [cartOpen, setCartOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [wishlistCount] = useState(2); // Initial wishlist demo indicator
+    const [expandedSection, setExpandedSection] = useState(null); // For mobile menu accordions
+    const [navOpen, setNavOpen] = useState(false); // For desktop navigation dropdown
+    const [servicesOpen, setServicesOpen] = useState(false); // For services dropdown
 
     const isAdmin = user?.role === "admin";
     const isUser = user && !isAdmin;
@@ -84,6 +87,10 @@ const Header = () => {
     const cart = useCartState() || EMPTY_CART;
     const cartQty = useMemo(() => cart.reduce((total, item) => total + (item.quantity || 1), 0), [cart]);
     const closeMobileMenu = () => setMenuOpen(false);
+
+    const toggleSection = (section) => {
+        setExpandedSection(expandedSection === section ? null : section);
+    };
 
     const handleLogout = () => {
         logout();
@@ -214,6 +221,76 @@ const Header = () => {
 
                     {/* NAVIGATION LINKS & ACTIONS */}
                     <div className="header-actions">
+                        {/* Main Navigation Dropdown */}
+                        <div
+                            className={`nav-dropdown-box ${navOpen ? "open" : ""}`}
+                            onMouseEnter={() => setNavOpen(true)}
+                            onMouseLeave={() => setNavOpen(false)}
+                        >
+                            <button
+                                type="button"
+                                className="nav-dropdown-btn"
+                                onClick={() => setNavOpen((prev) => !prev)}
+                                aria-expanded={navOpen}
+                            >
+                                <span>Menu</span>
+                                <ChevronDown size={15} />
+                            </button>
+
+                            <div className="nav-dropdown-menu">
+                                <Link
+                                    to="/"
+                                    onClick={() => setNavOpen(false)}
+                                >
+                                    Home
+                                </Link>
+                                <Link
+                                    to="/products"
+                                    onClick={() => setNavOpen(false)}
+                                >
+                                    All Products
+                                </Link>
+                                {roleMenu.map((item) => (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        onClick={() => setNavOpen(false)}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Store Services Dropdown */}
+                        <div
+                            className={`services-dropdown-box ${servicesOpen ? "open" : ""}`}
+                            onMouseEnter={() => setServicesOpen(true)}
+                            onMouseLeave={() => setServicesOpen(false)}
+                        >
+                            <button
+                                type="button"
+                                className="services-dropdown-btn"
+                                onClick={() => setServicesOpen((prev) => !prev)}
+                                aria-expanded={servicesOpen}
+                            >
+                                <span>Services</span>
+                                <ChevronDown size={15} />
+                            </button>
+
+                            <div className="services-dropdown-menu">
+                                {quickLinks.map((item) => (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        onClick={() => setServicesOpen(false)}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Quick category menu */}
                         <div
                             className={`category-box ${catOpen ? "open" : ""}`}
@@ -375,53 +452,83 @@ const Header = () => {
                     <button type="submit"><Search size={16} /></button>
                 </form>
 
-                {/* Mobile Menu Sections */}
+                {/* Mobile Menu Sections with Expandable Accordions */}
                 <div className="mobile-menu-section">
-                    <span className="mobile-menu-label">Main Navigation</span>
-                    <Link to="/" onClick={closeMobileMenu}>Home</Link>
-                    <Link to="/products" onClick={closeMobileMenu}>All Products</Link>
-                    {roleMenu.map((item) => (
-                        <Link key={item.to} to={item.to} onClick={closeMobileMenu}>
-                            {item.label}
-                        </Link>
-                    ))}
-                    {!isAdmin && (
-                        <Link
-                            to="/cart"
-                            onClick={(e) => {
-                                closeMobileMenu();
-                                handleCartClick(e);
-                            }}
-                        >
-                            Cart ({cartQty})
-                        </Link>
-                    )}
+                    <button
+                        type="button"
+                        className="mobile-accordion-trigger"
+                        onClick={() => toggleSection('main-nav')}
+                        aria-expanded={expandedSection === 'main-nav'}
+                    >
+                        <span className="mobile-menu-label">Main Navigation</span>
+                        <ChevronDown size={16} className={`accordion-icon ${expandedSection === 'main-nav' ? 'rotated' : ''}`} />
+                    </button>
+                    <div className={`mobile-accordion-content ${expandedSection === 'main-nav' ? 'expanded' : ''}`}>
+                        <Link to="/" onClick={closeMobileMenu}>Home</Link>
+                        <Link to="/products" onClick={closeMobileMenu}>All Products</Link>
+                        {roleMenu.map((item) => (
+                            <Link key={item.to} to={item.to} onClick={closeMobileMenu}>
+                                {item.label}
+                            </Link>
+                        ))}
+                        {!isAdmin && (
+                            <Link
+                                to="/cart"
+                                onClick={(e) => {
+                                    closeMobileMenu();
+                                    handleCartClick(e);
+                                }}
+                            >
+                                Cart ({cartQty})
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 <div className="mobile-menu-section">
-                    <span className="mobile-menu-label">Store Services</span>
-                    {quickLinks.map((item) => (
-                        <Link key={item.to} to={item.to} onClick={closeMobileMenu}>
-                            {item.label}
-                        </Link>
-                    ))}
+                    <button
+                        type="button"
+                        className="mobile-accordion-trigger"
+                        onClick={() => toggleSection('store-services')}
+                        aria-expanded={expandedSection === 'store-services'}
+                    >
+                        <span className="mobile-menu-label">Store Services</span>
+                        <ChevronDown size={16} className={`accordion-icon ${expandedSection === 'store-services' ? 'rotated' : ''}`} />
+                    </button>
+                    <div className={`mobile-accordion-content ${expandedSection === 'store-services' ? 'expanded' : ''}`}>
+                        {quickLinks.map((item) => (
+                            <Link key={item.to} to={item.to} onClick={closeMobileMenu}>
+                                {item.label}
+                            </Link>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="mobile-menu-section">
-                    <span className="mobile-menu-label">Categories</span>
-                    {categories.map((cat) => (
-                        <button
-                            key={cat}
-                            type="button"
-                            className="mobile-category-link"
-                            onClick={() => {
-                                closeMobileMenu();
-                                navigate(`/products/${cat}`);
-                            }}
-                        >
-                            {formatCategory(cat)}
-                        </button>
-                    ))}
+                    <button
+                        type="button"
+                        className="mobile-accordion-trigger"
+                        onClick={() => toggleSection('categories')}
+                        aria-expanded={expandedSection === 'categories'}
+                    >
+                        <span className="mobile-menu-label">Categories</span>
+                        <ChevronDown size={16} className={`accordion-icon ${expandedSection === 'categories' ? 'rotated' : ''}`} />
+                    </button>
+                    <div className={`mobile-accordion-content ${expandedSection === 'categories' ? 'expanded' : ''}`}>
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                type="button"
+                                className="mobile-category-link"
+                                onClick={() => {
+                                    closeMobileMenu();
+                                    navigate(`/products/${cat}`);
+                                }}
+                            >
+                                {formatCategory(cat)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="mobile-menu-footer">

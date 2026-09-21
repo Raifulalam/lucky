@@ -119,7 +119,7 @@ export default function MobileShop() {
                     <span className="hero-badge">
                         NEW COLLECTION
                     </span>
-
+                    {data.length}
                     <h1>
                         Find Your
                         <span> Perfect Phone.</span>
@@ -316,6 +316,7 @@ export default function MobileShop() {
                         ))}
 
                     </div>
+                    
                 )}
 
                 {!loading &&

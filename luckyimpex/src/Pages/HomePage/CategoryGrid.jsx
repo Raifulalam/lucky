@@ -1,17 +1,18 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Flame, PackageCheck, Sparkles, TrendingUp } from "lucide-react";
 import { useWholesale } from "../../Components/WholesaleContext";
+import { getData } from "../../api/api";
 import "./CategoryGrid.css";
 
-const CATEGORIES = [
+const CATEGORY_CONFIG = [
     {
         id: "air-conditioners",
         title: "Air Conditioners",
         subtitle: "Split, Inverter & Heavy Commercial",
         tag: "1.0 - 2.0 Ton",
         slug: "AirConditioners",
-        image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80",
         localFallback: "/icon-ac.png",
         retailCount: "28+ Models In Stock",
         wholesaleCount: "Bulk Lots · 10+ Container Stock",
@@ -22,7 +23,7 @@ const CATEGORIES = [
         subtitle: "Single Door, Double Door & Side-by-Side",
         tag: "Frost-Free Tech",
         slug: "Refrigerators",
-        image: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=600&q=80",
         localFallback: "/icon-refrigerator.png",
         retailCount: "35+ Models In Stock",
         wholesaleCount: "Dealer Crates Available",
@@ -33,7 +34,7 @@ const CATEGORIES = [
         subtitle: "Front Load, Top Load & Semi-Automatic",
         tag: "Inverter Direct Drive",
         slug: "WashingMachines",
-        image: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=600&q=80",
         localFallback: "/icon-washing-machine.png",
         retailCount: "22+ Models In Stock",
         wholesaleCount: "Pallet Wholesale Orders",
@@ -44,7 +45,7 @@ const CATEGORIES = [
         subtitle: "4K UHD, QLED, Google TV & Android",
         tag: "32\" up to 85\"",
         slug: "LEDTelevisions",
-        image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=600&q=80",
         localFallback: "/icon-tv.png",
         retailCount: "40+ Screens In Stock",
         wholesaleCount: "Distributor Carton Pricing",
@@ -55,7 +56,7 @@ const CATEGORIES = [
         subtitle: "Mixers, Blenders, Microwaves & Induction",
         tag: "Daily Essentials",
         slug: "KitchenAppliances",
-        image: "https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=600&q=80",
         localFallback: "/guest4.jpg",
         retailCount: "50+ Kitchen Items",
         wholesaleCount: "Master Cartons Available",
@@ -66,7 +67,7 @@ const CATEGORIES = [
         subtitle: "Air Coolers, Heaters, Irons & Geysers",
         tag: "Energy Saving",
         slug: "HomeAppliances",
-        image: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=600&q=80",
         localFallback: "/guest5.jpg",
         retailCount: "45+ Appliances In Stock",
         wholesaleCount: "Bulk Commercial Units",
@@ -78,7 +79,7 @@ const CATEGORIES = [
         tag: "Up to 35% OFF",
         slug: "products",
         isHot: true,
-        image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80",
         localFallback: "/guest2.jpg",
         retailCount: "Limited Stock Deals",
         wholesaleCount: "Overstock Clearance Bundles",
@@ -90,7 +91,7 @@ const CATEGORIES = [
         tag: "B2B Special",
         slug: "products",
         isWholesaleSpecial: true,
-        image: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=600&q=80",
+        defaultImage: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=600&q=80",
         localFallback: "/guest6.jpg",
         retailCount: "Showroom Package Deals",
         wholesaleCount: "Minimum 5 Units Tiered Rates",
@@ -99,6 +100,53 @@ const CATEGORIES = [
 
 const CategoryGrid = () => {
     const { isWholesale } = useWholesale();
+    const [categories, setCategories] = useState(CATEGORY_CONFIG);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Fetch products to get real category images
+    useEffect(() => {
+        const fetchCategoryImages = async () => {
+            try {
+                const data = await getData('/products/products?page=1&limit=50');
+                if (data?.products) {
+                    // Group products by category
+                    const productsByCategory = data.products.reduce((acc, product) => {
+                        const category = product.category;
+                        if (!acc[category]) {
+                            acc[category] = [];
+                        }
+                        acc[category].push(product);
+                        return acc;
+                    }, {});
+
+                    // Update categories with real product images
+                    const updatedCategories = CATEGORY_CONFIG.map(cat => {
+                        const categoryProducts = productsByCategory[cat.slug];
+                        if (categoryProducts && categoryProducts.length > 0) {
+                            // Use first product's image from this category
+                            const firstProduct = categoryProducts[0];
+                            const productImage = firstProduct.images?.[0] || firstProduct.image;
+                            if (productImage) {
+                                return {
+                                    ...cat,
+                                    image: productImage,
+                                };
+                            }
+                        }
+                        return cat;
+                    });
+
+                    setCategories(updatedCategories);
+                }
+            } catch (err) {
+                console.error('Failed to fetch category images:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchCategoryImages();
+    }, []);
 
     return (
         <section className="category-grid-section" aria-label="Product categories">
@@ -127,7 +175,7 @@ const CategoryGrid = () => {
 
                 {/* 2x4 Responsive Card Grid */}
                 <div className="category-cards-grid">
-                    {CATEGORIES.map((cat) => (
+                    {categories.map((cat) => (
                         <Link
                             key={cat.id}
                             to={`/products/${cat.slug}`}
@@ -137,7 +185,7 @@ const CategoryGrid = () => {
                         >
                             <div className="cat-card-image-wrap">
                                 <img
-                                    src={cat.image}
+                                    src={cat.image || cat.defaultImage}
                                     alt={cat.title}
                                     loading="lazy"
                                     onError={(e) => {

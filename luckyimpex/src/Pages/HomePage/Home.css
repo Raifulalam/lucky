@@ -7,8 +7,8 @@
 ========================================================= */
 
 .home-page {
-    background: #f8fafc;
-    color: #0f172a;
+    background: var(--color-background);
+    color: var(--color-text-primary);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -17,115 +17,115 @@
 .home-main {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding-bottom: 30px;
+    gap: var(--space-5);
+    padding-bottom: var(--space-8);
 }
 
 /* Section Pill Utility */
 .section-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: #fff7ed;
-    color: #ea580c;
+    gap: var(--space-2);
+    background: var(--color-primary-50);
+    color: var(--color-primary-600);
     border: 1px solid rgba(249, 115, 22, 0.25);
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 700;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 10px;
+    letter-spacing: var(--letter-spacing-wider);
+    margin-bottom: var(--space-3);
 }
 
 /* Brands Shell */
 .home-brands-shell {
-    padding: 30px 16px 10px;
+    padding: var(--space-8) var(--space-4) var(--space-3);
 }
 
 .home-brands-inner {
-    width: min(1380px, 100%);
+    width: min(var(--container-2xl), 100%);
     margin: 0 auto;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 22px;
-    padding: 30px 24px;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+    background: var(--color-surface);
+    border: var(--card-border);
+    border-radius: var(--radius-3xl);
+    padding: var(--space-8) var(--space-6);
+    box-shadow: var(--card-shadow);
 }
 
 .brands-title-row {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
 }
 
 .brands-title-row h3 {
-    font-size: 1.25rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 6px 0 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-text-primary);
+    margin: var(--space-2) 0 0;
 }
 
 /* FAQ Shell */
 .home-faq-shell {
-    padding: 40px 16px 20px;
+    padding: var(--space-10) var(--space-4) var(--space-5);
 }
 
 .home-faq-inner {
     width: min(1000px, 100%);
     margin: 0 auto;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 24px;
-    padding: 36px 32px;
-    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.05);
+    background: var(--color-surface);
+    border: var(--card-border);
+    border-radius: var(--radius-3xl);
+    padding: var(--space-9) var(--space-8);
+    box-shadow: var(--shadow-lg);
 }
 
 .faq-header-copy {
     text-align: center;
     max-width: 680px;
-    margin: 0 auto 28px;
+    margin: 0 auto var(--space-7);
 }
 
 .faq-header-copy h2 {
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 10px;
-    letter-spacing: -0.02em;
+    font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-3xl));
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-3);
+    letter-spacing: var(--letter-spacing-tight);
 }
 
 .faq-header-copy p {
-    font-size: 0.94rem;
-    color: #64748b;
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
     margin: 0;
-    line-height: 1.6;
+    line-height: var(--line-height-relaxed);
 }
 
 .home-faq-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-3);
 }
 
 .home-faq-item {
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    background: #f8fafc;
-    padding: 16px 20px;
-    transition: all 0.2s ease;
+    border: var(--card-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-slate-50);
+    padding: var(--space-4) var(--space-5);
+    transition: var(--transition-base);
 }
 
 .home-faq-item[open] {
-    background: #ffffff;
-    border-color: #f97316;
+    background: var(--color-surface);
+    border-color: var(--color-accent);
     box-shadow: 0 4px 16px rgba(249, 115, 22, 0.08);
 }
 
 .home-faq-item summary {
     cursor: pointer;
-    font-weight: 700;
-    color: #0f172a;
-    font-size: 0.95rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
     list-style: none;
     display: flex;
     justify-content: space-between;
@@ -138,9 +138,9 @@
 
 .home-faq-item summary::after {
     content: "+";
-    font-size: 1.25rem;
-    color: #f97316;
-    font-weight: 800;
+    font-size: var(--font-size-xl);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-extrabold);
 }
 
 .home-faq-item[open] summary::after {
@@ -148,27 +148,27 @@
 }
 
 .home-faq-item p {
-    margin: 12px 0 0;
-    font-size: 0.88rem;
-    color: #475569;
-    line-height: 1.65;
+    margin: var(--space-3) 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-slate-600);
+    line-height: var(--line-height-relaxed);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .home-faq-inner {
-        padding: 24px 18px;
+        padding: var(--space-6) var(--space-5);
     }
 
     .home-brands-inner {
-        padding: 20px 14px;
+        padding: var(--space-5) var(--space-4);
     }
 
     .home-faq-item {
-        padding: 14px 16px;
+        padding: var(--space-4) var(--space-4);
     }
 
     .home-faq-item summary {
-        font-size: 0.9rem;
+        font-size: var(--font-size-sm);
     }
 }

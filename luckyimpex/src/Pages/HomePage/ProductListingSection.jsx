@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 import {
 
@@ -15,154 +15,8 @@ import {
 } from "lucide-react";
 import { useWholesale } from "../../Components/WholesaleContext";
 import { useCartDispatch } from "../../Components/CreateReducer";
+import { getData } from "../../api/api";
 import "./ProductListingSection.css";
-
-const PRODUCTS_DATA = [
-    {
-        id: "prod-1",
-        title: "AeroCool 1.5 Ton 5-Star Dual Inverter Split AC",
-        brand: "LG Electronics",
-        category: "Air Conditioners",
-        rating: 4.8,
-        reviewsCount: 38,
-        inStock: true,
-        image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=500&q=80",
-        fallback: "/guest1.jpg",
-        retail: {
-            mrp: 89999,
-            price: 74999,
-            discount: "17% OFF",
-            emiPerMonth: 6250,
-        },
-        wholesale: {
-            minQty: 5,
-            tieredDiscount: "Save 16%",
-            bulkPrice: 62999,
-            tierInfo: "5-9 Units: NPR 62,999 | 10+ Units: NPR 59,500",
-        },
-        tab: "bestsellers",
-    },
-    {
-        id: "prod-2",
-        title: "FrostPro 340L Double Door Convertible Refrigerator",
-        brand: "Samsung",
-        category: "Refrigerators",
-        rating: 4.9,
-        reviewsCount: 52,
-        inStock: true,
-        image: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=500&q=80",
-        fallback: "/guest2.jpg",
-        retail: {
-            mrp: 68500,
-            price: 56900,
-            discount: "17% OFF",
-            emiPerMonth: 4740,
-        },
-        wholesale: {
-            minQty: 4,
-            tieredDiscount: "Save 18%",
-            bulkPrice: 47990,
-            tierInfo: "4-7 Units: NPR 47,990 | 8+ Units: NPR 44,800",
-        },
-        tab: "bestsellers",
-    },
-    {
-        id: "prod-3",
-        title: "CrystalVision 55\" 4K Ultra HD Smart Google TV",
-        brand: "Haier",
-        category: "Smart LED TVs",
-        rating: 4.7,
-        reviewsCount: 44,
-        inStock: true,
-        image: "https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=500&q=80",
-        fallback: "/guest3.jpg",
-        retail: {
-            mrp: 62000,
-            price: 48500,
-            discount: "22% OFF",
-            emiPerMonth: 4040,
-        },
-        wholesale: {
-            minQty: 6,
-            tieredDiscount: "Save 20%",
-            bulkPrice: 39900,
-            tierInfo: "6-11 Units: NPR 39,900 | 12+ Units: NPR 37,200",
-        },
-        tab: "bestsellers",
-    },
-    {
-        id: "prod-4",
-        title: "AquaWave 8.5 kg AI Direct Drive Front Load Washer",
-        brand: "LG Electronics",
-        category: "Washing Machines",
-        rating: 4.9,
-        reviewsCount: 29,
-        inStock: true,
-        image: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&w=500&q=80",
-        fallback: "/guest4.jpg",
-        retail: {
-            mrp: 76000,
-            price: 63500,
-            discount: "16% OFF",
-            emiPerMonth: 5290,
-        },
-        wholesale: {
-            minQty: 3,
-            tieredDiscount: "Save 15%",
-            bulkPrice: 54900,
-            tierInfo: "3-5 Units: NPR 54,900 | 6+ Units: NPR 51,800",
-        },
-        tab: "bestsellers",
-    },
-    {
-        id: "prod-5",
-        title: "UltraBreeze 75L Heavy Duty Desert Air Cooler",
-        brand: "Symphony",
-        category: "Home Appliances",
-        rating: 4.6,
-        reviewsCount: 67,
-        inStock: true,
-        image: "https://images.unsplash.com/photo-1584269600464-37b1b58a9fe7?auto=format&fit=crop&w=500&q=80",
-        fallback: "/guest5.jpg",
-        retail: {
-            mrp: 24500,
-            price: 18900,
-            discount: "23% OFF",
-            emiPerMonth: 1575,
-        },
-        wholesale: {
-            minQty: 10,
-            tieredDiscount: "Save 24%",
-            bulkPrice: 14900,
-            tierInfo: "10-19 Units: NPR 14,900 | 20+ Units: NPR 13,800",
-        },
-        tab: "newarrivals",
-    },
-    {
-        id: "prod-6",
-        title: "TurboGrind 1000W 4-Jar Commercial Mixer Grinder",
-        brand: "Bajaj",
-        category: "Kitchen Appliances",
-        rating: 4.8,
-        reviewsCount: 31,
-        inStock: true,
-        image: "https://images.unsplash.com/photo-1588854337236-6889d631faa8?auto=format&fit=crop&w=500&q=80",
-        fallback: "/guest6.jpg",
-        retail: {
-            mrp: 14200,
-            price: 10999,
-            discount: "22% OFF",
-            emiPerMonth: 915,
-        },
-        wholesale: {
-            minQty: 8,
-            tieredDiscount: "Save 21%",
-            bulkPrice: 8750,
-            tierInfo: "8-15 Units: NPR 8,750 | 16+ Units: NPR 8,100",
-        },
-        tab: "newarrivals",
-    },
-];
 
 const ProductListingSection = () => {
     const { isWholesale, openRfqModal, currency } = useWholesale();
@@ -170,8 +24,56 @@ const ProductListingSection = () => {
     const [activeTab, setActiveTab] = useState("all");
     const [addedId, setAddedId] = useState(null);
     const scrollContainerRef = useRef(null);
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const filteredProducts = PRODUCTS_DATA.filter((item) => {
+    // Fetch featured products from backend
+    useEffect(() => {
+        const fetchFeaturedProducts = async () => {
+            try {
+                setIsLoading(true);
+                const data = await getData('/products/products?page=1&limit=12');
+                if (data?.products) {
+                    // Transform backend data to match component format
+                    const transformedProducts = data.products.map((product, index) => ({
+                        id: product._id || `prod-${index}`,
+                        title: product.name || product.title || 'Product',
+                        brand: product.brand || 'Brand',
+                        category: product.category || 'Appliances',
+                        rating: 4.5 + Math.random() * 0.5, // Random rating between 4.5-5.0
+                        reviewsCount: Math.floor(Math.random() * 50) + 20,
+                        inStock: Number(product.stock || 0) > 0,
+                        image: product.images?.[0] || product.image || '',
+                        fallback: '/lucky-logo.png',
+                        retail: {
+                            mrp: Number(product.mrp) || Number(product.price) * 1.2,
+                            price: Number(product.price) || Number(product.bestBuyPrice) || 0,
+                            discount: product.mrp && product.price ? `${Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF` : '10% OFF',
+                            emiPerMonth: Math.round((Number(product.price) || 0) / 12),
+                        },
+                        wholesale: {
+                            minQty: 5,
+                            tieredDiscount: 'Save 15%',
+                            bulkPrice: Math.round((Number(product.price) || 0) * 0.85),
+                            tierInfo: '5-9 Units: NPR ' + Math.round((Number(product.price) || 0) * 0.85).toLocaleString() + ' | 10+ Units: NPR ' + Math.round((Number(product.price) || 0) * 0.8).toLocaleString(),
+                        },
+                        tab: index < 4 ? 'bestsellers' : 'newarrivals',
+                    }));
+                    setProducts(transformedProducts);
+                }
+            } catch (err) {
+                console.error('Failed to fetch featured products:', err);
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchFeaturedProducts();
+    }, []);
+
+    const filteredProducts = products.filter((item) => {
         if (activeTab === "all") return true;
         return item.tab === activeTab;
     });
@@ -211,6 +113,54 @@ const ProductListingSection = () => {
         setAddedId(product.id);
         setTimeout(() => setAddedId(null), 1800);
     };
+
+    if (isLoading) {
+        return (
+            <section className="product-listing-section" aria-label="Featured appliances and electronics">
+                <div className="product-listing-inner">
+                    <div className="product-section-top">
+                        <div className="product-title-group">
+                            <div className="mode-indicator-pill">
+                                {isWholesale ? <Building2 size={13} /> : <Zap size={13} />}
+                                <span>{isWholesale ? "Wholesale Dealer Rates Active" : "Retail & In-Store Prices"}</span>
+                            </div>
+                            <h2 className="section-title">
+                                {isWholesale ? "Bulk Electronics & Container Specials" : "Featured Appliances & Electronics"}
+                            </h2>
+                        </div>
+                    </div>
+                    <div className="loading-state">
+                        <div className="loading-spinner"></div>
+                        <p>Loading featured products...</p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (error) {
+        return (
+            <section className="product-listing-section" aria-label="Featured appliances and electronics">
+                <div className="product-listing-inner">
+                    <div className="product-section-top">
+                        <div className="product-title-group">
+                            <div className="mode-indicator-pill">
+                                {isWholesale ? <Building2 size={13} /> : <Zap size={13} />}
+                                <span>{isWholesale ? "Wholesale Dealer Rates Active" : "Retail & In-Store Prices"}</span>
+                            </div>
+                            <h2 className="section-title">
+                                {isWholesale ? "Bulk Electronics & Container Specials" : "Featured Appliances & Electronics"}
+                            </h2>
+                        </div>
+                    </div>
+                    <div className="error-state">
+                        <p>Failed to load products: {error}</p>
+                        <button onClick={() => window.location.reload()}>Retry</button>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section className="product-listing-section" aria-label="Featured appliances and electronics">
