@@ -38,7 +38,7 @@ router.post("/login-employee", async (req, res) => {
         const isMatch = await employee.comparePassword(password);
         if (!isMatch) return res.status(400).json({ success: false, message: "Invalid email or password" });
 
-        const token = jwt.sign({ id: employee._id, role: "employee" }, process.env.JWT_SECRET || "bcdjbsfnkndskdemlfwfkebfkw11", { expiresIn: "1d" });
+        const token = jwt.sign({ id: employee._id, role: "employee" }, process.env.JWT_SECRET || "change-me-in-env", { expiresIn: "1d" });
 
         res.json({
             success: true,

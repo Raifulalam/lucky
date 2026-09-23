@@ -38,8 +38,9 @@ router.post("/orders", authenticateToken, async (req, res) => {
         }
 
         for (const item of items) {
-            if (!mongoose.Types.ObjectId.isValid(item.itemId)) {
-                return res.status(400).json({ message: `Invalid itemId: ${item.itemId}` });
+            const prodId = item.productId || item.itemId;
+            if (!mongoose.Types.ObjectId.isValid(prodId)) {
+                return res.status(400).json({ message: `Invalid productId: ${prodId}` });
             }
             if (!item.name || !item.price || !item.quantity) {
                 return res.status(400).json({ message: "Each item must have name, price, and quantity" });
@@ -203,83 +204,93 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
         return res.status(400).json({ message: "Invalid order ID" });
     }
 
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const existingOrder = await Order.findById(req.params.id);
+        const existingOrder = await Order.findById(req.params.id).session(session);
         if (!existingOrder) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ message: "Order not found" });
         }
 
         const previousStatus = existingOrder.status;
         const newStatus = req.body.status;
 
-        // Handle inventory updates based on status change
+        // Handle inventory updates based on status change within transaction
         if (newStatus && newStatus !== previousStatus) {
             // When order is confirmed - reserve stock
             if (newStatus === "confirmed" && previousStatus === "pending") {
                 for (const item of existingOrder.items) {
-                    try {
-                        await reserveStock(
-                            item.itemId,
-                            item.quantity,
-                            existingOrder._id,
-                            req.user.id
-                        );
-                    } catch (stockError) {
-                        console.error("Failed to reserve stock:", stockError);
-                        // Continue with order update even if stock reservation fails
-                    }
+                    const prodId = item.productId || item.itemId;
+                    await reserveStock({
+                        productId: prodId,
+                        quantity: item.quantity,
+                        referenceId: existingOrder._id,
+                        userId: req.user.id,
+                        warehouseId: item.warehouseId || null,
+                        session
+                    });
                 }
             }
 
-            // When order is completed/delivered - deduct stock
+            // When order is completed/delivered - deduct stock and release reservation
             if ((newStatus === "completed" || newStatus === "delivered") && 
                 (previousStatus === "confirmed" || previousStatus === "processing")) {
                 for (const item of existingOrder.items) {
-                    try {
-                        await updateStock({
-                            productId: item.itemId,
-                            quantity: item.quantity,
-                            movementType: "SALE",
-                            referenceType: "SALE",
-                            referenceId: existingOrder._id,
-                            userId: req.user.id,
-                            reason: "Order completed",
-                            notes: `Order ${existingOrder._id}`
-                        });
-                    } catch (stockError) {
-                        console.error("Failed to deduct stock:", stockError);
-                        // Continue with order update even if stock deduction fails
-                    }
+                    const prodId = item.productId || item.itemId;
+                    // First release the reserved stock counter so it doesn't stay reserved
+                    await releaseReservedStock({
+                        productId: prodId,
+                        quantity: item.quantity,
+                        referenceId: existingOrder._id,
+                        userId: req.user.id,
+                        warehouseId: item.warehouseId || null,
+                        session
+                    });
+                    // Then deduct actual stock with SALE movement
+                    await updateStock({
+                        productId: prodId,
+                        warehouseId: item.warehouseId || null,
+                        locationId: item.warehouseId || null,
+                        quantity: item.quantity,
+                        movementType: "SALE",
+                        referenceType: "SALE",
+                        referenceModel: "Order",
+                        referenceId: existingOrder._id,
+                        userId: req.user.id,
+                        reason: "Order completed",
+                        notes: `Order ${existingOrder._id}`,
+                        session
+                    });
                 }
             }
 
             // When order is cancelled - release reserved stock
-            if (newStatus === "cancelled" && previousStatus !== "cancelled") {
+            if (newStatus === "cancelled" && (previousStatus === "confirmed" || previousStatus === "processing")) {
                 for (const item of existingOrder.items) {
-                    try {
-                        await releaseReservedStock(
-                            item.itemId,
-                            item.quantity,
-                            existingOrder._id,
-                            req.user.id
-                        );
-                    } catch (stockError) {
-                        console.error("Failed to release reserved stock:", stockError);
-                        // Continue with order update even if stock release fails
-                    }
+                    const prodId = item.productId || item.itemId;
+                    await releaseReservedStock({
+                        productId: prodId,
+                        quantity: item.quantity,
+                        referenceId: existingOrder._id,
+                        userId: req.user.id,
+                        warehouseId: item.warehouseId || null,
+                        session
+                    });
                 }
             }
         }
 
-        const updatedOrder = await Order.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        );
+        // Apply updates to existingOrder and save within session
+        Object.assign(existingOrder, req.body);
+        const updatedOrder = await existingOrder.save({ session });
 
-        if (!updatedOrder)
-            return res.status(404).json({ message: "Order not found" });
+        await session.commitTransaction();
+        session.endSession();
 
+        // Socket notifications after commit
         const io = req.app.get("io");
         if (io?.to) {
             const ownerId = updatedOrder?.user?.userId;
@@ -299,11 +310,11 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
             }
         }
 
-        // 📱 Send Live WhatsApp notification on order status change
-        if (req.body.status) {
+        // 📱 Send Live WhatsApp notification on order status change after commit
+        if (newStatus && newStatus !== previousStatus) {
             sendWhatsAppOrderStatusUpdate({
                 order: updatedOrder,
-                newStatus: req.body.status,
+                newStatus: updatedOrder.status,
             }).catch((waErr) => {
                 console.error("WhatsApp status update notification failed:", waErr);
             });
@@ -311,8 +322,10 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
 
         res.json(updatedOrder);
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         console.error("Update Order Error:", error);
-        res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: error.message || "Server error" });
     }
 });
 

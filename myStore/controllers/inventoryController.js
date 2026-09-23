@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Inventory = require("../Models/Inventory");
 const InventoryMovement = require("../Models/InventoryMovement");
 const StockTransfer = require("../Models/StockTransfer");
@@ -108,6 +109,7 @@ exports.stockIn = async (req, res) => {
     try {
         const {
             productId,
+            warehouseId,
             locationId,
             quantity,
             purchasePrice,
@@ -118,11 +120,13 @@ exports.stockIn = async (req, res) => {
         } = req.body;
 
         const userId = req.user?.id;
+        const targetWarehouseId = warehouseId || locationId;
 
         // Update stock
         const { inventory, movement } = await updateStock({
             productId,
-            locationId,
+            warehouseId: targetWarehouseId,
+            locationId: targetWarehouseId,
             quantity,
             movementType: "PURCHASE",
             referenceType: referenceType || "MANUAL",
@@ -145,7 +149,8 @@ exports.stockIn = async (req, res) => {
                 productId,
                 purchaseReference: referenceId,
                 purchaseDate: new Date(),
-                currentLocationId: locationId,
+                currentLocationId: targetWarehouseId,
+                warehouseId: targetWarehouseId,
                 status: "IN_STOCK"
             }));
 
@@ -169,6 +174,7 @@ exports.stockOut = async (req, res) => {
     try {
         const {
             productId,
+            warehouseId,
             locationId,
             quantity,
             referenceType,
@@ -179,11 +185,13 @@ exports.stockOut = async (req, res) => {
         } = req.body;
 
         const userId = req.user?.id;
+        const targetWarehouseId = warehouseId || locationId;
 
         // Update stock
         const { inventory, movement } = await updateStock({
             productId,
-            locationId,
+            warehouseId: targetWarehouseId,
+            locationId: targetWarehouseId,
             quantity,
             movementType: "SALE",
             referenceType: referenceType || "MANUAL",
@@ -218,6 +226,7 @@ exports.stockAdjustment = async (req, res) => {
     try {
         const {
             productId,
+            warehouseId,
             locationId,
             adjustmentType,
             currentQuantity,
@@ -227,12 +236,14 @@ exports.stockAdjustment = async (req, res) => {
         } = req.body;
 
         const userId = req.user?.id;
+        const targetWarehouseId = warehouseId || locationId;
         const difference = adjustedQuantity - currentQuantity;
 
         const adjustment = await StockAdjustment.create({
             adjustmentNumber: generateAdjustmentNumber(),
             productId,
-            locationId,
+            locationId: targetWarehouseId,
+            warehouseId: targetWarehouseId,
             adjustmentType,
             currentQuantity,
             adjustedQuantity,
@@ -248,10 +259,12 @@ exports.stockAdjustment = async (req, res) => {
             const movementType = difference > 0 ? "ADJUSTMENT_IN" : "ADJUSTMENT_OUT";
             const { inventory, movement } = await updateStock({
                 productId,
-                locationId,
+                warehouseId: targetWarehouseId,
+                locationId: targetWarehouseId,
                 quantity: Math.abs(difference),
                 movementType,
                 referenceType: "ADJUSTMENT",
+                referenceModel: "StockAdjustment",
                 referenceId: adjustment._id,
                 userId,
                 reason: reason || "Stock adjustment",
@@ -328,16 +341,24 @@ exports.approveTransfer = async (req, res) => {
 };
 
 exports.dispatchTransfer = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { id } = req.params;
+        const { notes } = req.body || {};
         const userId = req.user?.id;
 
-        const transfer = await StockTransfer.findById(id);
+        const transfer = await StockTransfer.findById(id).session(session);
         if (!transfer) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ success: false, message: "Transfer not found" });
         }
 
         if (transfer.status !== "APPROVED") {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ success: false, message: "Transfer must be approved first" });
         }
 
@@ -345,22 +366,29 @@ exports.dispatchTransfer = async (req, res) => {
         for (const item of transfer.items) {
             await updateStock({
                 productId: item.productId,
+                warehouseId: transfer.fromLocationId,
                 locationId: transfer.fromLocationId,
                 quantity: item.quantity,
                 movementType: "TRANSFER_OUT",
                 referenceType: "TRANSFER",
+                referenceModel: "StockTransfer",
                 referenceId: transfer._id,
                 userId,
                 reason: "Stock transfer dispatched",
-                notes
+                notes: notes || transfer.notes,
+                session
             });
 
             // Update serial numbers if provided
             if (item.serialNumbers && item.serialNumbers.length > 0) {
                 for (const sn of item.serialNumbers) {
-                    await updateSerialNumberStatus(sn, "TRANSFERRED", {
-                        currentLocationId: null
-                    });
+                    const serial = await SerialNumber.findOne({ serialNumber: sn }).session(session);
+                    if (serial) {
+                        serial.status = "TRANSFERRED";
+                        serial.currentLocationId = null;
+                        serial.warehouseId = null;
+                        await serial.save({ session });
+                    }
                 }
             }
         }
@@ -368,9 +396,12 @@ exports.dispatchTransfer = async (req, res) => {
         transfer.status = "IN_TRANSIT";
         transfer.dispatchedBy = userId;
         transfer.dispatchedAt = new Date();
-        await transfer.save();
+        await transfer.save({ session });
 
-        // Emit socket event
+        await session.commitTransaction();
+        session.endSession();
+
+        // Emit socket event after commit
         const io = req.app.get("io");
         if (io) {
             io.to("admins").emit("transferUpdated", { transfer });
@@ -378,21 +409,31 @@ exports.dispatchTransfer = async (req, res) => {
 
         res.json({ success: true, data: transfer });
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
 exports.receiveTransfer = async (req, res) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
         const { id } = req.params;
+        const { notes } = req.body || {};
         const userId = req.user?.id;
 
-        const transfer = await StockTransfer.findById(id);
+        const transfer = await StockTransfer.findById(id).session(session);
         if (!transfer) {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(404).json({ success: false, message: "Transfer not found" });
         }
 
         if (transfer.status !== "IN_TRANSIT") {
+            await session.abortTransaction();
+            session.endSession();
             return res.status(400).json({ success: false, message: "Transfer must be in transit" });
         }
 
@@ -400,22 +441,29 @@ exports.receiveTransfer = async (req, res) => {
         for (const item of transfer.items) {
             await updateStock({
                 productId: item.productId,
+                warehouseId: transfer.toLocationId,
                 locationId: transfer.toLocationId,
                 quantity: item.quantity,
                 movementType: "TRANSFER_IN",
                 referenceType: "TRANSFER",
+                referenceModel: "StockTransfer",
                 referenceId: transfer._id,
                 userId,
                 reason: "Stock transfer received",
-                notes
+                notes: notes || transfer.notes,
+                session
             });
 
             // Update serial numbers if provided
             if (item.serialNumbers && item.serialNumbers.length > 0) {
                 for (const sn of item.serialNumbers) {
-                    await updateSerialNumberStatus(sn, "IN_STOCK", {
-                        currentLocationId: transfer.toLocationId
-                    });
+                    const serial = await SerialNumber.findOne({ serialNumber: sn }).session(session);
+                    if (serial) {
+                        serial.status = "IN_STOCK";
+                        serial.currentLocationId = transfer.toLocationId;
+                        serial.warehouseId = transfer.toLocationId;
+                        await serial.save({ session });
+                    }
                 }
             }
         }
@@ -423,9 +471,12 @@ exports.receiveTransfer = async (req, res) => {
         transfer.status = "RECEIVED";
         transfer.receivedBy = userId;
         transfer.receivedAt = new Date();
-        await transfer.save();
+        await transfer.save({ session });
 
-        // Emit socket event
+        await session.commitTransaction();
+        session.endSession();
+
+        // Emit socket event after commit
         const io = req.app.get("io");
         if (io) {
             io.to("admins").emit("transferUpdated", { transfer });
@@ -433,6 +484,8 @@ exports.receiveTransfer = async (req, res) => {
 
         res.json({ success: true, data: transfer });
     } catch (error) {
+        await session.abortTransaction();
+        session.endSession();
         res.status(500).json({ success: false, message: error.message });
     }
 };

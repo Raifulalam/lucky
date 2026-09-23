@@ -46,7 +46,7 @@ const stockAdjustmentSchema = new Schema(
         },
         approvedBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users",
+            ref: "User",   // FIXED: was "users"
             required: true
         },
         status: {

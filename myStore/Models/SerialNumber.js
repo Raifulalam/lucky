@@ -37,7 +37,7 @@ const serialNumberSchema = new Schema(
         },
         customerId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users"
+            ref: "User"   // FIXED: was "users"
         },
         saleDate: {
             type: Date
@@ -48,6 +48,12 @@ const serialNumberSchema = new Schema(
         warrantyExpiryDate: {
             type: Date
         },
+        // warehouseId is canonical, currentLocationId is kept for backward compat
+        warehouseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Warehouse",
+            index: true
+        },
         currentLocationId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Warehouse",
@@ -55,7 +61,7 @@ const serialNumberSchema = new Schema(
         },
         status: {
             type: String,
-            enum: ["IN_STOCK", "RESERVED", "SOLD", "RETURNED", "DAMAGED", "WARRANTY", "TRANSFERRED"],
+            enum: ["IN_STOCK", "RESERVED", "SOLD", "RETURNED", "DAMAGED", "WARRANTY", "TRANSFERRED", "CANCELLED"],
             default: "IN_STOCK",
             index: true
         }

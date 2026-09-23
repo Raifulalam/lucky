@@ -16,8 +16,13 @@ const customerReturnSchema = new Schema(
         },
         customerId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users",
+            ref: "User",   // FIXED: was "users"
             required: true
+        },
+        // Warehouse to restock the returned item to (if action = RESTOCK)
+        warehouseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Warehouse"
         },
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -54,7 +59,7 @@ const customerReturnSchema = new Schema(
         },
         approvedBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users"
+            ref: "User"   // FIXED: was "users"
         },
         notes: {
             type: String,

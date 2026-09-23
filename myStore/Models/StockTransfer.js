@@ -43,19 +43,19 @@ const stockTransferSchema = new Schema(
         }],
         requestedBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users"
+            ref: "User"   // FIXED: was "users"
         },
         approvedBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users"
+            ref: "User"   // FIXED: was "users"
         },
         dispatchedBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users"
+            ref: "User"   // FIXED: was "users"
         },
         receivedBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users"
+            ref: "User"   // FIXED: was "users"
         },
         requestedAt: {
             type: Date

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Inventory = require("../Models/Inventory");
 const InventoryMovement = require("../Models/InventoryMovement");
 const SerialNumber = require("../Models/SerialNumber");
@@ -30,73 +31,149 @@ const generateAdjustmentNumber = () => {
     return `ADJ-${year}${month}-${random}`;
 };
 
-// Get or create inventory for a product
-const getOrCreateInventory = async (productId) => {
-    let inventory = await Inventory.findOne({ productId });
+// Get or create inventory for a product and optional warehouse
+const getOrCreateInventory = async (productId, warehouseId = null, session = null) => {
+    const query = { productId };
+    if (warehouseId) {
+        query.warehouseId = warehouseId;
+    }
+
+    let inventory = session
+        ? await Inventory.findOne(query).session(session)
+        : await Inventory.findOne(query);
+
     if (!inventory) {
-        inventory = await Inventory.create({ productId });
+        // If searching with warehouseId didn't find one, check if legacy record without warehouseId exists
+        if (warehouseId) {
+            const legacyInv = session
+                ? await Inventory.findOne({ productId, warehouseId: { $exists: false } }).session(session)
+                : await Inventory.findOne({ productId, warehouseId: { $exists: false } });
+
+            if (legacyInv) {
+                legacyInv.warehouseId = warehouseId;
+                await legacyInv.save({ session });
+                return legacyInv;
+            }
+        }
+
+        const createData = {
+            productId,
+            warehouseId: warehouseId || undefined,
+            locations: warehouseId ? [{ locationId: warehouseId, quantity: 0 }] : []
+        };
+
+        if (session) {
+            const created = await Inventory.create([createData], { session });
+            inventory = created[0];
+        } else {
+            inventory = await Inventory.create(createData);
+        }
     }
     return inventory;
 };
 
-// Update stock with movement record
-const updateStock = async ({
-    productId,
-    locationId,
-    quantity,
-    movementType,
-    referenceType,
-    referenceId,
-    userId,
-    reason,
-    notes
-}) => {
-    const session = await Inventory.startSession();
-    session.startTransaction();
+// Update stock with movement record (supports external transaction session)
+const updateStock = async (params) => {
+    const {
+        productId,
+        warehouseId,
+        locationId,
+        quantity,
+        movementType,
+        referenceType,
+        referenceModel,
+        referenceId,
+        userId,
+        reason,
+        notes,
+        session: externalSession
+    } = params;
+
+    const targetWarehouseId = warehouseId || locationId || null;
+    const cleanRefId = (referenceId && referenceId !== "") ? referenceId : null;
+    
+    // Normalize referenceModel
+    let resolvedRefModel = referenceModel || null;
+    if (!resolvedRefModel && referenceType) {
+        const typeMap = {
+            SALE: "Order",
+            ORDER: "Order",
+            PURCHASE: "Purchase",
+            TRANSFER: "StockTransfer",
+            ADJUSTMENT: "StockAdjustment",
+            RETURN: "CustomerReturn",
+            CUSTOMER_RETURN: "CustomerReturn",
+            SUPPLIER_RETURN: "SupplierReturn"
+        };
+        resolvedRefModel = typeMap[referenceType] || null;
+    }
+
+    // Determine if caller provided an existing session or if we manage our own
+    const isManagedSession = !externalSession;
+    const session = externalSession || (await mongoose.startSession());
+    if (isManagedSession) {
+        session.startTransaction();
+    }
 
     try {
-        const inventory = await getOrCreateInventory(productId);
-        const previousStock = inventory.currentStock;
-        
+        const inventory = await getOrCreateInventory(productId, targetWarehouseId, session);
+        const previousStock = inventory.currentStock || 0;
+
         // Calculate new stock
-        const isIncrease = ["PURCHASE", "SALE_RETURN", "TRANSFER_IN", "ADJUSTMENT_IN", "OPENING_STOCK"].includes(movementType);
+        const isIncrease = [
+            "PURCHASE",
+            "SALE_RETURN",
+            "CUSTOMER_RETURN",
+            "TRANSFER_IN",
+            "ADJUSTMENT_IN",
+            "OPENING_STOCK"
+        ].includes(movementType);
+
         const newStock = isIncrease ? previousStock + quantity : previousStock - quantity;
 
         // Prevent negative stock
         if (newStock < 0) {
-            throw new Error("Insufficient stock for this operation");
+            throw new Error(`Insufficient stock for product ${productId}. Current: ${previousStock}, Requested: ${quantity}`);
         }
 
-        // Check for idempotency - prevent duplicate operations
-        const existingMovement = await InventoryMovement.findOne({
-            referenceType,
-            referenceId,
-            productId
-        });
-
-        if (existingMovement) {
-            await session.abortTransaction();
-            session.endSession();
-            throw new Error("This operation has already been processed");
+        // Idempotency check if reference is provided
+        if (cleanRefId && (referenceType || resolvedRefModel)) {
+            const idempotencyQuery = {
+                productId,
+                referenceId: cleanRefId,
+                movementType
+            };
+            const existingMovement = await InventoryMovement.findOne(idempotencyQuery).session(session);
+            if (existingMovement) {
+                if (isManagedSession) {
+                    await session.abortTransaction();
+                    session.endSession();
+                }
+                throw new Error("This inventory operation has already been processed");
+            }
         }
 
-        // Update inventory
+        // Update inventory totals
         inventory.currentStock = newStock;
-        inventory.availableStock = newStock - inventory.reservedStock;
+        inventory.availableStock = Math.max(0, newStock - (inventory.reservedStock || 0) - (inventory.damagedStock || 0));
+        if (targetWarehouseId && !inventory.warehouseId) {
+            inventory.warehouseId = targetWarehouseId;
+        }
 
-        // Update location stock if location provided
-        if (locationId) {
-            const locationIndex = inventory.locations.findIndex(
-                loc => loc.locationId.toString() === locationId.toString()
+        // Update locations array for backward compatibility
+        if (targetWarehouseId) {
+            if (!inventory.locations) inventory.locations = [];
+            const locIndex = inventory.locations.findIndex(
+                loc => loc.locationId && loc.locationId.toString() === targetWarehouseId.toString()
             );
 
-            if (locationIndex >= 0) {
-                inventory.locations[locationIndex].quantity = isIncrease
-                    ? inventory.locations[locationIndex].quantity + quantity
-                    : inventory.locations[locationIndex].quantity - quantity;
+            if (locIndex >= 0) {
+                inventory.locations[locIndex].quantity = isIncrease
+                    ? (inventory.locations[locIndex].quantity || 0) + quantity
+                    : Math.max(0, (inventory.locations[locIndex].quantity || 0) - quantity);
             } else {
                 inventory.locations.push({
-                    locationId,
+                    locationId: targetWarehouseId,
                     quantity: isIncrease ? quantity : 0,
                     reserved: 0,
                     damaged: 0
@@ -107,115 +184,176 @@ const updateStock = async ({
         await inventory.save({ session });
 
         // Create movement record
-        const movement = await InventoryMovement.create([{
+        const movementData = {
             movementId: generateMovementId(),
             productId,
             sku: inventory.sku,
-            locationId,
+            warehouseId: targetWarehouseId,
+            locationId: targetWarehouseId,
             movementType,
             quantity: isIncrease ? quantity : -quantity,
             previousStock,
             newStock,
-            referenceType,
-           referenceId: referenceId || null,
-            userId,
-            reason,
-            notes
-        }], { session });
+            referenceType: referenceType || (resolvedRefModel ? resolvedRefModel.toUpperCase() : undefined),
+            referenceModel: resolvedRefModel,
+            referenceId: cleanRefId,
+            userId: userId || undefined,
+            reason: reason || "",
+            notes: notes || ""
+        };
 
-        await session.commitTransaction();
-        session.endSession();
+        const movement = await InventoryMovement.create([movementData], { session });
+
+        if (isManagedSession) {
+            await session.commitTransaction();
+            session.endSession();
+        }
 
         return { inventory, movement: movement[0] };
     } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
+        if (isManagedSession) {
+            await session.abortTransaction();
+            session.endSession();
+        }
         throw error;
     }
 };
 
-// Reserve stock for a sale
-const reserveStock = async (productId, quantity, referenceId, userId) => {
-    const session = await Inventory.startSession();
-    session.startTransaction();
+// Reserve stock for a sale (supports both positional and object arguments)
+const reserveStock = async (arg1, arg2, arg3, arg4, arg5, arg6) => {
+    let productId, quantity, referenceId, userId, warehouseId, externalSession;
+
+    if (typeof arg1 === "object" && arg1 !== null) {
+        ({ productId, quantity, referenceId, userId, warehouseId, session: externalSession } = arg1);
+    } else {
+        productId = arg1;
+        quantity = arg2;
+        referenceId = arg3;
+        userId = arg4;
+        warehouseId = arg5 || null;
+        externalSession = arg6 || null;
+    }
+
+    const cleanRefId = (referenceId && referenceId !== "") ? referenceId : null;
+    const isManagedSession = !externalSession;
+    const session = externalSession || (await mongoose.startSession());
+    if (isManagedSession) {
+        session.startTransaction();
+    }
 
     try {
-        const inventory = await getOrCreateInventory(productId);
-        
-        if (inventory.availableStock < quantity) {
-            throw new Error("Insufficient available stock");
+        const inventory = await getOrCreateInventory(productId, warehouseId, session);
+        const available = Math.max(0, (inventory.currentStock || 0) - (inventory.reservedStock || 0) - (inventory.damagedStock || 0));
+
+        if (available < quantity) {
+            throw new Error(`Insufficient available stock for product ${productId}. Available: ${available}, Requested: ${quantity}`);
         }
 
-        inventory.reservedStock += quantity;
-        inventory.availableStock = inventory.currentStock - inventory.reservedStock;
+        inventory.reservedStock = (inventory.reservedStock || 0) + quantity;
+        inventory.availableStock = Math.max(0, (inventory.currentStock || 0) - inventory.reservedStock - (inventory.damagedStock || 0));
 
         await inventory.save({ session });
 
-        // Create movement record
-        const movement = await InventoryMovement.create([{
+        const movementData = {
             movementId: generateMovementId(),
             productId,
             sku: inventory.sku,
+            warehouseId: warehouseId || inventory.warehouseId || null,
+            locationId: warehouseId || inventory.warehouseId || null,
             movementType: "RESERVE",
             quantity: -quantity,
             previousStock: inventory.currentStock,
             newStock: inventory.currentStock,
             referenceType: "SALE",
-            referenceId: referenceId || null,
-            userId,
+            referenceModel: "Order",
+            referenceId: cleanRefId,
+            userId: userId || undefined,
             reason: "Stock reserved for sale"
-        }], { session });
+        };
 
-        await session.commitTransaction();
-        session.endSession();
+        const movement = await InventoryMovement.create([movementData], { session });
+
+        if (isManagedSession) {
+            await session.commitTransaction();
+            session.endSession();
+        }
 
         return { inventory, movement: movement[0] };
     } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
+        if (isManagedSession) {
+            await session.abortTransaction();
+            session.endSession();
+        }
         throw error;
     }
 };
 
-// Release reserved stock
-const releaseReservedStock = async (productId, quantity, referenceId, userId) => {
-    const session = await Inventory.startSession();
-    session.startTransaction();
+// Release reserved stock (e.g. order cancelled)
+const releaseReservedStock = async (arg1, arg2, arg3, arg4, arg5, arg6) => {
+    let productId, quantity, referenceId, userId, warehouseId, externalSession;
+
+    if (typeof arg1 === "object" && arg1 !== null) {
+        ({ productId, quantity, referenceId, userId, warehouseId, session: externalSession } = arg1);
+    } else {
+        productId = arg1;
+        quantity = arg2;
+        referenceId = arg3;
+        userId = arg4;
+        warehouseId = arg5 || null;
+        externalSession = arg6 || null;
+    }
+
+    const cleanRefId = (referenceId && referenceId !== "") ? referenceId : null;
+    const isManagedSession = !externalSession;
+    const session = externalSession || (await mongoose.startSession());
+    if (isManagedSession) {
+        session.startTransaction();
+    }
 
     try {
-        const inventory = await getOrCreateInventory(productId);
-        
-        if (inventory.reservedStock < quantity) {
-            throw new Error("Insufficient reserved stock to release");
+        const inventory = await getOrCreateInventory(productId, warehouseId, session);
+
+        if ((inventory.reservedStock || 0) < quantity) {
+            // Cap release at current reservedStock to avoid negative reserved stock
+            inventory.reservedStock = 0;
+        } else {
+            inventory.reservedStock = (inventory.reservedStock || 0) - quantity;
         }
 
-        inventory.reservedStock -= quantity;
-        inventory.availableStock = inventory.currentStock - inventory.reservedStock;
+        inventory.availableStock = Math.max(0, (inventory.currentStock || 0) - inventory.reservedStock - (inventory.damagedStock || 0));
 
         await inventory.save({ session });
 
-        // Create movement record
-        const movement = await InventoryMovement.create([{
+        const movementData = {
             movementId: generateMovementId(),
             productId,
             sku: inventory.sku,
+            warehouseId: warehouseId || inventory.warehouseId || null,
+            locationId: warehouseId || inventory.warehouseId || null,
             movementType: "RELEASE",
             quantity: quantity,
             previousStock: inventory.currentStock,
             newStock: inventory.currentStock,
             referenceType: "SALE",
-            referenceId: referenceId || null,
-            userId,
+            referenceModel: "Order",
+            referenceId: cleanRefId,
+            userId: userId || undefined,
             reason: "Reserved stock released"
-        }], { session });
+        };
 
-        await session.commitTransaction();
-        session.endSession();
+        const movement = await InventoryMovement.create([movementData], { session });
+
+        if (isManagedSession) {
+            await session.commitTransaction();
+            session.endSession();
+        }
 
         return { inventory, movement: movement[0] };
     } catch (error) {
-        await session.abortTransaction();
-        session.endSession();
+        if (isManagedSession) {
+            await session.abortTransaction();
+            session.endSession();
+        }
         throw error;
     }
 };
@@ -224,7 +362,7 @@ const releaseReservedStock = async (productId, quantity, referenceId, userId) =>
 const updateSerialNumberStatus = async (serialNumber, status, additionalData = {}) => {
     const serial = await SerialNumber.findOne({ serialNumber });
     if (!serial) {
-        throw new Error("Serial number not found");
+        throw new Error(`Serial number ${serialNumber} not found`);
     }
 
     Object.assign(serial, { status, ...additionalData });
@@ -258,15 +396,15 @@ const getInventorySummary = async () => {
             }
         }
     ]);
-  const lowStock = await Inventory.countDocuments({
-    status: "ACTIVE",
-    $expr: {
-        $and: [
-            { $gt: ["$currentStock", 0] },
-            { $lte: ["$currentStock", "$reorderLevel"] }
-        ]
-    }
-});
+    const lowStock = await Inventory.countDocuments({
+        status: "ACTIVE",
+        $expr: {
+            $and: [
+                { $gt: ["$currentStock", 0] },
+                { $lte: ["$currentStock", "$reorderLevel"] }
+            ]
+        }
+    });
     const outOfStock = await Inventory.countDocuments({
         status: "ACTIVE",
         currentStock: 0
@@ -281,11 +419,16 @@ const getInventorySummary = async () => {
     };
 };
 
-// Get low stock products
+// Get low stock products with valid $expr check
 const getLowStockProducts = async () => {
     return await Inventory.find({
         status: "ACTIVE",
-        $expr: { $lte: ["$currentStock", "$reorderLevel"] }
+        $expr: {
+            $and: [
+                { $gt: ["$currentStock", 0] },
+                { $lte: ["$currentStock", "$reorderLevel"] }
+            ]
+        }
     }).populate("productId");
 };
 

@@ -11,8 +11,7 @@ const contactRoutes = require("./contactMessage");   // Contact messages
 const categoryRoutes = require("./productcategory"); // Product categories
 const employeeRoutes = require("./EmployeeRoutes");  // Employee related routes
 const dashboardRoutes = require("./Dashboard");      // Dashboard stats
-const hrmsRoutes = require("../hrms/routes");        // HRMS routes
-const reviewRoutes =require("./reviewRoutes");
+const reviewRoutes = require("./reviewRoutes");
 const whatsaapRoutes= require("./whatsaap");
 const inventoryRoutes = require('./inventory');
 
@@ -48,11 +47,9 @@ router.use("/dashboard", dashboardRoutes);
 
 //Whatsaap routes
 
-// HRMS routes
-router.use("/hrms", hrmsRoutes);
- router.use("/review",reviewRoutes);
-router.use("/whatsaap",whatsaapRoutes)
-router.use("/mobiles",mobileRoutes);
+// HRMS routes are mounted in index.js at /api/hrms
+router.use("/review", reviewRoutes);
+router.use("/whatsaap", whatsaapRoutes);
 
 // Inventory routes
 router.use("/inventory", inventoryRoutes);

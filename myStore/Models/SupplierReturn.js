@@ -40,9 +40,13 @@ const supplierReturnSchema = new Schema(
             default: "CREATED",
             index: true
         },
+        warehouseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Warehouse"
+        },
         approvedBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "users"
+            ref: "User"   // FIXED: was "users"
         },
         notes: {
             type: String,

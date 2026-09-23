@@ -1,25 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const inventoryController = require("../controllers/inventoryController");
+const authenticateToken = require("../middlewares/auth");
 
-// Middleware to check authentication
-const authenticate = (req, res, next) => {
-    const token = req.headers.authorization?.replace("Bearer ", "");
-    if (!token) {
-        return res.status(401).json({ success: false, message: "Authentication required" });
-    }
-    try {
-        const jwt = require("jsonwebtoken");
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || "change-me-in-env");
-        req.user = decoded;
-        next();
-    } catch (error) {
-        res.status(401).json({ success: false, message: "Invalid token" });
-    }
-};
-
-// Apply authentication to all routes
-router.use(authenticate);
+// Apply canonical authentication to all inventory routes
+router.use(authenticateToken);
 
 // ==================== INVENTORY SUMMARY ====================
 router.get("/summary", inventoryController.getInventorySummary);

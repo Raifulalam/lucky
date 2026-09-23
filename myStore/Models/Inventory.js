@@ -7,13 +7,16 @@ const inventorySchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Product",
             required: true,
-            unique: true,
+            index: true
+        },
+        // Warehouse where this stock is held (canonical warehouse-aware field)
+        warehouseId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Warehouse",
             index: true
         },
         sku: {
             type: String,
-            unique: true,
-            sparse: true,
             trim: true,
             index: true
         },
@@ -113,6 +116,8 @@ const inventorySchema = new Schema(
 );
 
 // Indexes
+inventorySchema.index({ productId: 1, warehouseId: 1 }, { unique: true, sparse: true });
+inventorySchema.index({ warehouseId: 1 });
 inventorySchema.index({ sku: 1 }, { unique: true, sparse: true });
 inventorySchema.index({ barcode: 1 });
 inventorySchema.index({ "locations.locationId": 1 });

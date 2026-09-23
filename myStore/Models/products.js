@@ -48,6 +48,12 @@ const productSchema = new Schema(
             index: true,
         },
 
+        categoryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "ProductsCategory",
+            index: true
+        },
+
         category: {
             type: String,
             required: true,
