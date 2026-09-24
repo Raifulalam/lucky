@@ -169,6 +169,12 @@ const InventoryDashboard = () => {
                 <h2>Quick Actions</h2>
                 <div className="quick-actions-grid">
                     <QuickAction
+                        title="Excel Grid Spreadsheet"
+                        icon={Package}
+                        color="blue"
+                        onClick={() => window.location.href = "/admin/inventory"}
+                    />
+                    <QuickAction
                         title="Stock In"
                         icon={Plus}
                         color="green"

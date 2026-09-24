@@ -462,6 +462,7 @@ const io = req.app.get("io");
 
 if (io) {
     io.emit("productUpdated", product);
+    io.emit("inventoryUpdated", { productId: product._id });
 }
 
         res.json(product);

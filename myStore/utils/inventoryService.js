@@ -32,45 +32,41 @@ const generateAdjustmentNumber = () => {
     return `ADJ-${year}${month}-${random}`;
 };
 
-// Get or create inventory for a product and optional warehouse
+// Get or create inventory for a product and optional warehouse.
+// Uses atomic findOneAndUpdate with upsert to prevent E11000 duplicate key race conditions.
 const getOrCreateInventory = async (productId, warehouseId = null, session = null) => {
     const query = { productId };
-    if (warehouseId) {
-        query.warehouseId = warehouseId;
-    }
+    if (warehouseId) query.warehouseId = warehouseId;
 
-    let inventory = session
-        ? await Inventory.findOne(query).session(session)
-        : await Inventory.findOne(query);
+    const opts = { upsert: true, new: true, setDefaultsOnInsert: true };
+    if (session) opts.session = session;
 
-    if (!inventory) {
-        // If searching with warehouseId didn't find one, check if legacy record without warehouseId exists
-        if (warehouseId) {
-            const legacyInv = session
-                ? await Inventory.findOne({ productId, warehouseId: { $exists: false } }).session(session)
-                : await Inventory.findOne({ productId, warehouseId: { $exists: false } });
-
-            if (legacyInv) {
-                legacyInv.warehouseId = warehouseId;
-                await legacyInv.save({ session });
-                return legacyInv;
-            }
+    // Try primary query atomically
+    try {
+        const inventory = await Inventory.findOneAndUpdate(
+            query,
+            { $setOnInsert: {
+                productId,
+                warehouseId: warehouseId || undefined,
+                currentStock: 0,
+                availableStock: 0,
+                reservedStock: 0,
+                damagedStock: 0,
+                locations: warehouseId ? [{ locationId: warehouseId, quantity: 0 }] : []
+            }},
+            opts
+        );
+        return inventory;
+    } catch (err) {
+        // If upsert itself races and hits a duplicate (extremely rare), retry as a plain find
+        if (err.code === 11000) {
+            const found = session
+                ? await Inventory.findOne(query).session(session)
+                : await Inventory.findOne(query);
+            if (found) return found;
         }
-
-        const createData = {
-            productId,
-            warehouseId: warehouseId || undefined,
-            locations: warehouseId ? [{ locationId: warehouseId, quantity: 0 }] : []
-        };
-
-        if (session) {
-            const created = await Inventory.create([createData], { session });
-            inventory = created[0];
-        } else {
-            inventory = await Inventory.create(createData);
-        }
+        throw err;
     }
-    return inventory;
 };
 
 // Update stock with movement record (supports external transaction session)
@@ -487,6 +483,7 @@ const getInventoryValuation = async () => {
 };
 
 // ==================== SYNC ALL PRODUCTS TO INVENTORY ====================
+// Uses upsert to safely handle duplicate key errors during bulk sync.
 const syncAllProductsToInventory = async () => {
     try {
         let warehouse = await Warehouse.findOne({ code: "MAIN" }) ||
@@ -509,62 +506,63 @@ const syncAllProductsToInventory = async () => {
         let syncedCount = 0;
 
         for (const prod of products) {
-            let inv = await Inventory.findOne({ productId: prod._id });
-
             const prodStock = Number(prod.stock) || 0;
             const sellingPrice = Number(prod.price) || 0;
             const purchasePrice = prod.mrp ? Math.round(prod.mrp * 0.8) : sellingPrice;
 
-            if (!inv) {
-                await Inventory.create({
-                    productId: prod._id,
-                    warehouseId: warehouse._id,
-                    currentStock: prodStock,
-                    availableStock: prodStock,
-                    reservedStock: 0,
-                    damagedStock: 0,
-                    sellingPrice,
-                    purchasePrice,
-                    status: "ACTIVE",
-                    locations: [{
-                        locationId: warehouse._id,
-                        quantity: prodStock,
-                        reserved: 0,
-                        damaged: 0
-                    }]
-                });
+            // Atomic upsert — prevents E11000 duplicate key errors
+            const result = await Inventory.findOneAndUpdate(
+                { productId: prod._id, warehouseId: warehouse._id },
+                {
+                    $setOnInsert: {
+                        productId: prod._id,
+                        warehouseId: warehouse._id,
+                        currentStock: prodStock,
+                        availableStock: prodStock,
+                        reservedStock: 0,
+                        damagedStock: 0,
+                        sellingPrice,
+                        purchasePrice,
+                        status: "ACTIVE",
+                        locations: [{
+                            locationId: warehouse._id,
+                            quantity: prodStock,
+                            reserved: 0,
+                            damaged: 0
+                        }]
+                    },
+                    $set: {
+                        ...(sellingPrice ? { sellingPrice } : {}),
+                        ...(purchasePrice ? { purchasePrice } : {})
+                    }
+                },
+                { upsert: true, new: false, setDefaultsOnInsert: true }
+            );
+
+            if (!result) {
+                // null means upsert created a new doc
                 createdCount++;
             } else {
+                // Sync stock values if needed
                 let needsSave = false;
-                if (!inv.warehouseId) {
-                    inv.warehouseId = warehouse._id;
-                    needsSave = true;
-                }
-                // If inventory currentStock is 0 but product has stock, sync product stock into inventory
+                const inv = result;
+                if (!inv.warehouseId) { inv.warehouseId = warehouse._id; needsSave = true; }
                 if ((inv.currentStock === 0 || inv.currentStock === undefined) && prodStock > 0) {
                     inv.currentStock = prodStock;
                     inv.availableStock = Math.max(0, prodStock - (inv.reservedStock || 0));
                     needsSave = true;
                 }
-                // If product has 0 stock but inventory has stock, sync inventory stock to product
                 if (prod.stock === 0 && (inv.currentStock || 0) > 0) {
                     await Product.findByIdAndUpdate(prod._id, { stock: inv.currentStock });
                 }
-                if (!inv.sellingPrice && sellingPrice) {
-                    inv.sellingPrice = sellingPrice;
-                    needsSave = true;
-                }
-                if (needsSave) {
-                    await inv.save();
-                    syncedCount++;
-                }
+                if (needsSave) { await inv.save(); syncedCount++; }
             }
         }
 
-        console.log(`✅ [Inventory Sync] Synced products. Total: ${products.length}, Created: ${createdCount}, Updated: ${syncedCount}`);
+        console.log(`✅ [Inventory Sync] Total: ${products.length}, Created: ${createdCount}, Updated: ${syncedCount}`);
         return { success: true, total: products.length, createdCount, syncedCount };
     } catch (err) {
-        console.error("❌ [Inventory Sync] Failed to sync products to inventory:", err);
+        console.error("❌ [Inventory Sync] Failed:", err);
         throw err;
     }
 };
