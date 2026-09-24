@@ -285,6 +285,15 @@ const mapSocketPayloadToMessage = (eventName, payload, session) => {
         };
     }
 
+    if (eventName === "orderCompletedAdminReminder") {
+        return {
+            title: payload?.title || "Stock Adjustment Reminder",
+            message: payload?.message || "An order was completed. Please verify physical inventory and adjust stock.",
+            type: "warning",
+            dedupeKey: `admin-stock-reminder:${payload?.orderId || ""}`,
+        };
+    }
+
     return null;
 };
 
@@ -765,6 +774,7 @@ export const NotificationProvider = ({ children }) => {
         const handleOrderUpdated = (payload) => mapAndNotify("orderUpdated", payload);
         const handleOrderStatusUpdated = (payload) => mapAndNotify("orderStatusUpdated", payload);
         const handleOrderStatusChanged = (payload) => mapAndNotify("orderStatusChanged", payload);
+        const handleOrderCompletedAdminReminder = (payload) => mapAndNotify("orderCompletedAdminReminder", payload);
 
         socket.on("productCreated", handleProductCreated);
         socket.on("productUpdated", handleProductUpdated);
@@ -775,6 +785,7 @@ export const NotificationProvider = ({ children }) => {
         socket.on("orderUpdated", handleOrderUpdated);
         socket.on("orderStatusUpdated", handleOrderStatusUpdated);
         socket.on("orderStatusChanged", handleOrderStatusChanged);
+        socket.on("orderCompletedAdminReminder", handleOrderCompletedAdminReminder);
 
         return () => {
             socket.off("productCreated", handleProductCreated);
@@ -786,6 +797,7 @@ export const NotificationProvider = ({ children }) => {
             socket.off("orderUpdated", handleOrderUpdated);
             socket.off("orderStatusUpdated", handleOrderStatusUpdated);
             socket.off("orderStatusChanged", handleOrderStatusChanged);
+            socket.off("orderCompletedAdminReminder", handleOrderCompletedAdminReminder);
         };
     }, [appendNotification, hasRecentDedupeKey, session]);
 

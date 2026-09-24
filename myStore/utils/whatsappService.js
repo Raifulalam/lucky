@@ -146,6 +146,30 @@ _Please review in Admin Dashboard and address immediately._`;
     return sendWhatsAppMessage({ to: adminPhone, message: adminMessage });
 }
 
+/**
+ * Hook: Triggered when an order completes to remind admin to verify / adjust physical stock
+ */
+async function sendWhatsAppAdminStockReminder({ order }) {
+    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779809278236";
+    const orderId = order._id ? order._id.toString().slice(-6).toUpperCase() : "N/A";
+    const itemsSummary = (order.items || [])
+        .map((item, idx) => `  ${idx + 1}. ${item.name} × ${item.quantity}`)
+        .join("\n");
+
+    const message = `🔔 *STOCK ADJUSTMENT REMINDER!* (Order #${orderId})
+━━━━━━━━━━━━━━━━━━━━━
+Order #${orderId} has been marked *COMPLETED / DELIVERED*.
+Stock has been deducted from your digital catalog.
+
+📦 *Items to verify / adjust in showroom / warehouse:*
+${itemsSummary || "  No items detailed"}
+━━━━━━━━━━━━━━━━━━━━━
+_Please verify physical inventory on the floor and adjust stock levels if needed:_
+👉 https://luckyimpex.com/admin/inventory/adjustment`;
+
+    return sendWhatsAppMessage({ to: adminPhone, message });
+}
+
 module.exports = {
     formatNepalPhoneNumber,
     sendWhatsAppMessage,
@@ -153,4 +177,5 @@ module.exports = {
     sendWhatsAppQueryNotification,
     sendWhatsAppComplaintNotification,
     sendWhatsAppOrderStatusUpdate,
+    sendWhatsAppAdminStockReminder,
 };

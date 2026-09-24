@@ -3,6 +3,7 @@ const Inventory = require("../Models/Inventory");
 const InventoryMovement = require("../Models/InventoryMovement");
 const SerialNumber = require("../Models/SerialNumber");
 const Warehouse = require("../Models/Warehouse");
+const Product = require("../Models/products");
 
 // Generate unique movement ID
 const generateMovementId = () => {
@@ -182,6 +183,17 @@ const updateStock = async (params) => {
         }
 
         await inventory.save({ session });
+
+        // Two-way synchronization: update Product.stock in lockstep
+        try {
+            await Product.findByIdAndUpdate(
+                productId,
+                { stock: newStock },
+                session ? { session } : {}
+            );
+        } catch (prodSyncErr) {
+            console.warn(`Warning: failed to sync Product.stock for ${productId}:`, prodSyncErr.message);
+        }
 
         // Create movement record
         const movementData = {
@@ -474,6 +486,89 @@ const getInventoryValuation = async () => {
     return valuation;
 };
 
+// ==================== SYNC ALL PRODUCTS TO INVENTORY ====================
+const syncAllProductsToInventory = async () => {
+    try {
+        let warehouse = await Warehouse.findOne({ code: "MAIN" }) ||
+                        await Warehouse.findOne({ isActive: true }) ||
+                        await Warehouse.findOne();
+
+        if (!warehouse) {
+            warehouse = await Warehouse.create({
+                name: "Lucky Impex Showroom",
+                code: "MAIN",
+                address: "Central Showroom & Distribution Center",
+                manager: "Admin",
+                phone: "+977-9800000000",
+                isActive: true
+            });
+        }
+
+        const products = await Product.find().lean();
+        let createdCount = 0;
+        let syncedCount = 0;
+
+        for (const prod of products) {
+            let inv = await Inventory.findOne({ productId: prod._id });
+
+            const prodStock = Number(prod.stock) || 0;
+            const sellingPrice = Number(prod.price) || 0;
+            const purchasePrice = prod.mrp ? Math.round(prod.mrp * 0.8) : sellingPrice;
+
+            if (!inv) {
+                await Inventory.create({
+                    productId: prod._id,
+                    warehouseId: warehouse._id,
+                    currentStock: prodStock,
+                    availableStock: prodStock,
+                    reservedStock: 0,
+                    damagedStock: 0,
+                    sellingPrice,
+                    purchasePrice,
+                    status: "ACTIVE",
+                    locations: [{
+                        locationId: warehouse._id,
+                        quantity: prodStock,
+                        reserved: 0,
+                        damaged: 0
+                    }]
+                });
+                createdCount++;
+            } else {
+                let needsSave = false;
+                if (!inv.warehouseId) {
+                    inv.warehouseId = warehouse._id;
+                    needsSave = true;
+                }
+                // If inventory currentStock is 0 but product has stock, sync product stock into inventory
+                if ((inv.currentStock === 0 || inv.currentStock === undefined) && prodStock > 0) {
+                    inv.currentStock = prodStock;
+                    inv.availableStock = Math.max(0, prodStock - (inv.reservedStock || 0));
+                    needsSave = true;
+                }
+                // If product has 0 stock but inventory has stock, sync inventory stock to product
+                if (prod.stock === 0 && (inv.currentStock || 0) > 0) {
+                    await Product.findByIdAndUpdate(prod._id, { stock: inv.currentStock });
+                }
+                if (!inv.sellingPrice && sellingPrice) {
+                    inv.sellingPrice = sellingPrice;
+                    needsSave = true;
+                }
+                if (needsSave) {
+                    await inv.save();
+                    syncedCount++;
+                }
+            }
+        }
+
+        console.log(`✅ [Inventory Sync] Synced products. Total: ${products.length}, Created: ${createdCount}, Updated: ${syncedCount}`);
+        return { success: true, total: products.length, createdCount, syncedCount };
+    } catch (err) {
+        console.error("❌ [Inventory Sync] Failed to sync products to inventory:", err);
+        throw err;
+    }
+};
+
 module.exports = {
     generateMovementId,
     generateTransferNumber,
@@ -486,5 +581,6 @@ module.exports = {
     getInventorySummary,
     getLowStockProducts,
     getOutOfStockProducts,
-    getInventoryValuation
+    getInventoryValuation,
+    syncAllProductsToInventory
 };

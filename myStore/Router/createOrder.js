@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Order = require("../Models/order");
+const AdminNotification = require("../Models/AdminNotification");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const {
     sendWhatsAppOrderNotification,
     sendWhatsAppOrderStatusUpdate,
+    sendWhatsAppAdminStockReminder,
 } = require("../utils/whatsappService");
 const { updateStock, reserveStock, releaseReservedStock } = require("../utils/inventoryService");
 
@@ -216,12 +218,16 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
         }
 
         const previousStatus = existingOrder.status;
-        const newStatus = req.body.status;
+        const rawNewStatus = req.body.status;
+        const newStatus = rawNewStatus ? rawNewStatus.toLowerCase() : rawNewStatus;
+
+        const isCompletedStatus = (status) => status && ["completed", "delivered"].includes(String(status).toLowerCase());
+        const isConfirmedStatus = (status) => status && ["confirmed", "processing"].includes(String(status).toLowerCase());
 
         // Handle inventory updates based on status change within transaction
-        if (newStatus && newStatus !== previousStatus) {
+        if (newStatus && newStatus !== (previousStatus ? previousStatus.toLowerCase() : "")) {
             // When order is confirmed - reserve stock
-            if (newStatus === "confirmed" && previousStatus === "pending") {
+            if (isConfirmedStatus(newStatus) && (!previousStatus || previousStatus.toLowerCase() === "pending")) {
                 for (const item of existingOrder.items) {
                     const prodId = item.productId || item.itemId;
                     await reserveStock({
@@ -236,20 +242,21 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
             }
 
             // When order is completed/delivered - deduct stock and release reservation
-            if ((newStatus === "completed" || newStatus === "delivered") && 
-                (previousStatus === "confirmed" || previousStatus === "processing")) {
+            if (isCompletedStatus(newStatus) && !isCompletedStatus(previousStatus)) {
                 for (const item of existingOrder.items) {
                     const prodId = item.productId || item.itemId;
-                    // First release the reserved stock counter so it doesn't stay reserved
-                    await releaseReservedStock({
-                        productId: prodId,
-                        quantity: item.quantity,
-                        referenceId: existingOrder._id,
-                        userId: req.user.id,
-                        warehouseId: item.warehouseId || null,
-                        session
-                    });
-                    // Then deduct actual stock with SALE movement
+                    if (isConfirmedStatus(previousStatus)) {
+                        // Release reserved stock counter
+                        await releaseReservedStock({
+                            productId: prodId,
+                            quantity: item.quantity,
+                            referenceId: existingOrder._id,
+                            userId: req.user.id,
+                            warehouseId: item.warehouseId || null,
+                            session
+                        });
+                    }
+                    // Deduct actual stock with SALE movement (also updates Product.stock in lockstep)
                     await updateStock({
                         productId: prodId,
                         warehouseId: item.warehouseId || null,
@@ -268,7 +275,7 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
             }
 
             // When order is cancelled - release reserved stock
-            if (newStatus === "cancelled" && (previousStatus === "confirmed" || previousStatus === "processing")) {
+            if (newStatus === "cancelled" && isConfirmedStatus(previousStatus)) {
                 for (const item of existingOrder.items) {
                     const prodId = item.productId || item.itemId;
                     await releaseReservedStock({
@@ -285,10 +292,35 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
 
         // Apply updates to existingOrder and save within session
         Object.assign(existingOrder, req.body);
+        if (newStatus) {
+            existingOrder.status = newStatus;
+        }
         const updatedOrder = await existingOrder.save({ session });
 
         await session.commitTransaction();
         session.endSession();
+
+        // Create Admin Notification / Reminder when order completes
+        let createdAdminReminder = null;
+        if (isCompletedStatus(newStatus) && !isCompletedStatus(previousStatus)) {
+            try {
+                const itemSummaries = (updatedOrder.items || []).map(it => `${it.name} (x${it.quantity})`).join(", ");
+                createdAdminReminder = await AdminNotification.create({
+                    type: "STOCK_ADJUSTMENT_REMINDER",
+                    title: `Stock Adjustment Reminder: Order #${String(updatedOrder._id).slice(-6)} Completed`,
+                    message: `Order #${String(updatedOrder._id).slice(-6)} has been marked as ${newStatus}. Stock has been deducted for: ${itemSummaries}. Please verify warehouse stock and adjust if needed.`,
+                    orderId: updatedOrder._id,
+                    items: (updatedOrder.items || []).map(it => ({
+                        productId: it.productId || it.itemId,
+                        name: it.name,
+                        quantity: it.quantity
+                    })),
+                    status: "PENDING"
+                });
+            } catch (notifErr) {
+                console.warn("Failed to create AdminNotification for stock reminder:", notifErr.message);
+            }
+        }
 
         // Socket notifications after commit
         const io = req.app.get("io");
@@ -308,16 +340,52 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
                     },
                 });
             }
+
+            // Emit to all admins
+            io.to("admins").emit("orderStatusUpdated", {
+                order: toPlainOrder(updatedOrder),
+                customerName: updatedOrder?.user?.name || updatedOrder?.name || "",
+                updatedByName: req.user.name,
+                updatedById: req.user.id,
+                actor: {
+                    id: req.user.id,
+                    name: req.user.name,
+                    role: req.user.role,
+                },
+            });
+
+            // If order completed, emit dedicated stock adjustment reminder to admins
+            if (isCompletedStatus(newStatus) && !isCompletedStatus(previousStatus)) {
+                io.to("admins").emit("orderCompletedAdminReminder", {
+                    orderId: updatedOrder._id,
+                    shortId: String(updatedOrder._id).slice(-6),
+                    order: toPlainOrder(updatedOrder),
+                    customerName: updatedOrder?.user?.name || updatedOrder?.name || "",
+                    title: `Stock Adjustment Reminder: Order #${String(updatedOrder._id).slice(-6)} Completed`,
+                    message: `Order #${String(updatedOrder._id).slice(-6)} completed. Please verify and adjust physical stock for items: ${(updatedOrder.items || []).map(it => it.name).join(", ")}.`,
+                    items: updatedOrder.items,
+                    reminderId: createdAdminReminder?._id,
+                    type: "warning"
+                });
+            }
         }
 
-        // 📱 Send Live WhatsApp notification on order status change after commit
-        if (newStatus && newStatus !== previousStatus) {
+        // 📱 Send Live WhatsApp notifications after commit
+        if (newStatus && newStatus !== (previousStatus ? previousStatus.toLowerCase() : "")) {
             sendWhatsAppOrderStatusUpdate({
                 order: updatedOrder,
                 newStatus: updatedOrder.status,
             }).catch((waErr) => {
                 console.error("WhatsApp status update notification failed:", waErr);
             });
+
+            // Send admin stock adjustment reminder on WhatsApp if completed
+            if (isCompletedStatus(newStatus) && !isCompletedStatus(previousStatus)) {
+                sendWhatsAppAdminStockReminder({ order: updatedOrder })
+                    .catch((waErr) => {
+                        console.error("WhatsApp admin stock reminder failed:", waErr);
+                    });
+            }
         }
 
         res.json(updatedOrder);

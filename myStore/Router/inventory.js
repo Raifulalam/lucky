@@ -32,6 +32,7 @@ router.post("/serial-numbers", inventoryController.createSerialNumber);
 
 // ==================== WAREHOUSES ====================
 router.get("/warehouses", inventoryController.getWarehouses);
+router.get("/warehouses/stock", inventoryController.getWarehouseStock);
 router.post("/warehouses", inventoryController.createWarehouse);
 router.put("/warehouses/:id", inventoryController.updateWarehouse);
 
@@ -44,5 +45,12 @@ router.get("/movements", inventoryController.getMovements);
 
 // ==================== VALUATION ====================
 router.get("/valuation", inventoryController.getValuation);
+
+// ==================== MANUAL PRODUCT-INVENTORY SYNC ====================
+router.post("/sync", inventoryController.syncAllInventory);
+
+// ==================== ADMIN STOCK ADJUSTMENT REMINDERS ====================
+router.get("/reminders", inventoryController.getAdminReminders);
+router.put("/reminders/:id/read", inventoryController.markReminderRead);
 
 module.exports = router;

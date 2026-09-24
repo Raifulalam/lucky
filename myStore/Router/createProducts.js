@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const { body, param, validationResult } = require("express-validator");
 const rateLimit = require("express-rate-limit");
 const Product = require("../Models/products");
+const Inventory = require("../Models/Inventory");
+const Warehouse = require("../Models/Warehouse");
 const auth = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const redisClient = require("../config/redis");
@@ -140,6 +142,38 @@ router.post(
             };
 
             const product = await Product.create(payload);
+
+            // Automatically initialize inventory for the created product
+            try {
+                const warehouse = await Warehouse.findOne({ code: "MAIN" }) ||
+                                  await Warehouse.findOne({ isActive: true }) ||
+                                  await Warehouse.findOne();
+                const warehouseId = warehouse?._id;
+                const initialStock = Number(product.stock) || 0;
+                const sellingPrice = Number(product.price) || 0;
+                const purchasePrice = product.mrp ? Math.round(product.mrp * 0.8) : sellingPrice;
+
+                await Inventory.create({
+                    productId: product._id,
+                    warehouseId,
+                    currentStock: initialStock,
+                    availableStock: initialStock,
+                    reservedStock: 0,
+                    damagedStock: 0,
+                    sellingPrice,
+                    purchasePrice,
+                    status: "ACTIVE",
+                    locations: warehouseId ? [{
+                        locationId: warehouseId,
+                        quantity: initialStock,
+                        reserved: 0,
+                        damaged: 0
+                    }] : []
+                });
+            } catch (invErr) {
+                console.warn("Failed to create inventory for new product:", invErr.message);
+            }
+
             await clearProductCache();
             // Notify all connected users
 const io = req.app.get("io");
@@ -160,10 +194,11 @@ if (io) {
    =========================================================== */
 router.get("/products", async (req, res) => {
     try {
-        const { category, page = 1, limit = 20 } = req.query;
+        const { category, page = 1, limit = 20, includeAll, groupByModel } = req.query;
         const pageNum = Math.max(1, Number(page) || 1);
-        const limitNum = Math.max(1, Math.min(100, Number(limit) || 20));
-        const cacheKey = `products:${category || "all"}:${pageNum}:${limitNum}`;
+        const limitNum = Math.max(1, Math.min(1000, Number(limit) || 20));
+        const shouldGroup = groupByModel !== "false" && includeAll !== "true";
+        const cacheKey = `products:${category || "all"}:${pageNum}:${limitNum}:${shouldGroup}`;
 
         const cached = await getCache(cacheKey);
         if (cached) {
@@ -172,26 +207,38 @@ router.get("/products", async (req, res) => {
 
         const match = category ? { category } : {};
 
-        const products = await Product.aggregate([
-            { $match: match },
-            { $sort: { createdAt: -1 } },
-            {
-                $group: {
-                    _id: "$model",
-                    product: { $first: "$$ROOT" },
-                },
-            },
-            { $replaceRoot: { newRoot: "$product" } },
-            { $skip: (pageNum - 1) * limitNum },
-            { $limit: limitNum },
-        ]).allowDiskUse(true);
+        let products;
+        let total;
 
-        const totalResult = await Product.aggregate([
-            { $match: match },
-            { $group: { _id: "$model" } },
-            { $count: "total" },
-        ]);
-        const total = totalResult[0]?.total || 0;
+        if (shouldGroup) {
+            products = await Product.aggregate([
+                { $match: match },
+                { $sort: { createdAt: -1 } },
+                {
+                    $group: {
+                        _id: "$model",
+                        product: { $first: "$$ROOT" },
+                    },
+                },
+                { $replaceRoot: { newRoot: "$product" } },
+                { $skip: (pageNum - 1) * limitNum },
+                { $limit: limitNum },
+            ]).allowDiskUse(true);
+
+            const totalResult = await Product.aggregate([
+                { $match: match },
+                { $group: { _id: "$model" } },
+                { $count: "total" },
+            ]);
+            total = totalResult[0]?.total || 0;
+        } else {
+            products = await Product.find(match)
+                .sort({ createdAt: -1 })
+                .skip((pageNum - 1) * limitNum)
+                .limit(limitNum)
+                .lean();
+            total = await Product.countDocuments(match);
+        }
 
         const response = {
             products,
@@ -378,6 +425,37 @@ router.put("/products/:id", auth, isAdmin, uploadProductImage.single("image"), a
             { new: true }
         );
         if (!product) return res.status(404).json({ message: "Product not found" });
+
+        // Synchronize inventory when stock or price is updated
+        if (allowedFields.stock !== undefined || allowedFields.price !== undefined) {
+            try {
+                let inv = await Inventory.findOne({ productId: product._id });
+                if (!inv) {
+                    const warehouse = await Warehouse.findOne({ isActive: true });
+                    inv = await Inventory.create({
+                        productId: product._id,
+                        warehouseId: warehouse?._id,
+                        currentStock: Number(product.stock) || 0,
+                        availableStock: Number(product.stock) || 0,
+                        sellingPrice: Number(product.price) || 0,
+                        status: "ACTIVE"
+                    });
+                } else {
+                    if (allowedFields.stock !== undefined) {
+                        const newStock = Number(allowedFields.stock) || 0;
+                        inv.currentStock = newStock;
+                        inv.availableStock = Math.max(0, newStock - (inv.reservedStock || 0));
+                    }
+                    if (allowedFields.price !== undefined) {
+                        inv.sellingPrice = Number(allowedFields.price) || 0;
+                    }
+                    await inv.save();
+                }
+            } catch (invErr) {
+                console.warn("Failed to sync inventory on product update:", invErr.message);
+            }
+        }
+
         await clearProductCache();
         // Notify all connected users
 const io = req.app.get("io");
@@ -404,6 +482,16 @@ router.delete("/products/:id", auth, isAdmin, async (req, res) => {
             return res.status(404).json({
                 message: "Product not found"
             });
+        }
+
+        // Deactivate or clean inventory for deleted product
+        try {
+            await Inventory.findOneAndUpdate(
+                { productId: req.params.id },
+                { status: "DISCONTINUED" }
+            );
+        } catch (invErr) {
+            console.warn("Failed to mark inventory DISCONTINUED on product delete:", invErr.message);
         }
 
         await clearProductCache();

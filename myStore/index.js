@@ -184,6 +184,8 @@ app.use((err, req, res, next) => {
     });
 });
 
+const { syncAllProductsToInventory } = require("./utils/inventoryService");
+
 // -------------------- DATABASE CONNECTION --------------------
 
 mongoose
@@ -191,8 +193,10 @@ mongoose
     .then(() => {
         console.log("✅ MongoDB connected");
 
-        // Ensure indexes for product search
-       
+        // Automatically ensure all products are synced into Inventory
+        syncAllProductsToInventory()
+            .then((res) => console.log(`📦 [Inventory System] Synced ${res.total} products with inventory.`))
+            .catch((err) => console.error("❌ [Inventory System] Initial sync error:", err.message));
 
         // IMPORTANT:
         // Use server.listen(), NOT app.listen()

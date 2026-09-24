@@ -6,6 +6,7 @@ const StockAdjustment = require("../Models/StockAdjustment");
 const SerialNumber = require("../Models/SerialNumber");
 const Warehouse = require("../Models/Warehouse");
 const Product = require("../Models/products");
+const AdminNotification = require("../Models/AdminNotification");
 const {
     updateStock,
     reserveStock,
@@ -16,7 +17,8 @@ const {
     getOutOfStockProducts,
     getInventoryValuation,
     generateTransferNumber,
-    generateAdjustmentNumber
+    generateAdjustmentNumber,
+    syncAllProductsToInventory
 } = require("../utils/inventoryService");
 
 // ==================== INVENTORY SUMMARY ====================
@@ -32,19 +34,57 @@ exports.getInventorySummary = async (req, res) => {
 // ==================== GET ALL INVENTORY ====================
 exports.getAllInventory = async (req, res) => {
     try {
-        const { page = 1, limit = 20, category, brand, status } = req.query;
-        
+        const { page = 1, limit = 20, category, brand, search, status, warehouseId, stockStatus } = req.query;
+
         const query = {};
-        if (category) query.category = category;
-        if (brand) query.brand = brand;
         if (status) query.status = status;
+        if (warehouseId) query.warehouseId = warehouseId;
+
+        // If category, brand, or search is provided, filter by matching Product IDs
+        const productFilter = {};
+        if (category && category !== "all") productFilter.category = category;
+        if (brand && brand !== "all") productFilter.brand = brand;
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search.trim(), "i");
+            productFilter.$or = [
+                { name: regex },
+                { model: regex },
+                { brand: regex },
+                { category: regex }
+            ];
+        }
+
+        if (Object.keys(productFilter).length > 0) {
+            const matchingProducts = await Product.find(productFilter).select("_id").lean();
+            const productIds = matchingProducts.map(p => p._id);
+            query.productId = { $in: productIds };
+        }
+
+        if (stockStatus) {
+            if (stockStatus === "OUT_OF_STOCK") {
+                query.currentStock = 0;
+            } else if (stockStatus === "LOW_STOCK") {
+                query.$expr = {
+                    $and: [
+                        { $gt: ["$currentStock", 0] },
+                        { $lte: ["$currentStock", "$reorderLevel"] }
+                    ]
+                };
+            } else if (stockStatus === "IN_STOCK") {
+                query.$expr = { $gt: ["$currentStock", "$reorderLevel"] };
+            }
+        }
+
+        const pageNum = Math.max(1, parseInt(page) || 1);
+        const limitNum = Math.max(1, parseInt(limit) || 20);
 
         const inventory = await Inventory.find(query)
             .populate("productId")
+            .populate("warehouseId")
             .populate("locations.locationId")
             .sort({ updatedAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(parseInt(limit));
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum);
 
         const total = await Inventory.countDocuments(query);
 
@@ -52,10 +92,10 @@ exports.getAllInventory = async (req, res) => {
             success: true,
             data: inventory,
             pagination: {
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page: pageNum,
+                limit: limitNum,
                 total,
-                pages: Math.ceil(total / limit)
+                pages: Math.ceil(total / limitNum)
             }
         });
     } catch (error) {
@@ -727,6 +767,127 @@ exports.updateInventorySettings = async (req, res) => {
         );
 
         res.json({ success: true, data: inventory });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// ==================== MANUAL SYNC ALL PRODUCTS ====================
+exports.syncAllInventory = async (req, res) => {
+    try {
+        const result = await syncAllProductsToInventory();
+        res.json({
+            success: true,
+            message: `Successfully synchronized ${result.total} products with inventory.`,
+            data: result
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// ==================== ADMIN STOCK ADJUSTMENT REMINDERS ====================
+exports.getAdminReminders = async (req, res) => {
+    try {
+        const { unreadOnly, limit = 50 } = req.query;
+        const query = { type: "STOCK_ADJUSTMENT_REMINDER" };
+        if (unreadOnly === "true") {
+            query.isRead = false;
+        }
+
+        const reminders = await AdminNotification.find(query)
+            .sort({ createdAt: -1 })
+            .limit(parseInt(limit))
+            .populate("orderId");
+
+        const unreadCount = await AdminNotification.countDocuments({
+            type: "STOCK_ADJUSTMENT_REMINDER",
+            isRead: false
+        });
+
+        res.json({
+            success: true,
+            unreadCount,
+            data: reminders
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.markReminderRead = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const reminder = await AdminNotification.findByIdAndUpdate(
+            id,
+            { isRead: true, status: "REVIEWED" },
+            { new: true }
+        );
+        res.json({ success: true, data: reminder });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// ==================== WAREHOUSE STOCK OVERVIEW ====================
+// Returns all warehouses with their aggregated stock list.
+// Accepts optional ?search=model_or_name&warehouseId= for filtering.
+exports.getWarehouseStock = async (req, res) => {
+    try {
+        const { search, warehouseId } = req.query;
+
+        // 1. Get active warehouses (optionally filtered)
+        const warehouseQuery = { isActive: true };
+        if (warehouseId) warehouseQuery._id = warehouseId;
+        const warehouses = await Warehouse.find(warehouseQuery).sort({ name: 1 }).lean();
+
+        // 2. Build product filter from search term
+        let productIdFilter = null;
+        if (search && search.trim() !== "") {
+            const regex = new RegExp(search.trim(), "i");
+            const matchingProducts = await Product.find({
+                $or: [{ name: regex }, { model: regex }, { brand: regex }]
+            }).select("_id").lean();
+            productIdFilter = matchingProducts.map(p => p._id);
+        }
+
+        // 3. For each warehouse, fetch inventory items
+        const result = await Promise.all(
+            warehouses.map(async (wh) => {
+                const invQuery = { warehouseId: wh._id };
+                if (productIdFilter) {
+                    invQuery.productId = { $in: productIdFilter };
+                }
+                const items = await Inventory.find(invQuery)
+                    .populate("productId", "name model brand category images")
+                    .sort({ currentStock: -1 })
+                    .lean();
+
+                return {
+                    warehouse: wh,
+                    items: items.map(item => ({
+                        inventoryId: item._id,
+                        productId: item.productId?._id,
+                        name: item.productId?.name,
+                        model: item.productId?.model,
+                        brand: item.productId?.brand,
+                        category: item.productId?.category,
+                        image: item.productId?.images?.[0],
+                        currentStock: item.currentStock || 0,
+                        reorderLevel: item.reorderLevel || 0,
+                        minStockLevel: item.minStockLevel || 0,
+                        sku: item.sku,
+                        status: item.status
+                    })),
+                    totalItems: items.length,
+                    totalStock: items.reduce((sum, i) => sum + (i.currentStock || 0), 0),
+                    lowStockCount: items.filter(i => i.currentStock > 0 && i.currentStock <= i.reorderLevel).length,
+                    outOfStockCount: items.filter(i => (i.currentStock || 0) === 0).length
+                };
+            })
+        );
+
+        res.json({ success: true, data: result });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
