@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
     ArrowRightLeft, Plus, Check, Send, Package, Warehouse,
     Save, Search, X, RefreshCw, ChevronDown, ChevronUp,
-    AlertTriangle, Eye, BarChart3, Maximize2, Layers, Filter, CheckCircle2, AlertCircle
+    AlertTriangle, BarChart3, Layers, CheckCircle2, AlertCircle
 } from "lucide-react";
 import { authRequest, getData } from "../../api/api";
 import "./StockTransfer.css";
@@ -87,7 +87,7 @@ const WarehouseStockCard = ({ data, onTransferFrom, density, onPreviewImage }) =
                         <input
                             className="wh-search-input"
                             type="text"
-                            placeholder={`Search stock in ${data.warehouse.name}...`}
+                            placeholder={`Search stock in ${data.warehouse.name} by name or Model No...`}
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             onClick={e => e.stopPropagation()}
@@ -111,7 +111,7 @@ const WarehouseStockCard = ({ data, onTransferFrom, density, onPreviewImage }) =
                                     <tr>
                                         <th style={{ width: "60px" }}>Image</th>
                                         <th>Product Name</th>
-                                        <th>Model</th>
+                                        <th>Model / SKU</th>
                                         <th>Brand</th>
                                         <th>Stock Qty</th>
                                         <th>Status</th>
@@ -197,7 +197,7 @@ const StockTransfer = () => {
     const [formData, setFormData] = useState({
         fromLocationId: "",
         toLocationId: "",
-        items: [{ productId: "", quantity: "", serialNumbers: [""] }],
+        items: [{ productId: "", quantity: "", serialNumbers: [""], modelSearch: "" }],
         notes: ""
     });
 
@@ -233,10 +233,10 @@ const StockTransfer = () => {
     }, [debouncedGlobal]);
 
     useEffect(() => {
-        if (activeTab === "warehouse" || activeTab === "reports") {
+        if (activeTab === "warehouse" || activeTab === "reports" || showForm) {
             fetchWarehouseStock();
         }
-    }, [activeTab, fetchWarehouseStock]);
+    }, [activeTab, showForm, fetchWarehouseStock]);
 
     const fetchProducts = async () => {
         try {
@@ -266,6 +266,46 @@ const StockTransfer = () => {
         if (!whData) return null;
         const item = whData.items.find(i => (i.productId?._id || i.productId) === productId);
         return item ? item.currentStock : 0;
+    };
+
+    // Get list of products available ONLY in selected source warehouse with currentStock > 0
+    const getAvailableProductsForSource = (fromWarehouseId, modelSearchQuery = "") => {
+        if (!fromWarehouseId) return [];
+
+        const whData = warehouseStock.find(w => w.warehouse._id === fromWarehouseId);
+        let availableList = [];
+
+        if (whData && whData.items) {
+            availableList = whData.items
+                .filter(i => (i.currentStock || 0) > 0)
+                .map(i => ({
+                    _id: i.productId?._id || i.productId,
+                    name: i.name,
+                    model: i.model || "",
+                    brand: i.brand || "",
+                    stock: i.currentStock
+                }));
+        } else {
+            // Fallback to products if stock state is still loading
+            availableList = products.map(p => ({
+                _id: p._id,
+                name: p.name,
+                model: p.model || "",
+                brand: p.brand || "",
+                stock: Number(p.stock) || 0
+            })).filter(p => p.stock > 0);
+        }
+
+        if (modelSearchQuery.trim()) {
+            const q = modelSearchQuery.toLowerCase().trim();
+            availableList = availableList.filter(p =>
+                p.name.toLowerCase().includes(q) ||
+                p.model.toLowerCase().includes(q) ||
+                p.brand.toLowerCase().includes(q)
+            );
+        }
+
+        return availableList;
     };
 
     // Validate stock transfer form items
@@ -318,7 +358,7 @@ const StockTransfer = () => {
     const addItem = () => {
         setFormData(prev => ({
             ...prev,
-            items: [...prev.items, { productId: "", quantity: "", serialNumbers: [""] }]
+            items: [...prev.items, { productId: "", quantity: "", serialNumbers: [""], modelSearch: "" }]
         }));
     };
 
@@ -351,7 +391,7 @@ const StockTransfer = () => {
             const payload = {
                 ...formData,
                 items: formData.items.map(item => ({
-                    ...item,
+                    productId: item.productId,
                     quantity: parseInt(item.quantity, 10),
                     serialNumbers: item.serialNumbers.filter(sn => sn.trim() !== "")
                 }))
@@ -362,7 +402,7 @@ const StockTransfer = () => {
             setFormData({
                 fromLocationId: "",
                 toLocationId: "",
-                items: [{ productId: "", quantity: "", serialNumbers: [""] }],
+                items: [{ productId: "", quantity: "", serialNumbers: [""], modelSearch: "" }],
                 notes: ""
             });
             setValidationErrors({});
@@ -564,33 +604,33 @@ const StockTransfer = () => {
                         <div className="form-container">
                             <div className="form-header-title">
                                 <h2>Create Stock Transfer Request</h2>
-                                <p>Transfer stock safely with instant availability check</p>
+                                <p>Transfer stock safely with instant source availability & model search</p>
                             </div>
                             <form onSubmit={handleSubmit} className="transfer-form">
                                 <div className="form-grid">
                                     <div className="form-group">
-                                        <label><Warehouse size={16} /> From Source Warehouse</label>
+                                        <label><Warehouse size={16} /> From Source Warehouse (A)</label>
                                         <select
                                             name="fromLocationId"
                                             value={formData.fromLocationId}
                                             onChange={handleInputChange}
                                             required
                                         >
-                                            <option value="">Select Source Warehouse</option>
+                                            <option value="">Select Source Warehouse A</option>
                                             {warehouses.map(w => (
                                                 <option key={w._id} value={w._id}>{w.name} ({w.code})</option>
                                             ))}
                                         </select>
                                     </div>
                                     <div className="form-group">
-                                        <label><Warehouse size={16} /> To Destination Warehouse</label>
+                                        <label><Warehouse size={16} /> To Destination Warehouse (B)</label>
                                         <select
                                             name="toLocationId"
                                             value={formData.toLocationId}
                                             onChange={handleInputChange}
                                             required
                                         >
-                                            <option value="">Select Destination Warehouse</option>
+                                            <option value="">Select Destination Warehouse B</option>
                                             {warehouses.map(w => (
                                                 <option key={w._id} value={w._id}>{w.name} ({w.code})</option>
                                             ))}
@@ -605,10 +645,11 @@ const StockTransfer = () => {
                                 )}
 
                                 <div className="items-section">
-                                    <h3>Items to Transfer</h3>
+                                    <h3>Items to Transfer (Available in Source A)</h3>
                                     {formData.items.map((item, itemIndex) => {
                                         const available = getAvailableStockInSource(item.productId, formData.fromLocationId);
                                         const itemError = validationErrors[`item_${itemIndex}`];
+                                        const availableProducts = getAvailableProductsForSource(formData.fromLocationId, item.modelSearch || "");
 
                                         return (
                                             <div key={itemIndex} className={`item-row ${itemError ? "has-error" : ""}`}>
@@ -618,22 +659,46 @@ const StockTransfer = () => {
                                                         <button type="button" className="btn-icon btn-danger" onClick={() => removeItem(itemIndex)}>×</button>
                                                     )}
                                                 </div>
+
+                                                {/* Filter by Model No / Name Search Input */}
+                                                <div className="form-group">
+                                                    <label><Search size={14} /> Filter Products by Model No or Name</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Type Model No or product name to filter list..."
+                                                        value={item.modelSearch || ""}
+                                                        onChange={(e) => handleItemChange(itemIndex, "modelSearch", e.target.value)}
+                                                        disabled={!formData.fromLocationId}
+                                                    />
+                                                </div>
+
                                                 <div className="form-grid">
                                                     <div className="form-group">
-                                                        <label>Product</label>
+                                                        <label>Product (Only items available in Source A)</label>
                                                         <select
                                                             value={item.productId}
                                                             onChange={(e) => handleItemChange(itemIndex, "productId", e.target.value)}
+                                                            disabled={!formData.fromLocationId}
                                                             required
                                                         >
-                                                            <option value="">Select Product</option>
-                                                            {products.map(p => (
-                                                                <option key={p._id} value={p._id}>{p.name} — ({p.model || "No Model"})</option>
-                                                            ))}
+                                                            {!formData.fromLocationId ? (
+                                                                <option value="">⚠️ Select Source Warehouse A first</option>
+                                                            ) : availableProducts.length === 0 ? (
+                                                                <option value="">No available products match in Source A</option>
+                                                            ) : (
+                                                                <>
+                                                                    <option value="">Select Available Product ({availableProducts.length} items)...</option>
+                                                                    {availableProducts.map(p => (
+                                                                        <option key={p._id} value={p._id}>
+                                                                            {p.name} — Model: {p.model || "N/A"} (Stock: {p.stock} units)
+                                                                        </option>
+                                                                    ))}
+                                                                </>
+                                                            )}
                                                         </select>
                                                         {formData.fromLocationId && item.productId && available !== null && (
                                                             <span className={`stock-hint ${available === 0 ? "out" : available <= 5 ? "low" : "ok"}`}>
-                                                                Available in Source: <strong>{available} units</strong>
+                                                                Available in Source A: <strong>{available} units</strong>
                                                             </span>
                                                         )}
                                                     </div>

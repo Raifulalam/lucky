@@ -22,16 +22,8 @@ import {
     Columns,
     Save,
     RotateCcw,
-    Check,
-    Grid,
-    CheckSquare,
-    Square
+    Grid
 } from "lucide-react";
-
-import {
-    motion,
-    AnimatePresence
-} from "framer-motion";
 
 import "./InventoryManagement.css";
 
@@ -81,8 +73,6 @@ const InventoryManagement = () => {
     const [error, setError] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [searchType, setSearchType] = useState("all");
-
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [stockFilter, setStockFilter] = useState("all");
 
@@ -92,18 +82,6 @@ const InventoryManagement = () => {
     });
 
     const [selectedProducts, setSelectedProducts] = useState([]);
-
-    // Modals
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    const [newCategory, setNewCategory] = useState("");
     const [categories, setCategories] = useState([]);
 
     const [pagination, setPagination] = useState({
@@ -111,21 +89,6 @@ const InventoryManagement = () => {
         limit: 50,
         total: 0,
         totalPages: 0
-    });
-
-    const [newProduct, setNewProduct] = useState({
-        name: "",
-        slug: "",
-        price: "",
-        mrp: "",
-        category: "",
-        brand: "",
-        model: "",
-        capacity: "",
-        stock: "",
-        description: "",
-        images: [],
-        keywords: []
     });
 
     /* =========================================================
@@ -185,10 +148,8 @@ const InventoryManagement = () => {
             if (!resizingColRef.current) return;
             const delta = moveEvent.clientX - startXRef.current;
             const newW = Math.max(50, startWidthRef.current + delta);
-            setColWidths(prev => ({ ...prev, [resizingColColKey(colKey)]: newW }));
+            setColWidths(prev => ({ ...prev, [resizingColRef.current]: newW }));
         };
-
-        const resizingColColKey = (k) => k;
 
         const onMouseUp = () => {
             resizingColRef.current = null;
@@ -240,7 +201,7 @@ const InventoryManagement = () => {
     /* =========================================================
        SEARCH PRODUCTS
     ========================================================= */
-    const searchProducts = useCallback(async (query, type = "all") => {
+    const searchProducts = useCallback(async (query) => {
         const trimmedQuery = query.trim();
         if (!trimmedQuery) {
             await fetchProducts(1);
@@ -252,17 +213,7 @@ const InventoryManagement = () => {
         try {
             const url = `/products/products/search/${encodeURIComponent(trimmedQuery)}?page=1&limit=1000`;
             const data = await getData(url);
-            let filteredResults = data?.products || [];
-
-            if (type === "model") {
-                filteredResults = filteredResults.filter(product =>
-                    product?.model?.toLowerCase().includes(trimmedQuery.toLowerCase())
-                );
-            } else if (type === "brand") {
-                filteredResults = filteredResults.filter(product =>
-                    product?.brand?.toLowerCase().includes(trimmedQuery.toLowerCase())
-                );
-            }
+            const filteredResults = data?.products || [];
 
             setProducts(filteredResults);
             setPagination(prev => ({
@@ -323,10 +274,10 @@ const InventoryManagement = () => {
     ========================================================= */
     useEffect(() => {
         const timer = setTimeout(() => {
-            searchProducts(searchTerm, searchType);
+            searchProducts(searchTerm);
         }, 500);
         return () => clearTimeout(timer);
-    }, [searchTerm, searchType, searchProducts]);
+    }, [searchTerm, searchProducts]);
 
     /* =========================================================
        STATISTICS & FILTERING
@@ -402,11 +353,10 @@ const InventoryManagement = () => {
         return product[field] ?? "";
     };
 
-    const handleKeyDownCell = (e, productId, field) => {
+    const handleKeyDownCell = (e) => {
         if (e.key === "Enter") {
             e.preventDefault();
             setEditingCell(null);
-            // Save single line automatically or wait for batch save
         } else if (e.key === "Escape") {
             setEditingCell(null);
         }
@@ -493,18 +443,13 @@ const InventoryManagement = () => {
         );
     };
 
-    const handleDeleteProduct = (product) => {
-        setSelectedProduct(product);
-        setIsDeleteModalOpen(true);
-    };
+    const handleDeleteProduct = async (product) => {
+        if (!product?._id) return;
+        if (!window.confirm(`Are you sure you want to delete ${product.name || "this product"}?`)) return;
 
-    const confirmDelete = async () => {
-        if (!selectedProduct?._id) return;
         try {
-            await authRequest(`/products/products/${selectedProduct._id}`, { method: "DELETE" });
-            setProducts(prev => prev.filter(p => p._id !== selectedProduct._id));
-            setIsDeleteModalOpen(false);
-            setSelectedProduct(null);
+            await authRequest(`/products/products/${product._id}`, { method: "DELETE" });
+            setProducts(prev => prev.filter(p => p._id !== product._id));
             socket.emit("inventoryUpdated", { timestamp: Date.now() });
         } catch (err) {
             console.error("Delete failed:", err);
@@ -529,11 +474,6 @@ const InventoryManagement = () => {
         }
     };
 
-    const openEditModal = (product) => {
-        setSelectedProduct(product);
-        setIsEditModalOpen(true);
-    };
-
     const dirtyCount = Object.keys(dirtyEdits).length;
 
     if (loading) {
@@ -549,6 +489,14 @@ const InventoryManagement = () => {
 
     return (
         <div className="inventory-management">
+            {error && (
+                <div className="error-state">
+                    <AlertCircle size={32} />
+                    <p>{error}</p>
+                    <button className="btn btn-secondary btn-sm" onClick={() => fetchProducts(pagination.page)}>Retry</button>
+                </div>
+            )}
+
             {/* ── Statistics Bar ── */}
             <div className="stats-grid">
                 <div className="stat-card">
@@ -593,9 +541,6 @@ const InventoryManagement = () => {
                     </button>
                     <button className="btn btn-secondary" onClick={handleExportCSV}>
                         <Download size={18} /> Export CSV
-                    </button>
-                    <button className="btn btn-primary" onClick={() => setIsAddModalOpen(true)}>
-                        <Plus size={18} /> Add Product
                     </button>
                 </div>
             </div>
@@ -908,7 +853,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "name")}
                                                         onChange={e => handleCellChange(product._id, "name", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "name")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input"
                                                     />
@@ -929,7 +874,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "category")}
                                                         onChange={e => handleCellChange(product._id, "category", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "category")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input"
                                                     />
@@ -950,7 +895,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "brand")}
                                                         onChange={e => handleCellChange(product._id, "brand", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "brand")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input"
                                                     />
@@ -971,7 +916,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "model")}
                                                         onChange={e => handleCellChange(product._id, "model", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "model")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input"
                                                     />
@@ -992,7 +937,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "capacity")}
                                                         onChange={e => handleCellChange(product._id, "capacity", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "capacity")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input"
                                                     />
@@ -1013,7 +958,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "price")}
                                                         onChange={e => handleCellChange(product._id, "price", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "price")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input num-input"
                                                     />
@@ -1034,7 +979,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "mrp")}
                                                         onChange={e => handleCellChange(product._id, "mrp", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "mrp")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input num-input"
                                                     />
@@ -1055,7 +1000,7 @@ const InventoryManagement = () => {
                                                         autoFocus
                                                         value={getCellValue(product, "stock")}
                                                         onChange={e => handleCellChange(product._id, "stock", e.target.value)}
-                                                        onKeyDown={e => handleKeyDownCell(e, product._id, "stock")}
+                                                        onKeyDown={handleKeyDownCell}
                                                         onBlur={() => setEditingCell(null)}
                                                         className="cell-input num-input bold-input"
                                                     />
@@ -1077,9 +1022,6 @@ const InventoryManagement = () => {
 
                                         {visibleCols.actions && (
                                             <td className="actions-cell">
-                                                <button className="action-btn action-btn-edit" onClick={() => openEditModal(product)} title="Edit Full Product Details">
-                                                    <Edit size={14} />
-                                                </button>
                                                 <button className="action-btn action-btn-delete" onClick={() => handleDeleteProduct(product)} title="Delete Product">
                                                     <Trash2 size={14} />
                                                 </button>
