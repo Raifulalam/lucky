@@ -62,20 +62,20 @@
     --radius-3xl: 24px;
     --radius-full: 9999px;
 
-    /* ================= SHADOWS ================= */
+    /* Shadows - Clean Crisp Elevation */
     --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-    --shadow-base: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
-    --shadow-md: 0 4px 20px rgba(15, 23, 42, 0.04);
-    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
-    --shadow-2xl: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-    --shadow-accent: 0 18px 36px rgba(59, 130, 246, 0.3);
-    --shadow-neon-blue: 0 0 20px rgba(59, 130, 246, 0.5);
-    --shadow-neon-green: 0 0 20px rgba(16, 185, 129, 0.5);
-    --shadow-neon-amber: 0 0 20px rgba(245, 158, 11, 0.5);
+    --shadow-base: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -1px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03);
+    --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+    --shadow-xl: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+    --shadow-2xl: 0 32px 64px -12px rgba(15, 23, 42, 0.2);
+    --shadow-accent: 0 12px 24px -4px rgba(37, 99, 235, 0.22);
+    --shadow-neon-blue: 0 0 20px rgba(59, 130, 246, 0.25);
+    --shadow-neon-green: 0 0 20px rgba(16, 185, 129, 0.25);
+    --shadow-neon-amber: 0 0 20px rgba(245, 158, 11, 0.25);
 
     /* ================= COLORS ================= */
-    /* Primary - Electric Blue */
+    /* Primary - Vibrant Royal Blue */
     --color-primary-50: #eff6ff;
     --color-primary-100: #dbeafe;
     --color-primary-200: #bfdbfe;
@@ -123,7 +123,7 @@
     --color-red-800: #991b1b;
     --color-red-900: #7f1d1d;
 
-    /* Neutral - Dark Mode */
+    /* Neutral Slate Scale */
     --color-slate-50: #f8fafc;
     --color-slate-100: #f1f5f9;
     --color-slate-200: #e2e8f0;
@@ -135,32 +135,32 @@
     --color-slate-800: #1e293b;
     --color-slate-900: #0f172a;
 
-    /* Dark Mode Specific */
-    --color-dark-bg: #1a1a2e;
-    --color-dark-surface: #16213e;
-    --color-dark-card: #0f3460;
-    --color-dark-border: #2a2a4a;
+    /* Light Mode Tokens */
+    --color-light-bg: #f8fafc;
+    --color-light-surface: #ffffff;
+    --color-light-card: #ffffff;
+    --color-light-border: #e2e8f0;
 
-    /* Semantic - Dark Mode */
-    --color-background: var(--color-dark-bg);
-    --color-surface: var(--color-dark-surface);
-    --color-card: var(--color-dark-card);
-    --color-text-primary: #e2e8f0;
-    --color-text-secondary: #94a3b8;
+    /* Semantic Tokens - Modern Light Theme */
+    --color-background: var(--color-light-bg);
+    --color-surface: var(--color-light-surface);
+    --color-card: var(--color-light-card);
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
     --color-text-muted: #64748b;
-    --color-border: var(--color-dark-border);
-    --color-accent: var(--color-primary-500);
-    --color-accent-hover: var(--color-primary-600);
-    --color-success: var(--color-emerald-500);
-    --color-warning: var(--color-amber-500);
-    --color-danger: var(--color-red-500);
+    --color-border: var(--color-light-border);
+    --color-accent: var(--color-primary-600);
+    --color-accent-hover: var(--color-primary-700);
+    --color-success: var(--color-emerald-600);
+    --color-warning: var(--color-amber-600);
+    --color-danger: var(--color-red-600);
 
     /* ================= CARD SYSTEM ================= */
     --card-border-radius: var(--radius-2xl);
     --card-padding: var(--space-5);
     --card-border: 1px solid var(--color-border);
     --card-shadow: var(--shadow-md);
-    --card-shadow-hover: var(--shadow-accent);
+    --card-shadow-hover: var(--shadow-lg);
     --card-transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* ================= CONTAINER WIDTHS ================= */
