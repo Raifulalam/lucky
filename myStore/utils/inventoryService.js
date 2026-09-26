@@ -32,34 +32,76 @@ const generateAdjustmentNumber = () => {
     return `ADJ-${year}${month}-${random}`;
 };
 
+// Fix any legacy single-field unique index on productId in MongoDB
+const fixInventoryIndexes = async () => {
+    try {
+        const collection = Inventory.collection;
+        const indexes = await collection.indexes();
+        const legacyIndex = indexes.find(idx => idx.name === "productId_1" && idx.unique);
+        if (legacyIndex) {
+            console.log("⚠️ Found legacy single-field unique index 'productId_1' on Inventory. Dropping index...");
+            await collection.dropIndex("productId_1");
+            console.log("✅ Successfully dropped legacy index 'productId_1'. Multi-warehouse inventory is now supported.");
+        }
+        await Inventory.syncIndexes();
+    } catch (err) {
+        if (err.codeName !== "IndexNotFound" && err.code !== 27) {
+            console.warn("Notice during Inventory index check:", err.message);
+        }
+    }
+};
+
 // Get or create inventory for a product and optional warehouse.
 // Uses atomic findOneAndUpdate with upsert to prevent E11000 duplicate key race conditions.
 const getOrCreateInventory = async (productId, warehouseId = null, session = null) => {
+    let targetWarehouseId = warehouseId;
+    if (!targetWarehouseId) {
+        const mainWh = (session
+            ? await Warehouse.findOne({ code: "MAIN" }).session(session)
+            : await Warehouse.findOne({ code: "MAIN" })) ||
+            (session
+            ? await Warehouse.findOne({ isActive: true }).session(session)
+            : await Warehouse.findOne({ isActive: true }));
+        if (mainWh) targetWarehouseId = mainWh._id;
+    }
+
     const query = { productId };
-    if (warehouseId) query.warehouseId = warehouseId;
+    if (targetWarehouseId) query.warehouseId = targetWarehouseId;
 
     const opts = { upsert: true, new: true, setDefaultsOnInsert: true };
     if (session) opts.session = session;
 
-    // Try primary query atomically
-    try {
-        const inventory = await Inventory.findOneAndUpdate(
+    const performUpsert = async () => {
+        return await Inventory.findOneAndUpdate(
             query,
             { $setOnInsert: {
                 productId,
-                warehouseId: warehouseId || undefined,
+                warehouseId: targetWarehouseId || undefined,
                 currentStock: 0,
                 availableStock: 0,
                 reservedStock: 0,
                 damagedStock: 0,
-                locations: warehouseId ? [{ locationId: warehouseId, quantity: 0 }] : []
+                locations: targetWarehouseId ? [{ locationId: targetWarehouseId, quantity: 0 }] : []
             }},
             opts
         );
-        return inventory;
+    };
+
+    try {
+        return await performUpsert();
     } catch (err) {
-        // If upsert itself races and hits a duplicate (extremely rare), retry as a plain find
         if (err.code === 11000) {
+            // Auto-drop stale single-field unique index on E11000 detection
+            if (err.message && (err.message.includes("productId_1") || err.message.includes("dup key"))) {
+                try {
+                    await Inventory.collection.dropIndex("productId_1");
+                    console.log("⚡ Auto-dropped legacy unique index 'productId_1' on E11000 detection.");
+                    return await performUpsert();
+                } catch (dropErr) {
+                    // Ignore drop error if already dropped or non-existent
+                }
+            }
+
             const found = session
                 ? await Inventory.findOne(query).session(session)
                 : await Inventory.findOne(query);
@@ -486,6 +528,8 @@ const getInventoryValuation = async () => {
 // Uses upsert to safely handle duplicate key errors during bulk sync.
 const syncAllProductsToInventory = async () => {
     try {
+        await fixInventoryIndexes();
+
         let warehouse = await Warehouse.findOne({ code: "MAIN" }) ||
                         await Warehouse.findOne({ isActive: true }) ||
                         await Warehouse.findOne();
