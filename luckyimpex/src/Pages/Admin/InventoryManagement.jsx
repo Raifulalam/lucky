@@ -8,8 +8,7 @@ import React, {
 
 import {
     Search,
-    Plus,
-    Edit,
+
     Trash2,
     Package,
     TrendingUp,
