@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaTrash, FaTruck } from "react-icons/fa";
+import { FaEye, FaTrash, FaTruck, FaPrint, FaFileInvoice, FaBox, FaTimes } from "react-icons/fa";
 import "./OrderComponent.css";
 import { authRequest } from "../../api/api";
 import { useNotification } from "../../Components/NotificationContext";
@@ -22,6 +22,10 @@ const OrderComponent = () => {
     const [endDate, setEndDate] = useState("");
     const [page, setPage] = useState(1);
     const { addNotification } = useNotification();
+
+    // Printable Document Modal State
+    const [printOrder, setPrintOrder] = useState(null);
+    const [printTab, setPrintTab] = useState("invoice"); // "invoice" | "packing"
 
     useEffect(() => {
         fetchOrders();
@@ -82,6 +86,10 @@ const OrderComponent = () => {
         } catch (err) {
             alert(err.message || "Delete failed");
         }
+    };
+
+    const handleTriggerPrint = () => {
+        window.print();
     };
 
     const filteredOrders = useMemo(() => {
@@ -215,8 +223,9 @@ const OrderComponent = () => {
                                         <td>{order.phone || "N/A"}</td>
                                         <td>{new Date(order.createdAt || Date.now()).toLocaleDateString()}</td>
                                         <td className="actions">
-                                            <button onClick={() => navigate(`/admin/orders/${order._id}`)}><FaEye /></button>
-                                            <button onClick={() => handleDelete(order._id)}><FaTrash /></button>
+                                            <button onClick={() => navigate(`/admin/orders/${order._id}`)} title="View Details"><FaEye /></button>
+                                            <button onClick={() => setPrintOrder(order)} title="Print Invoice / Packing Slip" className="btn-print-action"><FaPrint /></button>
+                                            <button onClick={() => handleDelete(order._id)} title="Delete Order"><FaTrash /></button>
                                         </td>
                                     </tr>
                                 ))}
@@ -230,6 +239,208 @@ const OrderComponent = () => {
                         <button disabled={page === totalPages} onClick={() => setPage((value) => value + 1)}>Next</button>
                     </div>
                 </>
+            )}
+
+            {/* ── PRINTABLE INVOICE / PACKING SLIP MODAL ── */}
+            {printOrder && (
+                <div className="order-print-overlay" onClick={(e) => e.target === e.currentTarget && setPrintOrder(null)}>
+                    <div className="order-print-modal">
+                        {/* Modal Navigation Header (Screen only) */}
+                        <div className="print-modal-bar no-print">
+                            <div className="print-tab-selector">
+                                <button
+                                    className={`tab-btn ${printTab === "invoice" ? "active" : ""}`}
+                                    onClick={() => setPrintTab("invoice")}
+                                >
+                                    <FaFileInvoice /> Tax Invoice
+                                </button>
+                                <button
+                                    className={`tab-btn ${printTab === "packing" ? "active" : ""}`}
+                                    onClick={() => setPrintTab("packing")}
+                                >
+                                    <FaBox /> Packing Slip
+                                </button>
+                            </div>
+                            <div className="print-bar-actions">
+                                <button className="btn-print-now" onClick={handleTriggerPrint}>
+                                    <FaPrint /> Print Document
+                                </button>
+                                <button className="btn-close-modal" onClick={() => setPrintOrder(null)}>
+                                    <FaTimes />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Printable Area (Sent to printer) */}
+                        <div className="printable-document-area">
+                            {printTab === "invoice" ? (
+                                <div className="invoice-doc">
+                                    <div className="doc-header">
+                                        <div className="company-info">
+                                            <h1 className="brand-name">LUCKY IMPEX</h1>
+                                            <p className="brand-tagline">Electronics & Home Appliances Wholesale / Retail</p>
+                                            <p className="contact-line">Main Road, Birgunj, Nepal | Tel: +977-9800000000</p>
+                                            <p className="contact-line">PAN/VAT: 301294812 | Email: info@luckyimpex.com</p>
+                                        </div>
+                                        <div className="doc-title-block">
+                                            <h2>TAX INVOICE</h2>
+                                            <div className="meta-row"><strong>Invoice No:</strong> <span>INV-{String(printOrder._id).slice(-8).toUpperCase()}</span></div>
+                                            <div className="meta-row"><strong>Date:</strong> <span>{new Date(printOrder.createdAt || Date.now()).toLocaleDateString()}</span></div>
+                                            <div className="meta-row"><strong>Payment:</strong> <span className="badge-paid">{printOrder.paymentMethod || "COD"}</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="doc-bill-to">
+                                        <div className="bill-col">
+                                            <h3>Billed To (Customer):</h3>
+                                            <p><strong>{printOrder.name || "Customer"}</strong></p>
+                                            <p>Phone: {printOrder.phone || "N/A"}</p>
+                                            <p>Address: {printOrder.address || "Showroom Pickup / Counter Sale"}</p>
+                                        </div>
+                                        <div className="bill-col">
+                                            <h3>Order Details:</h3>
+                                            <p>Order Reference: #{String(printOrder._id)}</p>
+                                            <p>Status: {printOrder.status || "Placed"}</p>
+                                        </div>
+                                    </div>
+
+                                    <table className="doc-table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Item Description</th>
+                                                <th className="text-right">Qty</th>
+                                                <th className="text-right">Unit Price</th>
+                                                <th className="text-right">Total (NPR)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {Array.isArray(printOrder.items) && printOrder.items.length > 0 ? (
+                                                printOrder.items.map((item, idx) => (
+                                                    <tr key={idx}>
+                                                        <td>{idx + 1}</td>
+                                                        <td>
+                                                            <strong>{item.name || item.productName || "Product"}</strong>
+                                                            {item.model && <span className="sub-model"> ({item.model})</span>}
+                                                        </td>
+                                                        <td className="text-right">{item.quantity || item.qty || 1}</td>
+                                                        <td className="text-right">Rs {Number(item.price || 0).toLocaleString()}</td>
+                                                        <td className="text-right">Rs {(Number(item.price || 0) * (item.quantity || item.qty || 1)).toLocaleString()}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>Standard Order Package</td>
+                                                    <td className="text-right">1</td>
+                                                    <td className="text-right">Rs {Number(printOrder.totalAmount || printOrder.total || 0).toLocaleString()}</td>
+                                                    <td className="text-right">Rs {Number(printOrder.totalAmount || printOrder.total || 0).toLocaleString()}</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colSpan="4" className="text-right"><strong>Subtotal:</strong></td>
+                                                <td className="text-right">Rs {Number(printOrder.totalAmount || printOrder.total || 0).toLocaleString()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td colSpan="4" className="text-right"><strong>V.A.T (13% Included):</strong></td>
+                                                <td className="text-right">Rs {Math.round((printOrder.totalAmount || printOrder.total || 0) * 0.115).toLocaleString()}</td>
+                                            </tr>
+                                            <tr className="grand-total-row">
+                                                <td colSpan="4" className="text-right"><strong>Grand Total:</strong></td>
+                                                <td className="text-right">Rs {Number(printOrder.totalAmount || printOrder.total || 0).toLocaleString()}</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                                    <div className="doc-footer-sign">
+                                        <div className="sign-box">
+                                            <p>Customer Signature</p>
+                                        </div>
+                                        <div className="sign-box text-right">
+                                            <p>Authorized Signature (Lucky Impex)</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="packing-doc">
+                                    <div className="doc-header">
+                                        <div className="company-info">
+                                            <h1 className="brand-name">LUCKY IMPEX</h1>
+                                            <p className="brand-tagline">Warehouse Dispatch & Packing Slip</p>
+                                            <p className="contact-line">Central Distribution Warehouse | Birgunj, Nepal</p>
+                                        </div>
+                                        <div className="doc-title-block">
+                                            <h2>PACKING SLIP</h2>
+                                            <div className="meta-row"><strong>Slip No:</strong> <span>PS-{String(printOrder._id).slice(-8).toUpperCase()}</span></div>
+                                            <div className="meta-row"><strong>Dispatch Date:</strong> <span>{new Date().toLocaleDateString()}</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="doc-bill-to">
+                                        <div className="bill-col">
+                                            <h3>Ship To:</h3>
+                                            <p><strong>{printOrder.name || "Customer"}</strong></p>
+                                            <p>Phone: {printOrder.phone || "N/A"}</p>
+                                            <p>Delivery Address: {printOrder.address || "Showroom Counter Pickup"}</p>
+                                        </div>
+                                        <div className="bill-col">
+                                            <h3>Warehouse Verification:</h3>
+                                            <p>Order ID: #{String(printOrder._id)}</p>
+                                            <p>Carrier / Courier: {printOrder.courier || "Standard Dispatch"}</p>
+                                        </div>
+                                    </div>
+
+                                    <table className="doc-table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Product Description</th>
+                                                <th className="text-center">Qty to Pack</th>
+                                                <th className="text-center">Verified</th>
+                                                <th>Notes / Serials</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {Array.isArray(printOrder.items) && printOrder.items.length > 0 ? (
+                                                printOrder.items.map((item, idx) => (
+                                                    <tr key={idx}>
+                                                        <td>{idx + 1}</td>
+                                                        <td>
+                                                            <strong>{item.name || item.productName || "Product"}</strong>
+                                                            {item.model && <span className="sub-model"> ({item.model})</span>}
+                                                        </td>
+                                                        <td className="text-center"><strong>{item.quantity || item.qty || 1}</strong></td>
+                                                        <td className="text-center">[ &nbsp; ]</td>
+                                                        <td>{item.serialNumber || "—"}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td>1</td>
+                                                    <td>Standard Order Package Items</td>
+                                                    <td className="text-center">1</td>
+                                                    <td className="text-center">[ &nbsp; ]</td>
+                                                    <td>—</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+
+                                    <div className="doc-footer-sign">
+                                        <div className="sign-box">
+                                            <p>Packed & Verified By (Warehouse Staff)</p>
+                                        </div>
+                                        <div className="sign-box text-right">
+                                            <p>Received By Driver / Courier</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             )}
         </section>
     );

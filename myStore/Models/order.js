@@ -47,15 +47,22 @@ const Orderschema = new Schema(
         additionalPhone: { type: String },
         status: { 
             type: String, 
-            enum: ['pending', 'confirmed', 'processing', 'completed', 'delivered', 'cancelled'],
+            enum: [
+                'pending', 'placed', 'confirmed', 'processing', 'shipped', 'in_transit', 'completed', 'delivered', 'cancelled',
+                'PENDING', 'PLACED', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'IN_TRANSIT', 'COMPLETED', 'DELIVERED', 'CANCELLED',
+                'Pending', 'Placed', 'Confirmed', 'Processing', 'Shipped', 'In_Transit', 'Completed', 'Delivered', 'Cancelled'
+            ],
             default: 'pending' 
         },
     },
     { timestamps: true }
 );
 
-// Pre-validate hook to sync productId and itemId
+// Pre-validate hook to sync productId and itemId and normalize status
 Orderschema.pre('validate', function(next) {
+    if (this.status) {
+        this.status = String(this.status).toLowerCase();
+    }
     if (this.items && Array.isArray(this.items)) {
         for (const item of this.items) {
             if (!item.productId && item.itemId) {

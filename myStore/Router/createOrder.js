@@ -222,7 +222,7 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
         const newStatus = rawNewStatus ? rawNewStatus.toLowerCase() : rawNewStatus;
 
         const isCompletedStatus = (status) => status && ["completed", "delivered"].includes(String(status).toLowerCase());
-        const isConfirmedStatus = (status) => status && ["confirmed", "processing"].includes(String(status).toLowerCase());
+        const isConfirmedStatus = (status) => status && ["confirmed", "processing", "shipped", "placed"].includes(String(status).toLowerCase());
 
         // Handle inventory updates based on status change within transaction
         if (newStatus && newStatus !== (previousStatus ? previousStatus.toLowerCase() : "")) {

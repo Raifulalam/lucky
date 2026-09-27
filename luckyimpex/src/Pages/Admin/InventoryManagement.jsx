@@ -3,12 +3,12 @@ import React, {
     useEffect,
     useMemo,
     useCallback,
-    useRef
+    useRef,
+    memo
 } from "react";
 
 import {
     Search,
-
     Trash2,
     Package,
     TrendingUp,
@@ -21,7 +21,9 @@ import {
     Columns,
     Save,
     RotateCcw,
-    Grid
+    Grid,
+    CheckCircle,
+    Info
 } from "lucide-react";
 
 import "./InventoryManagement.css";
@@ -63,13 +65,262 @@ const DEFAULT_VISIBLE_COLS = {
     actions: true
 };
 
+const EDITABLE_FIELDS = ["name", "category", "brand", "model", "capacity", "price", "mrp", "stock"];
+
+/* =========================================================
+   MEMOIZED TABLE ROW COMPONENT (High-Performance Editing)
+========================================================= */
+const InventoryTableRow = memo(({
+    product,
+    rowHeightPx,
+    visibleCols,
+    isSelected,
+    dirtyProductEdits,
+    editingCell,
+    onSelectProduct,
+    onCellDoubleClick,
+    onCellChange,
+    onCellKeyDown,
+    onCellBlur,
+    onDeleteProduct
+}) => {
+    const productId = product._id;
+
+    const getVal = useCallback((field) => {
+        if (dirtyProductEdits && dirtyProductEdits[field] !== undefined) {
+            return dirtyProductEdits[field];
+        }
+        return product[field] ?? "";
+    }, [dirtyProductEdits, product]);
+
+    const currentStock = Number(getVal("stock")) || 0;
+    const isRowDirty = Boolean(dirtyProductEdits && Object.keys(dirtyProductEdits).length > 0);
+
+    return (
+        <tr
+            style={{ height: `${rowHeightPx}px` }}
+            className={`excel-row ${isRowDirty ? "row-dirty" : ""}`}
+        >
+            {visibleCols.select && (
+                <td className="checkbox-cell">
+                    <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => onSelectProduct(productId)}
+                    />
+                </td>
+            )}
+
+            {visibleCols.image && (
+                <td className="img-cell">
+                    {product?.images?.length > 0 ? (
+                        <img src={product.images[0]} alt={product.name} className="excel-thumb" />
+                    ) : product?.image ? (
+                        <img src={product.image} alt={product.name} className="excel-thumb" />
+                    ) : (
+                        <div className="excel-thumb-ph"><ImageIcon size={14} /></div>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.name && (
+                <td
+                    className={`editable-cell ${editingCell?.productId === productId && editingCell?.field === "name" ? "editing" : ""} ${dirtyProductEdits?.name !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "name")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "name" ? (
+                        <input
+                            type="text"
+                            autoFocus
+                            value={getVal("name")}
+                            onChange={e => onCellChange(productId, "name", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "name")}
+                            onBlur={onCellBlur}
+                            className="cell-input"
+                        />
+                    ) : (
+                        <span className="cell-text font-semibold">{getVal("name")}</span>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.category && (
+                <td
+                    className={`editable-cell ${editingCell?.productId === productId && editingCell?.field === "category" ? "editing" : ""} ${dirtyProductEdits?.category !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "category")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "category" ? (
+                        <input
+                            type="text"
+                            autoFocus
+                            value={getVal("category")}
+                            onChange={e => onCellChange(productId, "category", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "category")}
+                            onBlur={onCellBlur}
+                            className="cell-input"
+                        />
+                    ) : (
+                        <span className="cell-text">{getVal("category") || "—"}</span>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.brand && (
+                <td
+                    className={`editable-cell ${editingCell?.productId === productId && editingCell?.field === "brand" ? "editing" : ""} ${dirtyProductEdits?.brand !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "brand")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "brand" ? (
+                        <input
+                            type="text"
+                            autoFocus
+                            value={getVal("brand")}
+                            onChange={e => onCellChange(productId, "brand", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "brand")}
+                            onBlur={onCellBlur}
+                            className="cell-input"
+                        />
+                    ) : (
+                        <span className="cell-text">{getVal("brand") || "—"}</span>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.model && (
+                <td
+                    className={`editable-cell ${editingCell?.productId === productId && editingCell?.field === "model" ? "editing" : ""} ${dirtyProductEdits?.model !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "model")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "model" ? (
+                        <input
+                            type="text"
+                            autoFocus
+                            value={getVal("model")}
+                            onChange={e => onCellChange(productId, "model", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "model")}
+                            onBlur={onCellBlur}
+                            className="cell-input"
+                        />
+                    ) : (
+                        <code className="cell-code">{getVal("model") || "—"}</code>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.capacity && (
+                <td
+                    className={`editable-cell ${editingCell?.productId === productId && editingCell?.field === "capacity" ? "editing" : ""} ${dirtyProductEdits?.capacity !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "capacity")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "capacity" ? (
+                        <input
+                            type="text"
+                            autoFocus
+                            value={getVal("capacity")}
+                            onChange={e => onCellChange(productId, "capacity", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "capacity")}
+                            onBlur={onCellBlur}
+                            className="cell-input"
+                        />
+                    ) : (
+                        <span className="cell-text">{getVal("capacity") || "—"}</span>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.price && (
+                <td
+                    className={`editable-cell price-cell ${editingCell?.productId === productId && editingCell?.field === "price" ? "editing" : ""} ${dirtyProductEdits?.price !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "price")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "price" ? (
+                        <input
+                            type="number"
+                            autoFocus
+                            value={getVal("price")}
+                            onChange={e => onCellChange(productId, "price", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "price")}
+                            onBlur={onCellBlur}
+                            className="cell-input num-input"
+                        />
+                    ) : (
+                        <span className="cell-text price-text">Rs {Number(getVal("price") || 0).toLocaleString()}</span>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.mrp && (
+                <td
+                    className={`editable-cell price-cell ${editingCell?.productId === productId && editingCell?.field === "mrp" ? "editing" : ""} ${dirtyProductEdits?.mrp !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "mrp")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "mrp" ? (
+                        <input
+                            type="number"
+                            autoFocus
+                            value={getVal("mrp")}
+                            onChange={e => onCellChange(productId, "mrp", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "mrp")}
+                            onBlur={onCellBlur}
+                            className="cell-input num-input"
+                        />
+                    ) : (
+                        <span className="cell-text text-muted">Rs {Number(getVal("mrp") || 0).toLocaleString()}</span>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.stock && (
+                <td
+                    className={`editable-cell stock-cell ${editingCell?.productId === productId && editingCell?.field === "stock" ? "editing" : ""} ${dirtyProductEdits?.stock !== undefined ? "cell-dirty" : ""}`}
+                    onDoubleClick={() => onCellDoubleClick(productId, "stock")}
+                >
+                    {editingCell?.productId === productId && editingCell?.field === "stock" ? (
+                        <input
+                            type="number"
+                            autoFocus
+                            value={getVal("stock")}
+                            onChange={e => onCellChange(productId, "stock", e.target.value)}
+                            onKeyDown={e => onCellKeyDown(e, productId, "stock")}
+                            onBlur={onCellBlur}
+                            className="cell-input num-input bold-input"
+                        />
+                    ) : (
+                        <span className={`stock-badge ${currentStock === 0 ? "out" : currentStock < 10 ? "low" : "good"}`}>
+                            {currentStock}
+                        </span>
+                    )}
+                </td>
+            )}
+
+            {visibleCols.status && (
+                <td>
+                    <span className={`status-badge ${currentStock === 0 ? "out-of-stock" : currentStock < 10 ? "low-stock" : "in-stock"}`}>
+                        {currentStock === 0 ? "Out of Stock" : currentStock < 10 ? "Low Stock" : "In Stock"}
+                    </span>
+                </td>
+            )}
+
+            {visibleCols.actions && (
+                <td className="actions-cell">
+                    <button className="action-btn action-btn-delete" onClick={() => onDeleteProduct(product)} title="Delete Product">
+                        <Trash2 size={14} />
+                    </button>
+                </td>
+            )}
+        </tr>
+    );
+});
+
+/* =========================================================
+   MAIN INVENTORY MANAGEMENT CONTAINER
+========================================================= */
 const InventoryManagement = () => {
-    /* =========================================================
-       STATE
-    ========================================================= */
+    /* ================= STATE ================= */
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [toast, setToast] = useState(null); // { type: "success" | "error" | "info", text }
 
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("all");
@@ -90,9 +341,7 @@ const InventoryManagement = () => {
         totalPages: 0
     });
 
-    /* =========================================================
-       EXCEL SPREADSHEET & ADJUSTABLE GRID STATE
-    ========================================================= */
+    /* ================= SPREADSHEET GRID CONFIG ================= */
     const [colWidths, setColWidths] = useState(() => {
         const saved = localStorage.getItem("inventory_col_widths");
         return saved ? JSON.parse(saved) : DEFAULT_COL_WIDTHS;
@@ -103,7 +352,7 @@ const InventoryManagement = () => {
         return saved ? JSON.parse(saved) : DEFAULT_VISIBLE_COLS;
     });
 
-    const [rowDensity, setRowDensity] = useState("comfortable"); // "compact" | "comfortable" | "expanded"
+    const [rowDensity, setRowDensity] = useState("comfortable");
     const [rowHeightPx, setRowHeightPx] = useState(48);
     const [showColPicker, setShowColPicker] = useState(false);
 
@@ -117,6 +366,14 @@ const InventoryManagement = () => {
     const startXRef = useRef(0);
     const startWidthRef = useRef(0);
 
+    // Toast auto-clear
+    const showToast = useCallback((text, type = "info") => {
+        setToast({ text, type });
+        setTimeout(() => {
+            setToast(null);
+        }, 4000);
+    }, []);
+
     // Save column config to localStorage
     useEffect(() => {
         localStorage.setItem("inventory_col_widths", JSON.stringify(colWidths));
@@ -126,16 +383,13 @@ const InventoryManagement = () => {
         localStorage.setItem("inventory_visible_cols", JSON.stringify(visibleCols));
     }, [visibleCols]);
 
-    // Update numeric row height based on density preset
     useEffect(() => {
         if (rowDensity === "compact") setRowHeightPx(36);
         else if (rowDensity === "comfortable") setRowHeightPx(48);
         else if (rowDensity === "expanded") setRowHeightPx(64);
     }, [rowDensity]);
 
-    /* =========================================================
-       COLUMN RESIZING HANDLERS
-    ========================================================= */
+    /* ================= COLUMN RESIZING ================= */
     const handleMouseDownResize = (e, colKey) => {
         e.preventDefault();
         e.stopPropagation();
@@ -164,11 +418,10 @@ const InventoryManagement = () => {
         setColWidths(DEFAULT_COL_WIDTHS);
         setVisibleCols(DEFAULT_VISIBLE_COLS);
         setRowDensity("comfortable");
+        showToast("Layout reset to default", "info");
     };
 
-    /* =========================================================
-       FETCH PRODUCTS
-    ========================================================= */
+    /* ================= FETCH PRODUCTS ================= */
     const fetchProducts = useCallback(async (page = 1) => {
         setLoading(true);
         setError(null);
@@ -197,9 +450,7 @@ const InventoryManagement = () => {
         }
     }, [pagination.limit]);
 
-    /* =========================================================
-       SEARCH PRODUCTS
-    ========================================================= */
+    /* ================= SEARCH PRODUCTS ================= */
     const searchProducts = useCallback(async (query) => {
         const trimmedQuery = query.trim();
         if (!trimmedQuery) {
@@ -233,9 +484,7 @@ const InventoryManagement = () => {
         fetchProducts(1);
     }, [fetchProducts]);
 
-    /* =========================================================
-       SOCKET.IO REAL-TIME UPDATES
-    ========================================================= */
+    /* ================= SOCKET.IO REAL-TIME UPDATES ================= */
     useEffect(() => {
         const handleProductCreated = (product) => {
             if (!product?._id) return;
@@ -243,6 +492,7 @@ const InventoryManagement = () => {
                 const alreadyExists = prev.some(item => item._id === product._id);
                 return alreadyExists ? prev : [product, ...prev];
             });
+            showToast(`New product created: ${product.name}`, "info");
         };
 
         const handleProductUpdated = (updatedProduct) => {
@@ -266,21 +516,17 @@ const InventoryManagement = () => {
             socket.off("productUpdated", handleProductUpdated);
             socket.off("productDeleted", handleProductDeleted);
         };
-    }, []);
+    }, [showToast]);
 
-    /* =========================================================
-       DEBOUNCED SEARCH
-    ========================================================= */
+    /* ================= DEBOUNCED SEARCH ================= */
     useEffect(() => {
         const timer = setTimeout(() => {
             searchProducts(searchTerm);
-        }, 500);
+        }, 400);
         return () => clearTimeout(timer);
     }, [searchTerm, searchProducts]);
 
-    /* =========================================================
-       STATISTICS & FILTERING
-    ========================================================= */
+    /* ================= STATISTICS & FILTERING ================= */
     const stats = useMemo(() => {
         const totalProducts = products.length;
         const totalStock = products.reduce(
@@ -328,14 +574,12 @@ const InventoryManagement = () => {
         return filtered;
     }, [products, selectedCategory, stockFilter, sortConfig]);
 
-    /* =========================================================
-       SPREADSHEET CELL EDITING HANDLERS
-    ========================================================= */
-    const handleCellDoubleClick = (productId, field) => {
+    /* ================= EXCEL SPREADSHEET CELL EDITING & KEYBOARD NAV ================= */
+    const handleCellDoubleClick = useCallback((productId, field) => {
         setEditingCell({ productId, field });
-    };
+    }, []);
 
-    const handleCellChange = (productId, field, value) => {
+    const handleCellChange = useCallback((productId, field, value) => {
         setDirtyEdits(prev => ({
             ...prev,
             [productId]: {
@@ -343,25 +587,59 @@ const InventoryManagement = () => {
                 [field]: value
             }
         }));
-    };
+    }, []);
 
-    const getCellValue = (product, field) => {
-        if (dirtyEdits[product._id] && dirtyEdits[product._id][field] !== undefined) {
-            return dirtyEdits[product._id][field];
-        }
-        return product[field] ?? "";
-    };
+    const handleCellBlur = useCallback(() => {
+        setEditingCell(null);
+    }, []);
 
-    const handleKeyDownCell = (e) => {
+    // Advanced Keyboard Navigation (Tab, Shift+Tab, Enter, Escape)
+    const handleCellKeyDown = useCallback((e, currentProductId, currentField) => {
         if (e.key === "Enter") {
             e.preventDefault();
-            setEditingCell(null);
+            // Move focus to same field in next row
+            const currentIndex = filteredProducts.findIndex(p => p._id === currentProductId);
+            if (currentIndex !== -1 && currentIndex < filteredProducts.length - 1) {
+                const nextProductId = filteredProducts[currentIndex + 1]._id;
+                setEditingCell({ productId: nextProductId, field: currentField });
+            } else {
+                setEditingCell(null);
+            }
+        } else if (e.key === "Tab") {
+            e.preventDefault();
+            const currentFieldIndex = EDITABLE_FIELDS.indexOf(currentField);
+            if (e.shiftKey) {
+                // Move to previous editable field
+                if (currentFieldIndex > 0) {
+                    setEditingCell({ productId: currentProductId, field: EDITABLE_FIELDS[currentFieldIndex - 1] });
+                } else {
+                    // Previous row last field
+                    const currentIndex = filteredProducts.findIndex(p => p._id === currentProductId);
+                    if (currentIndex > 0) {
+                        const prevProductId = filteredProducts[currentIndex - 1]._id;
+                        setEditingCell({ productId: prevProductId, field: EDITABLE_FIELDS[EDITABLE_FIELDS.length - 1] });
+                    }
+                }
+            } else {
+                // Move to next editable field
+                if (currentFieldIndex < EDITABLE_FIELDS.length - 1) {
+                    setEditingCell({ productId: currentProductId, field: EDITABLE_FIELDS[currentFieldIndex + 1] });
+                } else {
+                    // Next row first field
+                    const currentIndex = filteredProducts.findIndex(p => p._id === currentProductId);
+                    if (currentIndex !== -1 && currentIndex < filteredProducts.length - 1) {
+                        const nextProductId = filteredProducts[currentIndex + 1]._id;
+                        setEditingCell({ productId: nextProductId, field: EDITABLE_FIELDS[0] });
+                    }
+                }
+            }
         } else if (e.key === "Escape") {
             setEditingCell(null);
         }
-    };
+    }, [filteredProducts]);
 
-    const handleSaveBatchEdits = async () => {
+    /* ================= BATCH SAVE & SHORTCUTS ================= */
+    const handleSaveBatchEdits = useCallback(async () => {
         const productIds = Object.keys(dirtyEdits);
         if (productIds.length === 0) return;
 
@@ -376,30 +654,43 @@ const InventoryManagement = () => {
                     });
                 }
             }
-            // Emit socket event to notify dashboard listeners
             socket.emit("inventoryUpdated", { timestamp: Date.now() });
-            alert(`✅ Successfully updated ${productIds.length} products in inventory!`);
+            showToast(`Successfully saved ${productIds.length} inventory updates!`, "success");
             setDirtyEdits({});
+            setEditingCell(null);
             fetchProducts(pagination.page);
         } catch (err) {
             console.error("Batch save error:", err);
-            alert("Error saving spreadsheet changes: " + err.message);
+            showToast(`Error saving changes: ${err.message}`, "error");
         } finally {
             setSavingBatch(false);
         }
-    };
+    }, [dirtyEdits, fetchProducts, pagination.page, showToast]);
 
-    const handleDiscardBatchEdits = () => {
+    const handleDiscardBatchEdits = useCallback(() => {
         setDirtyEdits({});
         setEditingCell(null);
-    };
+        showToast("Discarded unsaved spreadsheet edits", "info");
+    }, [showToast]);
 
-    /* =========================================================
-       EXPORT CSV
-    ========================================================= */
-    const handleExportCSV = () => {
+    // Global Keyboard Shortcut: Ctrl + S / Cmd + S to save dirty edits
+    useEffect(() => {
+        const handleGlobalKeyDown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+                if (Object.keys(dirtyEdits).length > 0) {
+                    e.preventDefault();
+                    handleSaveBatchEdits();
+                }
+            }
+        };
+        window.addEventListener("keydown", handleGlobalKeyDown);
+        return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+    }, [dirtyEdits, handleSaveBatchEdits]);
+
+    /* ================= EXPORT CSV ================= */
+    const handleExportCSV = useCallback(() => {
         if (filteredProducts.length === 0) {
-            alert("No data available to export");
+            showToast("No data available to export", "info");
             return;
         }
 
@@ -427,22 +718,21 @@ const InventoryManagement = () => {
         link.download = `inventory-spreadsheet-${new Date().toISOString().split("T")[0]}.csv`;
         link.click();
         URL.revokeObjectURL(link.href);
-    };
+        showToast("Spreadsheet exported successfully as CSV!", "success");
+    }, [filteredProducts, showToast]);
 
-    /* =========================================================
-       SELECTION & DELETE HANDLERS
-    ========================================================= */
-    const handleSelectAll = (checked) => {
+    /* ================= SELECTION & DELETE HANDLERS ================= */
+    const handleSelectAll = useCallback((checked) => {
         setSelectedProducts(checked ? filteredProducts.map(p => p._id) : []);
-    };
+    }, [filteredProducts]);
 
-    const handleSelectProduct = (productId) => {
+    const handleSelectProduct = useCallback((productId) => {
         setSelectedProducts(prev =>
             prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]
         );
-    };
+    }, []);
 
-    const handleDeleteProduct = async (product) => {
+    const handleDeleteProduct = useCallback(async (product) => {
         if (!product?._id) return;
         if (!window.confirm(`Are you sure you want to delete ${product.name || "this product"}?`)) return;
 
@@ -450,13 +740,14 @@ const InventoryManagement = () => {
             await authRequest(`/products/products/${product._id}`, { method: "DELETE" });
             setProducts(prev => prev.filter(p => p._id !== product._id));
             socket.emit("inventoryUpdated", { timestamp: Date.now() });
+            showToast("Product deleted successfully", "success");
         } catch (err) {
             console.error("Delete failed:", err);
             setError(err?.message || "Failed to delete product");
         }
-    };
+    }, [showToast]);
 
-    const handleBulkDelete = async () => {
+    const handleBulkDelete = useCallback(async () => {
         if (selectedProducts.length === 0) return;
         if (!window.confirm(`Are you sure you want to delete ${selectedProducts.length} selected products?`)) return;
 
@@ -467,11 +758,11 @@ const InventoryManagement = () => {
             setProducts(prev => prev.filter(p => !selectedProducts.includes(p._id)));
             setSelectedProducts([]);
             socket.emit("inventoryUpdated", { timestamp: Date.now() });
-            alert("Selected products deleted successfully.");
+            showToast(`Deleted ${selectedProducts.length} selected products`, "success");
         } catch (err) {
-            alert("Failed to delete selected products: " + err.message);
+            showToast("Failed to delete selected products: " + err.message, "error");
         }
-    };
+    }, [selectedProducts, showToast]);
 
     const dirtyCount = Object.keys(dirtyEdits).length;
 
@@ -488,6 +779,16 @@ const InventoryManagement = () => {
 
     return (
         <div className="inventory-management">
+            {/* ── Toast Notification Banner ── */}
+            {toast && (
+                <div className={`toast-notification toast-${toast.type}`}>
+                    {toast.type === "success" && <CheckCircle size={18} />}
+                    {toast.type === "error" && <AlertCircle size={18} />}
+                    {toast.type === "info" && <Info size={18} />}
+                    <span>{toast.text}</span>
+                </div>
+            )}
+
             {error && (
                 <div className="error-state">
                     <AlertCircle size={32} />
@@ -532,7 +833,7 @@ const InventoryManagement = () => {
             <div className="inventory-header">
                 <div className="header-left">
                     <h1>Excel Spreadsheet Inventory Grid</h1>
-                    <p className="subtitle">Adjust row heights, resize column widths, and edit cell values directly in-place</p>
+                    <p className="subtitle">Interactive inline editing with keyboard shortcuts (Tab / Enter / Ctrl+S)</p>
                 </div>
                 <div className="header-actions">
                     <button className="btn btn-secondary" onClick={() => fetchProducts(pagination.page)}>
@@ -664,7 +965,7 @@ const InventoryManagement = () => {
                 <div className="batch-save-bar">
                     <div className="batch-info">
                         <AlertCircle size={18} className="batch-alert-icon" />
-                        <span><strong>{dirtyCount}</strong> product(s) modified in spreadsheet grid</span>
+                        <span><strong>{dirtyCount}</strong> product(s) modified in spreadsheet grid (Press <kbd>Ctrl+S</kbd> to save)</span>
                     </div>
                     <div className="batch-actions">
                         <button className="btn btn-ghost btn-sm text-white" onClick={handleDiscardBatchEdits}>
@@ -809,226 +1110,23 @@ const InventoryManagement = () => {
 
                     <tbody>
                         {filteredProducts.length > 0 ? (
-                            filteredProducts.map(product => {
-                                const currentStock = Number(getCellValue(product, "stock")) || 0;
-                                const isDirty = Boolean(dirtyEdits[product._id]);
-
-                                return (
-                                    <tr
-                                        key={product._id}
-                                        style={{ height: `${rowHeightPx}px` }}
-                                        className={`excel-row ${isDirty ? "row-dirty" : ""}`}
-                                    >
-                                        {visibleCols.select && (
-                                            <td className="checkbox-cell">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedProducts.includes(product._id)}
-                                                    onChange={() => handleSelectProduct(product._id)}
-                                                />
-                                            </td>
-                                        )}
-
-                                        {visibleCols.image && (
-                                            <td className="img-cell">
-                                                {product?.images?.length > 0 ? (
-                                                    <img src={product.images[0]} alt={product.name} className="excel-thumb" />
-                                                ) : product?.image ? (
-                                                    <img src={product.image} alt={product.name} className="excel-thumb" />
-                                                ) : (
-                                                    <div className="excel-thumb-ph"><ImageIcon size={14} /></div>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.name && (
-                                            <td
-                                                className={`editable-cell ${editingCell?.productId === product._id && editingCell?.field === "name" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "name")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "name" ? (
-                                                    <input
-                                                        type="text"
-                                                        autoFocus
-                                                        value={getCellValue(product, "name")}
-                                                        onChange={e => handleCellChange(product._id, "name", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input"
-                                                    />
-                                                ) : (
-                                                    <span className="cell-text font-semibold">{getCellValue(product, "name")}</span>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.category && (
-                                            <td
-                                                className={`editable-cell ${editingCell?.productId === product._id && editingCell?.field === "category" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "category")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "category" ? (
-                                                    <input
-                                                        type="text"
-                                                        autoFocus
-                                                        value={getCellValue(product, "category")}
-                                                        onChange={e => handleCellChange(product._id, "category", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input"
-                                                    />
-                                                ) : (
-                                                    <span className="cell-text">{getCellValue(product, "category") || "—"}</span>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.brand && (
-                                            <td
-                                                className={`editable-cell ${editingCell?.productId === product._id && editingCell?.field === "brand" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "brand")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "brand" ? (
-                                                    <input
-                                                        type="text"
-                                                        autoFocus
-                                                        value={getCellValue(product, "brand")}
-                                                        onChange={e => handleCellChange(product._id, "brand", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input"
-                                                    />
-                                                ) : (
-                                                    <span className="cell-text">{getCellValue(product, "brand") || "—"}</span>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.model && (
-                                            <td
-                                                className={`editable-cell ${editingCell?.productId === product._id && editingCell?.field === "model" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "model")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "model" ? (
-                                                    <input
-                                                        type="text"
-                                                        autoFocus
-                                                        value={getCellValue(product, "model")}
-                                                        onChange={e => handleCellChange(product._id, "model", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input"
-                                                    />
-                                                ) : (
-                                                    <code className="cell-code">{getCellValue(product, "model") || "—"}</code>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.capacity && (
-                                            <td
-                                                className={`editable-cell ${editingCell?.productId === product._id && editingCell?.field === "capacity" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "capacity")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "capacity" ? (
-                                                    <input
-                                                        type="text"
-                                                        autoFocus
-                                                        value={getCellValue(product, "capacity")}
-                                                        onChange={e => handleCellChange(product._id, "capacity", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input"
-                                                    />
-                                                ) : (
-                                                    <span className="cell-text">{getCellValue(product, "capacity") || "—"}</span>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.price && (
-                                            <td
-                                                className={`editable-cell price-cell ${editingCell?.productId === product._id && editingCell?.field === "price" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "price")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "price" ? (
-                                                    <input
-                                                        type="number"
-                                                        autoFocus
-                                                        value={getCellValue(product, "price")}
-                                                        onChange={e => handleCellChange(product._id, "price", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input num-input"
-                                                    />
-                                                ) : (
-                                                    <span className="cell-text price-text">Rs {Number(getCellValue(product, "price") || 0).toLocaleString()}</span>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.mrp && (
-                                            <td
-                                                className={`editable-cell price-cell ${editingCell?.productId === product._id && editingCell?.field === "mrp" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "mrp")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "mrp" ? (
-                                                    <input
-                                                        type="number"
-                                                        autoFocus
-                                                        value={getCellValue(product, "mrp")}
-                                                        onChange={e => handleCellChange(product._id, "mrp", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input num-input"
-                                                    />
-                                                ) : (
-                                                    <span className="cell-text text-muted">Rs {Number(getCellValue(product, "mrp") || 0).toLocaleString()}</span>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.stock && (
-                                            <td
-                                                className={`editable-cell stock-cell ${editingCell?.productId === product._id && editingCell?.field === "stock" ? "editing" : ""}`}
-                                                onDoubleClick={() => handleCellDoubleClick(product._id, "stock")}
-                                            >
-                                                {editingCell?.productId === product._id && editingCell?.field === "stock" ? (
-                                                    <input
-                                                        type="number"
-                                                        autoFocus
-                                                        value={getCellValue(product, "stock")}
-                                                        onChange={e => handleCellChange(product._id, "stock", e.target.value)}
-                                                        onKeyDown={handleKeyDownCell}
-                                                        onBlur={() => setEditingCell(null)}
-                                                        className="cell-input num-input bold-input"
-                                                    />
-                                                ) : (
-                                                    <span className={`stock-badge ${currentStock === 0 ? "out" : currentStock < 10 ? "low" : "good"}`}>
-                                                        {currentStock}
-                                                    </span>
-                                                )}
-                                            </td>
-                                        )}
-
-                                        {visibleCols.status && (
-                                            <td>
-                                                <span className={`status-badge ${currentStock === 0 ? "out-of-stock" : currentStock < 10 ? "low-stock" : "in-stock"}`}>
-                                                    {currentStock === 0 ? "Out of Stock" : currentStock < 10 ? "Low Stock" : "In Stock"}
-                                                </span>
-                                            </td>
-                                        )}
-
-                                        {visibleCols.actions && (
-                                            <td className="actions-cell">
-                                                <button className="action-btn action-btn-delete" onClick={() => handleDeleteProduct(product)} title="Delete Product">
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </td>
-                                        )}
-                                    </tr>
-                                );
-                            })
+                            filteredProducts.map(product => (
+                                <InventoryTableRow
+                                    key={product._id}
+                                    product={product}
+                                    rowHeightPx={rowHeightPx}
+                                    visibleCols={visibleCols}
+                                    isSelected={selectedProducts.includes(product._id)}
+                                    dirtyProductEdits={dirtyEdits[product._id]}
+                                    editingCell={editingCell}
+                                    onSelectProduct={handleSelectProduct}
+                                    onCellDoubleClick={handleCellDoubleClick}
+                                    onCellChange={handleCellChange}
+                                    onCellKeyDown={handleCellKeyDown}
+                                    onCellBlur={handleCellBlur}
+                                    onDeleteProduct={handleDeleteProduct}
+                                />
+                            ))
                         ) : (
                             <tr>
                                 <td colSpan="12" className="no-data">

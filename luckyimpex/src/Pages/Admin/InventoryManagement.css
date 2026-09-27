@@ -6,6 +6,66 @@
     padding: var(--space-8);
     max-width: var(--container-2xl);
     margin: 0 auto;
+    position: relative;
+}
+
+/* ================= TOAST NOTIFICATION ================= */
+.toast-notification {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-radius: var(--radius-xl);
+    font-size: 0.88rem;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.toast-success {
+    background: #059669;
+    color: #ffffff;
+}
+
+.toast-error {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.toast-info {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* Dirty Cell Highlight */
+.editable-cell.cell-dirty {
+    background: rgba(245, 158, 11, 0.15) !important;
+    outline: 1.5px solid #f59e0b;
+}
+
+kbd {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: inherit;
+    font-size: 0.76rem;
+    font-weight: 700;
 }
 
 /* ================= STATISTICS DASHBOARD ================= */
