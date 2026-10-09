@@ -14,25 +14,25 @@ import ShowroomHub from "./ShowroomHub";
 import BrandsCarousel from "./BrandsCarousel";
 import WhyChooseUs from "./WhyChooseUs";
 
-import PromoModal from "./PromoModal";
+// import PromoModal from "./PromoModal";
 import { SITE_CONFIG } from "../../seo/siteConfig";
 
 import "./Home.css";
 
 const HomeContent = () => {
-    const [showPromo, setShowPromo] = useState(false);
+    // const [showPromo, setShowPromo] = useState(false);
 
-    useEffect(() => {
-        // Show promo modal once per session
-        const alreadyShown = sessionStorage.getItem("promoShown");
-        if (!alreadyShown) {
-            const timer = setTimeout(() => {
-                setShowPromo(true);
-                sessionStorage.setItem("promoShown", "true");
-            }, 3500);
-            return () => clearTimeout(timer);
-        }
-    }, []);
+    // useEffect(() => {
+    //     // Show promo modal once per session
+    //     const alreadyShown = sessionStorage.getItem("promoShown");
+    //     if (!alreadyShown) {
+    //         const timer = setTimeout(() => {
+    //             setShowPromo(true);
+    //             sessionStorage.setItem("promoShown", "true");
+    //         }, 3500);
+    //         return () => clearTimeout(timer);
+    //     }
+    // }, []);
 
     return (
         <div className="home-page">
@@ -46,10 +46,10 @@ const HomeContent = () => {
             />
 
             {/* Promotional Ad Modal */}
-            <PromoModal
+            {/* <PromoModal
                 open={showPromo}
                 onClose={() => setShowPromo(false)}
-            />
+            /> */}
 
             {/* 1. TOP UTILITY & MAIN STICKY NAVIGATION */}
             <Header />
