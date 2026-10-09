@@ -6,12 +6,12 @@ const Order = require("../Models/order");
 const STORE_INFO = {
     name: "Lucky Impex",
     phone: "051-531789",
-    whatsapp: "+977 9809278236",
+    whatsapp: "+977 9802594022",
     address: "Ghantaghar Link Road, Birgunj, Madhesh Province",
     hours: "Sunday–Friday: 10:00 AM – 8:00 PM | Saturday: 10:00 AM – 3:00 PM",
 };
 
-const ADMIN_JID = `${(process.env.WHATSAPP_ADMIN_PHONE || "9779809278236").replace(/\D/g, "")}@s.whatsapp.net`;
+const ADMIN_JID = `${(process.env.WHATSAPP_ADMIN_PHONE || "9779802594022").replace(/\D/g, "")}@s.whatsapp.net`;
 
 // ─── Intent Detection ─────────────────────────────────────────────────────────
 const INTENTS = {

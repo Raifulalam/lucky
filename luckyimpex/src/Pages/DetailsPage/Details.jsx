@@ -217,7 +217,7 @@ const ProductDetails = () => {
                                 {isOutOfStock ? "Unavailable" : "Add to Cart"}
                             </button>
                             <a
-                                href={`https://wa.me/9779809278236?text=${encodeURIComponent(
+                                href={`https://wa.me/9779802594022?text=${encodeURIComponent(
                                     `Namaste Lucky Impex! 🙏 I have an inquiry about ${productData.name} (Brand: ${productData.brand || "Lucky Impex"}, Model: ${productData.model || "N/A"}, Price: ${formatCurrency(productData.price)}). Is this available?`
                                 )}`}
                                 target="_blank"

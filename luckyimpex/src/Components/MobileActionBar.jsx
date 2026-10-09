@@ -28,7 +28,7 @@ const MobileActionBar = () => {
 
                 {/* 2. WhatsApp Direct */}
                 <a
-                    href="https://wa.me/9779809278236?text=Hello%20Lucky%20Impex,%20I%20have%20an%20inquiry%20regarding%20electronics%20and%20appliances."
+                    href="https://wa.me/9779802594022?text=Hello%20Lucky%20Impex,%20I%20have%20an%20inquiry%20regarding%20electronics%20and%20appliances."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bar-action-item bar-whatsapp"

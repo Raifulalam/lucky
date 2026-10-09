@@ -54,7 +54,7 @@ const WholesaleRFQBanner = () => {
 
             // Optional direct WhatsApp ping
             window.open(
-                `https://wa.me/9779809278236?text=${encodeURIComponent(message)}`,
+                `https://wa.me/9779802594022?text=${encodeURIComponent(message)}`,
                 "_blank"
             );
         }, 900);
@@ -166,7 +166,7 @@ const WholesaleRFQBanner = () => {
                                     id="rfq-phone"
                                     type="tel"
                                     required
-                                    placeholder="e.g. 9807286786 / 9809278236"
+                                    placeholder="e.g.9802594022"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     className="field-input"

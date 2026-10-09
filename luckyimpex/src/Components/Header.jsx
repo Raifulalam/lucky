@@ -133,7 +133,7 @@ const Header = () => {
                         </a>
                         <span className="divider-slash">/</span>
                         <a
-                            href="https://wa.me/9779809278236?text=Hello%20Lucky%20Impex,%20I%20have%20an%20inquiry."
+                            href="https://wa.me/9779802594022?text=Hello%20Lucky%20Impex,%20I%20have%20an%20inquiry."
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mini-whatsapp-link"

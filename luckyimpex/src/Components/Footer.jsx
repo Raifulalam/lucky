@@ -81,16 +81,16 @@ const Footer = () => {
                             <Phone size={16} className="contact-icon" />
                             <a href="tel:051531789">051-531789</a>
                             <span>·</span>
-                            <a href="tel:+9779807286786">+977 9807286786</a>
+                            <a href="tel:+9779807286786">+977 9802594022</a>
                         </div>
                         <div className="contact-line">
                             <FaWhatsapp size={16} className="contact-icon text-green" />
                             <a
-                                href="https://wa.me/9779809278236"
+                                href="https://wa.me/9779802594022"
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                WhatsApp: +977 9809278236
+                                WhatsApp: +977 9802594022
                             </a>
                         </div>
                         <div className="contact-line">

@@ -108,7 +108,7 @@ const HomeContent = () => {
                             <details className="home-faq-item">
                                 <summary>How does Wholesale / B2B bulk pricing work at luckyimpex4u?</summary>
                                 <p>
-                                    You can toggle the <strong>[ Wholesale ]</strong> switch at the top of the page to view minimum order quantities (MOQ) and tiered volume discounts. You can also submit the quick RFQ form on this page or message our wholesale sales desk directly on WhatsApp at +977 9809278236 for customized freight quotes and VAT invoicing.
+                                    You can toggle the <strong>[ Wholesale ]</strong> switch at the top of the page to view minimum order quantities (MOQ) and tiered volume discounts. You can also submit the quick RFQ form on this page or message our wholesale sales desk directly on WhatsApp at +977 9802894022 for customized freight quotes and VAT invoicing.
                                 </p>
                             </details>
                             <details className="home-faq-item">

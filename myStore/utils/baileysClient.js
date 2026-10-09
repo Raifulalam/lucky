@@ -32,7 +32,7 @@ function broadcastStatus() {
 
 /**
  * Send a WhatsApp text message through the active Baileys socket
- * @param {string} to   - Recipient phone (e.g. "9779809278236")
+ * @param {string} to   - Recipient phone (e.g. "9779802594022")
  * @param {string} text - Message body
  */
 async function sendWhatsAppText(to, text) {

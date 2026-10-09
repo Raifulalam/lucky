@@ -35,7 +35,7 @@ async function sendWhatsAppMessage({ to, message }) {
  * Hook: Triggered when a new order is placed
  */
 async function sendWhatsAppOrderNotification({ order, customerPhone, customerName }) {
-    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779809278236";
+    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "977"9802594022;
 
     const itemsSummary = (order.items || [])
         .map((item, idx) => `  ${idx + 1}. ${item.name} × ${item.quantity} (Rs. ${(item.price * item.quantity).toLocaleString()})`)
@@ -113,7 +113,7 @@ Questions? Reply here or call 📞 051-531789`;
  * Hook: Triggered when a customer submits a query or contact message
  */
 async function sendWhatsAppQueryNotification({ name, email, phone, message, productInterest }) {
-    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779809278236";
+    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779802594022";
 
     const adminMessage = `📩 *NEW CUSTOMER QUERY RECEIVED!*
 ━━━━━━━━━━━━━━━━━━━━━
@@ -132,7 +132,7 @@ _Please follow up promptly with the customer._`;
  * Hook: Triggered when a customer files a complaint
  */
 async function sendWhatsAppComplaintNotification(complaint) {
-    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779809278236";
+    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779802594022";
 
     const adminMessage = `⚠️ *NEW CUSTOMER COMPLAINT FILED!*
 ━━━━━━━━━━━━━━━━━━━━━
@@ -150,7 +150,7 @@ _Please review in Admin Dashboard and address immediately._`;
  * Hook: Triggered when an order completes to remind admin to verify / adjust physical stock
  */
 async function sendWhatsAppAdminStockReminder({ order }) {
-    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779809278236";
+    const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779802594022";
     const orderId = order._id ? order._id.toString().slice(-6).toUpperCase() : "N/A";
     const itemsSummary = (order.items || [])
         .map((item, idx) => `  ${idx + 1}. ${item.name} × ${item.quantity}`)

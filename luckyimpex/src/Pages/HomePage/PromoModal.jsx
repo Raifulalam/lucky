@@ -46,7 +46,7 @@ Please contact me for early offers and launch updates.
 
         const encodedMessage = encodeURIComponent(message);
 
-        const whatsappNumber = "9779809278236"; // your WhatsApp number
+        const whatsappNumber = "9779802594022"; // your WhatsApp number
 
         const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 

@@ -291,7 +291,7 @@ export default function WhatsAppManager() {
                                 <input
                                     id="wa-to"
                                     type="text"
-                                    placeholder="9779809278236"
+                                    placeholder="9779802594022"
                                     value={testTo}
                                     onChange={(e) => setTestTo(e.target.value)}
                                     required
