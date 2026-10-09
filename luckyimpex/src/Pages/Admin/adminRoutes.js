@@ -135,9 +135,10 @@ export const legacyAdminRedirects = [
     { from: "/dashboard", to: "/admin" },
     { from: "/admindashboard", to: "/admin/users" },
     { from: "/orders", to: "/admin/orders" },
+    { from: "/order", to: "/admin/orders" },
+    { from: "/admin/order", to: "/admin/orders" },
+    { from: "/admin-orders", to: "/admin/orders" },
     { from: "/complaints", to: "/admin/complaints" },
     { from: "/feedback", to: "/admin/feedback" },
-
     { from: "/reviews", to: "/admin/reviews" },
-   
 ];

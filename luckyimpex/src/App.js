@@ -178,7 +178,9 @@ function App() {
                       <Route index element={<Dashboard />} />
                       <Route path="users" element={<AdminDashboard />} />
                       <Route path="orders" element={<OrderComponent />} />
+                      <Route path="order" element={<Navigate to="/admin/orders" replace />} />
                       <Route path="orders/:orderId" element={<ReviewPage />} />
+                      <Route path="order/:orderId" element={<ReviewPage />} />
                       <Route path="complaints" element={<ComplaintsComponent />} />
                       <Route path="feedback" element={<FeedbackList />} />
                       <Route path="inventory" element={<InventoryManagement />} />
