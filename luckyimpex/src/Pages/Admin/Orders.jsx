@@ -45,8 +45,9 @@ const OrderComponent = () => {
     };
 
     const getNextStatus = (status) => {
-        const idx = STATUS_FLOW.indexOf(String(status || "").trim());
-        return idx < STATUS_FLOW.length - 1 ? STATUS_FLOW[idx + 1] : null;
+        const normalized = String(status || "").trim().toLowerCase();
+        const idx = STATUS_FLOW.findIndex(s => s.toLowerCase() === normalized);
+        return idx !== -1 && idx < STATUS_FLOW.length - 1 ? STATUS_FLOW[idx + 1] : null;
     };
 
     const updateStatus = async (id, status) => {
