@@ -392,11 +392,11 @@ kbd {
 }
 
 .inventory-table tbody tr:nth-child(even) {
-    background: rgba(15, 23, 42, 0.3);
+    background: #f8fafc;
 }
 
 .inventory-table tbody tr:hover {
-    background: rgba(59, 130, 246, 0.1);
+    background: #eff6ff;
 }
 
 .inventory-table tbody tr:last-child {
@@ -1064,12 +1064,12 @@ kbd {
     top: 42px;
     right: 0;
     z-index: 1000;
-    background: #0f172a;
-    border: 1px solid var(--color-primary-500);
+    background: #ffffff;
+    border: 1px solid var(--color-dark-border-strong);
     border-radius: 12px;
     padding: 16px;
     width: 220px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     animation: fadeIn 0.15s ease-out;
 }
 
@@ -1131,8 +1131,10 @@ kbd {
 .th-resizable {
     position: relative;
     user-select: none;
-    background: rgba(15, 23, 42, 0.95);
+    background: #f8fafc;
+    color: var(--color-dark-text-primary);
     border-right: 1px solid var(--color-dark-border);
+    border-bottom: 2px solid var(--color-dark-border);
     padding: 10px 14px;
 }
 
@@ -1201,7 +1203,7 @@ kbd {
     padding: 0 !important;
     outline: 2px solid var(--color-primary-500);
     outline-offset: -2px;
-    background: #020617;
+    background: #ffffff;
     z-index: 5;
 }
 
@@ -1209,9 +1211,9 @@ kbd {
     width: 100%;
     height: 100%;
     padding: 6px 10px;
-    background: #020617;
+    background: #ffffff;
     border: none;
-    color: #38bdf8;
+    color: var(--color-dark-text-primary);
     font-size: 13px;
     font-weight: 600;
     outline: none;

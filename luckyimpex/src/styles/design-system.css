@@ -148,6 +148,17 @@
     --color-text-primary: #0f172a;
     --color-text-secondary: #475569;
     --color-text-muted: #64748b;
+
+    /* Admin Panel Tokens - Crisp Clean White Theme */
+    --color-dark-bg: #ffffff;
+    --color-dark-surface: #ffffff;
+    --color-dark-card: #ffffff;
+    --color-dark-border: #e2e8f0;
+    --color-dark-border-strong: #cbd5e1;
+    --color-dark-text-primary: #0f172a;
+    --color-dark-text-secondary: #475569;
+    --color-dark-text-muted: #64748b;
+    --color-dark-hover: #f8fafc;
     --color-border: var(--color-light-border);
     --color-accent: var(--color-primary-600);
     --color-accent-hover: var(--color-primary-700);

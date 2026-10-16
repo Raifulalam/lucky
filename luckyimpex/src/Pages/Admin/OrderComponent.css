@@ -174,11 +174,11 @@
 }
 
 .orders-table tbody tr:nth-child(even) {
-    background: rgba(15, 23, 42, 0.3);
+    background: #f8fafc;
 }
 
 .orders-table tbody tr:hover {
-    background: rgba(59, 130, 246, 0.1);
+    background: #eff6ff;
 }
 
 .orders-table tbody tr:last-child td {

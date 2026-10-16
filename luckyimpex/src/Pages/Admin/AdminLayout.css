@@ -1,17 +1,16 @@
 /* =========================================
-   ADMIN SHELL
+   ADMIN SHELL — Professional Layout
 ========================================= */
 
 .admin-shell {
-    --admin-sidebar-width: 270px;
-
+    --admin-sidebar-width: 264px;
+    --admin-topbar-height: 64px;
     min-height: 100vh;
-
     display: flex;
-
     background: var(--color-dark-bg);
+    color: var(--color-dark-text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
-
 
 /* =========================================
    SIDEBAR
@@ -19,97 +18,70 @@
 
 .admin-sidebar {
     position: fixed;
-
     top: 0;
     left: 0;
     bottom: 0;
-
     width: var(--admin-sidebar-width);
-
     display: flex;
     flex-direction: column;
-
     background: var(--color-dark-surface);
-    color: #ffffff;
-
     border-right: 1px solid var(--color-dark-border);
-
-    transition:
-        width 0.25s ease;
-
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1000;
+    overflow: hidden;
 }
-
 
 /* =========================================
    BRAND
 ========================================= */
 
 .admin-brand {
-    min-height: 85px;
-
+    height: var(--admin-topbar-height);
     display: flex;
     align-items: center;
-
-    padding: 18px;
-
+    padding: 0 18px;
     gap: 12px;
-
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--color-dark-border);
+    flex-shrink: 0;
 }
 
 .admin-brand-logo {
-    width: 42px;
-    height: 42px;
-
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border-radius: 10px;
-
-    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
-    color: #ffffff;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-
-    font-size: 14px;
+    border-radius: var(--radius-md);
+    background: var(--color-primary-600);
+    color: #fff;
+    font-size: 13px;
     font-weight: 800;
+    letter-spacing: 0.02em;
 }
 
 .admin-brand-text {
     min-width: 0;
-
     overflow: hidden;
-
-    transition:
-        opacity 0.2s ease,
-        width 0.25s ease;
+    transition: opacity 0.2s ease, width 0.28s ease;
 }
 
 .admin-brand-text h1 {
-    margin: 3px 0 0;
-
-    font-size: 17px;
-
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-weight: 700;
     white-space: nowrap;
+    color: var(--color-dark-text-primary);
 }
 
 .admin-kicker {
     margin: 0;
-
-    font-size: 11px;
-
-    font-weight: 700;
-
+    font-size: 10px;
+    font-weight: 600;
     text-transform: uppercase;
-
     letter-spacing: 0.08em;
-
-    opacity: 0.6;
+    color: var(--color-dark-text-muted);
 }
-
 
 /* =========================================
    NAVIGATION
@@ -117,85 +89,72 @@
 
 .admin-nav {
     flex: 1;
-
-    padding: 18px 12px;
-
+    padding: 12px 10px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
+
+/* Scrollbar */
+.admin-nav::-webkit-scrollbar { width: 4px; }
+.admin-nav::-webkit-scrollbar-track { background: transparent; }
+.admin-nav::-webkit-scrollbar-thumb { background: var(--color-dark-border-strong); border-radius: 4px; }
 
 .admin-nav-link {
-    min-height: 52px;
-
+    min-height: 42px;
     display: flex;
     align-items: center;
-
-    gap: 13px;
-
-    padding: 10px 13px;
-
-    margin-bottom: 6px;
-
-    color: #2174d6;
-
+    gap: 12px;
+    padding: 8px 12px;
+    margin-bottom: 2px;
+    color: var(--color-dark-text-secondary);
     text-decoration: none;
-
-    border-radius: 10px;
-
-    transition:
-        background 0.2s ease,
-        color 0.2s ease;
+    border-radius: var(--radius-md);
+    transition: background 0.18s ease, color 0.18s ease;
 }
 
-.admin-nav-link>svg {
-    width: 18px;
-    height: 18px;
-
+.admin-nav-link > svg {
+    width: 17px;
+    height: 17px;
     flex-shrink: 0;
 }
 
 .admin-nav-link:hover {
-    background: rgba(255, 255, 255, 0.07);
-
-    color: #152333;
-    ;
+    background: var(--color-dark-hover);
+    color: var(--color-dark-text-primary);
 }
 
 .admin-nav-link.active {
-    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
-    color: #ffffff;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    background: #eff6ff;
+    color: var(--color-primary-600);
+}
+
+.admin-nav-link.active > svg {
+    color: var(--color-primary-600);
 }
 
 .admin-nav-content {
     min-width: 0;
-
     display: flex;
     flex-direction: column;
-
     overflow: hidden;
-
-    transition:
-        opacity 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
 .admin-nav-content strong {
-    font-size: 14px;
-
+    font-size: 13px;
+    font-weight: 600;
     white-space: nowrap;
 }
 
 .admin-nav-content span {
-    margin-top: 3px;
-
+    margin-top: 1px;
     font-size: 11px;
-
-    color: #94a3b8;
-
+    color: var(--color-dark-text-muted);
     white-space: nowrap;
 }
 
 .admin-nav-link.active .admin-nav-content span {
-    color: #64748b;
+    color: var(--color-primary-600);
 }
 
 /* =========================================
@@ -216,46 +175,46 @@ button.admin-nav-link.parent-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
-    color: #94a3b8;
+    font-size: 10px;
+    color: var(--color-dark-text-muted);
     transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .parent-toggle:hover .chevron-indicator {
-    color: #ffffff;
+    color: var(--color-dark-text-primary);
 }
 
 .admin-nav-group.parent-active .parent-toggle {
-    background: rgba(59, 130, 246, 0.12);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.25);
+    background: #eff6ff;
+    color: var(--color-primary-600);
 }
 
 .admin-nav-group.parent-active .parent-toggle .chevron-indicator {
-    color: #60a5fa;
+    color: var(--color-primary-600);
 }
 
-/* Subnav Container & Links */
+/* Subnav */
 .admin-subnav {
     display: flex;
     flex-direction: column;
-    margin-left: 18px;
+    margin-left: 16px;
     margin-top: 2px;
-    margin-bottom: 8px;
-    padding-left: 10px;
-    border-left: 2px solid rgba(59, 130, 246, 0.25);
-    gap: 3px;
+    margin-bottom: 6px;
+    padding-left: 12px;
+    border-left: 2px solid #bfdbfe;
+    gap: 1px;
 }
 
 .admin-subnav-link {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 10px;
-    color: #cbd5e1;
+    padding: 7px 10px;
+    color: var(--color-dark-text-secondary);
     text-decoration: none;
     font-size: 13px;
-    border-radius: 8px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
     transition: all 0.18s ease;
 }
 
@@ -263,30 +222,28 @@ button.admin-nav-link.parent-toggle {
     width: 14px;
     height: 14px;
     flex-shrink: 0;
-    color: #94a3b8;
+    color: var(--color-dark-text-muted);
     transition: color 0.18s ease;
 }
 
 .admin-subnav-link:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
+    background: var(--color-dark-hover);
+    color: var(--color-dark-text-primary);
 }
 
 .admin-subnav-link:hover svg.subnav-icon {
-    color: #60a5fa;
+    color: var(--color-primary-600);
 }
 
 .admin-subnav-link.active {
-    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
-    color: #ffffff;
+    background: #eff6ff;
+    color: var(--color-primary-600);
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .admin-subnav-link.active svg.subnav-icon {
-    color: #ffffff;
+    color: var(--color-primary-600);
 }
-
 
 /* =========================================
    SIDEBAR TOGGLE
@@ -294,41 +251,28 @@ button.admin-nav-link.parent-toggle {
 
 .admin-sidebar-toggle {
     position: absolute;
-
-    right: -15px;
-    top: 25px;
-
-    width: 30px;
-    height: 30px;
-
+    right: -14px;
+    top: 20px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    border: 1px solid #e5e7eb;
-
+    border: 1px solid var(--color-dark-border-strong);
     border-radius: 50%;
-
-    background: #ffffff;
-
-    color: #111827;
-
+    background: var(--color-dark-surface);
+    color: var(--color-dark-text-secondary);
     cursor: pointer;
-
-    box-shadow:
-        0 3px 10px rgba(0, 0, 0, 0.15);
-
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     z-index: 10;
-
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease;
+    transition: transform 0.2s ease, background 0.2s ease;
+    font-size: 11px;
 }
 
 .admin-sidebar-toggle:hover {
-    background: #f3f4f6;
+    background: var(--color-dark-card);
+    color: var(--color-dark-text-primary);
 }
-
 
 /* =========================================
    WORKSPACE
@@ -336,149 +280,120 @@ button.admin-nav-link.parent-toggle {
 
 .admin-workspace {
     width: calc(100% - var(--admin-sidebar-width));
-
     min-height: 100vh;
-
     margin-left: var(--admin-sidebar-width);
-
-    transition:
-        margin-left 0.25s ease,
-        width 0.25s ease;
+    transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
 }
-
 
 /* =========================================
    TOP BAR
 ========================================= */
 
 .admin-topbar {
-    min-height: 85px;
-
+    height: var(--admin-topbar-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    padding: 18px 28px;
-
+    padding: 0 24px;
     background: var(--color-dark-surface);
-
     border-bottom: 1px solid var(--color-dark-border);
+    flex-shrink: 0;
 }
 
 .admin-topbar h2 {
-    margin: 4px 0 0;
-
-    font-size: 22px;
-
-    color: var(--color-text-primary);
+    margin: 2px 0 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-dark-text-primary);
 }
 
 .admin-topbar-actions {
     display: flex;
     align-items: center;
-
-    gap: 12px;
+    gap: 10px;
 }
 
 .admin-badge {
     display: inline-flex;
     align-items: center;
-
-    gap: 7px;
-
-    padding: 8px 12px;
-
-    border-radius: 8px;
-
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid var(--color-primary-500);
-
-    color: var(--color-primary-400);
-
-    font-size: 13px;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #059669;
+    font-size: 12px;
     font-weight: 600;
 }
 
 .admin-store-link {
     display: inline-flex;
     align-items: center;
-
-    gap: 7px;
-
-    padding: 9px 13px;
-
-    border: 1px solid var(--color-dark-border);
-
-    border-radius: 8px;
-
-    color: var(--color-text-primary);
-
-    background: var(--color-dark-bg);
-
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--color-dark-border-strong);
+    border-radius: var(--radius-md);
+    color: var(--color-dark-text-secondary);
+    background: #ffffff;
     text-decoration: none;
-
     font-size: 13px;
     font-weight: 600;
-
-    transition:
-        background 0.2s ease;
+    transition: all 0.18s ease;
 }
 
 .admin-store-link:hover {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: var(--color-primary-500);
+    background: #f8fafc;
+    border-color: var(--color-primary-600);
+    color: var(--color-primary-600);
 }
-
 
 /* =========================================
    CONTENT
 ========================================= */
 
 .admin-content-panel {
-    padding: 28px;
+    flex: 1;
+    padding: 24px;
 }
-
 
 /* =========================================
    COLLAPSED SIDEBAR
 ========================================= */
 
 .admin-shell.sidebar-collapsed {
-    --admin-sidebar-width: 76px;
+    --admin-sidebar-width: 68px;
 }
 
 .sidebar-collapsed .admin-sidebar {
-    width: 76px;
+    width: 68px;
 }
 
 .sidebar-collapsed .admin-brand {
     justify-content: center;
-
-    padding: 18px 10px;
+    padding: 0 10px;
 }
 
 .sidebar-collapsed .admin-brand-text {
     width: 0;
-
     opacity: 0;
 }
 
 .sidebar-collapsed .admin-nav {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .sidebar-collapsed .admin-nav-link {
     justify-content: center;
-
     padding: 10px;
-
     gap: 0;
 }
 
 .sidebar-collapsed .admin-nav-content {
     width: 0;
-
     opacity: 0;
 }
 
@@ -487,26 +402,22 @@ button.admin-nav-link.parent-toggle {
 }
 
 .sidebar-collapsed .admin-workspace {
-    width: calc(100% - 76px);
-
-    margin-left: 76px;
+    width: calc(100% - 68px);
+    margin-left: 68px;
 }
-
 
 /* =========================================
    MOBILE
 ========================================= */
 
 @media (max-width: 768px) {
-
     .admin-sidebar {
-        width: 76px;
+        width: 68px;
     }
 
     .admin-brand {
         justify-content: center;
-
-        padding: 18px 10px;
+        padding: 0 10px;
     }
 
     .admin-brand-text {
@@ -515,15 +426,12 @@ button.admin-nav-link.parent-toggle {
     }
 
     .admin-nav {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding: 12px 8px;
     }
 
     .admin-nav-link {
         justify-content: center;
-
         padding: 10px;
-
         gap: 0;
     }
 
@@ -533,17 +441,16 @@ button.admin-nav-link.parent-toggle {
     }
 
     .admin-workspace {
-        width: calc(100% - 76px);
-
-        margin-left: 76px;
+        width: calc(100% - 68px);
+        margin-left: 68px;
     }
 
     .admin-topbar {
-        padding: 16px;
+        padding: 0 16px;
     }
 
     .admin-content-panel {
-        padding: 0px;
+        padding: 16px;
     }
 
     .admin-badge {
@@ -551,10 +458,7 @@ button.admin-nav-link.parent-toggle {
     }
 
     .admin-store-link {
-        padding: 8px;
-    }
-
-    .admin-store-link {
+        padding: 7px;
         font-size: 0;
     }
 
