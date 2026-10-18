@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { authRequest } from "../api/api";
+import { getData } from "../api/api";
 import { useCartDispatch } from "../Components/CreateReducer";
 import { useNotification } from "../Components/NotificationContext";
 import PageSeo from "../Components/PageSeo";
@@ -10,7 +10,7 @@ import Footer from "../Components/Footer";
 import {
     Search,
     X,
-    Filter,
+
     ArrowUpDown,
     ShoppingCart,
     Heart,
@@ -26,24 +26,34 @@ import {
     List,
     Smartphone,
     RotateCcw,
-    SlidersHorizontal,
+
     PhoneCall,
-    Award
+    Award,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
+    Sparkles,
+    Radio
 } from "lucide-react";
 import "./MobileShop.css";
 
 export default function MobileShop() {
     const [searchParams, setSearchParams] = useSearchParams();
+
     const cartDispatch = useCartDispatch();
     const { showNotification } = useNotification();
+    const gridTopRef = useRef(null);
 
     const initialBrand = searchParams.get("brand") || "All";
     const initialSearch = searchParams.get("search") || "";
     const initialSort = searchParams.get("sort") || "default";
+    const initialPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const initialLimit = searchParams.get("limit") || "12";
 
     const [data, setData] = useState(featuredMobiles);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [setError] = useState("");
 
     const [search, setSearch] = useState(initialSearch);
     const [brand, setBrand] = useState(initialBrand);
@@ -55,39 +65,140 @@ export default function MobileShop() {
     const [wishlist, setWishlist] = useState({});
     const [activeModalItem, setActiveModalItem] = useState(null);
 
-    // Sync state with URL params
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(initialPage);
+    const [itemsPerPage, setItemsPerPage] = useState(initialLimit); // '8' | '12' | '16' | '24' | 'all'
+    const [backendOnline, setBackendOnline] = useState(false);
+
+    // Sync state with URL params on back/forward navigation
     useEffect(() => {
         const brandParam = searchParams.get("brand");
-        if (brandParam) setBrand(brandParam);
+        if (brandParam && brandParam !== brand) setBrand(brandParam);
 
         const searchParam = searchParams.get("search");
-        if (searchParam) setSearch(searchParam);
+        if (searchParam !== null && searchParam !== search) setSearch(searchParam);
 
         const sortParam = searchParams.get("sort");
-        if (sortParam) setSort(sortParam);
-    }, [searchParams]);
+        if (sortParam && sortParam !== sort) setSort(sortParam);
 
-    // Fetch mobiles or fallback
+        const pageParam = searchParams.get("page");
+        if (pageParam) {
+            const parsed = parseInt(pageParam, 10);
+            if (!isNaN(parsed) && parsed !== currentPage) setCurrentPage(parsed);
+        }
+
+        const limitParam = searchParams.get("limit");
+        if (limitParam && limitParam !== itemsPerPage) setItemsPerPage(limitParam);
+    }, [searchParams, brand, search, currentPage, itemsPerPage, sort]);
+
+    // Update URL params when user changes filters/page/limit
+    const updateUrlParams = (newParams) => {
+        const current = Object.fromEntries(searchParams.entries());
+        const merged = { ...current, ...newParams };
+
+        // Clean empty or default values
+        Object.keys(merged).forEach((key) => {
+            if (!merged[key] || merged[key] === "All" || merged[key] === "default" || (key === "page" && merged[key] === 1)) {
+                delete merged[key];
+            }
+        });
+
+        setSearchParams(merged, { replace: true });
+    };
+
+    // Fetch mobiles from backend Mobile Route (/mobiles or /api/mobiles)
     useEffect(() => {
-        const fetchData = async () => {
+        let isMounted = true;
+        const fetchMobilesFromRoute = async () => {
             try {
                 setLoading(true);
-                const response = await authRequest("/mobiles");
-                if (Array.isArray(response?.data) && response.data.length > 0) {
-                    setData(response.data);
-                } else {
-                    setData(featuredMobiles);
+                setError("");
+
+                // 1. First attempt to call the backend Mobile Route
+                const response = await getData("/mobiles?limit=100").catch(() => null);
+
+                if (isMounted) {
+                    if (response && (Array.isArray(response.data) || Array.isArray(response))) {
+                        const backendList = Array.isArray(response.data) ? response.data : response;
+                        if (backendList.length > 0) {
+                            setBackendOnline(true);
+                            // Merge backend database phones with local featured phones so NO models are lost
+                            const existingIds = new Set(backendList.map(item => String(item._id || item.id)));
+                            const nonDuplicates = featuredMobiles.filter(
+                                item => !existingIds.has(String(item._id || item.id)) &&
+                                    !backendList.some(b => b.name?.toLowerCase() === item.name?.toLowerCase())
+                            );
+                            setData([...backendList, ...nonDuplicates]);
+                        } else {
+                            setData(featuredMobiles);
+                        }
+                    } else {
+                        // Fallback to rich local catalog
+                        setData(featuredMobiles);
+                    }
                 }
             } catch (err) {
-                console.warn("Using local mobile catalog data:", err);
-                setData(featuredMobiles);
+                if (isMounted) {
+                    console.warn("Using local mobile catalog data:", err);
+                    setData(featuredMobiles);
+                }
             } finally {
-                setLoading(false);
+                if (isMounted) setLoading(false);
             }
         };
 
-        fetchData();
-    }, []);
+        fetchMobilesFromRoute();
+        return () => {
+            isMounted = false;
+        };
+    }, [setError]);
+
+    // Reset page to 1 whenever search, brand, 5G, priceRange, or sort changes
+    const handleBrandChange = (newBrand) => {
+        setBrand(newBrand);
+        setCurrentPage(1);
+        updateUrlParams({ brand: newBrand, page: 1 });
+    };
+
+    const handleSearchChange = (newSearch) => {
+        setSearch(newSearch);
+        setCurrentPage(1);
+        updateUrlParams({ search: newSearch, page: 1 });
+    };
+
+    const handleSortChange = (newSort) => {
+        setSort(newSort);
+        setCurrentPage(1);
+        updateUrlParams({ sort: newSort, page: 1 });
+    };
+
+    const handlePriceRangeChange = (newRange) => {
+        setPriceRange(newRange);
+        setCurrentPage(1);
+    };
+
+    const handle5GToggle = () => {
+        setOnly5G((prev) => !prev);
+        setCurrentPage(1);
+    };
+
+    const handleLimitChange = (newLimit) => {
+        setItemsPerPage(newLimit);
+        setCurrentPage(1);
+        updateUrlParams({ limit: newLimit, page: 1 });
+    };
+
+    const scrollToGridTop = () => {
+        if (gridTopRef.current) {
+            gridTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
+
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+        updateUrlParams({ page: newPage });
+        scrollToGridTop();
+    };
 
     // Extract brand list with counts
     const brandCounts = useMemo(() => {
@@ -158,6 +269,36 @@ export default function MobileShop() {
 
         return list;
     }, [data, search, brand, only5G, priceRange, sort]);
+
+    // Pagination calculations
+    const isShowingAll = itemsPerPage === "all";
+    const pageSize = isShowingAll ? filteredMobiles.length : parseInt(itemsPerPage, 10) || 12;
+    const totalPages = Math.max(1, Math.ceil(filteredMobiles.length / (pageSize || 1)));
+    const safePage = Math.min(Math.max(1, currentPage), totalPages);
+    const startIndex = isShowingAll ? 0 : (safePage - 1) * pageSize;
+    const endIndex = isShowingAll
+        ? filteredMobiles.length
+        : Math.min(startIndex + pageSize, filteredMobiles.length);
+    const paginatedMobiles = isShowingAll
+        ? filteredMobiles
+        : filteredMobiles.slice(startIndex, endIndex);
+
+    // Compute compact page numbers array (with ellipses if > 6 pages)
+    const pageNumbers = useMemo(() => {
+        if (totalPages <= 7) {
+            return Array.from({ length: totalPages }, (_, i) => i + 1);
+        }
+        const pages = [1];
+        if (safePage > 3) pages.push("...");
+        const start = Math.max(2, safePage - 1);
+        const end = Math.min(totalPages - 1, safePage + 1);
+        for (let i = start; i <= end; i++) {
+            pages.push(i);
+        }
+        if (safePage < totalPages - 2) pages.push("...");
+        pages.push(totalPages);
+        return pages;
+    }, [totalPages, safePage]);
 
     const handleAddToCart = (e, item) => {
         e.stopPropagation();
@@ -233,7 +374,7 @@ export default function MobileShop() {
 
                             <h1>Official Smartphones & 5G Devices</h1>
                             <p>
-                                100% Genuine, MDMS registered smartphones with 1-Year Brand Warranty, 
+                                100% Genuine, MDMS registered smartphones with 1-Year Brand Warranty,
                                 0% EMI financing, and showroom pickup at Ghantaghar Link Road, Birgunj.
                             </p>
 
@@ -270,13 +411,13 @@ export default function MobileShop() {
                                 type="text"
                                 placeholder="Search by model, brand, processor (e.g. S25 Ultra, Snapdragon, iPhone)..."
                                 value={search}
-                                onChange={(e) => setSearch(e.target.value)}
+                                onChange={(e) => handleSearchChange(e.target.value)}
                             />
                             {search && (
                                 <button
                                     type="button"
                                     className="clear-search-btn"
-                                    onClick={() => setSearch("")}
+                                    onClick={() => handleSearchChange("")}
                                 >
                                     <X size={15} />
                                 </button>
@@ -289,7 +430,7 @@ export default function MobileShop() {
                                 <ArrowUpDown size={15} className="sort-icon" />
                                 <select
                                     value={sort}
-                                    onChange={(e) => setSort(e.target.value)}
+                                    onChange={(e) => handleSortChange(e.target.value)}
                                     className="catalog-select"
                                 >
                                     <option value="default">Sort: Recommended</option>
@@ -332,7 +473,7 @@ export default function MobileShop() {
                                     key={b}
                                     type="button"
                                     className={`brand-chip-btn ${brand === b ? "active" : ""}`}
-                                    onClick={() => setBrand(b)}
+                                    onClick={() => handleBrandChange(b)}
                                 >
                                     <span>{b}</span>
                                     <span className="chip-count">{brandCounts[b] || 0}</span>
@@ -348,28 +489,28 @@ export default function MobileShop() {
                             <button
                                 type="button"
                                 className={`filter-tag-pill ${priceRange === "all" ? "active" : ""}`}
-                                onClick={() => setPriceRange("all")}
+                                onClick={() => handlePriceRangeChange("all")}
                             >
                                 All Prices
                             </button>
                             <button
                                 type="button"
                                 className={`filter-tag-pill ${priceRange === "budget" ? "active" : ""}`}
-                                onClick={() => setPriceRange("budget")}
+                                onClick={() => handlePriceRangeChange("budget")}
                             >
                                 Under Rs. 40,000
                             </button>
                             <button
                                 type="button"
                                 className={`filter-tag-pill ${priceRange === "mid" ? "active" : ""}`}
-                                onClick={() => setPriceRange("mid")}
+                                onClick={() => handlePriceRangeChange("mid")}
                             >
                                 Rs. 40k – 90k
                             </button>
                             <button
                                 type="button"
                                 className={`filter-tag-pill ${priceRange === "flagship" ? "active" : ""}`}
-                                onClick={() => setPriceRange("flagship")}
+                                onClick={() => handlePriceRangeChange("flagship")}
                             >
                                 Flagships (> 90k)
                             </button>
@@ -379,7 +520,7 @@ export default function MobileShop() {
                             <button
                                 type="button"
                                 className={`feature-toggle-pill ${only5G ? "active" : ""}`}
-                                onClick={() => setOnly5G((prev) => !prev)}
+                                onClick={handle5GToggle}
                             >
                                 <Zap size={13} />
                                 <span>5G Devices Only</span>
@@ -400,21 +541,44 @@ export default function MobileShop() {
                 </section>
 
                 {/* 3. PRODUCT LISTING GRID */}
-                <section className="catalog-products-section">
-                    {/* Active Filter Chips Preview */}
+                <section className="catalog-products-section" ref={gridTopRef} id="mobile-catalog-grid-top">
+                    {/* Active Filter Status & Pagination Bar */}
                     <div className="filter-status-bar">
                         <div className="status-text">
-                            Showing <strong>{filteredMobiles.length}</strong> of <strong>{data.length}</strong> phones
+                            Showing <strong>{filteredMobiles.length === 0 ? 0 : startIndex + 1}–{endIndex}</strong> of <strong>{filteredMobiles.length}</strong> phones
                             {brand !== "All" && ` in ${brand}`}
                             {only5G && ` with 5G`}
                             {search && ` matching "${search}"`}
+                        </div>
+
+                        <div className="status-bar-right-controls">
+                            {/* Backend Route Status Pill */}
+                            <div className="route-status-pill" title={backendOnline ? "Connected to backend /api/mobiles" : "Catalog loaded from lucky showroom routes"}>
+                                <Radio size={12} className={backendOnline ? "route-dot-active" : "route-dot-catalog"} />
+                                <span>{backendOnline ? "Live Mobile Route API" : "Showroom Route Catalog"}</span>
+                            </div>
+
+                            {/* Items Per Page Selector */}
+                            <div className="items-per-page-wrap">
+                                <span className="items-per-page-label">Show:</span>
+                                {["8", "12", "16", "24", "all"].map((num) => (
+                                    <button
+                                        key={num}
+                                        type="button"
+                                        className={`items-limit-btn ${itemsPerPage === num ? "active" : ""}`}
+                                        onClick={() => handleLimitChange(num)}
+                                    >
+                                        {num === "all" ? "All" : num}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
                     {loading && (
                         <div className="catalog-loading-card">
                             <div className="spinner-ring" />
-                            <p>Loading smartphone catalog...</p>
+                            <p>Loading smartphone catalog from mobile routes...</p>
                         </div>
                     )}
 
@@ -437,7 +601,7 @@ export default function MobileShop() {
 
                     {!loading && filteredMobiles.length > 0 && (
                         <div className={`catalog-products-grid view-${viewMode}`}>
-                            {filteredMobiles.map((item) => {
+                            {paginatedMobiles.map((item) => {
                                 const id = item._id || item.id;
                                 const isAdded = addedIds[id];
                                 const isWish = wishlist[id];
@@ -446,8 +610,8 @@ export default function MobileShop() {
                                     : null;
 
                                 return (
-                                    <article 
-                                        key={id} 
+                                    <article
+                                        key={id}
                                         className="catalog-mobile-card"
                                         onClick={() => setActiveModalItem(item)}
                                     >
@@ -569,16 +733,130 @@ export default function MobileShop() {
                             })}
                         </div>
                     )}
+
+                    {/* 4. PAGINATION CONTROLS */}
+                    {!loading && filteredMobiles.length > 0 && !isShowingAll && totalPages > 1 && (
+                        <div className="catalog-pagination-container">
+                            <div className="pagination-info">
+                                Page <strong>{safePage}</strong> of <strong>{totalPages}</strong>
+                                <span className="pagination-sub">
+                                    ({startIndex + 1}–{endIndex} of {filteredMobiles.length} phones)
+                                </span>
+                            </div>
+
+                            <nav className="pagination-nav-group" aria-label="Smartphone catalog pagination">
+                                {/* First Page */}
+                                <button
+                                    type="button"
+                                    className="page-nav-btn page-edge-btn"
+                                    onClick={() => handlePageChange(1)}
+                                    disabled={safePage === 1}
+                                    title="First Page"
+                                    aria-label="First page"
+                                >
+                                    <ChevronsLeft size={16} />
+                                </button>
+
+                                {/* Prev Page */}
+                                <button
+                                    type="button"
+                                    className="page-nav-btn page-prev-btn"
+                                    onClick={() => handlePageChange(safePage - 1)}
+                                    disabled={safePage === 1}
+                                    title="Previous Page"
+                                    aria-label="Previous page"
+                                >
+                                    <ChevronLeft size={16} />
+                                    <span>Prev</span>
+                                </button>
+
+                                {/* Numbered Pages */}
+                                <div className="page-numbers-strip">
+                                    {pageNumbers.map((p, idx) => {
+                                        if (p === "...") {
+                                            return (
+                                                <span key={`dots-${idx}`} className="pagination-ellipsis">
+                                                    …
+                                                </span>
+                                            );
+                                        }
+                                        return (
+                                            <button
+                                                key={p}
+                                                type="button"
+                                                className={`page-num-btn ${safePage === p ? "active" : ""}`}
+                                                onClick={() => handlePageChange(p)}
+                                                aria-current={safePage === p ? "page" : undefined}
+                                            >
+                                                {p}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Next Page */}
+                                <button
+                                    type="button"
+                                    className="page-nav-btn page-next-btn"
+                                    onClick={() => handlePageChange(safePage + 1)}
+                                    disabled={safePage === totalPages}
+                                    title="Next Page"
+                                    aria-label="Next page"
+                                >
+                                    <span>Next</span>
+                                    <ChevronRight size={16} />
+                                </button>
+
+                                {/* Last Page */}
+                                <button
+                                    type="button"
+                                    className="page-nav-btn page-edge-btn"
+                                    onClick={() => handlePageChange(totalPages)}
+                                    disabled={safePage === totalPages}
+                                    title="Last Page"
+                                    aria-label="Last page"
+                                >
+                                    <ChevronsRight size={16} />
+                                </button>
+                            </nav>
+
+                            <div className="pagination-quick-all">
+                                <button
+                                    type="button"
+                                    className="btn-show-all-toggle"
+                                    onClick={() => handleLimitChange("all")}
+                                >
+                                    <Sparkles size={13} />
+                                    <span>View All ({filteredMobiles.length})</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {!loading && filteredMobiles.length > 0 && isShowingAll && (
+                        <div className="catalog-pagination-container showing-all-banner">
+                            <div className="all-view-message">
+                                <span>Showing all <strong>{filteredMobiles.length}</strong> smartphones on a single page.</span>
+                            </div>
+                            <button
+                                type="button"
+                                className="btn-paginate-toggle"
+                                onClick={() => handleLimitChange("12")}
+                            >
+                                Switch to Paginated View (12/page)
+                            </button>
+                        </div>
+                    )}
                 </section>
             </main>
 
             {/* 4. INTERACTIVE QUICK SPECS MODAL */}
             {activeModalItem && (
-                <div 
+                <div
                     className="modal-backdrop-mobile"
                     onClick={() => setActiveModalItem(null)}
                 >
-                    <div 
+                    <div
                         className="modal-dialog-mobile"
                         onClick={(e) => e.stopPropagation()}
                     >

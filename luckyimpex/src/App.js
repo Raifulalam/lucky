@@ -118,8 +118,13 @@ function App() {
                     <Route path="/store" element={<StoreComponent />} />
                     <Route path="/review" element={<CustomerReviewPage/>}/>
                     <Route path="/mobiles" element={<MobileLanding/>}/>
+                    <Route path="/mobiles/all" element={<MobileProducts/>}/>
+                    <Route path="/mobiles/catalog" element={<MobileProducts/>}/>
+                    <Route path="/mobiles/products" element={<MobileProducts/>}/>
                     <Route path="/mobile products" element={<MobileProducts/>}/>
                     <Route path="/mobile-products" element={<MobileProducts/>}/>
+                    <Route path="/mobile/:id" element={<ProductDetails />} />
+                    <Route path="/mobiles/:id" element={<ProductDetails />} />
 
                     {/* ================= USER ROUTES ================= */}
                     <Route

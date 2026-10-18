@@ -321,6 +321,13 @@ const buildPublicQuery = (queryParams) => {
     }
   }
 
+  if (queryParams.fiveG !== undefined) {
+    const parsed = parseBoolean(queryParams.fiveG);
+    if (parsed !== undefined) {
+      query.fiveG = parsed;
+    }
+  }
+
   return query;
 };
 
@@ -348,14 +355,17 @@ router.get("/", async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const filter = {
-      isActive: { $ne: false },
-      isDeleted: { $ne: true },
-    };
+    const filter = buildPublicQuery(req.query);
+
+    // Support sorting
+    let sortOption = { createdAt: -1, _id: -1 };
+    if (req.query.sort === "low") sortOption = { price: 1 };
+    else if (req.query.sort === "high") sortOption = { price: -1 };
+    else if (req.query.sort === "name") sortOption = { name: 1 };
 
     const [products, total] = await Promise.all([
       MobileProduct.find(filter)
-        .sort({ createdAt: -1, _id: -1 })
+        .sort(sortOption)
         .skip(skip)
         .limit(limit)
         .lean(),
