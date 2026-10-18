@@ -38,8 +38,8 @@ const HomeContent = () => {
         <div className="home-page">
             {/* SEO Metadata */}
             <PageSeo
-                title="luckyimpex4u | Electronics Retailer & Wholesale Distributor Birgunj Nepal"
-                description="Shop official electronics and home appliances in Birgunj, Nepal. Dual retail shopping and bulk wholesale dealer supply with warranty, EMI & showroom pickup."
+                title="Lucky Impex | Electronics & Home Appliances Birgunj Nepal"
+                description="Shop genuine electronics & home appliances at Lucky Impex, Birgunj. Official retailer & wholesale distributor in Nepal with warranty, EMI & store pickup."
                 canonicalPath="/"
                 localBusiness
                 faq={SITE_CONFIG.faqs}

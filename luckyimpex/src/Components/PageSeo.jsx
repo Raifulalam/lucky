@@ -42,10 +42,21 @@ const PageSeo = ({
     return value.startsWith("http") ? value : absoluteUrl(value);
   }, [canonicalPath, canonicalUrl, location.pathname, location.search]);
 
-  const pageTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+  const pageTitle = useMemo(() => {
+    if (!title) return `${SITE_NAME} | Electronics & Home Appliances Birgunj Nepal`;
+    const cleanTitle = title.trim();
+    if (
+      cleanTitle.toLowerCase().includes(SITE_NAME.toLowerCase()) ||
+      cleanTitle.toLowerCase().includes("luckyimpex")
+    ) {
+      return cleanTitle;
+    }
+    return `${cleanTitle} | ${SITE_NAME}`;
+  }, [title]);
+
   const resolvedImage = image ? (image.startsWith("http") ? image : absoluteUrl(image)) : SITE_LOGO;
   const resolvedOgType = ogType || (product ? "product" : "website");
-  const robotsContent = robots || (noIndex ? "noindex,nofollow" : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:large");
+  const robotsContent = robots || (noIndex ? "noindex,nofollow" : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1");
 
   const structuredData = useMemo(() => {
     const next = [];

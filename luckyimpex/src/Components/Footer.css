@@ -213,6 +213,53 @@
     padding-left: 2px;
 }
 
+/* Authorized Partner Brands Strip */
+.footer-brands-strip {
+    background: #060a14;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 14px 16px;
+}
+
+.brands-strip-inner {
+    width: min(1380px, 100%);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+}
+
+.brands-strip-label {
+    color: #cbd5e1;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.74rem;
+}
+
+.brands-strip-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.brands-strip-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.brands-strip-links a:hover {
+    color: #f97316;
+}
+
+.brands-strip-links .dot {
+    color: rgba(255, 255, 255, 0.2);
+}
+
 /* Payment Strip */
 .footer-payment-strip {
     background: #090e1a;

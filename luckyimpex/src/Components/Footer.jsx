@@ -75,13 +75,20 @@ const Footer = () => {
                     <div className="footer-contact-details">
                         <div className="contact-line">
                             <MapPin size={16} className="contact-icon" />
-                            <span>Ghantaghar Link Road, Birgunj, Parsa, Nepal</span>
+                            <a
+                                href="https://maps.google.com/?q=27.0138387,84.8803044"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Visit Lucky Impex on Google Maps Birgunj"
+                            >
+                                Ghantaghar Link Road, Birgunj, Parsa, Nepal
+                            </a>
                         </div>
                         <div className="contact-line">
                             <Phone size={16} className="contact-icon" />
                             <a href="tel:051531789">051-531789</a>
                             <span>·</span>
-                            <a href="tel:+9779807286786">+977 9802594022</a>
+                            <a href="tel:+9779802594022">+977 9802594022</a>
                         </div>
                         <div className="contact-line">
                             <FaWhatsapp size={16} className="contact-icon text-green" />
@@ -169,7 +176,33 @@ const Footer = () => {
                         <Link to="/contact">Container & Pallet Logistics</Link>
                         <Link to="/contact">Official VAT Invoicing Policy</Link>
                         <Link to="/store">Madhesh Province Distribution Hub</Link>
-                        <a href="tel:+9779807286786">Speak with B2B Sales Manager</a>
+                        <a href="tel:+9779802594022">Speak with B2B Sales Manager</a>
+                    </div>
+                </div>
+            </div>
+
+            {/* Authorized Brands SEO Link Strip */}
+            <div className="footer-brands-strip">
+                <div className="brands-strip-inner">
+                    <span className="brands-strip-label">Authorized Partner Brands:</span>
+                    <div className="brands-strip-links">
+                        <Link to="/products?brand=LG" title="LG Electronics Dealer Birgunj">LG</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=Samsung" title="Samsung Store Birgunj">Samsung</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=Whirlpool" title="Whirlpool Home Appliances Birgunj">Whirlpool</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=Haier" title="Haier Electronics Birgunj">Haier</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=CG" title="CG Electronics Store Birgunj">CG</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=Videocon" title="Videocon LED TV Birgunj">Videocon</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=Skyworth" title="Skyworth Smart TV Birgunj">Skyworth</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=Symphony" title="Symphony Air Cooler Birgunj">Symphony</Link>
+                        <span className="dot">·</span>
+                        <Link to="/products?brand=Bajaj" title="Bajaj Electricals Birgunj">Bajaj</Link>
                     </div>
                 </div>
             </div>

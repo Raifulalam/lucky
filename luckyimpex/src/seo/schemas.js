@@ -14,6 +14,7 @@ export const buildOrganizationSchema = () => ({
   "@type": ["Organization", "Store"],
   "@id": createId("organization"),
   name: SITE_NAME,
+  alternateName: ["luckyimpex4u", "Lucky Impex Birgunj", "Lucky Impex Nepal"],
   url: SITE_URL,
   logo: SITE_LOGO,
   image: SITE_LOGO,
@@ -39,6 +40,7 @@ export const buildWebsiteSchema = () => ({
   "@id": createId("website"),
   url: SITE_URL,
   name: SITE_NAME,
+  alternateName: ["luckyimpex4u", "Lucky Impex Birgunj", "Lucky Impex Nepal"],
   description: SITE_CONFIG.description,
   publisher: {
     "@id": createId("organization"),
@@ -55,6 +57,7 @@ export const buildLocalBusinessSchema = () => ({
   "@type": "ElectronicsStore",
   "@id": createId("localbusiness"),
   name: SITE_NAME,
+  alternateName: ["luckyimpex4u", "Lucky Impex Birgunj", "Lucky Impex Nepal"],
   url: SITE_URL,
   image: [SITE_LOGO],
   logo: SITE_LOGO,
@@ -62,7 +65,22 @@ export const buildLocalBusinessSchema = () => ({
   telephone: SITE_CONFIG.phone,
   email: SITE_CONFIG.supportEmail,
   priceRange: "Rs",
-  areaServed: "Birgunj, Nepal",
+  currenciesAccepted: "NPR",
+  paymentAccepted: "Cash, Credit Card, Fonepay, eSewa, Khalti, Bank Transfer",
+  areaServed: [
+    {
+      "@type": "City",
+      name: "Birgunj"
+    },
+    {
+      "@type": "AdministrativeArea",
+      name: "Madhesh Province"
+    },
+    {
+      "@type": "Country",
+      name: "Nepal"
+    }
+  ],
   address: {
     "@type": "PostalAddress",
     streetAddress: SITE_CONFIG.address.streetAddress,
