@@ -1,9 +1,8 @@
-
 {
   "id": "/",
   "name": "Lucky Impex",
   "short_name": "Lucky Impex",
-  "description": "Lucky Impex – Shop electronics, home appliances, mobiles and more.",
+  "description": "Shop electronics and home appliances at Lucky Impex in Birgunj, Nepal. Retail and wholesale prices, genuine brands, and delivery. Visit or call today",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -81,4 +80,3 @@
     }
   ]
 }
-

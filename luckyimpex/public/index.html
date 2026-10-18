@@ -6,36 +6,21 @@
 
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
   <meta name="theme-color" content="#030305" />
 
-  <meta
-    name="format-detection"
-    content="telephone=no"
-  />
+  <meta name="format-detection" content="telephone=no" />
 
-  <meta
-    name="robots"
-    content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
-  />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
-  <meta
-    name="description"
-    content="Lucky Impex is an electronics and home appliances retailer in Birgunj, Nepal."
-  />
+  <meta name="description" content="Lucky Impex is an electronics and home appliances retailer in Birgunj, Nepal." />
 
   <meta name="author" content="Lucky Impex" />
 
-  <meta
-    name="google-site-verification"
-    content="%REACT_APP_GOOGLE_SITE_VERIFICATION%"
-  />
+  <meta name="google-site-verification" content="%REACT_APP_GOOGLE_SITE_VERIFICATION%" />
 
-  <title>Lucky Impex | Electronics & Home Appliances Store</title>
+  <title>Lucky Impex </title>
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -45,40 +30,22 @@
   "url": "https://luckyimpex4u.com/"
 }
 </script>
-<link rel="canonical" href="https://luckyimpex4u.com/" />
+  <link rel="canonical" href="https://luckyimpex4u.com/" />
   <!-- Favicon -->
-  <link
-    rel="icon"
-    href="%PUBLIC_URL%/lucky-logo.png"
-    sizes="32x32"
-    type="image/png"
-  />
+  <link rel="icon" href="%PUBLIC_URL%/lucky-logo.png" sizes="32x32" type="image/png" />
 
-  <link
-    rel="apple-touch-icon"
-    href="%PUBLIC_URL%/lucky-logo.png"
-  />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/lucky-logo.png" />
 
-  <link
-    rel="manifest"
-    href="%PUBLIC_URL%/manifest.json"
-  />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
   <!-- Preload logo so splash appears immediately -->
-  <link
-    rel="preload"
-    as="image"
-    href="%PUBLIC_URL%/lucky-logo.png"
-    type="image/png"
-    fetchpriority="high"
-  />
+  <link rel="preload" as="image" href="%PUBLIC_URL%/lucky-logo.png" type="image/png" fetchpriority="high" />
 
   <!-- ========================= -->
   <!-- PREMIUM SPLASH CSS -->
   <!-- ========================= -->
 
   <style>
-
     /* Prevent white flash before React loads */
     html,
     body {
@@ -103,11 +70,9 @@
       overflow: hidden;
 
       background:
-        radial-gradient(
-          circle at 50% 45%,
+        radial-gradient(circle at 50% 45%,
           rgba(35, 75, 130, 0.12),
-          transparent 35%
-        ),
+          transparent 35%),
         #030305;
 
       transition:
@@ -203,12 +168,10 @@
 
       transform: rotate(-32deg);
 
-      background: linear-gradient(
-        90deg,
-        transparent,
-        #ff1493,
-        transparent
-      );
+      background: linear-gradient(90deg,
+          transparent,
+          #ff1493,
+          transparent);
 
       filter: blur(1px);
 
@@ -228,12 +191,10 @@
 
       transform: rotate(-32deg);
 
-      background: linear-gradient(
-        90deg,
-        transparent,
-        #00c6ff,
-        transparent
-      );
+      background: linear-gradient(90deg,
+          transparent,
+          #00c6ff,
+          transparent);
 
       filter: blur(1px);
 
@@ -290,12 +251,10 @@
       align-items: center;
       justify-content: center;
 
-      animation: logoAppear 1.2s cubic-bezier(
-        0.16,
-        1,
-        0.3,
-        1
-      ) forwards;
+      animation: logoAppear 1.2s cubic-bezier(0.16,
+          1,
+          0.3,
+          1) forwards;
 
       opacity: 0;
 
@@ -327,21 +286,18 @@
 
       border-radius: 50%;
 
-      background: conic-gradient(
-        from 0deg,
-        #ff1493,
-        #8b5cf6,
-        #00c6ff,
-        #ff1493
-      );
+      background: conic-gradient(from 0deg,
+          #ff1493,
+          #8b5cf6,
+          #00c6ff,
+          #ff1493);
 
       animation: rotateRing 5s linear infinite;
 
       opacity: 0.9;
 
       filter:
-        drop-shadow(0 0 8px rgba(255, 20, 147, 0.7))
-        drop-shadow(0 0 15px rgba(0, 198, 255, 0.5));
+        drop-shadow(0 0 8px rgba(255, 20, 147, 0.7)) drop-shadow(0 0 15px rgba(0, 198, 255, 0.5));
     }
 
     .splash-ring::after {
@@ -413,6 +369,7 @@
     }
 
     @keyframes logoFloat {
+
       0%,
       100% {
         transform: translateY(0);
@@ -435,11 +392,9 @@
         Helvetica,
         sans-serif;
 
-      font-size: clamp(
-        38px,
-        8vw,
-        68px
-      );
+      font-size: clamp(38px,
+          8vw,
+          68px);
 
       line-height: 1;
 
@@ -456,25 +411,18 @@
       transform: translateY(30px);
 
       animation:
-        titleAppear 1s
-        cubic-bezier(
-          0.16,
+        titleAppear 1s cubic-bezier(0.16,
           1,
           0.3,
-          1
-        )
-        0.45s
-        forwards;
+          1) 0.45s forwards;
     }
 
     .splash-title span {
       background:
-        linear-gradient(
-          90deg,
+        linear-gradient(90deg,
           #00c6ff,
           #5b8cff,
-          #ff1493
-        );
+          #ff1493);
 
       -webkit-background-clip: text;
       background-clip: text;
@@ -509,10 +457,7 @@
       transform: translateY(15px);
 
       animation:
-        taglineAppear 0.8s
-        ease
-        0.9s
-        forwards;
+        taglineAppear 0.8s ease 0.9s forwards;
     }
 
     .splash-tagline-line {
@@ -520,20 +465,16 @@
       height: 1px;
 
       background:
-        linear-gradient(
-          90deg,
+        linear-gradient(90deg,
           transparent,
-          #ff1493
-        );
+          #ff1493);
     }
 
     .splash-tagline-line.right {
       background:
-        linear-gradient(
-          90deg,
+        linear-gradient(90deg,
           #00c6ff,
-          transparent
-        );
+          transparent);
     }
 
     .splash-tagline-text {
@@ -550,12 +491,10 @@
 
       text-transform: uppercase;
 
-      color: rgba(
-        255,
-        255,
-        255,
-        0.7
-      );
+      color: rgba(255,
+          255,
+          255,
+          0.7);
     }
 
     @keyframes taglineAppear {
@@ -580,20 +519,15 @@
 
       border-radius: 10px;
 
-      background: rgba(
-        255,
-        255,
-        255,
-        0.1
-      );
+      background: rgba(255,
+          255,
+          255,
+          0.1);
 
       opacity: 0;
 
       animation:
-        loaderAppear 0.5s
-        ease
-        1.15s
-        forwards;
+        loaderAppear 0.5s ease 1.15s forwards;
     }
 
     .splash-loader-bar {
@@ -604,18 +538,13 @@
         translateX(-100%);
 
       background:
-        linear-gradient(
-          90deg,
+        linear-gradient(90deg,
           #ff1493,
           #8b5cf6,
-          #00c6ff
-        );
+          #00c6ff);
 
       animation:
-        loading 1.3s
-        ease-in-out
-        1.25s
-        forwards;
+        loading 1.3s ease-in-out 1.25s forwards;
     }
 
     @keyframes loaderAppear {
@@ -649,20 +578,15 @@
 
       text-transform: uppercase;
 
-      color: rgba(
-        255,
-        255,
-        255,
-        0.35
-      );
+      color: rgba(255,
+          255,
+          255,
+          0.35);
 
       opacity: 0;
 
       animation:
-        welcomeAppear 0.5s
-        ease
-        1.3s
-        forwards;
+        welcomeAppear 0.5s ease 1.3s forwards;
     }
 
     @keyframes welcomeAppear {
@@ -706,113 +630,50 @@
         width: 160px;
       }
     }
-
   </style>
 
   <!-- Existing external resources -->
 
-  <link
-    rel="preconnect"
-    href="https://lucky-1-6ma5.onrender.com"
-    crossorigin
-  />
+  <link rel="preconnect" href="https://lucky-1-6ma5.onrender.com" crossorigin />
 
-  <link
-    rel="dns-prefetch"
-    href="//lucky-1-6ma5.onrender.com"
-  />
+  <link rel="dns-prefetch" href="//lucky-1-6ma5.onrender.com" />
 
-  <link
-    rel="preconnect"
-    href="https://www.googletagmanager.com"
-    crossorigin
-  />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
-  <link
-    rel="dns-prefetch"
-    href="//www.googletagmanager.com"
-  />
+  <link rel="dns-prefetch" href="//www.googletagmanager.com" />
 
-  <link
-    rel="preconnect"
-    href="https://unpkg.com"
-    crossorigin
-  />
+  <link rel="preconnect" href="https://unpkg.com" crossorigin />
 
-  <link
-    rel="preload"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-    as="style"
-    crossorigin="anonymous"
-  />
+  <link rel="preload" href="https://unpkg.com/leaflet/dist/leaflet.css" as="style" crossorigin="anonymous" />
 
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet/dist/leaflet.css"
-    media="print"
-    onload="this.media='all'"
-    crossorigin="anonymous"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" media="print" onload="this.media='all'"
+    crossorigin="anonymous" />
 
   <noscript>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet/dist/leaflet.css"
-      crossorigin="anonymous"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" crossorigin="anonymous" />
   </noscript>
 
   <!-- Open Graph -->
 
-  <meta
-    property="og:type"
-    content="website"
-  />
+  <meta property="og:type" content="website" />
 
-  <meta
-    property="og:site_name"
-    content="Lucky Impex"
-  />
+  <meta property="og:site_name" content="Lucky Impex" />
 
-  <meta
-    property="og:title"
-    content="Lucky Impex | Electronics & Home Appliances Store"
-  />
+  <meta property="og:title" content="Lucky Impex | Electronics & Home Appliances Store" />
 
-  <meta
-    property="og:description"
-    content="Shop electronics, appliances, and mobile products online at Lucky Impex."
-  />
+  <meta property="og:description" content="Shop electronics, appliances, and mobile products online at Lucky Impex." />
 
-  <meta
-    property="og:url"
-    content="https://luckyimpex4u.com/"
-  />
+  <meta property="og:url" content="https://luckyimpex4u.com/" />
 
-  <meta
-    property="og:image"
-    content="https://luckyimpex4u.com/lucky-logo.png"
-  />
+  <meta property="og:image" content="https://luckyimpex4u.com/lucky-logo.png" />
 
-  <meta
-    name="twitter:card"
-    content="summary_large_image"
-  />
+  <meta name="twitter:card" content="summary_large_image" />
 
-  <meta
-    name="twitter:title"
-    content="Lucky Impex | Electronics & Home Appliances Store"
-  />
+  <meta name="twitter:title" content="Lucky Impex | Electronics & Home Appliances Store" />
 
-  <meta
-    name="twitter:description"
-    content="Shop electronics, appliances, and mobile products online at Lucky Impex."
-  />
+  <meta name="twitter:description" content="Shop electronics, appliances, and mobile products online at Lucky Impex." />
 
-  <meta
-    name="twitter:image"
-    content="https://luckyimpex4u.com/lucky-logo.png"
-  />
+  <meta name="twitter:image" content="https://luckyimpex4u.com/lucky-logo.png" />
 
 </head>
 
@@ -844,11 +705,7 @@
 
         <div class="splash-ring-two"></div>
 
-        <img
-          src="%PUBLIC_URL%/lucky-logo.png"
-          alt="Lucky Impex"
-          class="splash-logo"
-        />
+        <img src="%PUBLIC_URL%/lucky-logo.png" alt="Lucky Impex" class="splash-logo" />
 
       </div>
 
