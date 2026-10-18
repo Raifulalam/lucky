@@ -617,7 +617,7 @@
     visibility: hidden;
     transform: translateY(8px);
     transition: all 0.22s ease;
-    z-index: 100;
+    z-index: 1000;
 }
 
 .category-box.open .category-dropdown {
@@ -1203,6 +1203,7 @@
 }
 
 @media (max-width: 1024px) {
+
     .nav-dropdown-box,
     .services-dropdown-box,
     .category-box,
@@ -1224,7 +1225,8 @@
     }
 
     .mode-switcher-container {
-        display: none; /* Displayed inside mobile drawer */
+        display: none;
+        /* Displayed inside mobile drawer */
     }
 
     .header-search-form {
@@ -1265,7 +1267,8 @@
     }
 
     .header-search-form {
-        display: none; /* Shown prominently in hero and mobile menu */
+        display: none;
+        /* Shown prominently in hero and mobile menu */
     }
 
     .action-cart-btn .cart-text {
