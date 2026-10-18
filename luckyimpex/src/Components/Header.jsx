@@ -3,18 +3,24 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     Bell,
     ChevronDown,
+    CreditCard,
+    Grid,
     Heart,
     LayoutDashboard,
     MapPin,
     Menu,
     Phone,
+    RefreshCw,
     Search,
+    ShoppingBag,
     ShoppingCart,
+    Smartphone,
+    Star,
     Store,
     User,
+    Wrench,
     X,
     Building2,
-    ShoppingBag
 } from "lucide-react";
 import { UserContext } from "./UserContext";
 import { useNotification } from "./NotificationContext";
@@ -36,24 +42,40 @@ const categories = [
 ];
 
 const MENU = {
-    guest: [{ label: "Products", to: "/products" }],
+    guest: [
+        { label: "Mobiles", to: "/mobiles" },
+        { label: "All Products", to: "/products" },
+        { label: "0% EMI", to: "/emi" },
+        { label: "Exchange Offer", to: "/exchange" },
+        { label: "Showroom Hub", to: "/store" },
+        { label: "Service & Warranty", to: "/service" },
+        { label: "Customer Reviews", to: "/review" },
+        { label: "Contact Us", to: "/contact" },
+    ],
     user: [
-        { label: "Products", to: "/products" },
+        { label: "Mobiles", to: "/mobiles" },
+        { label: "All Products", to: "/products" },
+        { label: "0% EMI", to: "/emi" },
+        { label: "Exchange", to: "/exchange" },
         { label: "Service", to: "/service" },
         { label: "Profile", to: "/profile" },
     ],
     admin: [
-        { label: "Products", to: "/products" },
+        { label: "Mobiles", to: "/mobiles" },
+        { label: "All Products", to: "/products" },
         { label: "Dashboard", to: "/admin" },
         { label: "Profile", to: "/profile" },
     ],
 };
 
 const quickLinks = [
-    { label: "Stores", to: "/store" },
-    { label: "EMI", to: "/emi" },
-    { label: "Exchange", to: "/exchange" },
-    { label: "Contact", to: "/contact" },
+    { label: "Mobile Phones", to: "/mobiles" },
+    { label: "Showroom Hub", to: "/store" },
+    { label: "0% EMI Plans", to: "/emi" },
+    { label: "Exchange Offer", to: "/exchange" },
+    { label: "Service & Warranty", to: "/service" },
+    { label: "Customer Reviews", to: "/review" },
+    { label: "Contact Us", to: "/contact" },
 ];
 
 const EMPTY_CART = [];
@@ -291,6 +313,17 @@ const Header = () => {
                             </div>
                         </div>
 
+                        {/* Direct Mobiles Link (Desktop Quick Access) */}
+                        <Link
+                            to="/mobiles"
+                            className="header-mobiles-direct-btn"
+                            title="Explore Mobile Phones & Smart Gadgets"
+                        >
+                            <Smartphone size={16} className="btn-icon" />
+                            <span>Mobiles</span>
+                            <span className="mobiles-badge-pill">Hot</span>
+                        </Link>
+
                         {/* Quick category menu */}
                         <div
                             className={`category-box ${catOpen ? "open" : ""}`}
@@ -396,6 +429,57 @@ const Header = () => {
                 </div>
             </header>
 
+            {/* DIRECT ACCESS SUB-BAR (Sticky & Visible across Desktop & Mobile) */}
+            <nav className="header-direct-bar" aria-label="Direct Quick Access Navigation">
+                <div className="header-direct-inner">
+                    <Link to="/mobiles" className="direct-nav-link highlight-mobiles" onClick={closeMobileMenu}>
+                        <Smartphone size={14} className="direct-nav-icon" />
+                        <span className="direct-nav-label">Mobiles</span>
+                        <span className="direct-nav-badge">HOT</span>
+                    </Link>
+                    <Link to="/products" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <Grid size={14} className="direct-nav-icon" />
+                        <span className="direct-nav-label">All Products</span>
+                    </Link>
+                    <Link to="/products/AirConditioners" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <span className="direct-nav-label">Air Conditioners</span>
+                    </Link>
+                    <Link to="/products/LEDTelevisions" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <span className="direct-nav-label">Smart TVs</span>
+                    </Link>
+                    <Link to="/products/Refrigerators" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <span className="direct-nav-label">Refrigerators</span>
+                    </Link>
+                    <Link to="/products/WashingMachines" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <span className="direct-nav-label">Washing Machines</span>
+                    </Link>
+                    <Link to="/emi" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <CreditCard size={14} className="direct-nav-icon text-amber" />
+                        <span className="direct-nav-label">0% EMI</span>
+                    </Link>
+                    <Link to="/exchange" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <RefreshCw size={13} className="direct-nav-icon text-green" />
+                        <span className="direct-nav-label">Exchange Offer</span>
+                    </Link>
+                    <Link to="/store" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <Store size={14} className="direct-nav-icon" />
+                        <span className="direct-nav-label">Showroom Hub</span>
+                    </Link>
+                    <Link to="/service" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <Wrench size={14} className="direct-nav-icon" />
+                        <span className="direct-nav-label">Warranty & Service</span>
+                    </Link>
+                    <Link to="/review" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <Star size={14} className="direct-nav-icon text-amber" />
+                        <span className="direct-nav-label">Reviews</span>
+                    </Link>
+                    <Link to="/contact" className="direct-nav-link" onClick={closeMobileMenu}>
+                        <Phone size={14} className="direct-nav-icon" />
+                        <span className="direct-nav-label">Contact</span>
+                    </Link>
+                </div>
+            </nav>
+
             {/* MOBILE NAVIGATION DRAWER */}
             <div
                 className={`mobile-menu-backdrop ${menuOpen ? "open" : ""}`}
@@ -452,6 +536,86 @@ const Header = () => {
                     <button type="submit"><Search size={16} /></button>
                 </form>
 
+                {/* Direct Access Quick Grid (1-Tap Direct Links) */}
+                <div className="mobile-direct-grid-section">
+                    <div className="mobile-menu-label">Direct Quick Access</div>
+                    <div className="mobile-direct-grid">
+                        <Link to="/mobiles" className="mobile-direct-card card-mobile-highlight" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap mobile-icon">
+                                <Smartphone size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>Mobile Phones</strong>
+                                <span>Showroom & Deals</span>
+                            </div>
+                            <span className="card-badge">HOT</span>
+                        </Link>
+                        <Link to="/products" className="mobile-direct-card" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap">
+                                <Grid size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>All Products</strong>
+                                <span>Electronics Catalog</span>
+                            </div>
+                        </Link>
+                        <Link to="/emi" className="mobile-direct-card" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap">
+                                <CreditCard size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>0% EMI Plans</strong>
+                                <span>Easy Financing</span>
+                            </div>
+                        </Link>
+                        <Link to="/exchange" className="mobile-direct-card" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap">
+                                <RefreshCw size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>Exchange Offer</strong>
+                                <span>Old for New</span>
+                            </div>
+                        </Link>
+                        <Link to="/store" className="mobile-direct-card" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap">
+                                <Store size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>Showroom Hub</strong>
+                                <span>Birgunj Store</span>
+                            </div>
+                        </Link>
+                        <Link to="/service" className="mobile-direct-card" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap">
+                                <Wrench size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>Warranty & Care</strong>
+                                <span>Official Support</span>
+                            </div>
+                        </Link>
+                        <Link to="/review" className="mobile-direct-card" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap">
+                                <Star size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>Reviews</strong>
+                                <span>Customer Feedback</span>
+                            </div>
+                        </Link>
+                        <Link to="/contact" className="mobile-direct-card" onClick={closeMobileMenu}>
+                            <div className="card-icon-wrap">
+                                <Phone size={18} />
+                            </div>
+                            <div className="card-text-wrap">
+                                <strong>Contact Desk</strong>
+                                <span>Call & WhatsApp</span>
+                            </div>
+                        </Link>
+                    </div>
+                </div>
+
                 {/* Mobile Menu Sections with Expandable Accordions */}
                 <div className="mobile-menu-section">
                     <button
@@ -465,6 +629,9 @@ const Header = () => {
                     </button>
                     <div className={`mobile-accordion-content ${expandedSection === 'main-nav' ? 'expanded' : ''}`}>
                         <Link to="/" onClick={closeMobileMenu}>Home</Link>
+                        <Link to="/mobiles" onClick={closeMobileMenu} className="mobile-link-highlight">
+                            📱 Mobile Phones & Deals
+                        </Link>
                         <Link to="/products" onClick={closeMobileMenu}>All Products</Link>
                         {roleMenu.map((item) => (
                             <Link key={item.to} to={item.to} onClick={closeMobileMenu}>
@@ -515,6 +682,16 @@ const Header = () => {
                         <ChevronDown size={16} className={`accordion-icon ${expandedSection === 'categories' ? 'rotated' : ''}`} />
                     </button>
                     <div className={`mobile-accordion-content ${expandedSection === 'categories' ? 'expanded' : ''}`}>
+                        <button
+                            type="button"
+                            className="mobile-category-link mobile-link-highlight"
+                            onClick={() => {
+                                closeMobileMenu();
+                                navigate('/mobiles');
+                            }}
+                        >
+                            📱 Mobile Phones & Gadgets
+                        </button>
                         {categories.map((cat) => (
                             <button
                                 key={cat}
