@@ -119,6 +119,7 @@ function App() {
                     <Route path="/review" element={<CustomerReviewPage/>}/>
                     <Route path="/mobiles" element={<MobileLanding/>}/>
                     <Route path="/mobile products" element={<MobileProducts/>}/>
+                    <Route path="/mobile-products" element={<MobileProducts/>}/>
 
                     {/* ================= USER ROUTES ================= */}
                     <Route
