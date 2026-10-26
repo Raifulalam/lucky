@@ -280,8 +280,8 @@ const OrderComponent = () => {
                                         <div className="company-info">
                                             <h1 className="brand-name">LUCKY IMPEX</h1>
                                             <p className="brand-tagline">Electronics & Home Appliances Wholesale / Retail</p>
-                                            <p className="contact-line">Main Road, Birgunj, Nepal | Tel: +977-9800000000</p>
-                                            <p className="contact-line">PAN/VAT: 301294812 | Email: info@luckyimpex.com</p>
+                                            <p className="contact-line">Main Road, Birgunj, Nepal | Tel: +977-051-531789 / +977-9802594022</p>
+                                            <p className="contact-line">PAN/VAT: 301294812 | Email: luckyimpex4u@gmail.com</p>
                                         </div>
                                         <div className="doc-title-block">
                                             <h2>TAX INVOICE</h2>

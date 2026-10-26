@@ -2,12 +2,14 @@ const express = require("express");
 const router = express.Router();
 const { sendWhatsAppMessage, formatNepalPhoneNumber } = require("../utils/whatsappService");
 const { getStatus, logoutAgent, initBaileysClient } = require("../utils/baileysClient");
+const auth = require("../middlewares/auth");
+const isAdmin = require("../middlewares/isAdmin");
 
 // =====================================================
 // GET /api/whatsapp/status
 // Returns current connection status + QR code
 // =====================================================
-router.get("/status", (req, res) => {
+router.get("/status", auth, isAdmin, (req, res) => {
     const { status, qrDataUrl } = getStatus();
     const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779809278236";
 
@@ -27,7 +29,7 @@ router.get("/status", (req, res) => {
 // =====================================================
 // POST /api/whatsapp/send (Manual test send)
 // =====================================================
-router.post("/send", async (req, res) => {
+router.post("/send", auth, isAdmin, async (req, res) => {
     try {
         const { to, message } = req.body;
         if (!to || !message) {
@@ -56,7 +58,7 @@ router.post("/send", async (req, res) => {
 // POST /api/whatsapp/restart
 // Force re-initialize the WhatsApp agent
 // =====================================================
-router.post("/restart", async (req, res) => {
+router.post("/restart", auth, isAdmin, async (req, res) => {
     try {
         const io = req.app.get("io");
         const { handleIncomingMessage } = require("../utils/whatsappBotAgent");
@@ -72,7 +74,7 @@ router.post("/restart", async (req, res) => {
 // POST /api/whatsapp/logout
 // Logout and clear session (to link a new number)
 // =====================================================
-router.post("/logout", async (req, res) => {
+router.post("/logout", auth, isAdmin, async (req, res) => {
     try {
         await logoutAgent();
         res.json({ success: true, message: "WhatsApp agent logged out. Rescan QR to reconnect." });

@@ -171,10 +171,12 @@ const Footer = () => {
                         <ChevronDown size={16} className="chevron" />
                     </button>
                     <div className="accordion-content">
-                        <a href="#wholesale-rfq">Request Bulk Wholesale Quote</a>
+                        <Link to="/wholesale">Request Bulk Wholesale Quote</Link>
                         <Link to="/contact">Become an Authorized Dealer</Link>
                         <Link to="/contact">Container & Pallet Logistics</Link>
-                        <Link to="/contact">Official VAT Invoicing Policy</Link>
+                        <Link to="/delivery-policy">Delivery Information</Link>
+                        <Link to="/return-policy">Return Policy</Link>
+                        <Link to="/warranty-policy">Warranty Information</Link>
                         <Link to="/store">Madhesh Province Distribution Hub</Link>
                         <a href="tel:+9779802594022">Speak with B2B Sales Manager</a>
                     </div>
@@ -186,23 +188,23 @@ const Footer = () => {
                 <div className="brands-strip-inner">
                     <span className="brands-strip-label">Authorized Partner Brands:</span>
                     <div className="brands-strip-links">
-                        <Link to="/products?brand=LG" title="LG Electronics Dealer Birgunj">LG</Link>
+                        <Link to="/products/brand/LG" title="LG Electronics Dealer Birgunj">LG</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=Samsung" title="Samsung Store Birgunj">Samsung</Link>
+                        <Link to="/products/brand/Samsung" title="Samsung Store Birgunj">Samsung</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=Whirlpool" title="Whirlpool Home Appliances Birgunj">Whirlpool</Link>
+                        <Link to="/products/brand/Whirlpool" title="Whirlpool Home Appliances Birgunj">Whirlpool</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=Haier" title="Haier Electronics Birgunj">Haier</Link>
+                        <Link to="/products/brand/Haier" title="Haier Electronics Birgunj">Haier</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=CG" title="CG Electronics Store Birgunj">CG</Link>
+                        <Link to="/products/brand/CG" title="CG Electronics Store Birgunj">CG</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=Videocon" title="Videocon LED TV Birgunj">Videocon</Link>
+                        <Link to="/products/brand/Videocon" title="Videocon LED TV Birgunj">Videocon</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=Skyworth" title="Skyworth Smart TV Birgunj">Skyworth</Link>
+                        <Link to="/products/brand/Skyworth" title="Skyworth Smart TV Birgunj">Skyworth</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=Symphony" title="Symphony Air Cooler Birgunj">Symphony</Link>
+                        <Link to="/products/brand/Symphony" title="Symphony Air Cooler Birgunj">Symphony</Link>
                         <span className="dot">·</span>
-                        <Link to="/products?brand=Bajaj" title="Bajaj Electricals Birgunj">Bajaj</Link>
+                        <Link to="/products/brand/Bajaj" title="Bajaj Electricals Birgunj">Bajaj</Link>
                     </div>
                 </div>
             </div>

@@ -134,7 +134,7 @@ const ShowroomHub = () => {
                                     <Phone size={18} className="meta-icon text-amber" />
                                     <div>
                                         <strong>Direct Store Phones:</strong>
-                                        <p>+977 051-531789 · +977 9807286786</p>
+                                        <p>+977 051-531789 · +977 9802594022</p>
                                     </div>
                                 </div>
                             </div>

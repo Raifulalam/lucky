@@ -106,9 +106,9 @@ const HomeContent = () => {
                                 </details>
                             ))}
                             <details className="home-faq-item">
-                                <summary>How does Wholesale / B2B bulk pricing work at luckyimpex4u?</summary>
+                                <summary>How does wholesale / B2B pricing work at Lucky Impex?</summary>
                                 <p>
-                                    You can toggle the <strong>[ Wholesale ]</strong> switch at the top of the page to view minimum order quantities (MOQ) and tiered volume discounts. You can also submit the quick RFQ form on this page or message our wholesale sales desk directly on WhatsApp at +977 9802894022 for customized freight quotes and VAT invoicing.
+                                    Wholesale rates are quoted per order. Send the quick quote request on this page, visit our <a href="/wholesale">wholesale page</a>, or message us on WhatsApp at +977 9802594022 with the models and quantities you need.
                                 </p>
                             </details>
                             <details className="home-faq-item">

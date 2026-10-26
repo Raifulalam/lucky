@@ -27,6 +27,8 @@ const Exchange = lazy(() => import("./Pages/Exchange/Exchange"));
 const StoreComponent = lazy(() => import("./Pages/HomePage/StorePage"));
 const OrderPage = lazy(() => import("./Pages/Customer/OrderPage"));
 const CustomerReviewPage= lazy(()=> import("./Pages/Reviews/Reviews"))
+const Wholesale = lazy(() => import("./Pages/Info/Wholesale"));
+const Policy = lazy(() => import("./Pages/Info/Policy"));
 const MobileLanding=lazy(()=> import("./Mobile/MobileLanding"))
 const MobileProducts=lazy(()=> import("./Mobile/Mobileshop"))
 
@@ -114,6 +116,10 @@ function App() {
                     <Route path="/product/:id" element={<ProductDetails />} />
                     <Route path="/productdetails/:id" element={<LegacyProductDetailsRedirect />} />
                     <Route path="/contact" element={<ContactComponent />} />
+                    <Route path="/wholesale" element={<Wholesale />} />
+                    <Route path="/delivery-policy" element={<Policy kind="delivery" />} />
+                    <Route path="/return-policy" element={<Policy kind="return" />} />
+                    <Route path="/warranty-policy" element={<Policy kind="warranty" />} />
                     <Route path="/about" element={<LegacyAboutRedirect />} />
                     <Route path="/store" element={<StoreComponent />} />
                     <Route path="/review" element={<CustomerReviewPage/>}/>
@@ -154,23 +160,9 @@ function App() {
                       }
                     />
 
-                    <Route
-                      path="/emi"
-                      element={
-                        <ProtectedRoute allowedRoles={["user", "admin"]}>
-                          <EMI />
-                        </ProtectedRoute>
-                      }
-                    />
+                    <Route path="/emi" element={<EMI />} />
 
-                    <Route
-                      path="/exchange"
-                      element={
-                        <ProtectedRoute allowedRoles={["user", "admin"]}>
-                          <Exchange />
-                        </ProtectedRoute>
-                      }
-                    />
+                    <Route path="/exchange" element={<Exchange />} />
 
                     {/* ================= ADMIN ROUTES ================= */}
                     <Route

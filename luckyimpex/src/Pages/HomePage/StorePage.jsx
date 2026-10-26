@@ -20,7 +20,7 @@ const StoreComponent = () => {
                 label: "Main Flagship Store",
                 location: [27.0138387, 84.8803044],
                 contact: {
-                    phone: "+977-9807286786",
+                    phone: "+977-9802594022",
                     tel: "051531789",
                     email: "luckyimpex4u@gmail.com",
                 },

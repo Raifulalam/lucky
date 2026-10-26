@@ -16,7 +16,4 @@ Disallow: /orders
 Disallow: /review/
 Disallow: /productdetails/
 
-Allow: /product/
-Allow: /products/
-
 Sitemap: https://luckyimpex4u.com/sitemap.xml

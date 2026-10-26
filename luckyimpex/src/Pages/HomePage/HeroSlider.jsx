@@ -71,7 +71,7 @@ const WHOLESALE_SLIDES = [
         title: "Empower Your Retail Shop with Direct Stock",
         subtitle: "Direct container rates for Smart TVs, Washing Machines, Commercial Freezers & Kitchen Appliances with dedicated account management.",
         ctaPrimary: { label: "Request Price Sheet", action: "rfq" },
-        ctaSecondary: { label: "Call B2B Desk", href: "tel:+9779807286786" },
+        ctaSecondary: { label: "Call B2B Desk", href: "tel:+9779802594022" },
         image: "/guest6.jpg",
         fallbackImage: "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=1600&q=80",
         stats: [

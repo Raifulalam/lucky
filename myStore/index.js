@@ -28,6 +28,12 @@ const { handleIncomingMessage } = require("./utils/whatsappBotAgent");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Never fall back to a guessable JWT secret outside local development.
+if (!process.env.JWT_SECRET && process.env.NODE_ENV !== "development") {
+    console.error("❌ JWT_SECRET is not set. Refusing to start with a guessable signing key.");
+    process.exit(1);
+}
+
 // -------------------- CORS ORIGINS --------------------
 
 const allowedOrigins = (
@@ -39,6 +45,17 @@ const allowedOrigins = (
     .map((origin) => origin.trim())
     .filter(Boolean);
 
+// If CORS_ORIGIN is not configured, fall back to the production site (plus local dev)
+// rather than reflecting any origin together with credentials.
+if (!allowedOrigins.length) {
+    allowedOrigins.push(
+        "https://luckyimpex4u.com",
+        "https://www.luckyimpex4u.com",
+        "http://localhost:3000"
+    );
+    console.warn("ℹ️  CORS_ORIGIN not set; using default allowlist:", allowedOrigins.join(", "));
+}
+
 // -------------------- HTTP SERVER --------------------
 
 const server = http.createServer(app);
@@ -47,7 +64,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins.length ? allowedOrigins : true,
+        origin: allowedOrigins,
         credentials: true,
     },
 });
@@ -111,13 +128,12 @@ app.set("trust proxy", 1);
 
 app.use(
     cors({
-        origin: allowedOrigins.length ? allowedOrigins : true,
+        origin: allowedOrigins,
         credentials: true,
     })
 );
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use("/api/whatsapp", whatsaapRoutes);
 app.use(helmet());
 app.use(compression());
 app.use(mongoSanitize());
@@ -138,6 +154,9 @@ const globalRateLimiter = rateLimit({
 
 app.use("/api", globalRateLimiter);
 
+// WhatsApp admin endpoints (each route enforces auth + admin role)
+app.use("/api/whatsapp", whatsaapRoutes);
+
 // -------------------- STATIC FILES --------------------
 
 app.use(
@@ -152,6 +171,12 @@ app.use(
 
 app.get("/", (req, res) => {
     res.send("✅ API is running");
+});
+
+// Lightweight liveness/readiness probe for uptime monitors and host health checks.
+app.get("/healthz", (req, res) => {
+    const dbReady = mongoose.connection.readyState === 1;
+    res.status(dbReady ? 200 : 503).json({ ok: dbReady, db: dbReady ? "connected" : "connecting" });
 });
 
 
@@ -186,32 +211,42 @@ app.use((err, req, res, next) => {
 
 const { syncAllProductsToInventory } = require("./utils/inventoryService");
 
-// -------------------- DATABASE CONNECTION --------------------
+// -------------------- DATABASE CONNECTION + STARTUP --------------------
 
-mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => {
+// Start accepting traffic immediately. Previously the server only listened AFTER MongoDB
+// connected and exited on failure, so a slow/failed connection meant no CORS headers and
+// the storefront saw a bare "failed to fetch". Now routes answer (503/500 JSON) while the
+// database connects, and the connection is retried instead of crashing the process.
+mongoose.set("bufferTimeoutMS", 8000);
+
+let whatsappStarted = false;
+
+server.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`🔌 Socket.IO is ready`);
+
+    if (!whatsappStarted) {
+        whatsappStarted = true;
+        // ── WhatsApp Baileys Agent ── scan the QR in Admin Dashboard → /admin/whatsapp
+        initBaileysClient(io, handleIncomingMessage)
+            .catch((err) => console.error("❌ Baileys init error:", err.message));
+    }
+});
+
+const connectMongo = async (attempt = 1) => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 10000 });
         console.log("✅ MongoDB connected");
 
-        // Automatically ensure all products are synced into Inventory
+        // Ensure all products are synced into Inventory (non-blocking)
         syncAllProductsToInventory()
             .then((res) => console.log(`📦 [Inventory System] Synced ${res.total} products with inventory.`))
             .catch((err) => console.error("❌ [Inventory System] Initial sync error:", err.message));
+    } catch (err) {
+        const delay = Math.min(attempt * 3000, 30000);
+        console.error(`❌ MongoDB connection failed (attempt ${attempt}): ${err.message}. Retrying in ${delay / 1000}s`);
+        setTimeout(() => connectMongo(attempt + 1), delay);
+    }
+};
 
-        // IMPORTANT:
-        // Use server.listen(), NOT app.listen()
-        server.listen(PORT, () => {
-            console.log(`🚀 Server is running on port ${PORT}`);
-            console.log(`🔌 Socket.IO is ready`);
-
-            // ── WhatsApp Baileys Agent ──
-            // Starts automatically after server is up
-            // Scan the QR in Admin Dashboard → /admin/whatsapp
-            initBaileysClient(io, handleIncomingMessage)
-                .catch((err) => console.error("❌ Baileys init error:", err.message));
-        });
-    })
-    .catch((err) => {
-        console.error("❌ Error connecting to MongoDB:", err);
-        process.exit(1);
-    });
+connectMongo();

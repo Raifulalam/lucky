@@ -715,7 +715,7 @@ const Header = () => {
                     </div>
                     <div className="mobile-store-contact">
                         <Phone size={16} />
-                        <span>+977 051-531789 / 9807286786</span>
+                        <span>+977 051-531789 / 9802594022</span>
                     </div>
 
                     {user ? (

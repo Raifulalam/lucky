@@ -52,13 +52,51 @@ function buildUrl(baseUrl, endpoint) {
     return `${baseUrl}${endpoint}`;
 }
 
+const REQUEST_TIMEOUT_MS = 15000;
+const RETRY_DELAY_MS = 1500;
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Aborts after a timeout while still honouring a caller-supplied AbortSignal.
+async function fetchWithTimeout(url, { signal, ...init }) {
+    const controller = new AbortController();
+    const onCallerAbort = () => controller.abort();
+    if (signal) {
+        if (signal.aborted) controller.abort();
+        else signal.addEventListener("abort", onCallerAbort, { once: true });
+    }
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+        return await fetch(url, { ...init, signal: controller.signal });
+    } catch (error) {
+        if (error?.name === "AbortError" && !signal?.aborted) {
+            throw new Error("The server took too long to respond. Please try again.");
+        }
+        throw error;
+    } finally {
+        clearTimeout(timer);
+        signal?.removeEventListener("abort", onCallerAbort);
+    }
+}
+
 async function request(baseUrl, endpoint, options = {}) {
     const { signal, ...fetchOptions } = options;
-    const response = await fetch(buildUrl(baseUrl, endpoint), {
-        credentials: "include",
-        ...fetchOptions,
-        signal,
-    });
+    const url = buildUrl(baseUrl, endpoint);
+    const init = { credentials: "include", ...fetchOptions, signal };
+    const isGet = !fetchOptions.method || fetchOptions.method.toUpperCase() === "GET";
+
+    let response;
+    try {
+        response = await fetchWithTimeout(url, init);
+        // One retry for idempotent reads when the host is waking up or briefly unavailable.
+        if (isGet && [502, 503, 504].includes(response.status) && !signal?.aborted) {
+            await wait(RETRY_DELAY_MS);
+            response = await fetchWithTimeout(url, init);
+        }
+    } catch (error) {
+        if (!isGet || signal?.aborted || error?.name === "AbortError") throw error;
+        await wait(RETRY_DELAY_MS);
+        response = await fetchWithTimeout(url, init);
+    }
     const contentType = response.headers.get("content-type") || "";
     const payload = contentType.includes("application/json")
         ? await response.json()

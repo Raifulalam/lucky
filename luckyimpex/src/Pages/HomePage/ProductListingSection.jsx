@@ -7,12 +7,11 @@ import {
     ChevronLeft,
     ChevronRight,
     FileText,
-    Percent,
 
     ShoppingCart,
-    Star,
     Zap
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useWholesale } from "../../Components/WholesaleContext";
 import { useCartDispatch } from "../../Components/CreateReducer";
 import { getData } from "../../api/api";
@@ -21,7 +20,6 @@ import "./ProductListingSection.css";
 const ProductListingSection = () => {
     const { isWholesale, openRfqModal, currency } = useWholesale();
     const cartDispatch = useCartDispatch();
-    const [activeTab, setActiveTab] = useState("all");
     const [addedId, setAddedId] = useState(null);
     const scrollContainerRef = useRef(null);
     const [products, setProducts] = useState([]);
@@ -41,24 +39,18 @@ const ProductListingSection = () => {
                         title: product.name || product.title || 'Product',
                         brand: product.brand || 'Brand',
                         category: product.category || 'Appliances',
-                        rating: 4.5 + Math.random() * 0.5, // Random rating between 4.5-5.0
-                        reviewsCount: Math.floor(Math.random() * 50) + 20,
+                        slug: product.slug || product._id,
                         inStock: Number(product.stock || 0) > 0,
                         image: product.images?.[0] || product.image || '',
                         fallback: '/lucky-logo.png',
                         retail: {
-                            mrp: Number(product.mrp) || Number(product.price) * 1.2,
-                            price: Number(product.price) || Number(product.bestBuyPrice) || 0,
-                            discount: product.mrp && product.price ? `${Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF` : '10% OFF',
-                            emiPerMonth: Math.round((Number(product.price) || 0) / 12),
+                            // Only real MRP and a real saving are shown; nothing is estimated.
+                            mrp: Number(product.mrp) > Number(product.price) ? Number(product.mrp) : 0,
+                            price: Number(product.price) || 0,
+                            discount: Number(product.mrp) > Number(product.price) && Number(product.price) > 0
+                                ? `${Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF`
+                                : '',
                         },
-                        wholesale: {
-                            minQty: 5,
-                            tieredDiscount: 'Save 15%',
-                            bulkPrice: Math.round((Number(product.price) || 0) * 0.85),
-                            tierInfo: '5-9 Units: NPR ' + Math.round((Number(product.price) || 0) * 0.85).toLocaleString() + ' | 10+ Units: NPR ' + Math.round((Number(product.price) || 0) * 0.8).toLocaleString(),
-                        },
-                        tab: index < 4 ? 'bestsellers' : 'newarrivals',
                     }));
                     setProducts(transformedProducts);
                 }
@@ -73,10 +65,7 @@ const ProductListingSection = () => {
         fetchFeaturedProducts();
     }, []);
 
-    const filteredProducts = products.filter((item) => {
-        if (activeTab === "all") return true;
-        return item.tab === activeTab;
-    });
+    const filteredProducts = products;
 
     const scrollLeft = () => {
         if (scrollContainerRef.current) {
@@ -104,10 +93,10 @@ const ProductListingSection = () => {
                 type: "ADD_ITEM",
                 id: product.id,
                 name: product.title,
-                price: isWholesale ? product.wholesale.bulkPrice : product.retail.price,
+                price: product.retail.price,
                 image: product.image,
                 mrp: product.retail.mrp,
-                quantity: isWholesale ? product.wholesale.minQty : 1,
+                quantity: 1,
             });
         }
         setAddedId(product.id);
@@ -177,35 +166,15 @@ const ProductListingSection = () => {
                         </h2>
                         <p className="section-desc">
                             {isWholesale
-                                ? "Displaying bulk tiered discount quotes. Add to cart with MOQ or request an official GST/VAT commercial RFQ quote."
-                                : "Authorized brand warranties, low-cost EMI breakdowns, and same-day showroom dispatch in Birgunj."}
+                                ? "Wholesale pricing is quoted per order. Send us a quote request with the models and quantities you need."
+                                : "Current prices and availability from the Lucky Impex showroom in Birgunj."}
                         </p>
                     </div>
 
                     {/* Filter Tabs & Scroll Controls */}
                     <div className="tabs-and-controls">
                         <div className="filter-tabs-pills">
-                            <button
-                                type="button"
-                                className={`filter-tab ${activeTab === "all" ? "active" : ""}`}
-                                onClick={() => setActiveTab("all")}
-                            >
-                                All Featured
-                            </button>
-                            <button
-                                type="button"
-                                className={`filter-tab ${activeTab === "bestsellers" ? "active" : ""}`}
-                                onClick={() => setActiveTab("bestsellers")}
-                            >
-                                Best Sellers
-                            </button>
-                            <button
-                                type="button"
-                                className={`filter-tab ${activeTab === "newarrivals" ? "active" : ""}`}
-                                onClick={() => setActiveTab("newarrivals")}
-                            >
-                                New Arrivals
-                            </button>
+                            <span className="filter-tab active">Latest Products</span>
                         </div>
 
                         <div className="scroll-arrows-desktop">
@@ -248,14 +217,12 @@ const ProductListingSection = () => {
 
                                 {/* Stock & Mode Badges */}
                                 <div className="prod-badges-row">
-                                    <span className="stock-badge">
-                                        <CheckCircle size={11} /> In Stock
-                                    </span>
-                                    {isWholesale ? (
-                                        <span className="wholesale-badge-tag">
-                                            {product.wholesale.tieredDiscount}
+                                    {product.inStock && (
+                                        <span className="stock-badge">
+                                            <CheckCircle size={11} /> In Stock
                                         </span>
-                                    ) : (
+                                    )}
+                                    {!isWholesale && product.retail.discount && (
                                         <span className="discount-badge-tag">
                                             {product.retail.discount}
                                         </span>
@@ -267,54 +234,34 @@ const ProductListingSection = () => {
                             <div className="prod-card-body">
                                 <div className="prod-meta-row">
                                     <span className="prod-brand">{product.brand}</span>
-                                    <div className="prod-rating">
-                                        <Star size={12} className="star-icon" />
-                                        <span>{product.rating}</span>
-                                        <span className="review-num">({product.reviewsCount})</span>
-                                    </div>
                                 </div>
 
                                 <h3 className="prod-title" title={product.title}>
-                                    {product.title}
+                                    <Link to={`/product/${encodeURIComponent(product.slug)}`}>
+                                        {product.title}
+                                    </Link>
                                 </h3>
 
-                                {/* DYNAMIC PRICE DISPLAY */}
+                                {/* PRICE (real catalogue price; wholesale is quoted, never estimated) */}
                                 <div className="prod-pricing-block">
-                                    {!isWholesale ? (
-                                        /* Retail Price Display */
-                                        <div className="retail-price-wrap">
-                                            <div className="price-main-row">
-                                                <span className="price-current">
-                                                    {formatPrice(product.retail.price)}
-                                                </span>
+                                    <div className="retail-price-wrap">
+                                        <div className="price-main-row">
+                                            <span className="price-current">
+                                                {product.retail.price > 0 ? formatPrice(product.retail.price) : "Ask for price"}
+                                            </span>
+                                            {product.retail.mrp > 0 && (
                                                 <span className="price-mrp">
                                                     {formatPrice(product.retail.mrp)}
                                                 </span>
-                                            </div>
-                                            <div className="emi-breakdown-row">
-                                                <Percent size={12} className="emi-icon" />
-                                                <span>
-                                                    EMI from <strong>{formatPrice(product.retail.emiPerMonth)}</strong>/mo
-                                                </span>
-                                            </div>
+                                            )}
                                         </div>
-                                    ) : (
-                                        /* Wholesale Price Display */
-                                        <div className="wholesale-price-wrap">
-                                            <div className="price-main-row">
-                                                <span className="price-current price-wholesale">
-                                                    {formatPrice(product.wholesale.bulkPrice)}
-                                                </span>
-                                                <span className="moq-pill">
-                                                    Min {product.wholesale.minQty} Units
-                                                </span>
-                                            </div>
+                                        {isWholesale && (
                                             <div className="bulk-tiered-info">
                                                 <Building2 size={12} />
-                                                <span>{product.wholesale.tierInfo}</span>
+                                                <span>Wholesale rate on request</span>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* ACTION BUTTONS */}
@@ -325,14 +272,14 @@ const ProductListingSection = () => {
                                         onClick={() => handleAddToCart(product)}
                                     >
                                         <ShoppingCart size={15} />
-                                        <span>{addedId === product.id ? "Added to Cart!" : isWholesale ? `Order MOQ (${product.wholesale.minQty})` : "Add to Cart"}</span>
+                                        <span>{addedId === product.id ? "Added to Cart!" : "Add to Cart"}</span>
                                     </button>
 
                                     <button
                                         type="button"
                                         className="btn-bulk-quote"
                                         onClick={() => openRfqModal(product)}
-                                        title="Request Bulk Quote / Dealer Rates"
+                                        title="Request a wholesale quote"
                                     >
                                         <FileText size={15} />
                                         <span>Bulk Quote</span>
