@@ -7,7 +7,7 @@ import { useCartDispatch, useCartState } from "../../Components/CreateReducer";
 import { UserContext } from "../../Components/UserContext";
 import { useNotification } from "../../Components/NotificationContext";
 import { BASE_URL, getAuthToken } from "../../api/api";
-import useGoBack from "../../hooks/useGoback";
+import useGoBack from "../../hooks/useGoBack";
 import PageSeo from "../../Components/PageSeo";
 import { trackPurchase } from "../../Components/GoogleAnalytics";
 import "./Cart.css";

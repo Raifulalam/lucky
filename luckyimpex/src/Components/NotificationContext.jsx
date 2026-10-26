@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { BellRing, CheckCircle2, Clock3, Inbox, ShieldAlert, Sparkles, X } from "lucide-react";
 import socket from "../socket";
-import "./notification.css";
+import "./Notification.css";
 
 const NotificationContext = createContext(null);
 

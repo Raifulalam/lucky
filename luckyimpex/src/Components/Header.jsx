@@ -84,35 +84,20 @@ const formatCategory = (value) => value.replace(/([A-Z])/g, " $1").trim();
 
 const Header = () => {
     const { user, logout } = useContext(UserContext);
-    const { unreadNotificationCount, panelOpen, setPanelOpen } = useNotification();
     const { isWholesale, toggleMode } = useWholesale();
     const navigate = useNavigate();
     const location = useLocation();
 
     const [menuOpen, setMenuOpen] = useState(false);
-    const [catOpen, setCatOpen] = useState(false);
     const [cartOpen, setCartOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const [wishlistCount] = useState(2); // Initial wishlist demo indicator
-    const [expandedSection, setExpandedSection] = useState(null); // For mobile menu accordions
-    const [navOpen, setNavOpen] = useState(false); // For desktop navigation dropdown
-    const [servicesOpen, setServicesOpen] = useState(false); // For services dropdown
 
     const isAdmin = user?.role === "admin";
     const isUser = user && !isAdmin;
 
-    const roleMenu = useMemo(
-        () => (isAdmin ? MENU.admin : isUser ? MENU.user : MENU.guest),
-        [isAdmin, isUser]
-    );
-
     const cart = useCartState() || EMPTY_CART;
     const cartQty = useMemo(() => cart.reduce((total, item) => total + (item.quantity || 1), 0), [cart]);
     const closeMobileMenu = () => setMenuOpen(false);
-
-    const toggleSection = (section) => {
-        setExpandedSection(expandedSection === section ? null : section);
-    };
 
     const handleLogout = () => {
         logout();
@@ -124,10 +109,6 @@ const Header = () => {
             e.preventDefault();
             setCartOpen(true);
         }
-    };
-
-    const toggleNotifications = () => {
-        setPanelOpen((prev) => !prev);
     };
 
     const handleSearchSubmit = (e) => {
@@ -145,31 +126,23 @@ const Header = () => {
                     <div className="mini-bar-left">
                         <span className="location-badge">
                             <MapPin size={13} className="mini-icon text-amber" />
-                            <strong>Birgunj Showroom</strong>
-                            <span className="status-dot"></span>
-                            <span className="status-text">Open 10am - 8pm</span>
+                            <strong>Birgunj, Nepal</strong>
                         </span>
-                        <span className="divider-slash">/</span>
+                        <span className="divider-slash">|</span>
                         <a href="tel:051531789" className="mini-contact-link">
                             <Phone size={13} /> 051-531789
                         </a>
-                        <span className="divider-slash">/</span>
+                    </div>
+
+                    <div className="mini-bar-right">
                         <a
                             href="https://wa.me/9779802594022?text=Hello%20Lucky%20Impex,%20I%20have%20an%20inquiry."
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mini-whatsapp-link"
                         >
-                            <span className="wa-icon-bullet">💬</span> WhatsApp Support
+                            <span className="wa-icon-bullet">💬</span> WhatsApp
                         </a>
-                    </div>
-
-                    <div className="mini-bar-right">
-                        <span className="dealer-badge">
-                            Authorized Dealer & Wholesaler in Nepal
-                        </span>
-
-
                     </div>
                 </div>
             </div>
@@ -180,37 +153,11 @@ const Header = () => {
                     {/* Brand Logo */}
                     <div className="header-left">
                         <Link to="/" className="logo" onClick={closeMobileMenu}>
-                            <img src={luckyLogo} alt="luckyimpex logo" />
+                            <img src={luckyLogo} alt="Lucky Impex" />
                             <div className="logo-copy">
-                                <div className="logo-title-row">
-                                    <strong className="brand-name">Lucky Impex</strong>
-
-                                </div>
-                                <span className="tagline">Dream comes true </span>
+                                <strong className="brand-name">Lucky Impex</strong>
                             </div>
                         </Link>
-                    </div>
-
-                    {/* DYNAMIC HEADER MODE SWITCHER (RETAIL / WHOLESALE PILL) */}
-                    <div className="mode-switcher-container">
-                        <div
-                            className={`mode-pill-toggle ${isWholesale ? "is-wholesale" : "is-retail"}`}
-                            onClick={toggleMode}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggleMode()}
-                            aria-label={`Current mode is ${isWholesale ? "Wholesale" : "Retail"}. Click to toggle.`}
-                        >
-                            <div className="mode-pill-thumb" />
-                            <div className={`mode-option retail-option ${!isWholesale ? "active" : ""}`}>
-                                <ShoppingBag size={14} />
-                                <span>Retail</span>
-                            </div>
-                            <div className={`mode-option wholesale-option ${isWholesale ? "active" : ""}`}>
-                                <Building2 size={14} />
-                                <span>Wholesale</span>
-                            </div>
-                        </div>
                     </div>
 
                     {/* SEARCH BAR */}
@@ -243,142 +190,24 @@ const Header = () => {
 
                     {/* NAVIGATION LINKS & ACTIONS */}
                     <div className="header-actions">
-                        {/* Main Navigation Dropdown */}
-                        <div
-                            className={`nav-dropdown-box ${navOpen ? "open" : ""}`}
-                            onMouseEnter={() => setNavOpen(true)}
-                            onMouseLeave={() => setNavOpen(false)}
-                        >
-                            <button
-                                type="button"
-                                className="nav-dropdown-btn"
-                                onClick={() => setNavOpen((prev) => !prev)}
-                                aria-expanded={navOpen}
-                            >
-                                <span>Menu</span>
-                                <ChevronDown size={15} />
-                            </button>
+                        <Link to="/products" className="nav-link">Products</Link>
+                        <Link to="/mobiles" className="nav-link">Mobiles</Link>
+                        <Link to="/emi" className="nav-link">EMI</Link>
+                        <Link to="/store" className="nav-link">Store</Link>
 
-                            <div className="nav-dropdown-menu">
-                                <Link
-                                    to="/"
-                                    onClick={() => setNavOpen(false)}
-                                >
-                                    Home
-                                </Link>
-                                <Link
-                                    to="/products"
-                                    onClick={() => setNavOpen(false)}
-                                >
-                                    All Products
-                                </Link>
-                                {roleMenu.map((item) => (
-                                    <Link
-                                        key={item.to}
-                                        to={item.to}
-                                        onClick={() => setNavOpen(false)}
-                                    >
-                                        {item.label}
-                                    </Link>
-                                ))}
+                        {/* Search */}
+                        <form className="header-search-form" onSubmit={handleSearchSubmit}>
+                            <div className="search-input-wrapper">
+                                <Search size={16} className="search-icon" />
+                                <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="search-input"
+                                />
                             </div>
-                        </div>
-
-                        {/* Store Services Dropdown */}
-                        <div
-                            className={`services-dropdown-box ${servicesOpen ? "open" : ""}`}
-                            onMouseEnter={() => setServicesOpen(true)}
-                            onMouseLeave={() => setServicesOpen(false)}
-                        >
-                            <button
-                                type="button"
-                                className="services-dropdown-btn"
-                                onClick={() => setServicesOpen((prev) => !prev)}
-                                aria-expanded={servicesOpen}
-                            >
-                                <span>Services</span>
-                                <ChevronDown size={15} />
-                            </button>
-
-                            <div className="services-dropdown-menu">
-                                {quickLinks.map((item) => (
-                                    <Link
-                                        key={item.to}
-                                        to={item.to}
-                                        onClick={() => setServicesOpen(false)}
-                                    >
-                                        {item.label}
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Direct Mobiles Link (Desktop Quick Access) */}
-                        <Link
-                            to="/mobiles"
-                            className="header-mobiles-direct-btn"
-                            title="Explore Mobile Phones & Smart Gadgets"
-                        >
-                            <Smartphone size={16} className="btn-icon" />
-                            <span>Mobiles</span>
-                            <span className="mobiles-badge-pill">Hot</span>
-                        </Link>
-
-                        {/* Quick category menu */}
-                        <div
-                            className={`category-box ${catOpen ? "open" : ""}`}
-                            onMouseEnter={() => setCatOpen(true)}
-                            onMouseLeave={() => setCatOpen(false)}
-                        >
-                            <button
-                                type="button"
-                                className="category-btn"
-                                onClick={() => setCatOpen((prev) => !prev)}
-                                aria-expanded={catOpen}
-                            >
-                                <span>Categories</span>
-                                <ChevronDown size={15} />
-                            </button>
-
-                            <div className="category-dropdown">
-                                {categories.map((cat) => (
-                                    <button
-                                        key={cat}
-                                        type="button"
-                                        className="category-item"
-                                        onClick={() => {
-                                            setCatOpen(false);
-                                            navigate(`/products/${cat}`);
-                                        }}
-                                    >
-                                        {formatCategory(cat)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Wishlist Icon with count */}
-                        <Link to="/products" className="action-icon-btn" title="Wishlist" aria-label="Wishlist">
-                            <Heart size={20} />
-                            {wishlistCount > 0 && (
-                                <span className="icon-badge badge-wishlist">{wishlistCount}</span>
-                            )}
-                        </Link>
-
-                        {/* Notification Bell */}
-                        <button
-                            type="button"
-                            className={`action-icon-btn ${panelOpen ? "active" : ""}`}
-                            onClick={toggleNotifications}
-                            aria-label="Notifications"
-                        >
-                            <Bell size={20} />
-                            {unreadNotificationCount > 0 && (
-                                <span className="icon-badge badge-notification">
-                                    {unreadNotificationCount > 99 ? "99+" : unreadNotificationCount}
-                                </span>
-                            )}
-                        </button>
+                        </form>
 
                         {/* Cart Button */}
                         {!isAdmin && (
@@ -389,7 +218,6 @@ const Header = () => {
                                 onClick={handleCartClick}
                             >
                                 <ShoppingCart size={20} />
-                                <span className="cart-text">Cart</span>
                                 <span className="cart-badge">{cartQty}</span>
                             </Link>
                         )}
@@ -399,12 +227,11 @@ const Header = () => {
                             <div className="user-menu">
                                 <button type="button" className="user-trigger">
                                     {isAdmin ? <LayoutDashboard size={18} /> : <User size={18} />}
-                                    <span className="user-label">{isAdmin ? "Admin" : "Account"}</span>
                                     <ChevronDown size={14} />
                                 </button>
                                 <div className="user-dropdown">
-                                    {isUser && <Link to="/profile">My Profile & Orders</Link>}
-                                    {isAdmin && <Link to="/admin">Admin Dashboard</Link>}
+                                    {isUser && <Link to="/profile">Profile</Link>}
+                                    {isAdmin && <Link to="/admin">Dashboard</Link>}
                                     <button type="button" onClick={handleLogout}>
                                         Logout
                                     </button>
@@ -429,57 +256,6 @@ const Header = () => {
                 </div>
             </header>
 
-            {/* DIRECT ACCESS SUB-BAR (Sticky & Visible across Desktop & Mobile) */}
-            <nav className="header-direct-bar" aria-label="Direct Quick Access Navigation">
-                <div className="header-direct-inner">
-                    <Link to="/mobiles" className="direct-nav-link highlight-mobiles" onClick={closeMobileMenu}>
-                        <Smartphone size={14} className="direct-nav-icon" />
-                        <span className="direct-nav-label">Mobiles</span>
-                        <span className="direct-nav-badge">HOT</span>
-                    </Link>
-                    <Link to="/products" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <Grid size={14} className="direct-nav-icon" />
-                        <span className="direct-nav-label">All Products</span>
-                    </Link>
-                    <Link to="/products/AirConditioners" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <span className="direct-nav-label">Air Conditioners</span>
-                    </Link>
-                    <Link to="/products/LEDTelevisions" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <span className="direct-nav-label">Smart TVs</span>
-                    </Link>
-                    <Link to="/products/Refrigerators" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <span className="direct-nav-label">Refrigerators</span>
-                    </Link>
-                    <Link to="/products/WashingMachines" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <span className="direct-nav-label">Washing Machines</span>
-                    </Link>
-                    <Link to="/emi" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <CreditCard size={14} className="direct-nav-icon text-amber" />
-                        <span className="direct-nav-label">0% EMI</span>
-                    </Link>
-                    <Link to="/exchange" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <RefreshCw size={13} className="direct-nav-icon text-green" />
-                        <span className="direct-nav-label">Exchange Offer</span>
-                    </Link>
-                    <Link to="/store" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <Store size={14} className="direct-nav-icon" />
-                        <span className="direct-nav-label">Showroom Hub</span>
-                    </Link>
-                    <Link to="/service" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <Wrench size={14} className="direct-nav-icon" />
-                        <span className="direct-nav-label">Warranty & Service</span>
-                    </Link>
-                    <Link to="/review" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <Star size={14} className="direct-nav-icon text-amber" />
-                        <span className="direct-nav-label">Reviews</span>
-                    </Link>
-                    <Link to="/contact" className="direct-nav-link" onClick={closeMobileMenu}>
-                        <Phone size={14} className="direct-nav-icon" />
-                        <span className="direct-nav-label">Contact</span>
-                    </Link>
-                </div>
-            </nav>
-
             {/* MOBILE NAVIGATION DRAWER */}
             <div
                 className={`mobile-menu-backdrop ${menuOpen ? "open" : ""}`}
@@ -487,10 +263,7 @@ const Header = () => {
             />
             <aside className={`mobile-menu ${menuOpen ? "open" : ""}`} aria-label="Mobile navigation">
                 <div className="mobile-menu-header">
-                    <div className="mobile-brand-info">
-                        <strong>luckyimpex4u</strong>
-                        <span>Authorized Birgunj Dealer & Wholesaler</span>
-                    </div>
+                    <strong>Lucky Impex</strong>
                     <button
                         type="button"
                         onClick={closeMobileMenu}
@@ -501,235 +274,47 @@ const Header = () => {
                     </button>
                 </div>
 
-                {/* Mobile Mode Switcher */}
-                <div className="mobile-mode-box">
-                    <div className="mobile-mode-label">Pricing & Catalog Mode:</div>
-                    <div
-                        className={`mode-pill-toggle ${isWholesale ? "is-wholesale" : "is-retail"}`}
-                        onClick={toggleMode}
-                    >
-                        <div className="mode-pill-thumb" />
-                        <div className={`mode-option retail-option ${!isWholesale ? "active" : ""}`}>
-                            <ShoppingBag size={14} />
-                            <span>Retail Mode</span>
-                        </div>
-                        <div className={`mode-option wholesale-option ${isWholesale ? "active" : ""}`}>
-                            <Building2 size={14} />
-                            <span>Wholesale B2B</span>
-                        </div>
-                    </div>
-                    <span className="mode-caption">
-                        {isWholesale
-                            ? "Displaying tiered bulk prices & dealer discounts"
-                            : "Displaying individual consumer prices & EMI deals"}
-                    </span>
-                </div>
-
                 {/* Mobile Search */}
                 <form className="mobile-search-form" onSubmit={(e) => { handleSearchSubmit(e); closeMobileMenu(); }}>
                     <input
                         type="text"
-                        placeholder="Search products, brands, models..."
+                        placeholder="Search products..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <button type="submit"><Search size={16} /></button>
                 </form>
 
-                {/* Direct Access Quick Grid (1-Tap Direct Links) */}
-                <div className="mobile-direct-grid-section">
-                    <div className="mobile-menu-label">Direct Quick Access</div>
-                    <div className="mobile-direct-grid">
-                        <Link to="/mobiles" className="mobile-direct-card card-mobile-highlight" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap mobile-icon">
-                                <Smartphone size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>Mobile Phones</strong>
-                                <span>Showroom & Deals</span>
-                            </div>
-                            <span className="card-badge">HOT</span>
-                        </Link>
-                        <Link to="/products" className="mobile-direct-card" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap">
-                                <Grid size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>All Products</strong>
-                                <span>Electronics Catalog</span>
-                            </div>
-                        </Link>
-                        <Link to="/emi" className="mobile-direct-card" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap">
-                                <CreditCard size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>0% EMI Plans</strong>
-                                <span>Easy Financing</span>
-                            </div>
-                        </Link>
-                        <Link to="/exchange" className="mobile-direct-card" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap">
-                                <RefreshCw size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>Exchange Offer</strong>
-                                <span>Old for New</span>
-                            </div>
-                        </Link>
-                        <Link to="/store" className="mobile-direct-card" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap">
-                                <Store size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>Showroom Hub</strong>
-                                <span>Birgunj Store</span>
-                            </div>
-                        </Link>
-                        <Link to="/service" className="mobile-direct-card" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap">
-                                <Wrench size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>Warranty & Care</strong>
-                                <span>Official Support</span>
-                            </div>
-                        </Link>
-                        <Link to="/review" className="mobile-direct-card" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap">
-                                <Star size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>Reviews</strong>
-                                <span>Customer Feedback</span>
-                            </div>
-                        </Link>
-                        <Link to="/contact" className="mobile-direct-card" onClick={closeMobileMenu}>
-                            <div className="card-icon-wrap">
-                                <Phone size={18} />
-                            </div>
-                            <div className="card-text-wrap">
-                                <strong>Contact Desk</strong>
-                                <span>Call & WhatsApp</span>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Mobile Menu Sections with Expandable Accordions */}
-                <div className="mobile-menu-section">
-                    <button
-                        type="button"
-                        className="mobile-accordion-trigger"
-                        onClick={() => toggleSection('main-nav')}
-                        aria-expanded={expandedSection === 'main-nav'}
-                    >
-                        <span className="mobile-menu-label">Main Navigation</span>
-                        <ChevronDown size={16} className={`accordion-icon ${expandedSection === 'main-nav' ? 'rotated' : ''}`} />
-                    </button>
-                    <div className={`mobile-accordion-content ${expandedSection === 'main-nav' ? 'expanded' : ''}`}>
-                        <Link to="/" onClick={closeMobileMenu}>Home</Link>
-                        <Link to="/mobiles" onClick={closeMobileMenu} className="mobile-link-highlight">
-                            📱 Mobile Phones & Deals
-                        </Link>
-                        <Link to="/products" onClick={closeMobileMenu}>All Products</Link>
-                        {roleMenu.map((item) => (
-                            <Link key={item.to} to={item.to} onClick={closeMobileMenu}>
-                                {item.label}
-                            </Link>
-                        ))}
-                        {!isAdmin && (
-                            <Link
-                                to="/cart"
-                                onClick={(e) => {
-                                    closeMobileMenu();
-                                    handleCartClick(e);
-                                }}
-                            >
-                                Cart ({cartQty})
-                            </Link>
-                        )}
-                    </div>
-                </div>
-
-                <div className="mobile-menu-section">
-                    <button
-                        type="button"
-                        className="mobile-accordion-trigger"
-                        onClick={() => toggleSection('store-services')}
-                        aria-expanded={expandedSection === 'store-services'}
-                    >
-                        <span className="mobile-menu-label">Store Services</span>
-                        <ChevronDown size={16} className={`accordion-icon ${expandedSection === 'store-services' ? 'rotated' : ''}`} />
-                    </button>
-                    <div className={`mobile-accordion-content ${expandedSection === 'store-services' ? 'expanded' : ''}`}>
-                        {quickLinks.map((item) => (
-                            <Link key={item.to} to={item.to} onClick={closeMobileMenu}>
-                                {item.label}
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="mobile-menu-section">
-                    <button
-                        type="button"
-                        className="mobile-accordion-trigger"
-                        onClick={() => toggleSection('categories')}
-                        aria-expanded={expandedSection === 'categories'}
-                    >
-                        <span className="mobile-menu-label">Categories</span>
-                        <ChevronDown size={16} className={`accordion-icon ${expandedSection === 'categories' ? 'rotated' : ''}`} />
-                    </button>
-                    <div className={`mobile-accordion-content ${expandedSection === 'categories' ? 'expanded' : ''}`}>
-                        <button
-                            type="button"
-                            className="mobile-category-link mobile-link-highlight"
-                            onClick={() => {
+                {/* Mobile Navigation Links */}
+                <div className="mobile-nav-links">
+                    <Link to="/" onClick={closeMobileMenu}>Home</Link>
+                    <Link to="/products" onClick={closeMobileMenu}>Products</Link>
+                    <Link to="/mobiles" onClick={closeMobileMenu}>Mobiles</Link>
+                    <Link to="/emi" onClick={closeMobileMenu}>EMI</Link>
+                    <Link to="/store" onClick={closeMobileMenu}>Store</Link>
+                    {!isAdmin && (
+                        <Link
+                            to="/cart"
+                            onClick={(e) => {
                                 closeMobileMenu();
-                                navigate('/mobiles');
+                                handleCartClick(e);
                             }}
                         >
-                            📱 Mobile Phones & Gadgets
-                        </button>
-                        {categories.map((cat) => (
-                            <button
-                                key={cat}
-                                type="button"
-                                className="mobile-category-link"
-                                onClick={() => {
-                                    closeMobileMenu();
-                                    navigate(`/products/${cat}`);
-                                }}
-                            >
-                                {formatCategory(cat)}
-                            </button>
-                        ))}
-                    </div>
+                            Cart ({cartQty})
+                        </Link>
+                    )}
                 </div>
 
                 <div className="mobile-menu-footer">
-                    <div className="mobile-store-contact">
-                        <MapPin size={16} className="text-amber" />
-                        <span>Link Road Ghantaghar, Birgunj</span>
-                    </div>
-                    <div className="mobile-store-contact">
-                        <Phone size={16} />
-                        <span>+977 051-531789 / 9802594022</span>
-                    </div>
-
                     {user ? (
                         <button type="button" className="mobile-auth-btn" onClick={handleLogout}>
                             Sign Out
                         </button>
                     ) : (
                         <Link to="/login" className="mobile-auth-btn" onClick={closeMobileMenu}>
-                            Sign In / Register
+                            Sign In
                         </Link>
                     )}
-                    <Link to="/store" className="mobile-store-link" onClick={closeMobileMenu}>
-                        <Store size={16} /> Birgunj Showroom Hub
-                    </Link>
                 </div>
             </aside>
 

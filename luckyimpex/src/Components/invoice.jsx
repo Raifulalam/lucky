@@ -1,5 +1,5 @@
 import React from "react";
-import "./invoice.css";
+import "./Invoice.css";
 
 const Invoice = ({ order, company }) => {
     return (

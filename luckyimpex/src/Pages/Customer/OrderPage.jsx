@@ -6,9 +6,9 @@ import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import PageSeo from "../../Components/PageSeo";
 import "./OrderPage.css";
-import useGoBack from "../../hooks/useGoback";
-import Invoice from "../../Components/invoice";
-import { printInvoice, printShippingSlip } from "../../Components/invoiceUtils";
+import useGoBack from "../../hooks/useGoBack";
+import Invoice from "../../Components/Invoice";
+import { printInvoice, printShippingSlip } from "../../Components/InvoiceUtils";
 import { BASE_URL } from "../../api/api";
 
 const API_BASE = `${BASE_URL}/orders`;
