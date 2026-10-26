@@ -1,10 +1,10 @@
 /* =========================================================
-   luckyimpex4u - MODERN HYBRID HEADER STYLES (B2C & B2B)
+   LUCKY IMPEX - PROFESSIONAL HEADER STYLES
    Color Palette:
-   Deep Navy: #0F172A, #1E293B
-   Accent Amber/Orange: #F97316, #EA580C
-   Backgrounds: #FFFFFF, #F8FAFC, #F1F5F9
-   Border: #E2E8F0, #CBD5E1
+   Primary Navy: #102A43, #243B53
+   Accent Orange: #F97316, #EA580C
+   Backgrounds: #FFFFFF, #F9FAFB
+   Border: #E5E7EB, #D1D5DB
 ========================================================= */
 
 .header-shell {
@@ -16,8 +16,8 @@
 
 /* ================= TOP UTILITY MINI BAR ================= */
 .header-top-mini-bar {
-    background: #0f172a;
-    color: #f1f5f9;
+    background: #102a43;
+    color: #f0f4f8;
     font-size: 0.85rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -43,7 +43,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #f1f5f9;
+    color: #f0f4f8;
     font-weight: 500;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .divider-slash {
-    color: #64748b;
+    color: #bcccdc;
 }
 
 .mini-contact-link,
@@ -60,7 +60,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    color: #cbd5e1;
+    color: #d9e2ec;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -78,8 +78,8 @@
 /* ================= MAIN STICKY HEADER ================= */
 .header {
     background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .header-inner {
@@ -105,7 +105,7 @@
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: #0f172a;
+    color: #111827;
 }
 
 .logo img {
@@ -117,7 +117,7 @@
 .brand-name {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #111827;
 }
 
 /* ================= NAVIGATION ================= */
@@ -130,7 +130,7 @@
 
 .nav-link {
     padding: 8px 16px;
-    color: #475569;
+    color: #4b5563;
     text-decoration: none;
     font-weight: 500;
     font-size: 0.95rem;
@@ -151,8 +151,8 @@
     position: relative;
     display: flex;
     align-items: center;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 0 12px;
     height: 40px;
@@ -166,7 +166,7 @@
 }
 
 .search-icon {
-    color: #94a3b8;
+    color: #9ca3af;
     margin-right: 8px;
     flex-shrink: 0;
 }
@@ -177,11 +177,11 @@
     background: transparent;
     outline: none;
     font-size: 0.9rem;
-    color: #0f172a;
+    color: #111827;
 }
 
 .search-input::placeholder {
-    color: #94a3b8;
+    color: #9ca3af;
 }
 
 /* ================= CART BUTTON ================= */
@@ -194,7 +194,7 @@
     height: 40px;
     padding: 0 16px;
     border-radius: 8px;
-    background: #0f172a;
+    background: #102a43;
     color: #ffffff;
     border: none;
     text-decoration: none;
@@ -234,9 +234,9 @@
     height: 40px;
     padding: 0 12px;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #1e293b;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
@@ -254,7 +254,7 @@
     right: 0;
     min-width: 180px;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 8px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -277,7 +277,7 @@
     border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 500;
-    color: #334155;
+    color: #374151;
     text-decoration: none;
     cursor: pointer;
     transition: background-color 0.15s ease;
@@ -285,8 +285,8 @@
 
 .user-dropdown a:hover,
 .user-dropdown button:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: #f3f4f6;
+    color: #111827;
 }
 
 .login-btn {
@@ -296,7 +296,7 @@
     height: 40px;
     padding: 0 20px;
     border-radius: 8px;
-    background: #0f172a;
+    background: #102a43;
     color: #ffffff;
     text-decoration: none;
     font-size: 0.9rem;
@@ -316,15 +316,15 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #0f172a;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #111827;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .hamburger-btn:hover {
-    background: #f1f5f9;
+    background: #f3f4f6;
 }
 
 /* ================= MOBILE DRAWER ================= */
@@ -368,13 +368,13 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 16px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e7eb;
     margin-bottom: 20px;
 }
 
 .mobile-menu-header strong {
     font-size: 1.25rem;
-    color: #0f172a;
+    color: #111827;
     font-weight: 700;
 }
 
@@ -382,9 +382,9 @@
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    color: #64748b;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #6b7280;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -393,14 +393,14 @@
 }
 
 .mobile-close-btn:hover {
-    background: #f1f5f9;
+    background: #f3f4f6;
 }
 
 .mobile-search-form {
     display: flex;
     align-items: center;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 0 12px;
     height: 44px;
@@ -413,7 +413,7 @@
     background: transparent;
     outline: none;
     font-size: 0.95rem;
-    color: #0f172a;
+    color: #111827;
 }
 
 .mobile-search-form button {
@@ -434,7 +434,7 @@
     display: block;
     padding: 14px 16px;
     border-radius: 8px;
-    color: #1e293b;
+    color: #374151;
     text-decoration: none;
     font-size: 1rem;
     font-weight: 500;
@@ -442,14 +442,14 @@
 }
 
 .mobile-nav-links a:hover {
-    background: #f1f5f9;
+    background: #f3f4f6;
     color: #f97316;
 }
 
 .mobile-menu-footer {
     margin-top: auto;
     padding-top: 20px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #e5e7eb;
 }
 
 .mobile-auth-btn {
@@ -459,7 +459,7 @@
     width: 100%;
     height: 44px;
     border-radius: 8px;
-    background: #0f172a;
+    background: #102a43;
     color: #ffffff;
     text-decoration: none;
     font-weight: 600;

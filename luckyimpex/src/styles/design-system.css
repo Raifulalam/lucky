@@ -75,17 +75,29 @@
     --shadow-neon-amber: 0 0 20px rgba(245, 158, 11, 0.25);
 
     /* ================= COLORS ================= */
-    /* Primary - Vibrant Royal Blue */
-    --color-primary-50: #eff6ff;
-    --color-primary-100: #dbeafe;
-    --color-primary-200: #bfdbfe;
-    --color-primary-300: #93c5fd;
-    --color-primary-400: #60a5fa;
-    --color-primary-500: #3b82f6;
-    --color-primary-600: #2563eb;
-    --color-primary-700: #1d4ed8;
-    --color-primary-800: #1e40af;
-    --color-primary-900: #1e3a8a;
+    /* Primary - Professional Navy Blue */
+    --color-primary-50: #f0f4f8;
+    --color-primary-100: #d9e2ec;
+    --color-primary-200: #bcccdc;
+    --color-primary-300: #9fb3c8;
+    --color-primary-400: #829ab1;
+    --color-primary-500: #627d98;
+    --color-primary-600: #486581;
+    --color-primary-700: #334e68;
+    --color-primary-800: #243b53;
+    --color-primary-900: #102a43;
+
+    /* Accent - Premium Orange (Brand Color) */
+    --color-accent-50: #fff7ed;
+    --color-accent-100: #ffedd5;
+    --color-accent-200: #fed7aa;
+    --color-accent-300: #fdba74;
+    --color-accent-400: #fb923c;
+    --color-accent-500: #f97316;
+    --color-accent-600: #ea580c;
+    --color-accent-700: #c2410c;
+    --color-accent-800: #9a3412;
+    --color-accent-900: #7c2d12;
 
     /* Emerald Green */
     --color-emerald-50: #ecfdf5;
@@ -98,18 +110,6 @@
     --color-emerald-700: #047857;
     --color-emerald-800: #065f46;
     --color-emerald-900: #064e3b;
-
-    /* Amber for warnings */
-    --color-amber-50: #fffbeb;
-    --color-amber-100: #fef3c7;
-    --color-amber-200: #fde68a;
-    --color-amber-300: #fcd34d;
-    --color-amber-400: #fbbf24;
-    --color-amber-500: #f59e0b;
-    --color-amber-600: #d97706;
-    --color-amber-700: #b45309;
-    --color-amber-800: #92400e;
-    --color-amber-900: #78350f;
 
     /* Red for danger */
     --color-red-50: #fef2f2;
@@ -136,34 +136,34 @@
     --color-slate-900: #0f172a;
 
     /* Light Mode Tokens */
-    --color-light-bg: #f8fafc;
+    --color-light-bg: #ffffff;
     --color-light-surface: #ffffff;
     --color-light-card: #ffffff;
-    --color-light-border: #e2e8f0;
+    --color-light-border: #e5e7eb;
 
-    /* Semantic Tokens - Modern Light Theme */
+    /* Semantic Tokens - Professional Light Theme */
     --color-background: var(--color-light-bg);
     --color-surface: var(--color-light-surface);
     --color-card: var(--color-light-card);
-    --color-text-primary: #0f172a;
-    --color-text-secondary: #475569;
-    --color-text-muted: #64748b;
+    --color-text-primary: #111827;
+    --color-text-secondary: #4b5563;
+    --color-text-muted: #6b7280;
 
-    /* Admin Panel Tokens - Crisp Clean White Theme */
+    /* Admin Panel Tokens - Clean Professional Theme */
     --color-dark-bg: #ffffff;
     --color-dark-surface: #ffffff;
     --color-dark-card: #ffffff;
-    --color-dark-border: #e2e8f0;
-    --color-dark-border-strong: #cbd5e1;
-    --color-dark-text-primary: #0f172a;
-    --color-dark-text-secondary: #475569;
-    --color-dark-text-muted: #64748b;
-    --color-dark-hover: #f8fafc;
+    --color-dark-border: #e5e7eb;
+    --color-dark-border-strong: #d1d5db;
+    --color-dark-text-primary: #111827;
+    --color-dark-text-secondary: #4b5563;
+    --color-dark-text-muted: #6b7280;
+    --color-dark-hover: #f9fafb;
     --color-border: var(--color-light-border);
-    --color-accent: var(--color-primary-600);
-    --color-accent-hover: var(--color-primary-700);
+    --color-accent: var(--color-accent-600);
+    --color-accent-hover: var(--color-accent-700);
     --color-success: var(--color-emerald-600);
-    --color-warning: var(--color-amber-600);
+    --color-warning: var(--color-accent-600);
     --color-danger: var(--color-red-600);
 
     /* ================= CARD SYSTEM ================= */
