@@ -1,0 +1,129 @@
+/* General Popup Styles */
+.popup {
+    background-color: rgba(255, 255, 255, 0.85);
+
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+/* Confetti Effect */
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100%);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+}
+
+.confetti {
+    position: fixed;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: confetti-fall 3s infinite ease-in-out;
+    font-weight: bold;
+    text-transform: uppercase;
+
+    overflow: hidden;
+}
+
+.confetti:nth-child(odd) {
+    animation-delay: 0.5s;
+}
+
+.confetti:nth-child(even) {
+    animation-delay: 1s;
+}
+
+.confetti:nth-child(3n) {
+    animation-delay: 1.5s;
+}
+
+/* Styling for letters inside confetti */
+
+/* Message Container */
+.message-container {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: rgba(148, 142, 142, 0.564);
+    box-shadow: -2px -2px 8px rgb(32, 26, 27);
+}
+
+/* Happy New Year Text with Gradient Background */
+.happy-new-year {
+    font-size: 3rem;
+    font-weight: bold;
+    color: transparent;
+    background: linear-gradient(45deg, #f39c12, #e74c3c, #8e44ad);
+    background-clip: text;
+    -webkit-background-clip: text;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+    animation: bounceIn 1.5s ease-out, gradientAnimation 3s linear infinite;
+}
+
+/* Sub-message Styling */
+.sub-message {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0.9;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Date Styling */
+.date-message {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.75);
+    opacity: 0.8;
+    margin-top: 20px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Keyframes for Bounce In Animation */
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Gradient Animation for 'Happy New Year' */
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}

@@ -25,12 +25,14 @@ const ProductListingSection = () => {
     const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [attempt, setAttempt] = useState(0);
 
     // Fetch featured products from backend
     useEffect(() => {
         const fetchFeaturedProducts = async () => {
             try {
                 setIsLoading(true);
+                setError(null);
                 const data = await getData('/products/products?page=1&limit=12');
                 if (data?.products) {
                     // Transform backend data to match component format
@@ -56,14 +58,15 @@ const ProductListingSection = () => {
                 }
             } catch (err) {
                 console.error('Failed to fetch featured products:', err);
-                setError(err.message);
+                // Technical details stay in the console; customers get a friendly message.
+                setError('unavailable');
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchFeaturedProducts();
-    }, []);
+    }, [attempt]);
 
     const filteredProducts = products;
 
@@ -143,8 +146,12 @@ const ProductListingSection = () => {
                         </div>
                     </div>
                     <div className="error-state">
-                        <p>Failed to load products: {error}</p>
-                        <button onClick={() => window.location.reload()}>Retry</button>
+                        <p>We could not load our products right now. Please try again, or contact us and we will help you directly.</p>
+                        <button type="button" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+                        {' '}
+                        <a href="https://wa.me/9779802594022?text=Hello%20Lucky%20Impex%2C%20I%20would%20like%20to%20enquire%20about%20a%20product." target="_blank" rel="noopener noreferrer">WhatsApp us</a>
+                        {' · '}
+                        <a href="tel:+977051531789">Call 051-531789</a>
                     </div>
                 </div>
             </section>

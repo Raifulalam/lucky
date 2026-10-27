@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ShieldCheck, Cookie } from "lucide-react";
 import { getCookieConsent, setCookieConsent } from "../api/api";
-import "./CookieConsent.css";
+import "./cookieConsent.css";
 
 const CookieConsentBanner = () => {
     const [visible, setVisible] = useState(false);

@@ -27,6 +27,8 @@ const Exchange = lazy(() => import("./Pages/Exchange/Exchange"));
 const StoreComponent = lazy(() => import("./Pages/HomePage/StorePage"));
 const OrderPage = lazy(() => import("./Pages/Customer/OrderPage"));
 const CustomerReviewPage= lazy(()=> import("./Pages/Reviews/Reviews"))
+const ForgotPassword = lazy(() => import("./Pages/Forgot-password/ForgotPassword"));
+const ResetPassword = lazy(() => import("./Pages/Forgot-password/resetPass"));
 const Wholesale = lazy(() => import("./Pages/Info/Wholesale"));
 const Policy = lazy(() => import("./Pages/Info/Policy"));
 const MobileLanding=lazy(()=> import("./Mobile/MobileLanding"))
@@ -117,6 +119,8 @@ function App() {
                     <Route path="/productdetails/:id" element={<LegacyProductDetailsRedirect />} />
                     <Route path="/contact" element={<ContactComponent />} />
                     <Route path="/wholesale" element={<Wholesale />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword />} />
                     <Route path="/delivery-policy" element={<Policy kind="delivery" />} />
                     <Route path="/return-policy" element={<Policy kind="return" />} />
                     <Route path="/warranty-policy" element={<Policy kind="warranty" />} />

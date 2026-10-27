@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import reportWebVitals from './reportWebVitals';
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
@@ -30,3 +31,6 @@ root.render(
 
 // Register the PWA service worker
 serviceWorkerRegistration.register();
+
+// Measure web vitals
+reportWebVitals();

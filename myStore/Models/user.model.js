@@ -24,6 +24,10 @@ const UserSchema = new mongoose.Schema(
         address: { type: String },
 
         avatar: { type: String, default: "default-avatar.png" },
+
+        // Password reset: only a SHA-256 hash of the emailed token is stored, never the token itself.
+        resetPasswordHash: { type: String, select: false },
+        resetPasswordExpires: { type: Date, select: false },
     },
     { timestamps: true }
 );

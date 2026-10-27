@@ -1,42 +1,31 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
-
 import Header from "../../Components/Header";
-import { BASE_URL } from "../../api/api";
-import { useNotification } from "../../Components/NotificationContext";
+import Footer from "../../Components/Footer";
+import PageSeo from "../../Components/PageSeo";
+import { postData } from "../../api/api";
+import "../Info/InfoPages.css";
+
+const WHATSAPP = "https://wa.me/9779802594022?text=Hello%20Lucky%20Impex%2C%20I%20need%20help%20resetting%20my%20password.";
 
 function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
-    const { showNotification } = useNotification();
+    const [status, setStatus] = useState(null); // { type: "success" | "error", text }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (event) => {
+        event.preventDefault();
         if (!email.trim()) {
-            showNotification("Please enter your email address", "error");
+            setStatus({ type: "error", text: "Please enter your email address." });
             return;
         }
-
+        setLoading(true);
+        setStatus(null);
         try {
-            setLoading(true);
-
-            const response = await axios.post(
-                `${BASE_URL}/auth/forgot-password`,
-                { email }
-            );
-
-            showNotification(
-                response.data.message || "Password reset link sent to your email",
-                "success"
-            );
+            const data = await postData("/users/forgot-password", { email: email.trim() });
+            setStatus({ type: "success", text: data?.message || "If an account exists for that email, a reset link has been sent." });
         } catch (error) {
-            showNotification(
-                error.response?.data?.message ||
-                    "Unable to send password reset link",
-                "error"
-            );
+            setStatus({ type: "error", text: error?.message || "Unable to send the reset link. Please try again." });
         } finally {
             setLoading(false);
         }
@@ -44,49 +33,41 @@ function ForgotPassword() {
 
     return (
         <>
+            <PageSeo title="Forgot Password | Lucky Impex" description="Reset your Lucky Impex account password." canonicalPath="/forgot-password" noIndex />
             <Header />
-
-            <div className="auth-container">
-                <div className="auth-card">
-                    <div className="auth-header">
-                        <h1>Forgot Password?</h1>
-                        <p>
-                            Enter your registered email address and we'll
-                            send you a password reset link.
-                        </p>
-                    </div>
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label>Email Address</label>
-
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="auth-btn"
-                            disabled={loading}
-                        >
-                            {loading
-                                ? "Sending..."
-                                : "Send Reset Link"}
+            <main className="info-page">
+                <div className="info-page__inner">
+                    <h1>Forgot your password?</h1>
+                    <p className="info-page__lead">
+                        Enter the email you registered with. We will send a reset link by email, and by WhatsApp if a phone number is saved on your account.
+                    </p>
+                    <form className="info-card" onSubmit={handleSubmit} noValidate>
+                        <label htmlFor="forgot-email"><strong>Email address</strong></label>
+                        <input
+                            id="forgot-email"
+                            type="email"
+                            autoComplete="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            style={{ display: "block", width: "100%", margin: "8px 0 14px", padding: "11px 12px", borderRadius: 10, border: "1px solid #c4cfda", fontSize: "1rem" }}
+                        />
+                        <button type="submit" className="info-btn" disabled={loading} style={{ border: 0, cursor: "pointer" }}>
+                            {loading ? "Sending…" : "Send reset link"}
                         </button>
+                        {status && (
+                            <p role={status.type === "error" ? "alert" : "status"} style={{ marginTop: 14, color: status.type === "error" ? "#b3261e" : "#1b6e3c" }}>
+                                {status.text}
+                            </p>
+                        )}
                     </form>
-
-                    <div className="auth-footer">
-                        <Link to="/login">
-                            ← Back to Login
-                        </Link>
-                    </div>
+                    <p className="info-note">
+                        Not receiving anything? <a href={WHATSAPP} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a> or call 051-531789.
+                    </p>
+                    <p><Link to="/login">← Back to login</Link></p>
                 </div>
-            </div>
+            </main>
+            <Footer />
         </>
     );
 }

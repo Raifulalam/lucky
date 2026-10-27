@@ -6,7 +6,7 @@ import Header from "../../Components/Header";
 import Footer from "../../Components/Footer";
 import { useCartDispatch } from "../../Components/CreateReducer";
 import { useNotification } from "../../Components/NotificationContext";
-import useGoBack from "../../hooks/useGoBack";
+import useGoBack from "../../hooks/useGoback";
 import { getData } from "../../api/api";
 import { useQuery } from "@tanstack/react-query";
 import PageSeo from "../../Components/PageSeo";

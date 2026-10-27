@@ -73,6 +73,8 @@ Disallow: /cart
 Disallow: /profile
 Disallow: /orderpage
 Disallow: /login
+Disallow: /forgot-password
+Disallow: /reset-password/
 Disallow: /signup
 Disallow: /admin
 Disallow: /dashboard

@@ -9,6 +9,9 @@ const isAdmin = require("../middlewares/isAdmin");
 const uploadUserAvatar = require("../middlewares/uploadUserAvatar");
 const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
+const crypto = require("crypto");
+const rateLimit = require("express-rate-limit");
+const { sendWhatsAppMessage } = require("../utils/whatsappService");
 
 const getSessionCookieOptions = () => ({
     httpOnly: false,
@@ -125,6 +128,126 @@ router.post(
 
         } catch {
             res.status(500).json({ message: "Login failed" });
+        }
+    }
+);
+
+/* ===========================================================
+   FORGOT / RESET PASSWORD
+   - The reply to /forgot-password is always the same, so it cannot be used to discover
+     which emails have accounts.
+   - The link is delivered by email (when SMTP_* is configured) and/or WhatsApp to the phone
+     number saved on the account. The link is never logged or returned in the response.
+   =========================================================== */
+const RESET_TTL_MS = 30 * 60 * 1000;
+const GENERIC_FORGOT_REPLY = {
+    message: "If an account exists for that email, a password reset link has been sent. It is valid for 30 minutes.",
+};
+
+const resetLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: "Too many attempts. Please try again in 15 minutes." },
+});
+
+const hashResetToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
+
+const frontendUrl = () =>
+    (process.env.FRONTEND_URL || "https://luckyimpex4u.com").replace(/\/+$/, "");
+
+async function sendResetEmail(to, link) {
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) return false;
+    let nodemailer;
+    try {
+        nodemailer = require("nodemailer");
+    } catch {
+        console.warn("[password reset] SMTP is configured but the 'nodemailer' package is not installed.");
+        return false;
+    }
+    const transport = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT) || 587,
+        secure: Number(process.env.SMTP_PORT) === 465,
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+    await transport.sendMail({
+        from: process.env.SMTP_FROM || `Lucky Impex <${process.env.SMTP_USER}>`,
+        to,
+        subject: "Reset your Lucky Impex password",
+        text: `We received a request to reset your Lucky Impex password.\n\nOpen this link within 30 minutes:\n${link}\n\nIf you did not ask for this, you can ignore this message.`,
+    });
+    return true;
+}
+
+router.post(
+    "/forgot-password",
+    resetLimiter,
+    [body("email").isEmail().normalizeEmail()],
+    validate,
+    async (req, res) => {
+        try {
+            const user = await User.findOne({ email: req.body.email });
+            if (user) {
+                const token = crypto.randomBytes(32).toString("hex");
+                user.resetPasswordHash = hashResetToken(token);
+                user.resetPasswordExpires = new Date(Date.now() + RESET_TTL_MS);
+                await user.save();
+
+                const link = `${frontendUrl()}/reset-password/${token}`;
+                const results = await Promise.allSettled([
+                    sendResetEmail(user.email, link),
+                    user.phone
+                        ? sendWhatsAppMessage({
+                              to: user.phone,
+                              message: `Lucky Impex: use this link to reset your password (valid 30 minutes): ${link}\nIf you did not ask for this, ignore this message.`,
+                          })
+                        : Promise.resolve(false),
+                ]);
+                const delivered = results.some((r) => r.status === "fulfilled" && r.value && r.value.success !== false);
+                if (!delivered) {
+                    console.warn("[password reset] No delivery channel worked (configure SMTP_* or save a phone number on the account).");
+                }
+            }
+        } catch (error) {
+            console.error("[password reset] forgot-password failed:", error.message);
+        }
+        // Same answer whether or not the account exists or delivery worked.
+        res.json(GENERIC_FORGOT_REPLY);
+    }
+);
+
+router.post(
+    "/reset-password",
+    resetLimiter,
+    [
+        body("token").isString().isLength({ min: 64, max: 64 }).isHexadecimal(),
+        body("password")
+            .isLength({ min: 8 })
+            .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/),
+    ],
+    validate,
+    async (req, res) => {
+        try {
+            const user = await User.findOne({
+                resetPasswordHash: hashResetToken(req.body.token),
+                resetPasswordExpires: { $gt: new Date() },
+            }).select("+resetPasswordHash +resetPasswordExpires");
+
+            if (!user) {
+                return res.status(400).json({ message: "This reset link is invalid or has expired. Please request a new one." });
+            }
+
+            user.password = await bcrypt.hash(req.body.password, 10);
+            user.resetPasswordHash = undefined; // single use
+            user.resetPasswordExpires = undefined;
+            await user.save();
+
+            res.json({ message: "Your password has been updated. You can now log in." });
+        } catch (error) {
+            console.error("[password reset] reset-password failed:", error.message);
+            res.status(500).json({ message: "Could not reset the password. Please try again." });
         }
     }
 );
