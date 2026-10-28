@@ -31,11 +31,68 @@
 /* Mobile menu: only rendered while open, fixed to the viewport, scrolls inside itself. */
 .sh-menu-layer { position: fixed; inset: 0; z-index: 1000; }
 .sh-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: rgba(11, 37, 64, .45); cursor: pointer; }
-.sh-menu { position: absolute; top: 0; right: 0; bottom: 0; width: min(320px, 86%); background: #fff; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
-.sh-menu nav { display: flex; flex-direction: column; }
-.sh-menu a, .sh-menu button { display: block; text-align: left; padding: 12px 8px; border: 0; background: none; border-bottom: 1px solid #eef1f5; color: #17324d; font-size: 16px; text-decoration: none; cursor: pointer; font-family: inherit; }
-.sh-menu__title { margin: 18px 8px 4px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6b7f93; }
-.sh-menu__contact { margin-top: 16px; margin-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+.sh-menu { position: absolute; top: 0; right: 0; bottom: 0; width: min(280px, 85%); background: #fff; padding: 0; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; }
+.sh-menu nav { display: flex; flex-direction: column; padding: 0 12px; }
+.sh-menu a, .sh-menu button { display: flex; align-items: center; gap: 10px; text-align: left; padding: 10px 6px; border: 0; background: none; border-bottom: 1px solid #eef1f5; color: #17324d; font-size: 14px; text-decoration: none; cursor: pointer; font-family: inherit; }
+.sh-menu a span, .sh-menu button span { flex: 1; }
+.sh-menu a svg, .sh-menu button svg { flex-shrink: 0; color: #0f5bd8; }
+.sh-menu__title { margin: 14px 6px 3px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6b7f93; padding: 0 12px; }
+.sh-menu__contact { margin-top: 12px; margin-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); padding: 0 12px; }
+
+/* Menu Header */
+.sh-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #eef1f5;
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.sh-menu-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sh-menu-logo {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+.sh-menu-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0b2540;
+}
+
+.sh-menu-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: #eef4fb;
+    border-radius: 8px;
+    color: #0f5bd8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sh-menu-close:hover {
+    background: #dbeafe;
+    transform: scale(1.05);
+}
+
+.sh-menu-close:active {
+    transform: scale(0.95);
+}
 
 @media (max-width: 960px) {
     .sh-nav { display: none; }

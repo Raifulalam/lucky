@@ -374,6 +374,41 @@
     }
 }
 
+/* Desktop override - ensure proper reset when switching from mobile */
+@media (min-width: 881px) {
+    .hero-section {
+        margin: 0 16px;
+        border-radius: 0 0 28px 28px;
+        min-height: 80vh;
+    }
+
+    .hero-mode-pill-strip {
+        display: none;
+    }
+
+    .hero-content-container {
+        padding: 64px 20px 48px;
+    }
+
+    .hero-nav-arrow {
+        display: flex;
+    }
+
+    .hero-overlay-gradient {
+        background: linear-gradient(90deg,
+                rgba(15, 23, 42, 0.94) 0%,
+                rgba(15, 23, 42, 0.82) 46%,
+                rgba(15, 23, 42, 0.42) 100%);
+    }
+
+    .wholesale-theme .hero-overlay-gradient {
+        background: linear-gradient(90deg,
+                rgba(10, 17, 34, 0.96) 0%,
+                rgba(15, 23, 42, 0.85) 50%,
+                rgba(15, 23, 42, 0.5) 100%);
+    }
+}
+
 @media (max-width: 540px) {
     .hero-section {
         min-height: 480px;

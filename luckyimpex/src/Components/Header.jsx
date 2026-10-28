@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Bell, Building2, Menu, Search, ShoppingBag, ShoppingCart, User, X } from "lucide-react";
+import { Bell, Building2, Menu, Phone, Package, Search, ShoppingBag, ShoppingCart, Store, User, Wrench, X, MessageCircle } from "lucide-react";
 import { UserContext } from "./UserContext";
 import { useNotification } from "./NotificationContext";
 import { useCartState } from "./CreateReducer";
@@ -14,11 +14,11 @@ const PHONE_HREF = "tel:+977051531789";
 const WHATSAPP_HREF = "https://wa.me/9779802594022?text=Hello%20Lucky%20Impex%2C%20I%20would%20like%20to%20enquire%20about%20a%20product.";
 
 const NAV_LINKS = [
-    { label: "Products", to: "/products" },
-    { label: "Mobiles", to: "/mobiles" },
-    { label: "Showroom", to: "/store" },
-    { label: "Service", to: "/service" },
-    { label: "Contact", to: "/contact" },
+    { label: "Products", to: "/products", icon: Package },
+    { label: "Mobiles", to: "/mobiles", icon: ShoppingBag },
+    { label: "Showroom", to: "/store", icon: Store },
+    { label: "Service", to: "/service", icon: Wrench },
+    { label: "Contact", to: "/contact", icon: MessageCircle },
 ];
 
 const CATEGORIES = [
@@ -194,25 +194,41 @@ const Header = () => {
                 <div className="sh-menu-layer">
                     <button type="button" className="sh-backdrop" aria-label="Close menu" onClick={() => setMenuOpen(false)} />
                     <aside className="sh-menu" aria-label="Menu">
+                        <div className="sh-menu-header">
+                            <div className="sh-menu-brand">
+                                <img src={luckyLogo} alt="Lucky Impex" className="sh-menu-logo" />
+                                <h2 className="sh-menu-title">Lucky Impex</h2>
+                            </div>
+                            <button
+                                type="button"
+                                className="sh-menu-close"
+                                onClick={() => setMenuOpen(false)}
+                                aria-label="Close menu"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
                         <nav>
-                            {NAV_LINKS.map((link) => (
-                                <Link key={link.to} to={link.to}>{link.label}</Link>
-                            ))}
-                            <Link to="/wholesale">Wholesale</Link>
+                            <Link to="/products"><Package size={16} /> <span>Products</span></Link>
+                            <Link to="/mobiles"><ShoppingBag size={16} /> <span>Mobiles</span></Link>
+                            <Link to="/store"><Store size={16} /> <span>Showroom</span></Link>
+                            <Link to="/service"><Wrench size={16} /> <span>Service</span></Link>
+                            <Link to="/contact"><MessageCircle size={16} /> <span>Contact</span></Link>
+                            <Link to="/wholesale"><Building2 size={16} /> <span>Wholesale</span></Link>
                         </nav>
                         <p className="sh-menu__title">Categories</p>
                         <nav>
                             {CATEGORIES.map((category) => (
-                                <Link key={category} to={`/products/${category}`}>{formatCategory(category)}</Link>
+                                <Link key={category} to={`/products/${category}`}><Package size={14} /> <span>{formatCategory(category)}</span></Link>
                             ))}
                         </nav>
                         <div className="sh-menu__contact">
-                            <a href={PHONE_HREF}>Call {PHONE_DISPLAY}</a>
-                            <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer">WhatsApp us</a>
+                            <a href={PHONE_HREF}><Phone size={16} /> <span>Call {PHONE_DISPLAY}</span></a>
+                            <a href={WHATSAPP_HREF} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} /> <span>WhatsApp us</span></a>
                             {user ? (
-                                <button type="button" onClick={handleLogout}>Log out</button>
+                                <button type="button" onClick={handleLogout}><User size={16} /> <span>Log out</span></button>
                             ) : (
-                                <Link to="/login">Sign in / Register</Link>
+                                <Link to="/login"><User size={16} /> <span>Sign in / Register</span></Link>
                             )}
                         </div>
                     </aside>
