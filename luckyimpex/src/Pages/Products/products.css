@@ -571,7 +571,7 @@ p {
     flex-direction: column;
     gap: 8px;
     flex: 1;
-    padding: 16px;
+    padding: 1px;
 }
 
 .product-name {
