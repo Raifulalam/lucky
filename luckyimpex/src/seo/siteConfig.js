@@ -15,6 +15,7 @@ export const SITE_NAME = SITE_CONFIG.name;
 export const SITE_URL = SITE_CONFIG.siteUrl;
 export const SITE_DESCRIPTION = SITE_CONFIG.description;
 export const SITE_LOGO = `${SITE_URL}${SITE_CONFIG.defaultImage}`;
+export const SITE_KEYWORDS = SITE_CONFIG.keywords || "";
 
 export const absoluteUrl = (path = "") => {
   if (!path) return SITE_URL;

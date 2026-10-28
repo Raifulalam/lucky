@@ -313,6 +313,7 @@
     .product-detail-container {
         width: min(100% - 24px, 1220px);
         padding-top: 20px;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     }
 
     .details-product-info-container,

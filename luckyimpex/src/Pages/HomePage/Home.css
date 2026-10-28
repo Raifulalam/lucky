@@ -156,6 +156,10 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .home-main {
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    }
+
     .home-faq-inner {
         padding: var(--space-6) var(--space-5);
     }

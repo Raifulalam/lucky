@@ -1,6 +1,6 @@
 {
   "name": "Lucky Impex",
-  "description": "Shop genuine electronics & home appliances at Lucky Impex, Birgunj. Official retailer & wholesale distributor in Nepal with warranty, EMI & store pickup.",
+  "description": "Lucky Impex - Best electronics shop in Birgunj, Nepal. Buy genuine home appliances, AC, refrigerator, washing machine, LED TV, kitchen appliances at wholesale prices. Official LG, Samsung, Whirlpool dealer with warranty, EMI & delivery.",
   "siteUrl": "https://luckyimpex4u.com",
   "defaultImage": "/lucky-logo.png",
   "themeColor": "#0f5bd8",
@@ -10,6 +10,7 @@
   "whatsappDisplay": "+977 9802594022",
   "googleAnalyticsId": "G-N8H0F7KBS1",
   "googleSiteVerification": "",
+  "keywords": "electronics shop birgunj, home appliances nepal, refrigerator price nepal, air conditioner birgunj, washing machine price in nepal, led tv price birgunj, wholesale electronics nepal, lg dealer birgunj, samsung electronics nepal, kitchen appliances nepal, ac shop birgunj, best electronics store birgunj, electronics near me, appliance store birgunj, lucky impex, electronics store birgunj, ac price nepal, fridge price birgunj, tv price nepal, washing machine birgunj, air cooler nepal, chest freezer nepal, kitchen chimney nepal, home theater nepal, madhesh province electronics, nepal electronics online, electronics discount birgunj, branded electronics nepal, genuine appliances nepal, warranty electronics birgunj, emi electronics nepal, home delivery appliances birgunj",
   "address": {
     "streetAddress": "Ghantaghar Link Road",
     "addressLocality": "Birgunj",
@@ -87,6 +88,22 @@
     {
       "question": "Can I browse by brand or category?",
       "answer": "Yes. Lucky Impex supports both category-led and brand-led browsing so shoppers can narrow down products faster."
+    },
+    {
+      "question": "What brands of electronics do you sell?",
+      "answer": "Lucky Impex sells LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Symphony, Bajaj and other premium brands of electronics and home appliances."
+    },
+    {
+      "question": "Do you offer EMI options for appliances?",
+      "answer": "Yes, Lucky Impex offers EMI options on eligible electronics and home appliances. Contact the store for EMI terms and conditions."
+    },
+    {
+      "question": "Are your products genuine with warranty?",
+      "answer": "Yes, all products at Lucky Impex are 100% genuine and come with manufacturer warranty. We are authorized dealers for major brands."
+    },
+    {
+      "question": "What are your store timings?",
+      "answer": "Lucky Impex is open Monday to Friday and Sunday from 10:00 AM to 8:00 PM, and Saturday from 10:00 AM to 3:00 PM."
     }
   ]
 }

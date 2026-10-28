@@ -53,11 +53,13 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--radius-md);
-    background: var(--color-primary-600);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
+    overflow: hidden;
+}
+
+.admin-brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .admin-brand-text {
@@ -376,6 +378,11 @@ button.admin-nav-link.parent-toggle {
     padding: 0 10px;
 }
 
+.sidebar-collapsed .admin-brand-logo {
+    width: 40px;
+    height: 40px;
+}
+
 .sidebar-collapsed .admin-brand-text {
     width: 0;
     opacity: 0;
@@ -413,11 +420,17 @@ button.admin-nav-link.parent-toggle {
 @media (max-width: 768px) {
     .admin-sidebar {
         width: 68px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     .admin-brand {
         justify-content: center;
         padding: 0 10px;
+    }
+
+    .admin-brand-logo {
+        width: 40px;
+        height: 40px;
     }
 
     .admin-brand-text {
@@ -451,6 +464,7 @@ button.admin-nav-link.parent-toggle {
 
     .admin-content-panel {
         padding: 16px;
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     }
 
     .admin-badge {
@@ -464,5 +478,27 @@ button.admin-nav-link.parent-toggle {
 
     .admin-store-link svg {
         font-size: 14px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+    .admin-sidebar {
+        width: 56px;
+    }
+
+    .admin-workspace {
+        width: calc(100% - 56px);
+        margin-left: 56px;
+    }
+
+    .admin-nav-link {
+        padding: 8px;
+    }
+
+    .admin-sidebar-toggle {
+        right: -12px;
+        width: 24px;
+        height: 24px;
     }
 }

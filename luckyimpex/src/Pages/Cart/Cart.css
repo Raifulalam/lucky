@@ -422,7 +422,7 @@
     .cart-main {
         width: min(100% - 24px, 1220px);
         padding-top: 20px;
-        padding-bottom: 110px;
+        padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
     }
 
     .cart-item-card {

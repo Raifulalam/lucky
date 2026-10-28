@@ -366,7 +366,7 @@
 @media (max-width: 768px) {
     .footer-hybrid {
         margin-top: 30px;
-        padding-bottom: 64px; /* Clearance for fixed MobileActionBar */
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); /* Clearance for fixed MobileActionBar with safe area */
     }
 
     .footer-main-inner {

@@ -10,7 +10,7 @@ import {
   buildReviewSchema,
   buildWebsiteSchema,
 } from "../seo/schemas";
-import { SITE_LOGO, SITE_NAME, absoluteUrl } from "../seo/siteConfig";
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_LOGO, SITE_NAME, absoluteUrl } from "../seo/siteConfig";
 
 const escapeJsonLd = (value) => JSON.stringify(value).replace(/</g, "\\u003c");
 
@@ -54,6 +54,8 @@ const PageSeo = ({
     return `${cleanTitle} | ${SITE_NAME}`;
   }, [title]);
 
+  const resolvedDescription = description || SITE_DESCRIPTION;
+  const resolvedKeywords = keywords || SITE_KEYWORDS;
   const resolvedImage = image ? (image.startsWith("http") ? image : absoluteUrl(image)) : SITE_LOGO;
   const resolvedOgType = ogType || (product ? "product" : "website");
   const robotsContent = robots || (noIndex ? "noindex,nofollow" : "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1");
@@ -96,14 +98,14 @@ const PageSeo = ({
   return (
     <Helmet>
       <title>{pageTitle}</title>
-      {description ? <meta name="description" content={description} /> : null}
-      {keywords ? <meta name="keywords" content={keywords} /> : null}
+      <meta name="description" content={resolvedDescription} />
+      <meta name="keywords" content={resolvedKeywords} />
       <meta name="author" content={author} />
       <meta name="robots" content={robotsContent} />
       <link rel="canonical" href={resolvedCanonical} />
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:title" content={pageTitle} />
-      {description ? <meta property="og:description" content={description} /> : null}
+      <meta property="og:description" content={resolvedDescription} />
       <meta property="og:type" content={resolvedOgType} />
       <meta property="og:url" content={resolvedCanonical} />
       <meta property="og:image" content={resolvedImage} />
@@ -114,7 +116,7 @@ const PageSeo = ({
       {product?.brand ? <meta property="product:brand" content={product.brand} /> : null}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={pageTitle} />
-      {description ? <meta name="twitter:description" content={description} /> : null}
+      <meta name="twitter:description" content={resolvedDescription} />
       <meta name="twitter:image" content={resolvedImage} />
       {structuredData.map((schema, index) => (
         <script

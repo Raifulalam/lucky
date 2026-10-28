@@ -14,6 +14,7 @@ import {
     FaChevronRight,
 } from "react-icons/fa";
 import { adminRoutes } from "./adminRoutes";
+import luckyLogo from "../../Images/lucky-logo.png";
 import "./AdminLayout.css";
 
 const getRouteTitle = (pathname) => {
@@ -90,7 +91,9 @@ export default function AdminLayout() {
                 {/* BRAND */}
 
                 <div className="admin-brand">
-                    <div className="admin-brand-logo">LI</div>
+                    <div className="admin-brand-logo">
+                        <img src={luckyLogo} alt="Lucky Impex" />
+                    </div>
 
                     <div className="admin-brand-text">
                         <span className="admin-kicker">Lucky Impex</span>

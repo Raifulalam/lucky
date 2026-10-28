@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
 import { Phone, ShoppingCart, Store } from "lucide-react";
@@ -15,8 +15,34 @@ const MobileActionBar = () => {
         [cart]
     );
 
+    const [isVisible, setIsVisible] = useState(false);
+    const [lastScrollY, setLastScrollY] = useState(0);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Show if scrolling up or if near the top, hide if scrolling down
+            if (currentScrollY < lastScrollY || currentScrollY < 100) {
+                setIsVisible(true);
+            } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                setIsVisible(false);
+            }
+
+            setLastScrollY(currentScrollY);
+        };
+
+        // Initial check
+        if (window.scrollY > 50) {
+            setIsVisible(true);
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [lastScrollY]);
+
     return (
-        <aside className="mobile-action-bar" aria-label="Mobile quick actions">
+        <aside className={`mobile-action-bar ${isVisible ? 'visible' : ''}`} aria-label="Mobile quick actions">
             <div className="mobile-action-bar-inner">
                 {/* 1. Call Store */}
                 <a href="tel:051531789" className="bar-action-item" aria-label="Call Store">
