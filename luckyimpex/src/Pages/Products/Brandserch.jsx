@@ -83,7 +83,7 @@ const BrandSearch = () => {
         stock: "",
     });
 
-    const placeholderImage = " ";
+    const placeholderImage = "/lucky-logo.png";
     const normalizedBrand = decodeURIComponent(brand || "").replace(/-/g, " ");
     const brandLogo = `/${normalizedBrand.toLowerCase()}.png`;
     const pageTitle = normalizedBrand ? `${normalizedBrand} Products` : "Brand Products";
@@ -503,7 +503,7 @@ const BrandSearch = () => {
                                         >
                                             <img
                                                 className="product-image"
-                                                src={getImageSrc(product.image, placeholderImage)}
+                                                src={getImageSrc(product.images[0] || [], placeholderImage)}
                                                 alt={product.name || "Product image"}
                                                 loading="lazy"
                                                 decoding="async"
