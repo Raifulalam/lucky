@@ -83,7 +83,7 @@ const BrandSearch = () => {
         stock: "",
     });
 
-    const placeholderImage = "/lucky-logo.png";
+    const placeholderImage = " ";
     const normalizedBrand = decodeURIComponent(brand || "").replace(/-/g, " ");
     const brandLogo = `/${normalizedBrand.toLowerCase()}.png`;
     const pageTitle = normalizedBrand ? `${normalizedBrand} Products` : "Brand Products";
