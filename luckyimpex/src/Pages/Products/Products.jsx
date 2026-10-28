@@ -1265,7 +1265,7 @@ if (isError) {
                                                     aria-label="Know more"
                                                 >
                                                     <Eye size={16} className="details-btn-icon" />
-                                                    <span className="details-btn-text">Know More</span>
+                                                    
                                                 </button>
                                                 <button
                                                     className="add-to-cart-button button-primary action-btn"
@@ -1281,7 +1281,7 @@ if (isError) {
                                                     ) : (
                                                         <>
                                                             <ShoppingCart size={16} className="cart-btn-icon" />
-                                                            <span className="cart-btn-text">Add to Cart</span>
+                                                            
                                                         </>
                                                     )}
                                                 </button>
