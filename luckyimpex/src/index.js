@@ -5,7 +5,6 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { HelmetProvider } from "react-helmet-async";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,18 +18,34 @@ const queryClient = new QueryClient({
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
+
+// Render without StrictMode in development to avoid double renders
+if (process.env.NODE_ENV === 'development') {
+  root.render(
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <App />
       </HelmetProvider>
     </QueryClientProvider>
-  </React.StrictMode>
-);
+  );
+} else {
+  root.render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <HelmetProvider>
+          <App />
+        </HelmetProvider>
+      </QueryClientProvider>
+    </React.StrictMode>
+  );
+}
 
-// Register the PWA service worker
-serviceWorkerRegistration.register();
+// Service worker disabled to prevent blank page issues
+// Uncomment if you want to enable PWA features after proper testing
+// import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+// if (process.env.NODE_ENV === 'production') {
+//   serviceWorkerRegistration.register();
+// }
 
 // Measure web vitals
 reportWebVitals();
