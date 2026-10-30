@@ -17,6 +17,10 @@ const jwt = require("jsonwebtoken");
 const apiRoutes = require("./Router/index");
 const hrmsRoutes = require("./hrms/routes");
 
+// Health check router (liveness + readiness)
+const healthRouter = require("./Router/health");
+const { livenessHandler } = require("./Router/health");
+
 // Models for indexes
 const Product = require("./Models/products");
 const Mobile = require("./Models/SmartPhonesModels");
@@ -173,15 +177,17 @@ app.get("/", (req, res) => {
     res.send("✅ API is running");
 });
 
-// Lightweight liveness/readiness probe for uptime monitors and host health checks.
-app.get("/healthz", (req, res) => {
-    const dbReady = mongoose.connection.readyState === 1;
-    res.status(dbReady ? 200 : 503).json({ ok: dbReady, db: dbReady ? "connected" : "connecting" });
-});
+// Liveness probe — pre-built JSON body, zero allocations, sub-millisecond.
+// Safe to call even when DB is down; purely checks the process is alive.
+app.get("/healthz", livenessHandler);
+app.get("/health", livenessHandler); // convenience alias
 
 
 app.use("/api", apiRoutes);
 app.use("/api/hrms", hrmsRoutes);
+
+// Full readiness probe — DB ping, memory, system stats (GET /api/health)
+app.use("/api/health", healthRouter);
 
 
 // -------------------- 404 HANDLER --------------------
