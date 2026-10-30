@@ -74,7 +74,7 @@ export default function EMI() {
     // Custom Mode / Calculation Inputs (40% Down Payment & 0% Interest)
     const [price, setPrice] = useState(60000);
     const [downPayment, setDownPayment] = useState(24000); // 40% Down Payment
-    const [interestRate, setInterestRate] = useState(0); // 0% Interest EMI
+    const interestRate = 0; // 0% Interest EMI
     const [tenure, setTenure] = useState(12); // Months
     const [selectedBank, setSelectedBank] = useState(BANK_PARTNERS[0].name);
 
@@ -147,8 +147,8 @@ export default function EMI() {
                     const list = Array.isArray(data.products)
                         ? data.products
                         : Array.isArray(data?.data?.mobiles)
-                        ? data.data.mobiles
-                        : [];
+                            ? data.data.mobiles
+                            : [];
                     setProducts(list);
                     if (list.length > 0) {
                         setSelectedProduct((prev) => {
@@ -569,8 +569,8 @@ Documents Status:
                     </div>
                     <h1>०% ब्याज दरमा किस्ताबन्दी (0% Interest EMI & 40% Down Payment)</h1>
                     <p className="hero-lead">
-                        Pay only 40% down payment and enjoy 0% interest monthly installments across all 
-                        genuine LED TVs, Refrigerators, ACs, Washing Machines, and Smartphones at Lucky Impex Birgunj. 
+                        Pay only 40% down payment and enjoy 0% interest monthly installments across all
+                        genuine LED TVs, Refrigerators, ACs, Washing Machines, and Smartphones at Lucky Impex Birgunj.
                         Zero hidden charges — fast 24-hour verification with applicant & guarantor citizenship!
                     </p>
 
@@ -819,7 +819,7 @@ Documents Status:
                                     </div>
                                     <div className="b-row zero-int-row">
                                         <span>Total Interest (0% Rate):</span>
-                                        <strong className="text-green">NPR 0 (0% Interest!)</strong>
+                                        <strong className="text-green">NPR {totalInterest.toLocaleString()} (0% Interest!)</strong>
                                     </div>
                                     <div className="b-row total">
                                         <span>Total Cost (Same as Cash Price):</span>
@@ -904,7 +904,7 @@ Documents Status:
                         <span className="step-badge">Step 2 & 3: Official Verification</span>
                         <h2>Submit Details & Documents to Start EMI Process</h2>
                         <p>
-                            To process your EMI application at Lucky Impex Birgunj, please provide your personal 
+                            To process your EMI application at Lucky Impex Birgunj, please provide your personal
                             information, guarantor details, and photos/citizenship copies below.
                         </p>
                     </div>
@@ -917,7 +917,7 @@ Documents Status:
                             </div>
                             <h3>तपाईंको EMI आवेदन सफलतापूर्वक पेश भयो!</h3>
                             <p className="success-sub">
-                                Application submitted successfully. Lucky Impex EMI verification team will contact 
+                                Application submitted successfully. Lucky Impex EMI verification team will contact
                                 you within 24 hours.
                             </p>
 
@@ -1402,7 +1402,7 @@ Documents Status:
                                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                                     />
                                     <span>
-                                        I certify that the information and documents provided are authentic and 
+                                        I certify that the information and documents provided are authentic and
                                         authorize Lucky Impex to contact myself and my guarantor to process this EMI inquiry.
                                     </span>
                                 </label>
@@ -1475,37 +1475,37 @@ Documents Status:
                         <div className="faq-card">
                             <h4>How does the 0% Interest EMI & 40% Down Payment work?</h4>
                             <p>
-                                You pay a standard <strong>40% down payment</strong> upfront at the time of purchase. 
-                                The remaining 60% balance is split into equal monthly installments with <strong>0% interest rate</strong> 
+                                You pay a standard <strong>40% down payment</strong> upfront at the time of purchase.
+                                The remaining 60% balance is split into equal monthly installments with <strong>0% interest rate</strong>
                                 (zero finance charges — you pay exactly the cash price divided over your chosen tenure!).
                             </p>
                         </div>
                         <div className="faq-card">
                             <h4>Who is eligible for 0% EMI at Lucky Impex?</h4>
                             <p>
-                                Any Nepali citizen above 18 years of age residing in Birgunj, Parsa, Bara, or nearby 
+                                Any Nepali citizen above 18 years of age residing in Birgunj, Parsa, Bara, or nearby
                                 districts with a steady income source (salaried, business, or remittance) and a guarantor is eligible.
                             </p>
                         </div>
                         <div className="faq-card">
                             <h4>Why is a Guarantor (जमानी) required?</h4>
                             <p>
-                                In Nepal, a guarantor ensures identity security and fast approval without requiring collateral. 
+                                In Nepal, a guarantor ensures identity security and fast approval without requiring collateral.
                                 A family member (father, mother, brother, spouse) can easily act as guarantor.
                             </p>
                         </div>
                         <div className="faq-card">
                             <h4>How fast will my application be approved?</h4>
                             <p>
-                                After submitting your online details and documents, our EMI desk calls you within 24 business hours. 
+                                After submitting your online details and documents, our EMI desk calls you within 24 business hours.
                                 Most applications are finalized the same day!
                             </p>
                         </div>
                         <div className="faq-card">
                             <h4>Can I visit the store to submit documents?</h4>
                             <p>
-                                Yes! You can bring your citizenship and photo directly to our showroom at 
-                                <strong> Ghantaghar Link Road, Birgunj</strong> or contact us via WhatsApp at 
+                                Yes! You can bring your citizenship and photo directly to our showroom at
+                                <strong> Ghantaghar Link Road, Birgunj</strong> or contact us via WhatsApp at
                                 <strong> +977 9802594022</strong>.
                             </p>
                         </div>
