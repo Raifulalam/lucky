@@ -39,15 +39,19 @@
 }
 </script>
   <link rel="canonical" href="https://luckyimpex4u.com/" />
-  <!-- Favicon -->
-  <link rel="icon" href="%PUBLIC_URL%/lucky-logo.png" sizes="32x32" type="image/png" />
+  <!-- Favicon — multiple sizes so Google picks the right one -->
+  <link rel="icon" href="%PUBLIC_URL%/icons/icon-192.png" sizes="192x192" type="image/png" />
+  <link rel="icon" href="%PUBLIC_URL%/icons/icon-512.png" sizes="512x512" type="image/png" />
+  <link rel="icon" href="%PUBLIC_URL%/lucky-logo.png" type="image/png" />
 
-  <link rel="apple-touch-icon" href="%PUBLIC_URL%/lucky-logo.png" />
+  <!-- Apple home-screen icon -->
+  <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/icons/icon-192.png" />
 
+  <!-- PWA manifest -->
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
   <!-- Preload logo so splash appears immediately -->
-  <link rel="preload" as="image" href="%PUBLIC_URL%/lucky-logo.png" type="image/png" fetchpriority="high" />
+  <link rel="preload" as="image" href="%PUBLIC_URL%/icons/icon-512.png" type="image/png" fetchpriority="high" />
 
   <!-- ========================= -->
   <!-- PREMIUM SPLASH CSS -->
