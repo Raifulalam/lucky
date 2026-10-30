@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import "./Reviews.css";
 
@@ -9,6 +8,7 @@ import PageSeo from "../../Components/PageSeo";
 import GoogleReviews from "../../Components/GoogleReviews"
 
 import { BASE_URL } from "../../api/api";
+import { buildAggregateRatingSchema } from "../../seo/schemas";
 
 
 const Reviews = () => {
@@ -253,6 +253,18 @@ const Reviews = () => {
 
     /**
      * =====================================================
+     * AGGREGATE RATING SCHEMA (for Google rich snippets)
+     * Recomputed only when reviews list changes.
+     * =====================================================
+     */
+    const aggregateRatingSchema = useMemo(
+        () => buildAggregateRatingSchema(reviews),
+        [reviews]
+    );
+
+
+    /**
+     * =====================================================
      * RENDER STARS
      * =====================================================
      */
@@ -308,8 +320,10 @@ const Reviews = () => {
         <>
             <PageSeo
                 title="Customer Reviews | Lucky Impex"
-                description="Read customer reviews and share your experience with Lucky Impex."
+                description="Read customer reviews and share your experience with Lucky Impex. See star ratings, verified customer experiences and honest feedback."
                 canonicalPath="/reviews"
+                localBusiness
+                schemas={aggregateRatingSchema ? [aggregateRatingSchema] : []}
                 breadcrumbs={[
                     {
                         label: "Home",
