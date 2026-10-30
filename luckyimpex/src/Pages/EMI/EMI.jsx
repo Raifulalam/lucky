@@ -6,6 +6,7 @@ import Header from "../../Components/Header";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import PageSeo from "../../Components/PageSeo";
 import Footer from "../../Components/Footer";
+import { buildEmiServiceSchema } from "../../seo/schemas";
 import {
     ArrowRight,
     CheckCircle2,
@@ -49,14 +50,14 @@ const CATEGORY_MAP = [
 
 // Finance Partners in Nepal
 const BANK_PARTNERS = [
-    { name: "Lucky Impex Direct In-House EMI", type: "Store Direct Installment", note: "Fastest Approval" },
+    { name: "Lucky Impex Direct In-House EMI", type: "0% Interest Store Installment", note: "40% Down Payment" },
     { name: "Nabil Bank", type: "Credit Card / Personal EMI", note: "0% Available*" },
-    { name: "Global IME Bank", type: "Credit Card EMI", note: "Flexible Tenure" },
-    { name: "NIC Asia Bank", type: "Card / Consumer Financing", note: "Quick Verification" },
-    { name: "Himalayan Bank", type: "Credit Card Installment", note: "Authorized Partner" },
-    { name: "Sanima Bank", type: "Credit Card EMI", note: "Competitive Rate" },
-    { name: "Everest Bank", type: "Consumer Loan / Card", note: "Easy Process" },
-    { name: "Prabhu Bank", type: "Consumer Financing", note: "Special Offer" }
+    { name: "Global IME Bank", type: "Credit Card EMI", note: "0% Available*" },
+    { name: "NIC Asia Bank", type: "Card / Consumer Financing", note: "0% Available*" },
+    { name: "Himalayan Bank", type: "Credit Card Installment", note: "0% Available*" },
+    { name: "Sanima Bank", type: "Credit Card EMI", note: "0% Available*" },
+    { name: "Everest Bank", type: "Consumer Loan / Card", note: "0% Available*" },
+    { name: "Prabhu Bank", type: "Consumer Financing", note: "0% Available*" }
 ];
 
 const TENURE_OPTIONS = [3, 6, 9, 12, 18, 24];
@@ -75,18 +76,18 @@ export default function EMI() {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Custom Mode / Calculation Inputs
-    const [price, setPrice] = useState(65000);
-    const [downPayment, setDownPayment] = useState(15000);
-    const [interestRate, setInterestRate] = useState(12); // Annual Rate (%)
+    // Custom Mode / Calculation Inputs (40% Down Payment & 0% Interest)
+    const [price, setPrice] = useState(60000);
+    const [downPayment, setDownPayment] = useState(24000); // 40% Down Payment
+    const [interestRate, setInterestRate] = useState(0); // 0% Interest EMI
     const [tenure, setTenure] = useState(12); // Months
     const [selectedBank, setSelectedBank] = useState(BANK_PARTNERS[0].name);
 
     // Derived Financial Metrics
-    const [loanAmount, setLoanAmount] = useState(50000);
-    const [monthlyEmi, setMonthlyEmi] = useState(0);
+    const [loanAmount, setLoanAmount] = useState(36000);
+    const [monthlyEmi, setMonthlyEmi] = useState(3000);
     const [totalInterest, setTotalInterest] = useState(0);
-    const [totalAmount, setTotalAmount] = useState(0);
+    const [totalAmount, setTotalAmount] = useState(60000);
 
     // Amortization schedule toggle
     const [showAmortization, setShowAmortization] = useState(false);
@@ -173,8 +174,8 @@ export default function EMI() {
         setSelectedProduct(product);
         const pPrice = Number(product.price || product.mrp || 45000);
         setPrice(pPrice);
-        // Default down payment to 20%
-        const dp = Math.round(pPrice * 0.2);
+        // Default down payment to 40%
+        const dp = Math.round(pPrice * 0.4);
         setDownPayment(dp);
     };
 
@@ -225,7 +226,7 @@ export default function EMI() {
         if (val < 0) return;
         setPrice(val);
         if (downPayment > val) {
-            setDownPayment(Math.round(val * 0.2));
+            setDownPayment(Math.round(val * 0.4));
         }
     };
 
@@ -327,12 +328,13 @@ export default function EMI() {
         if (documents.guarantorPhoto) docsList.push("Guarantor Photo");
         if (documents.guarantorCitizenshipFront) docsList.push("Guarantor Citizenship");
 
-        const message = `*नमस्ते Lucky Impex! म EMI मा सामान लिन चाहन्छु:*
+        const message = `*नमस्ते Lucky Impex! म ०% ब्याज (0% Interest) EMI मा सामान लिन चाहन्छु:*
 ━━━━━━━━━━━━━━━━━━━━━
 🛒 *उत्पादन (Product):* ${prodName}
 💰 *मूल्य (Price):* NPR ${price.toLocaleString()}
-💳 *Down Payment:* NPR ${downPayment.toLocaleString()}
+💳 *Down Payment (40%):* NPR ${downPayment.toLocaleString()}
 📊 *ऋण रकम (Loan Amount):* NPR ${loanAmount.toLocaleString()}
+📈 *ब्याज दर (Interest Rate):* 0% (Zero Interest Scheme)
 ⏱️ *किस्ता अवधि (Tenure):* ${tenure} Months (@ NPR ${monthlyEmi.toLocaleString()}/month)
 🏦 *Preferred Bank / Plan:* ${selectedBank}
 
@@ -350,7 +352,7 @@ export default function EMI() {
 
 📂 *कागजात स्थिति (Documents):* ${docsList.length > 0 ? docsList.join(", ") : "कागजात तयार छ"}
 ━━━━━━━━━━━━━━━━━━━━━
-कृपया मेरो EMI प्रक्रिया सुरु गर्न मलाई सम्पर्क गर्नुहोला। धन्यवाद!`;
+कृपया मेरो 0% EMI प्रक्रिया सुरु गर्न मलाई सम्पर्क गर्नुहोला। धन्यवाद!`;
 
         return `https://wa.me/9779802594022?text=${encodeURIComponent(message)}`;
     };
@@ -534,13 +536,14 @@ Documents Status:
     return (
         <>
             <PageSeo
-                title="Easy EMI Service in Birgunj, Nepal | Lucky Impex"
-                description="Get home appliances, LED TVs, refrigerators, air conditioners & smartphones on 0% downpayment or easy monthly EMI at Lucky Impex, Birgunj. Apply online with applicant & guarantor documents."
+                title="0% Interest EMI with 40% Down Payment in Birgunj | Lucky Impex"
+                description="Buy genuine home appliances, LED TVs, refrigerators, air conditioners & smartphones with 0% interest EMI and 40% down payment at Lucky Impex, Birgunj. Fast 24-hour approval with applicant & guarantor citizenship."
                 canonicalPath="/emi"
                 localBusiness
+                schemas={[buildEmiServiceSchema()]}
                 breadcrumbs={[
                     { label: "Home", to: "/" },
-                    { label: "EMI Financing" },
+                    { label: "0% EMI Facility" },
                 ]}
             />
 
@@ -550,7 +553,7 @@ Documents Status:
                 <Breadcrumbs
                     items={[
                         { label: "Home", to: "/" },
-                        { label: "EMI Financing Facility" },
+                        { label: "0% EMI Financing (किस्ताबन्दी)" },
                     ]}
                 />
 
@@ -558,31 +561,31 @@ Documents Status:
                 <div className="emi-hero-banner">
                     <div className="hero-pill-tag">
                         <ShieldCheck size={16} />
-                        <span>Authorized Electronics Store EMI • Birgunj, Nepal</span>
+                        <span>0% Interest EMI • 40% Down Payment • Birgunj, Nepal</span>
                     </div>
-                    <h1>किस्ताबन्दी (EMI) सुविधा — Lucky Impex</h1>
+                    <h1>०% ब्याज दरमा किस्ताबन्दी (0% Interest EMI & 40% Down Payment)</h1>
                     <p className="hero-lead">
-                        Buy your dream LED TV, Refrigerator, AC, Washing Machine, or Smartphone with 
-                        affordable monthly installments. Submit applicant & guarantor details online 
-                        to start your verification immediately!
+                        Pay only 40% down payment and enjoy 0% interest monthly installments across all 
+                        genuine LED TVs, Refrigerators, ACs, Washing Machines, and Smartphones at Lucky Impex Birgunj. 
+                        Zero hidden charges — fast 24-hour verification with applicant & guarantor citizenship!
                     </p>
 
                     <div className="hero-perks-row">
                         <div className="perk-chip">
                             <CheckCircle2 size={18} className="perk-icon" />
-                            <span><strong>Fast 24h Approval</strong> (छिटो प्रमाणीकरण)</span>
+                            <span><strong>0% Interest Rate</strong> (०% ब्याज किस्ता)</span>
                         </div>
                         <div className="perk-chip">
                             <CheckCircle2 size={18} className="perk-icon" />
-                            <span><strong>Low or 0% Downpayment*</strong></span>
+                            <span><strong>40% Easy Down Payment</strong> (४०% डाउनपेमेन्ट)</span>
                         </div>
                         <div className="perk-chip">
                             <CheckCircle2 size={18} className="perk-icon" />
-                            <span><strong>Bank & In-House Store EMI</strong></span>
+                            <span><strong>Fast 24h Approval with Jamani</strong></span>
                         </div>
                         <div className="perk-chip">
                             <CheckCircle2 size={18} className="perk-icon" />
-                            <span><strong>Doorstep Delivery in Birgunj</strong></span>
+                            <span><strong>Free Delivery across Birgunj</strong></span>
                         </div>
                     </div>
                 </div>
@@ -715,8 +718,20 @@ Documents Status:
                             <div className="sliders-section">
                                 <div className="slider-item">
                                     <div className="slider-label-row">
-                                        <label>Down Payment (अग्रिम भुक्तानी)</label>
+                                        <label>Down Payment (अग्रिम भुक्तानी - 40% Standard)</label>
                                         <span className="slider-highlight">NPR {downPayment.toLocaleString()} ({price > 0 ? Math.round((downPayment / price) * 100) : 0}%)</span>
+                                    </div>
+                                    <div className="dp-quick-pills">
+                                        {[40, 50, 60, 70].map((pct) => (
+                                            <button
+                                                key={pct}
+                                                type="button"
+                                                className={`dp-pill ${price > 0 && Math.round((downPayment / price) * 100) === pct ? "active" : ""}`}
+                                                onClick={() => setDownPayment(Math.round(price * (pct / 100)))}
+                                            >
+                                                {pct}% {pct === 40 ? "(Standard)" : ""}
+                                            </button>
+                                        ))}
                                     </div>
                                     <input
                                         type="range"
@@ -728,7 +743,8 @@ Documents Status:
                                         className="styled-range"
                                     />
                                     <div className="range-bounds">
-                                        <span>NPR 0 (0% Down)</span>
+                                        <span>Min: NPR 0</span>
+                                        <span className="text-blue">Standard 40%: NPR {Math.round(price * 0.4).toLocaleString()}</span>
                                         <span>Max: NPR {Math.round(price * 0.9).toLocaleString()}</span>
                                     </div>
                                 </div>
@@ -754,22 +770,12 @@ Documents Status:
 
                                 <div className="slider-item">
                                     <div className="slider-label-row">
-                                        <label>Interest Rate (% P.A.)</label>
-                                        <span className="slider-highlight">{interestRate}%</span>
+                                        <label>Interest Rate (ब्याज दर)</label>
+                                        <span className="slider-highlight highlight-zero">0% Interest (०% ब्याज)</span>
                                     </div>
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="20"
-                                        step="0.5"
-                                        value={interestRate}
-                                        onChange={(e) => setInterestRate(Number(e.target.value))}
-                                        className="styled-range"
-                                    />
-                                    <div className="range-bounds">
-                                        <span>0% (No Cost EMI*)</span>
-                                        <span>12% Standard</span>
-                                        <span>20% Max</span>
+                                    <div className="zero-interest-callout">
+                                        <Sparkles size={16} className="text-green" />
+                                        <span>Lucky Impex Promo: <strong>0% Interest Rate</strong> on 40% down payment — Zero extra cost!</span>
                                     </div>
                                 </div>
                             </div>
@@ -778,37 +784,41 @@ Documents Status:
                         {/* Right column: Summary Card */}
                         <div className="calc-summary-col">
                             <div className="summary-glass-card">
+                                <div className="zero-rate-top-badge">
+                                    <Sparkles size={14} />
+                                    <span>0% INTEREST SCHEME APPLIED</span>
+                                </div>
                                 <div className="emi-result-top">
-                                    <span className="emi-result-label">Estimated Monthly Installment</span>
+                                    <span className="emi-result-label">Monthly Installment (0% Interest)</span>
                                     <div className="emi-amount-display">
                                         <span className="npr-sign">NPR</span>
                                         <span className="huge-number">{monthlyEmi.toLocaleString()}</span>
                                         <span className="per-month">/ Month</span>
                                     </div>
                                     <p className="emi-clarity-note">
-                                        Payable over <strong>{tenure} months</strong> for <strong>{selectedProduct ? selectedProduct.name : "Selected Appliance"}</strong>
+                                        Equal installments over <strong>{tenure} months</strong> with <strong>0% interest</strong>
                                     </p>
                                 </div>
 
                                 <div className="breakdown-list">
                                     <div className="b-row">
-                                        <span>Total Product Price:</span>
+                                        <span>Product Price:</span>
                                         <strong>NPR {price.toLocaleString()}</strong>
                                     </div>
                                     <div className="b-row">
-                                        <span>Down Payment:</span>
+                                        <span>Down Payment (40%):</span>
                                         <strong className="text-green">- NPR {downPayment.toLocaleString()}</strong>
                                     </div>
                                     <div className="b-row highlight">
-                                        <span>Net Loan Principal:</span>
+                                        <span>Loan Balance (60%):</span>
                                         <strong>NPR {loanAmount.toLocaleString()}</strong>
                                     </div>
-                                    <div className="b-row">
-                                        <span>Total Interest ({interestRate}%):</span>
-                                        <span>NPR {totalInterest.toLocaleString()}</span>
+                                    <div className="b-row zero-int-row">
+                                        <span>Total Interest (0% Rate):</span>
+                                        <strong className="text-green">NPR 0 (0% Interest!)</strong>
                                     </div>
                                     <div className="b-row total">
-                                        <span>Total Cost (Product + Interest):</span>
+                                        <span>Total Cost (Same as Cash Price):</span>
                                         <strong>NPR {totalAmount.toLocaleString()}</strong>
                                     </div>
                                 </div>
@@ -1459,7 +1469,15 @@ Documents Status:
                     <h3>Frequently Asked Questions on EMI (प्राय: सोधिने प्रश्नहरू)</h3>
                     <div className="faq-grid">
                         <div className="faq-card">
-                            <h4>Who is eligible for EMI at Lucky Impex?</h4>
+                            <h4>How does the 0% Interest EMI & 40% Down Payment work?</h4>
+                            <p>
+                                You pay a standard <strong>40% down payment</strong> upfront at the time of purchase. 
+                                The remaining 60% balance is split into equal monthly installments with <strong>0% interest rate</strong> 
+                                (zero finance charges — you pay exactly the cash price divided over your chosen tenure!).
+                            </p>
+                        </div>
+                        <div className="faq-card">
+                            <h4>Who is eligible for 0% EMI at Lucky Impex?</h4>
                             <p>
                                 Any Nepali citizen above 18 years of age residing in Birgunj, Parsa, Bara, or nearby 
                                 districts with a steady income source (salaried, business, or remittance) and a guarantor is eligible.

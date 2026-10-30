@@ -271,3 +271,35 @@ export const buildAggregateRatingSchema = (reviews = [], avgRating = null) => {
   };
 };
 
+/**
+ * buildEmiServiceSchema
+ *
+ * Rich schema for Google Search highlighting 0% Interest EMI & 40% Down Payment
+ */
+export const buildEmiServiceSchema = () => ({
+  "@context": "https://schema.org",
+  "@type": "FinancialProduct",
+  "@id": createId("emi-service"),
+  name: "Lucky Impex 0% Interest EMI Facility (किस्ताबन्दी सुविधा)",
+  alternateName: "0% Interest EMI with 40% Down Payment Birgunj Nepal",
+  description: "0% interest rate EMI facility with 40% down payment on electronics, home appliances, LED TVs, refrigerators, air conditioners, and smartphones at Lucky Impex, Birgunj, Nepal.",
+  url: `${SITE_URL}/emi`,
+  provider: {
+    "@type": "ElectronicsStore",
+    "@id": createId("localbusiness"),
+    name: SITE_NAME,
+    telephone: SITE_CONFIG.phone,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: SITE_CONFIG.address.streetAddress,
+      addressLocality: SITE_CONFIG.address.addressLocality,
+      addressRegion: SITE_CONFIG.address.addressRegion,
+      postalCode: SITE_CONFIG.address.postalCode,
+      addressCountry: SITE_CONFIG.address.addressCountry,
+    },
+  },
+  annualPercentageRate: 0,
+  interestRate: 0,
+  feesAndCommissionsSpecification: "0% interest financing with 40% down payment. Equal monthly installments for 3, 6, 9, 12, 18, or 24 months.",
+});
+

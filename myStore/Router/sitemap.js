@@ -42,7 +42,7 @@ const STATIC_PAGES = [
   { path: "/review",                       priority: "0.8", changefreq: "weekly"  },
   { path: "/reviews",                      priority: "0.8", changefreq: "weekly"  },
   { path: "/wholesale",                    priority: "0.7", changefreq: "monthly" },
-  { path: "/emi",                          priority: "0.7", changefreq: "monthly" },
+  { path: "/emi",                          priority: "0.9", changefreq: "daily"   },
   { path: "/exchange",                     priority: "0.7", changefreq: "monthly" },
 
   // Products — listing & categories
