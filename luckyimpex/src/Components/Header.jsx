@@ -16,7 +16,7 @@ const WHATSAPP_HREF = "https://wa.me/9779802594022?text=Hello%20Lucky%20Impex%2C
 const NAV_LINKS = [
     { label: "Products", to: "/products", icon: Package },
     { label: "Mobiles", to: "/mobiles", icon: ShoppingBag },
-    { label: "EMI Facility", to: "/emi", icon: CreditCard },
+    { label: "EMI", to: "/emi", icon: CreditCard },
     { label: "Showroom", to: "/store", icon: Store },
     { label: "Service", to: "/service", icon: Wrench },
     { label: "Contact", to: "/contact", icon: MessageCircle },
@@ -135,16 +135,16 @@ const Header = () => {
                     <div className="sh-actions">
                         {/* The retail/wholesale switch only has an effect on the homepage, where its provider lives. */}
                         {location.pathname === "/" && (
-                        <button
-                            type="button"
-                            className={`sh-mode ${isWholesale ? "is-wholesale" : ""}`}
-                            onClick={toggleMode}
-                            aria-pressed={isWholesale}
-                            title="Switch between retail and wholesale view"
-                        >
-                            {isWholesale ? <Building2 size={15} /> : <ShoppingBag size={15} />}
-                            <span>{isWholesale ? "Wholesale" : "Retail"}</span>
-                        </button>
+                            <button
+                                type="button"
+                                className={`sh-mode ${isWholesale ? "is-wholesale" : ""}`}
+                                onClick={toggleMode}
+                                aria-pressed={isWholesale}
+                                title="Switch between retail and wholesale view"
+                            >
+                                {isWholesale ? <Building2 size={15} /> : <ShoppingBag size={15} />}
+                                <span>{isWholesale ? "Wholesale" : "Retail"}</span>
+                            </button>
                         )}
 
                         {user && (
