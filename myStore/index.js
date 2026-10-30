@@ -21,6 +21,10 @@ const hrmsRoutes = require("./hrms/routes");
 const healthRouter = require("./Router/health");
 const { livenessHandler } = require("./Router/health");
 
+// Dynamic sitemap (includes all products from MongoDB)
+const sitemapRouter = require("./Router/sitemap");
+
+
 // Models for indexes
 const Product = require("./Models/products");
 const Mobile = require("./Models/SmartPhonesModels");
@@ -161,6 +165,10 @@ app.use("/api", globalRateLimiter);
 // WhatsApp admin endpoints (each route enforces auth + admin role)
 app.use("/api/whatsapp", whatsaapRoutes);
 
+// ── Dynamic sitemap — MUST come before express.static so Express handles it ──
+// Serves /sitemap.xml with all products fetched live from MongoDB.
+app.use("/", sitemapRouter);
+
 // -------------------- STATIC FILES --------------------
 
 app.use(
@@ -170,6 +178,7 @@ app.use(
         immutable: true,
     })
 );
+
 
 // -------------------- ROUTES --------------------
 

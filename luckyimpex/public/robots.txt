@@ -1,4 +1,6 @@
 User-agent: *
+
+# Private / authenticated pages — keep out of index
 Disallow: /cart
 Disallow: /profile
 Disallow: /orderpage
@@ -6,6 +8,8 @@ Disallow: /login
 Disallow: /forgot-password
 Disallow: /reset-password/
 Disallow: /signup
+
+# Admin & internal tools
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /admindashboard
@@ -15,7 +19,10 @@ Disallow: /employee-manage
 Disallow: /feedback
 Disallow: /complaints
 Disallow: /orders
-Disallow: /review/
-Disallow: /productdetails/
 
+# ✅ /productdetails/ is ALLOWED — these are important product pages for SEO
+# ✅ /reviews is ALLOWED — needed for Google review rich snippets
+
+# Sitemap
 Sitemap: https://luckyimpex4u.com/sitemap.xml
+Sitemap: https://luckyimpex4u.com/sitemap-index.xml
