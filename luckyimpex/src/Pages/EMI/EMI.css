@@ -170,6 +170,7 @@
     grid-template-columns: 1.35fr 1fr;
     gap: 32px;
     padding: 30px;
+    overflow: scroll;
 }
 
 @media (max-width: 968px) {
