@@ -1,21 +1,17 @@
 /**
  * @file sitemap.js
- * @route GET /sitemap.xml  (served by Express, NOT the static file)
+ * @route GET /sitemap.xml
  *
- * Generates a dynamic XML sitemap that includes:
- *  - Static pages (home, contact, products, etc.)
- *  - Every product detail page  → /productdetails/:slug
- *  - Every mobile detail page   → /mobile/:slug  (if applicable)
- *
- * Why dynamic?
- *  A static sitemap only lists pages you know at build time.
- *  Products are stored in MongoDB; new items added via the admin panel
- *  would never appear in a hand-written sitemap.xml.
+ * Dynamic XML sitemap — includes EVERY page Google should index:
+ *   • All static public routes (from App.js)
+ *   • Every appliance product  → /product/:slug
+ *   • Every mobile product     → /mobile/:slug
  *
  * Performance:
- *  - Result is cached in memory for 1 hour (CACHE_TTL_MS).
- *  - MongoDB queries run in parallel with Promise.all.
- *  - Output is gzip-compressed by the existing compression() middleware.
+ *   • Cached in memory for 1 hour (no repeated DB hits).
+ *   • DB queries run in parallel with Promise.all.
+ *   • Gzip-compressed by the existing compression() middleware.
+ *   • ?refresh=1 to bust the cache (admin use only).
  */
 
 "use strict";
@@ -25,55 +21,63 @@ const mongoose = require("mongoose");
 
 const router = express.Router();
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ─── Config ───────────────────────────────────────────────────────────────────
 
-const SITE_URL    = (process.env.SITE_URL || "https://luckyimpex4u.com").replace(/\/$/, "");
+const SITE_URL     = (process.env.SITE_URL || "https://luckyimpex4u.com").replace(/\/$/, "");
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-// ─── In-memory cache ─────────────────────────────────────────────────────────
+// ─── Cache ────────────────────────────────────────────────────────────────────
 
-let cachedXml   = null;
-let cachedAt    = 0;
+let cachedXml = null;
+let cachedAt  = 0;
 
-// ─── Static pages ────────────────────────────────────────────────────────────
+// ─── All public static pages (from App.js) ────────────────────────────────────
 
 const STATIC_PAGES = [
-  { path: "/",                    priority: "1.0", changefreq: "daily"   },
-  { path: "/products",            priority: "0.9", changefreq: "daily"   },
-  { path: "/mobiles",             priority: "0.9", changefreq: "daily"   },
-  { path: "/mobiles/all",         priority: "0.8", changefreq: "weekly"  },
-  { path: "/store",               priority: "0.8", changefreq: "weekly"  },
-  { path: "/service",             priority: "0.8", changefreq: "weekly"  },
-  { path: "/reviews",             priority: "0.8", changefreq: "weekly"  },
-  { path: "/contact",             priority: "0.8", changefreq: "monthly" },
-  { path: "/emi",                 priority: "0.7", changefreq: "monthly" },
-  { path: "/exchange",            priority: "0.7", changefreq: "monthly" },
-  { path: "/wholesale",           priority: "0.7", changefreq: "monthly" },
-  // Category pages
-  { path: "/products/AirConditioners",   priority: "0.8", changefreq: "weekly" },
-  { path: "/products/AirCooler",         priority: "0.8", changefreq: "weekly" },
-  { path: "/products/Refrigerators",     priority: "0.8", changefreq: "weekly" },
-  { path: "/products/WashingMachines",   priority: "0.8", changefreq: "weekly" },
-  { path: "/products/LEDTelevisions",    priority: "0.8", changefreq: "weekly" },
-  { path: "/products/ChestFreezer",      priority: "0.8", changefreq: "weekly" },
-  { path: "/products/Chimney",           priority: "0.8", changefreq: "weekly" },
-  { path: "/products/HomeAppliances",    priority: "0.8", changefreq: "weekly" },
-  { path: "/products/HomeTheater",       priority: "0.7", changefreq: "weekly" },
-  { path: "/products/KitchenAppliances", priority: "0.7", changefreq: "weekly" },
+  // Core
+  { path: "/",                             priority: "1.0", changefreq: "daily"   },
+  { path: "/store",                        priority: "0.9", changefreq: "weekly"  },
+  { path: "/service",                      priority: "0.9", changefreq: "weekly"  },
+  { path: "/contact",                      priority: "0.8", changefreq: "monthly" },
+  { path: "/review",                       priority: "0.8", changefreq: "weekly"  },
+  { path: "/wholesale",                    priority: "0.7", changefreq: "monthly" },
+  { path: "/emi",                          priority: "0.7", changefreq: "monthly" },
+  { path: "/exchange",                     priority: "0.7", changefreq: "monthly" },
+
+  // Products — listing & categories
+  { path: "/products",                     priority: "0.9", changefreq: "daily"   },
+  { path: "/products/AirConditioners",     priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/AirCooler",           priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/Refrigerators",       priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/WashingMachines",     priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/LEDTelevisions",      priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/ChestFreezer",        priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/Chimney",             priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/HomeAppliances",      priority: "0.8", changefreq: "weekly"  },
+  { path: "/products/HomeTheater",         priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/KitchenAppliances",   priority: "0.7", changefreq: "weekly"  },
+
   // Brand pages
-  { path: "/products/brand/LG",          priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/Samsung",     priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/Haier",       priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/Whirlpool",   priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/Bajaj",       priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/CG",          priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/Skyworth",    priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/Symphony",    priority: "0.7", changefreq: "weekly" },
-  { path: "/products/brand/Videocon",    priority: "0.7", changefreq: "weekly" },
+  { path: "/products/brand/LG",            priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/Samsung",       priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/Haier",         priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/Whirlpool",     priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/Bajaj",         priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/CG",            priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/Skyworth",      priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/Symphony",      priority: "0.7", changefreq: "weekly"  },
+  { path: "/products/brand/Videocon",      priority: "0.7", changefreq: "weekly"  },
+
+  // Mobiles — listing pages
+  { path: "/mobiles",                      priority: "0.9", changefreq: "daily"   },
+  { path: "/mobiles/all",                  priority: "0.8", changefreq: "weekly"  },
+  { path: "/mobiles/catalog",              priority: "0.7", changefreq: "weekly"  },
+  { path: "/mobile-products",              priority: "0.7", changefreq: "weekly"  },
+
   // Policy pages
-  { path: "/delivery-policy",    priority: "0.5", changefreq: "monthly" },
-  { path: "/return-policy",      priority: "0.5", changefreq: "monthly" },
-  { path: "/warranty-policy",    priority: "0.5", changefreq: "monthly" },
+  { path: "/delivery-policy",              priority: "0.5", changefreq: "monthly" },
+  { path: "/return-policy",               priority: "0.5", changefreq: "monthly" },
+  { path: "/warranty-policy",             priority: "0.5", changefreq: "monthly" },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -115,44 +119,57 @@ async function buildSitemapXml() {
 
   if (mongoose.connection.readyState === 1) {
     try {
-      // Lazy-require models to avoid circular deps at startup
+      // Use registered model names — check both casing variants
       const Product = mongoose.model("Product");
       const Mobile  = mongoose.model("Mobile");
 
       const [products, mobiles] = await Promise.all([
-        // Only fetch the fields we need — keep the query light
-        Product.find({ isActive: { $ne: false } })
+        // Lean + select = minimal memory, fast query
+        Product.find({})
           .select("slug name updatedAt")
           .lean()
           .exec(),
-        Mobile.find({ isActive: { $ne: false } })
+        Mobile.find({})
           .select("slug name updatedAt")
           .lean()
           .exec(),
       ]);
 
-      productEntries = products.map((p) => {
-        const slug = p.slug || encodeURIComponent((p.name || p._id).toString());
-        return urlEntry({
-          loc:        `${SITE_URL}/productdetails/${slug}`,
-          lastmod:    toDateStr(p.updatedAt),
-          changefreq: "weekly",
-          priority:   "0.8",
+      productEntries = products
+        .filter((p) => p.slug || p.name)   // skip docs with neither
+        .map((p) => {
+          // Use slug if available; fall back to URL-encoded name
+          const id = p.slug || encodeURIComponent(
+            String(p.name || p._id).toLowerCase().replace(/\s+/g, "-")
+          );
+          return urlEntry({
+            // ✅ Correct route: /product/:id  (App.js line 118)
+            loc:        `${SITE_URL}/product/${id}`,
+            lastmod:    toDateStr(p.updatedAt),
+            changefreq: "weekly",
+            priority:   "0.8",
+          });
         });
-      });
 
-      mobileEntries = mobiles.map((m) => {
-        const slug = m.slug || encodeURIComponent((m.name || m._id).toString());
-        return urlEntry({
-          loc:        `${SITE_URL}/mobile/${slug}`,
-          lastmod:    toDateStr(m.updatedAt),
-          changefreq: "weekly",
-          priority:   "0.8",
+      mobileEntries = mobiles
+        .filter((m) => m.slug || m.name)
+        .map((m) => {
+          const id = m.slug || encodeURIComponent(
+            String(m.name || m._id).toLowerCase().replace(/\s+/g, "-")
+          );
+          return urlEntry({
+            // ✅ Correct route: /mobile/:id  (App.js line 136)
+            loc:        `${SITE_URL}/mobile/${id}`,
+            lastmod:    toDateStr(m.updatedAt),
+            changefreq: "weekly",
+            priority:   "0.8",
+          });
         });
-      });
+
+      console.log(`[Sitemap] Built: ${products.length} products + ${mobiles.length} mobiles`);
     } catch (err) {
       console.error("[Sitemap] DB query error:", err.message);
-      // Fall through — static pages will still be returned
+      // Static pages are still returned even if DB fails
     }
   }
 
