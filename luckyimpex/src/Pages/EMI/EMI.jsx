@@ -22,14 +22,9 @@ import {
     FileText,
     Camera,
     ShieldCheck,
-    Phone,
-    MapPin,
     Briefcase,
-    Calendar,
-    AlertCircle,
     X,
     MessageCircle,
-    HelpCircle,
     Calculator,
     ChevronDown,
     ChevronUp,
@@ -155,8 +150,17 @@ export default function EMI() {
                         ? data.data.mobiles
                         : [];
                     setProducts(list);
-                    if (list.length > 0 && !selectedProduct) {
-                        handleProductSelect(list[0]);
+                    if (list.length > 0) {
+                        setSelectedProduct((prev) => {
+                            if (!prev) {
+                                const first = list[0];
+                                const pPrice = Number(first.price || first.mrp || 45000);
+                                setPrice(pPrice);
+                                setDownPayment(Math.round(pPrice * 0.4));
+                                return first;
+                            }
+                            return prev;
+                        });
                     }
                 }
             } catch (err) {
@@ -1307,7 +1311,7 @@ Documents Status:
                                             <span className="doc-label">1. Guarantor Passport Photo (जमानीको फोटो)</span>
                                             {documents.guarantorPhoto ? (
                                                 <div className="doc-preview-box">
-                                                    <img src={documents.guarantorPhoto.dataUrl} alt="Guarantor Photo" />
+                                                    <img src={documents.guarantorPhoto.dataUrl} alt="Guarantor document preview" />
                                                     <div className="doc-meta">
                                                         <span>{documents.guarantorPhoto.name}</span>
                                                         <small>{documents.guarantorPhoto.size}</small>
