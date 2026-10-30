@@ -9,7 +9,7 @@ const fs = require("fs");
 const path = require("path");
 
 const siteConfig = require("../src/seo/siteConfig.data.json");
-const { fetchCatalog, saveCatalog } = require("./lib/catalog");
+const { fetchCatalog, fetchMobiles, saveCatalog } = require("./lib/catalog");
 const { SAFE_SLUG } = require("./lib/seoText");
 
 const SITE_URL = (process.env.REACT_APP_SITE_URL || siteConfig.siteUrl || "").replace(/\/+$/, "");
@@ -29,7 +29,10 @@ function buildUrlXml(entries) {
 const writeFile = (target, contents) => fs.writeFileSync(path.join(PUBLIC_DIR, target), contents, "utf8");
 
 async function main() {
-  const products = await fetchCatalog();
+  const [products, mobiles] = await Promise.all([
+    fetchCatalog().catch(() => null),
+    fetchMobiles().catch(() => []),
+  ]);
 
   const categories = unique([
     ...siteConfig.categories,
@@ -46,14 +49,25 @@ async function main() {
     ...brands.map((b) => ({ loc: `${SITE_URL}/products/brand/${b}` })),
   ];
 
-  if (products) {
+  if (products && products.length) {
     saveCatalog(products);
     for (const p of products) {
-      if (!SAFE_SLUG.test(p.slug || "")) continue; // only products that have a readable, stable URL
+      if (!SAFE_SLUG.test(p.slug || "")) continue;
       entries.push({ loc: `${SITE_URL}/product/${p.slug}`, lastmod: String(p.updatedAt || p.createdAt || "").slice(0, 10) || undefined });
     }
     console.log(`[seo] catalogue loaded: ${products.length} products`);
-  } else if (fs.existsSync(path.join(PUBLIC_DIR, "sitemap.xml"))) {
+  }
+
+  if (mobiles && mobiles.length) {
+    for (const m of mobiles) {
+      const slug = m.slug || (m.name ? encodeURIComponent(String(m.name).toLowerCase().replace(/\s+/g, "-")) : null);
+      if (!slug) continue;
+      entries.push({ loc: `${SITE_URL}/mobile/${slug}`, lastmod: String(m.updatedAt || m.createdAt || "").slice(0, 10) || undefined });
+    }
+    console.log(`[seo] mobiles loaded: ${mobiles.length} phones`);
+  }
+
+  if (!products && !mobiles.length && fs.existsSync(path.join(PUBLIC_DIR, "sitemap.xml"))) {
     console.warn("[seo] Catalogue unavailable. Keeping the existing sitemap.xml so product URLs are not dropped.");
     writeFile("robots.txt", buildRobots());
     return;
@@ -69,6 +83,8 @@ async function main() {
 
 function buildRobots() {
   return `User-agent: *
+
+# Private / authenticated pages — keep out of index
 Disallow: /cart
 Disallow: /profile
 Disallow: /orderpage
@@ -76,6 +92,8 @@ Disallow: /login
 Disallow: /forgot-password
 Disallow: /reset-password/
 Disallow: /signup
+
+# Admin & internal tools
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /admindashboard
@@ -85,10 +103,10 @@ Disallow: /employee-manage
 Disallow: /feedback
 Disallow: /complaints
 Disallow: /orders
-Disallow: /review/
-Disallow: /productdetails/
 
+# Sitemap
 Sitemap: ${SITE_URL}/sitemap.xml
+Sitemap: ${SITE_URL}/sitemap-index.xml
 `;
 }
 

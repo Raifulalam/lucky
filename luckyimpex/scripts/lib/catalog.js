@@ -55,6 +55,29 @@ async function fetchCatalog() {
   return products;
 }
 
+async function fetchMobiles() {
+  const base = apiBase();
+  const limit = 100;
+  const mobiles = [];
+  try {
+    let page = 1;
+    let pages = 1;
+    do {
+      const res = await getJson(`${base}/mobiles?page=${page}&limit=${limit}`);
+      const list = res?.data?.mobiles || res?.mobiles || [];
+      if (Array.isArray(list)) {
+        mobiles.push(...list);
+      }
+      pages = Number(res?.data?.pagination?.pages || res?.pages) || 1;
+      page += 1;
+    } while (page <= pages && page <= 50);
+  } catch (error) {
+    console.warn(`[seo] Could not load mobiles from ${base}: ${error.message}`);
+    return [];
+  }
+  return mobiles;
+}
+
 const saveCatalog = (products) =>
   fs.writeFileSync(CACHE_FILE, JSON.stringify({ fetchedAt: new Date().toISOString(), products }), "utf8");
 
@@ -66,4 +89,4 @@ const loadCachedCatalog = () => {
   }
 };
 
-module.exports = { fetchCatalog, saveCatalog, loadCachedCatalog, apiBase };
+module.exports = { fetchCatalog, fetchMobiles, saveCatalog, loadCachedCatalog, apiBase };

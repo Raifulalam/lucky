@@ -47,7 +47,16 @@
     "/contact",
     "/wholesale",
     "/emi",
-    "/exchange"
+    "/exchange",
+    "/review",
+    "/reviews",
+    "/mobiles",
+    "/mobiles/all",
+    "/mobiles/catalog",
+    "/mobile-products",
+    "/delivery-policy",
+    "/return-policy",
+    "/warranty-policy"
   ],
   "categories": [
     "AirConditioners",

@@ -127,6 +127,7 @@ function App() {
                     <Route path="/about" element={<LegacyAboutRedirect />} />
                     <Route path="/store" element={<StoreComponent />} />
                     <Route path="/review" element={<CustomerReviewPage/>}/>
+                    <Route path="/reviews" element={<CustomerReviewPage/>}/>
                     <Route path="/mobiles" element={<MobileLanding/>}/>
                     <Route path="/mobiles/all" element={<MobileProducts/>}/>
                     <Route path="/mobiles/catalog" element={<MobileProducts/>}/>

@@ -40,6 +40,7 @@ const STATIC_PAGES = [
   { path: "/service",                      priority: "0.9", changefreq: "weekly"  },
   { path: "/contact",                      priority: "0.8", changefreq: "monthly" },
   { path: "/review",                       priority: "0.8", changefreq: "weekly"  },
+  { path: "/reviews",                      priority: "0.8", changefreq: "weekly"  },
   { path: "/wholesale",                    priority: "0.7", changefreq: "monthly" },
   { path: "/emi",                          priority: "0.7", changefreq: "monthly" },
   { path: "/exchange",                     priority: "0.7", changefreq: "monthly" },
@@ -119,9 +120,9 @@ async function buildSitemapXml() {
 
   if (mongoose.connection.readyState === 1) {
     try {
-      // Use registered model names — check both casing variants
-      const Product = mongoose.model("Product");
-      const Mobile  = mongoose.model("Mobile");
+      // Use registered model or require schema
+      const Product = mongoose.models.Product || require("../Models/products");
+      const Mobile  = mongoose.models.Mobile  || require("../Models/SmartPhonesModels");
 
       const [products, mobiles] = await Promise.all([
         // Lean + select = minimal memory, fast query
@@ -218,6 +219,29 @@ router.get("/sitemap.xml", async (req, res) => {
     console.error("[Sitemap] Generation error:", err.message);
     res.status(500).json({ success: false, message: "Failed to generate sitemap" });
   }
+});
+
+/**
+ * GET /sitemap-index.xml
+ * Standard sitemap index pointing to /sitemap.xml
+ */
+router.get("/sitemap-index.xml", (req, res) => {
+  const today = toDateStr(new Date());
+  const indexXml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${SITE_URL}/sitemap.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+
+  res
+    .status(200)
+    .set({
+      "Content-Type":  "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=86400",
+    })
+    .end(indexXml);
 });
 
 module.exports = router;
