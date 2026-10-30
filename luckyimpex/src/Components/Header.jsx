@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Bell, Building2, Menu, Phone, Package, Search, ShoppingBag, ShoppingCart, Store, User, Wrench, X, MessageCircle } from "lucide-react";
+import { Bell, Building2, Menu, Phone, Package, Search, ShoppingBag, ShoppingCart, Store, User, Wrench, X, MessageCircle, CreditCard } from "lucide-react";
 import { UserContext } from "./UserContext";
 import { useNotification } from "./NotificationContext";
 import { useCartState } from "./CreateReducer";
@@ -16,6 +16,7 @@ const WHATSAPP_HREF = "https://wa.me/9779802594022?text=Hello%20Lucky%20Impex%2C
 const NAV_LINKS = [
     { label: "Products", to: "/products", icon: Package },
     { label: "Mobiles", to: "/mobiles", icon: ShoppingBag },
+    { label: "EMI Facility", to: "/emi", icon: CreditCard },
     { label: "Showroom", to: "/store", icon: Store },
     { label: "Service", to: "/service", icon: Wrench },
     { label: "Contact", to: "/contact", icon: MessageCircle },

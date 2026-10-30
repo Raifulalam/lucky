@@ -14,6 +14,7 @@ const dashboardRoutes = require("./Dashboard");      // Dashboard stats
 const reviewRoutes = require("./reviewRoutes");
 const whatsaapRoutes= require("./whatsaap");
 const inventoryRoutes = require('./inventory');
+const emiRoutes = require("./emiRouter");
 
 
 
@@ -53,5 +54,8 @@ router.use("/whatsaap", whatsaapRoutes);
 
 // Inventory routes
 router.use("/inventory", inventoryRoutes);
+
+// EMI financing applications
+router.use("/emi", emiRoutes);
 
 module.exports = router;
