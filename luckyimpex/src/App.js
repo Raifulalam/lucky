@@ -62,6 +62,20 @@ const LegacyProductDetailsRedirect = () => {
   return <Navigate to={`/product/${id}`} replace />;
 };
 
+/**
+ * Redirect handler for old product slugs after migration.
+ * This route attempts to find a product by its old slug and redirects to the new slug.
+ * The API should implement a lookup by oldSlug field.
+ * After slug migration is complete on the server, this will handle 301 redirects.
+ */
+const OldSlugRedirect = () => {
+  const { slug } = useParams();
+  // TODO: Implement API call to look up product by oldSlug
+  // For now, redirect to the product page (API will handle the lookup)
+  // This requires server-side implementation to find product by oldSlug
+  return <Navigate to={`/product/${slug}`} replace />;
+};
+
 function App() {
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -116,6 +130,7 @@ function App() {
                     <Route path="/products/:category" element={<Products />} />
                     <Route path="/products/brand/:brand" element={<BrandSearch />} />
                     <Route path="/product/:id" element={<ProductDetails />} />
+                    <Route path="/old-product/:slug" element={<OldSlugRedirect />} />
                     <Route path="/productdetails/:id" element={<LegacyProductDetailsRedirect />} />
                     <Route path="/contact" element={<ContactComponent />} />
                     <Route path="/wholesale" element={<Wholesale />} />
