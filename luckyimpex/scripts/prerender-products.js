@@ -122,6 +122,17 @@ function listingPage(template, { heading, intro, routePath, trail, items, title,
 
 const splitCamel = (s) => s.replace(/([a-z])([A-Z])/g, "$1 $2");
 
+function staticPage(template, { title, description, canonicalPath, inner, jsonLdBlocks = [] }) {
+  const e = T.escapeHtml;
+  const head = applyHead(template, {
+    title,
+    description,
+    canonicalPath,
+    jsonLdBlocks,
+  });
+  return withBody(head, inner);
+}
+
 async function main() {
   const templatePath = path.join(BUILD_DIR, "index.html");
   if (!fs.existsSync(templatePath)) throw new Error("build/index.html not found. Run react-scripts build first.");
@@ -176,7 +187,43 @@ async function main() {
     count += 1;
   }
 
-  console.log(`[prerender] wrote ${count} pages (${valid.length} products, ${byCategory.size} categories, ${byBrand.size} brands). Skipped ${skipped} product(s) without a safe slug.`);
+  // Prerender static pages
+  const staticPages = [
+    {
+      path: "/service",
+      title: "Service Center | Lucky Impex Birgunj",
+      description: "Lucky Impex service center in Birgunj, Nepal. Repair and warranty support for LG, Samsung, Whirlpool, Haier appliances. Call for service.",
+      inner: `<h1>Service Center</h1><p>Lucky Impex provides repair and warranty support for all appliances purchased from our store. Located at ${T.escapeHtml(siteConfig.address.streetAddress)}, ${T.escapeHtml(siteConfig.address.addressLocality)}, Nepal. Phone: ${T.escapeHtml(siteConfig.phone)} · WhatsApp: ${T.escapeHtml(siteConfig.whatsappDisplay)}.</p><p>We service LG, Samsung, Whirlpool, Haier, CG and other major brands. Contact us for warranty claims, repairs, and maintenance.</p>`,
+      trail: [{ name: "Home", path: "/" }, { name: "Service", path: "/service" }],
+    },
+    {
+      path: "/wholesale",
+      title: "Wholesale | Lucky Impex Birgunj",
+      description: "Wholesale electronics and home appliances at Lucky Impex Birgunj. Bulk orders for retailers with competitive pricing.",
+      inner: `<h1>Wholesale</h1><p>Lucky Impex offers wholesale pricing on electronics and home appliances for retailers and bulk buyers. Contact us for bulk orders, trade inquiries, and distributor partnerships.</p><p>Visit our store at ${T.escapeHtml(siteConfig.address.streetAddress)}, ${T.escapeHtml(siteConfig.address.addressLocality)}, Nepal or call ${T.escapeHtml(siteConfig.phone)} for wholesale inquiries.</p>`,
+      trail: [{ name: "Home", path: "/" }, { name: "Wholesale", path: "/wholesale" }],
+    },
+    {
+      path: "/store",
+      title: "Store Location | Lucky Impex Birgunj",
+      description: "Visit Lucky Impex store in Birgunj, Nepal. View and buy electronics and home appliances in person.",
+      inner: `<h1>Our Store</h1><p>Visit Lucky Impex showroom at ${T.escapeHtml(siteConfig.address.streetAddress)}, ${T.escapeHtml(siteConfig.address.addressLocality)}, ${T.escapeHtml(siteConfig.address.addressRegion)}, Nepal. Postal code: ${T.escapeHtml(siteConfig.address.postalCode)}.</p><p>Phone: ${T.escapeHtml(siteConfig.phone)} · WhatsApp: ${T.escapeHtml(siteConfig.whatsappDisplay)} · Email: ${T.escapeHtml(siteConfig.supportEmail)}</p><p>Store hours: Monday-Friday & Sunday 10:00 AM - 8:00 PM, Saturday 10:00 AM - 3:00 PM.</p>`,
+      trail: [{ name: "Home", path: "/" }, { name: "Store", path: "/store" }],
+    },
+  ];
+
+  for (const page of staticPages) {
+    writePage(page.path, staticPage(template, {
+      title: page.title,
+      description: page.description,
+      canonicalPath: page.path,
+      inner: page.inner,
+      jsonLdBlocks: [T.breadcrumbJsonLd(SITE_URL, page.trail)],
+    }));
+    count += 1;
+  }
+
+  console.log(`[prerender] wrote ${count} pages (${valid.length} products, ${byCategory.size} categories, ${byBrand.size} brands, ${staticPages.length} static pages). Skipped ${skipped} product(s) without a safe slug.`);
 }
 
 main().catch((error) => {
