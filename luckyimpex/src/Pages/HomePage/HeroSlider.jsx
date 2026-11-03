@@ -167,6 +167,10 @@ const HeroSlider = () => {
                         <img
                             src={slide.image}
                             alt={slide.title}
+                            width="1600"
+                            height="900"
+                            fetchpriority={index === currentIndex ? "high" : "auto"}
+                            loading={index === 0 ? "eager" : "lazy"}
                             onError={(e) => {
                                 e.target.onerror = null;
                                 e.target.src = slide.fallbackImage;

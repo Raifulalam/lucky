@@ -1636,6 +1636,20 @@ p {
         font-size: 0.95rem;
     }
 
+    .add-to-cart-button,
+    .details-primary-btn,
+    .quick-view-add-btn,
+    .primary-btn {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+        min-height: 38px;
+    }
+
+    .customer-actions,
+    .product-actions {
+        gap: 6px;
+    }
+
     .hero-search-block {
         width: calc(100% - 20px);
     }

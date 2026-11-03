@@ -966,6 +966,9 @@ if (isError) {
                     <img
                         src={HERO_IMAGES[currentSlide]}
                         alt={`Slide ${currentSlide + 1}`}
+                        width="1600"
+                        height="600"
+                        loading="lazy"
                         className="slider-image-new"
                     />
                 </div>
@@ -1161,6 +1164,8 @@ if (isError) {
                                             className="product-image"
                                             src={getImageSrc(getProductImage(product), placeholderImage)}
                                             alt={product.name || "Product image"}
+                                            width="300"
+                                            height="300"
                                             loading="lazy"
                                             onClick={() => handleDetails(product.slug || product._id)}
                                             onError={(e) => {
