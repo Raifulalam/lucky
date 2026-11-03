@@ -668,10 +668,8 @@
 
   <link rel="preconnect" href="https://unpkg.com" crossorigin />
 
-  <link rel="preload" href="https://unpkg.com/leaflet/dist/leaflet.css" as="style" crossorigin="anonymous" />
-
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" media="print" onload="this.media='all'"
-    crossorigin="anonymous" />
+    crossorigin="anonymous" fetchpriority="low" />
 
   <noscript>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" crossorigin="anonymous" />
@@ -790,7 +788,7 @@
   <!-- SPLASH CONTROL -->
   <!-- ========================= -->
 
-  <script>
+  <script defer>
 
     (function () {
 
