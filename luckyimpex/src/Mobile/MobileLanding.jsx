@@ -109,8 +109,8 @@ export default function MobileLanding() {
         <div className="mobile-page-root">
             {/* SEO Metadata */}
             <PageSeo
-                title="Smartphones & Mobile Phones Birgunj Nepal"
-                description="Official Apple iPhone, Samsung Galaxy, OnePlus, Xiaomi & Vivo 5G smartphones at Lucky Impex Birgunj. 0% EMI financing, exchange bonus, MDMS verified & warranty."
+                title="Mobile Phones Price Nepal | Lucky Impex"
+                description="Shop smartphones in Nepal at Lucky Impex Birgunj. iPhone, Samsung, Xiaomi, Vivo with 0% EMI, warranty & exchange offers."
                 canonicalPath="/mobiles"
                 localBusiness
                 breadcrumbs={[

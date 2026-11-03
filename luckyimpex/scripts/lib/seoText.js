@@ -21,12 +21,14 @@ const withBrand = (product) => {
   return brand && !name.toLowerCase().includes(brand.toLowerCase()) ? `${brand} ${name}` : name;
 };
 
-/** "[Brand] [Name] Price in Nepal | Lucky Impex", shortened without cutting the brand suffix. */
+/** "{Brand} {Model} {Type} Price in Nepal | Lucky Impex", shortened without cutting the brand suffix. */
 const productTitle = (product) => {
   const suffix = " | Lucky Impex";
   const model = String(product.model || "").trim();
+  const category = String(product.category || "").trim();
   let base = withBrand(product);
   if (model && !base.toLowerCase().includes(model.toLowerCase())) base = `${base} ${model}`;
+  if (category && !base.toLowerCase().includes(category.toLowerCase())) base = `${base} ${category}`;
   const tail = " Price in Nepal";
   const room = 62 - suffix.length;
   if (base.length + tail.length <= room) return `${base}${tail}${suffix}`;

@@ -643,11 +643,11 @@ const addProductToQueries = useCallback(
     );
 
     const pageTitle = selectedCategory
-        ? `${formatCategoryLabel(selectedCategory)} Products`
-        : "Buy Products Online";
+        ? `${formatCategoryLabel(selectedCategory)} Price in Nepal | Lucky Impex`
+        : "Electronics & Appliances | Lucky Impex Birgunj";
     const pageDescription = selectedCategory
-        ? `Shop ${formatCategoryLabel(selectedCategory).toLowerCase()} and other appliance categories from Lucky Impex.`
-        : "Shop high quality electronics and appliances from Lucky Impex at best prices.";
+        ? `Compare ${formatCategoryLabel(selectedCategory).toLowerCase()} prices in Nepal at Lucky Impex Birgunj. Best prices with warranty & EMI.`
+        : "Shop genuine electronics & home appliances at Lucky Impex Birgunj. AC, fridge, washing machine, TV & more with warranty.";
     const canonicalPath = selectedCategory ? `/products/${selectedCategory}` : "/products";
     const breadcrumbs = useMemo(() => {
         const items = [
