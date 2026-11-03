@@ -4,6 +4,7 @@ import Footer from "../../Components/Footer";
 import PageSeo from "../../Components/PageSeo";
 import MobileActionBar from "../../Components/MobileActionBar";
 import { WholesaleProvider } from "../../Components/WholesaleContext";
+import { SITE_CONFIG } from "../../seo/siteConfig";
 
 import HeroSlider from "./HeroSlider";
 import TrustBadgesStrip from "./TrustBadgesStrip";
@@ -38,7 +39,7 @@ const HomeContent = () => {
         <div className="home-page">
             {/* SEO Metadata */}
             <PageSeo
-                title="Lucky Impex | Electronics & Home Appliances Birgunj Nepal"
+                title="Lucky Impex | Birgunj Home Appliances | CG, LG, Haier"
                 description="Shop genuine electronics & home appliances at Lucky Impex, Birgunj. Official retailer & wholesale distributor in Nepal with warranty, EMI & store pickup."
                 canonicalPath="/"
                 localBusiness

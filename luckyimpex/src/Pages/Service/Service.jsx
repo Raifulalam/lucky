@@ -6,8 +6,29 @@ import { BASE_URL } from "../../api/api";
 import PageSeo from "../../Components/PageSeo";
 import Breadcrumbs from "../../Components/Breadcrumbs";
 import GoogleReviews from "../../Components/GoogleReviews";
+import { SITE_CONFIG } from "../../seo/siteConfig";
 
 const LuckyImpexServicePage = () => {
+    // FAQ Schema for Service Page
+    const serviceFaqs = [
+        {
+            question: "What is the Lucky Impex service center phone number?",
+            answer: `Call ${SITE_CONFIG.phone} or WhatsApp ${SITE_CONFIG.whatsappDisplay} for service inquiries in Birgunj.`
+        },
+        {
+            question: "What are the service center hours?",
+            answer: "Monday-Friday & Sunday: 10:00 AM - 8:00 PM, Saturday: 10:00 AM - 3:00 PM."
+        },
+        {
+            question: "Which brands do you service?",
+            answer: "We service LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Symphony, Bajaj and other major electronics brands."
+        },
+        {
+            question: "How do I register a service complaint?",
+            answer: "Use the complaint form on this page or visit our store at Ghantaghar Link Road, Birgunj. We'll help with warranty claims and repairs."
+        }
+    ];
+
     // =========================
     // Personal Details
     // =========================
@@ -240,8 +261,8 @@ const LuckyImpexServicePage = () => {
                 SEO
             ========================= */}
             <PageSeo
-                title="Service & Customer Reviews | Lucky Impex"
-                description="Register complaints, view genuine customer reviews, and get support from Lucky Impex in Birgunj, Nepal."
+                title="Service Center | Lucky Impex Birgunj"
+                description="Lucky Impex service center in Birgunj. Call for appliance repair, warranty support for LG, Samsung, Whirlpool, Haier. Register complaints online."
                 canonicalPath="/service"
                 breadcrumbs={[
                     {
@@ -252,6 +273,7 @@ const LuckyImpexServicePage = () => {
                         label: "Service",
                     },
                 ]}
+                faq={serviceFaqs}
             />
 
             {/* =========================
