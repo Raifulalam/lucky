@@ -302,8 +302,36 @@ const LuckyImpexServicePage = () => {
             <div className="service-page-container">
 
                 <h1>
-                    Welcome to Lucky Impex Service
+                    Service Center & Support
                 </h1>
+
+                {/* =========================
+                    Service Contact Info
+                ========================= */}
+                <div className="service-contact-info">
+                    <h2>Contact Information</h2>
+                    <p><strong>Phone:</strong> {SITE_CONFIG.phone}</p>
+                    <p><strong>WhatsApp:</strong> {SITE_CONFIG.whatsappDisplay}</p>
+                    <p><strong>Email:</strong> {SITE_CONFIG.supportEmail}</p>
+                    <p><strong>Address:</strong> {SITE_CONFIG.address.streetAddress}, {SITE_CONFIG.address.addressLocality}, {SITE_CONFIG.address.addressRegion}, Nepal</p>
+                </div>
+
+                {/* =========================
+                    Service Hours
+                ========================= */}
+                <div className="service-hours">
+                    <h2>Service Center Hours</h2>
+                    <p>Monday - Friday & Sunday: 10:00 AM - 8:00 PM</p>
+                    <p>Saturday: 10:00 AM - 3:00 PM</p>
+                </div>
+
+                {/* =========================
+                    Covered Brands
+                ========================= */}
+                <div className="service-brands">
+                    <h2>Brands We Service</h2>
+                    <p>We provide warranty support and repairs for: LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Symphony, Bajaj and other major electronics brands.</p>
+                </div>
 
                 {/* =========================
                     Complaint Button

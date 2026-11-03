@@ -23,6 +23,51 @@
     color: #1f2937;
 }
 
+/* =========================================================
+   SERVICE CONTACT INFO
+   ========================================================= */
+
+.service-contact-info,
+.service-hours,
+.service-brands {
+    max-width: 950px;
+    margin: 0 auto 25px;
+    padding: 20px;
+
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    box-sizing: border-box;
+}
+
+.service-contact-info h2,
+.service-hours h2,
+.service-brands h2 {
+    margin: 0 0 15px;
+
+    color: #1f2937;
+
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.service-contact-info p,
+.service-hours p,
+.service-brands p {
+    margin: 8px 0;
+
+    color: #4b5563;
+
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.service-contact-info strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
 .service-page {
     width: 100%;
 }
