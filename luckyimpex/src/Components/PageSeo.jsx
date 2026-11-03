@@ -39,7 +39,10 @@ const PageSeo = ({
   const resolvedCanonical = useMemo(() => {
     const pathname = canonicalPath || `${location.pathname}${location.search || ""}`;
     const value = canonicalUrl || pathname;
-    return value.startsWith("http") ? value : absoluteUrl(value);
+    let url = value.startsWith("http") ? value : absoluteUrl(value);
+    // Ensure non-www canonical URL
+    url = url.replace(/^https?:\/\/www\./i, 'https://');
+    return url;
   }, [canonicalPath, canonicalUrl, location.pathname, location.search]);
 
   const pageTitle = useMemo(() => {

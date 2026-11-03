@@ -25,4 +25,3 @@ Disallow: /orders
 
 # Sitemap
 Sitemap: https://luckyimpex4u.com/sitemap.xml
-Sitemap: https://luckyimpex4u.com/sitemap-index.xml
