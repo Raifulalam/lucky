@@ -16,7 +16,6 @@ import BrandsCarousel from "./BrandsCarousel";
 import WhyChooseUs from "./WhyChooseUs";
 
 // import PromoModal from "./PromoModal";
-import { SITE_CONFIG } from "../../seo/siteConfig";
 
 import "./Home.css";
 
