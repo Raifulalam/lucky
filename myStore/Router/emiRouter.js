@@ -3,7 +3,6 @@ const router = express.Router();
 const EmiApplication = require("../Models/EmiApplication");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
-const { sendWhatsAppMessage } = require("../utils/whatsappService");
 
 /**
  * Generate a unique application reference number
@@ -84,38 +83,6 @@ router.post("/apply", async (req, res) => {
 
         await application.save();
 
-        // 📱 Notify Store Admin via WhatsApp
-        const adminPhone = process.env.WHATSAPP_ADMIN_PHONE || "9779802594022";
-        const docsSubmitted = [];
-        if (documents?.applicantPhoto) docsSubmitted.push("Applicant Photo");
-        if (documents?.applicantCitizenshipFront) docsSubmitted.push("Applicant Citizenship");
-        if (documents?.guarantorPhoto) docsSubmitted.push("Guarantor Photo");
-        if (documents?.guarantorCitizenshipFront) docsSubmitted.push("Guarantor Citizenship");
-
-        const waText = `📑 *NEW EMI FINANCING APPLICATION!* (#${applicationNo})
-━━━━━━━━━━━━━━━━━━━━━
-👤 *Applicant:* ${applicant.name}
-📞 *Phone:* ${applicant.phone}
-📍 *Address:* ${applicant.currentAddress || "N/A"}
-💼 *Occupation:* ${applicant.occupation || "N/A"} (Income: ${applicant.monthlyIncome || "N/A"})
-
-🤝 *Guarantor (Jamani):* ${guarantor.name} (${guarantor.relationship || "Guarantor"})
-📞 *Guarantor Phone:* ${guarantor.phone}
-
-📦 *Product:* ${productDetails?.name || "Selected Item"}
-💰 *Price:* Rs. ${(productDetails?.price || 0).toLocaleString()}
-💳 *Down Payment:* Rs. ${(productDetails?.downPayment || 0).toLocaleString()}
-📊 *Loan Amount:* Rs. ${(productDetails?.loanAmount || 0).toLocaleString()} (${productDetails?.tenureMonths || 12} Mos @ Rs. ${(productDetails?.estimatedMonthlyEmi || 0).toLocaleString()}/mo)
-🏦 *Partner:* ${productDetails?.partnerBank || "Lucky Impex Direct"}
-
-📂 *Documents Attached:* ${docsSubmitted.length > 0 ? docsSubmitted.join(", ") : "Pending verification"}
-━━━━━━━━━━━━━━━━━━━━━
-_Please contact customer at ${applicant.phone} to complete verification._`;
-
-        sendWhatsAppMessage({ to: adminPhone, message: waText }).catch((err) => {
-            console.warn("WhatsApp EMI dispatch error:", err.message);
-        });
-
         res.status(201).json({
             success: true,
             message: "EMI application submitted successfully! Our team will contact you within 24 hours.",
@@ -130,7 +97,7 @@ _Please contact customer at ${applicant.phone} to complete verification._`;
         console.error("EMI Application Error:", err);
         res.status(500).json({
             success: false,
-            message: "Server error processing application. Please try again or contact via WhatsApp.",
+            message: "Server error processing application. Please try again or contact our store.",
         });
     }
 });

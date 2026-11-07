@@ -11,7 +11,6 @@ const cloudinary = require("../utils/cloudinary");
 const streamifier = require("streamifier");
 const crypto = require("crypto");
 const rateLimit = require("express-rate-limit");
-const { sendWhatsAppMessage } = require("../utils/whatsappService");
 
 const getSessionCookieOptions = () => ({
     httpOnly: false,
@@ -136,8 +135,8 @@ router.post(
    FORGOT / RESET PASSWORD
    - The reply to /forgot-password is always the same, so it cannot be used to discover
      which emails have accounts.
-   - The link is delivered by email (when SMTP_* is configured) and/or WhatsApp to the phone
-     number saved on the account. The link is never logged or returned in the response.
+   - The link is delivered by email when SMTP_* is configured. The link is never logged
+     or returned in the response.
    =========================================================== */
 const RESET_TTL_MS = 30 * 60 * 1000;
 const GENERIC_FORGOT_REPLY = {
@@ -196,18 +195,9 @@ router.post(
                 await user.save();
 
                 const link = `${frontendUrl()}/reset-password/${token}`;
-                const results = await Promise.allSettled([
-                    sendResetEmail(user.email, link),
-                    user.phone
-                        ? sendWhatsAppMessage({
-                              to: user.phone,
-                              message: `Lucky Impex: use this link to reset your password (valid 30 minutes): ${link}\nIf you did not ask for this, ignore this message.`,
-                          })
-                        : Promise.resolve(false),
-                ]);
-                const delivered = results.some((r) => r.status === "fulfilled" && r.value && r.value.success !== false);
+                const delivered = await sendResetEmail(user.email, link);
                 if (!delivered) {
-                    console.warn("[password reset] No delivery channel worked (configure SMTP_* or save a phone number on the account).");
+                    console.warn("[password reset] Email delivery is unavailable; configure SMTP_* to enable password reset messages.");
                 }
             }
         } catch (error) {

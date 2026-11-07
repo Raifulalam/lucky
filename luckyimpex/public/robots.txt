@@ -20,8 +20,6 @@ Disallow: /feedback
 Disallow: /complaints
 Disallow: /orders
 
-# ✅ /productdetails/ is ALLOWED — these are important product pages for SEO
-# ✅ /reviews is ALLOWED — needed for Google review rich snippets
-
 # Sitemap
 Sitemap: https://luckyimpex4u.com/sitemap.xml
+Sitemap: https://luckyimpex4u.com/sitemap-index.xml

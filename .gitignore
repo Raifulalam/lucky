@@ -16,8 +16,5 @@ luckyimpex/build/
 # Logs
 *.log
 
-# WhatsApp Baileys session (DO NOT COMMIT - contains auth credentials)
-myStore/auth_info_baileys/
-
 # SEO build cache (generated)
 luckyimpex/scripts/.seo-catalog.json

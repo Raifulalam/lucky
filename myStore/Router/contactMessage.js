@@ -4,7 +4,6 @@ const ContactMessage = require("../Models/contactMessage");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
 const { body, validationResult } = require("express-validator");
-const { sendWhatsAppQueryNotification } = require("../utils/whatsappService");
 
 /**
  * POST: Submit Contact Message (PUBLIC)
@@ -26,7 +25,7 @@ router.post(
         }
 
         try {
-            const { name, email, message, phone, productInterest } = req.body;
+            const { name, email, message } = req.body;
 
             const newMessage = new ContactMessage({
                 name,
@@ -35,17 +34,6 @@ router.post(
             });
 
             await newMessage.save();
-
-            // 📱 Send Live WhatsApp Hook Notification to Store Admin
-            sendWhatsAppQueryNotification({
-                name,
-                email,
-                phone: phone || req.body.contactNumber || null,
-                productInterest: productInterest || null,
-                message,
-            }).catch((waErr) => {
-                console.error("WhatsApp query alert dispatch failed:", waErr);
-            });
 
             res.status(201).json({
                 success: true,

@@ -53,7 +53,6 @@ const MovementLedger = lazy(() => import("./Pages/Admin/MovementLedger"));
 const ReviewPage = lazy(() => import("./Pages/Admin/ReviewComponent"));
 const AdminLayout = lazy(() => import("./Pages/Admin/AdminLayout"));
 const Reviews = lazy(() => import("./Pages/Admin/Reviews/Reviews"));
-const WhatsAppManager = lazy(() => import("./Pages/Admin/WhatsAppManager"));
 
 const LegacyAboutRedirect = () => <Navigate to="/store" replace />;
 
@@ -212,7 +211,6 @@ function App() {
                       <Route path="inventory/low-stock" element={<LowStock />} />
                       <Route path="inventory/movements" element={<MovementLedger />} />
                       <Route path="reviews" element={<Reviews />} />
-                      <Route path="whatsapp" element={<WhatsAppManager />} />
                     </Route>
 
                     {legacyAdminRedirects.map((route) => (

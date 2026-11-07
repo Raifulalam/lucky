@@ -29,10 +29,6 @@ const sitemapRouter = require("./Router/sitemap");
 const Product = require("./Models/products");
 const Mobile = require("./Models/SmartPhonesModels");
 
-const whatsaapRoutes = require("./Router/whatsaap");
-const { initBaileysClient } = require("./utils/baileysClient");
-const { handleIncomingMessage } = require("./utils/whatsappBotAgent");
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -162,9 +158,6 @@ const globalRateLimiter = rateLimit({
 
 app.use("/api", globalRateLimiter);
 
-// WhatsApp admin endpoints (each route enforces auth + admin role)
-app.use("/api/whatsapp", whatsaapRoutes);
-
 // ── Dynamic sitemap — MUST come before express.static so Express handles it ──
 // Serves /sitemap.xml with all products fetched live from MongoDB.
 app.use("/", sitemapRouter);
@@ -234,18 +227,9 @@ const { syncAllProductsToInventory } = require("./utils/inventoryService");
 // database connects, and the connection is retried instead of crashing the process.
 mongoose.set("bufferTimeoutMS", 8000);
 
-let whatsappStarted = false;
-
 server.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`🔌 Socket.IO is ready`);
-
-    if (!whatsappStarted) {
-        whatsappStarted = true;
-        // ── WhatsApp Baileys Agent ── scan the QR in Admin Dashboard → /admin/whatsapp
-        initBaileysClient(io, handleIncomingMessage)
-            .catch((err) => console.error("❌ Baileys init error:", err.message));
-    }
 });
 
 const connectMongo = async (attempt = 1) => {

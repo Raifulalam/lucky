@@ -5,11 +5,6 @@ const Order = require("../Models/order");
 const AdminNotification = require("../Models/AdminNotification");
 const authenticateToken = require("../middlewares/auth");
 const isAdmin = require("../middlewares/isAdmin");
-const {
-    sendWhatsAppOrderNotification,
-    sendWhatsAppOrderStatusUpdate,
-    sendWhatsAppAdminStockReminder,
-} = require("../utils/whatsappService");
 const { updateStock, reserveStock, releaseReservedStock } = require("../utils/inventoryService");
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
@@ -94,15 +89,6 @@ router.post("/orders", authenticateToken, async (req, res) => {
                 },
             });
         }
-
-        // 📱 Send Live WhatsApp Hook Notifications (Admin alert + Customer confirmation)
-        sendWhatsAppOrderNotification({
-            order: newOrder,
-            customerPhone: phone || additionalPhone,
-            customerName: name || req.user.name,
-        }).catch((waErr) => {
-            console.error("WhatsApp notification dispatch failed:", waErr);
-        });
 
         res.status(201).json({
             success: true,
@@ -367,24 +353,6 @@ router.put("/orders/:id", authenticateToken, isAdmin, async (req, res) => {
                     reminderId: createdAdminReminder?._id,
                     type: "warning"
                 });
-            }
-        }
-
-        // 📱 Send Live WhatsApp notifications after commit
-        if (newStatus && newStatus !== (previousStatus ? previousStatus.toLowerCase() : "")) {
-            sendWhatsAppOrderStatusUpdate({
-                order: updatedOrder,
-                newStatus: updatedOrder.status,
-            }).catch((waErr) => {
-                console.error("WhatsApp status update notification failed:", waErr);
-            });
-
-            // Send admin stock adjustment reminder on WhatsApp if completed
-            if (isCompletedStatus(newStatus) && !isCompletedStatus(previousStatus)) {
-                sendWhatsAppAdminStockReminder({ order: updatedOrder })
-                    .catch((waErr) => {
-                        console.error("WhatsApp admin stock reminder failed:", waErr);
-                    });
             }
         }
 

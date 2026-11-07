@@ -87,7 +87,38 @@ const HomeContent = () => {
 
                 {/* STORE VALUE PILLARS & SUPPORT */}
                 <WhyChooseUs />
-              
+
+                {/* CONTACT INFORMATION */}
+                <section className="home-contact-shell">
+                    <div className="home-contact-inner">
+                        <div className="contact-header-copy">
+                            <span className="section-pill">Visit Our Store</span>
+                            <h2>Contact Lucky Impex</h2>
+                        </div>
+                        <div className="contact-info-grid">
+                            <div className="contact-info-item">
+                                <h3>Store Address</h3>
+                                <p>{SITE_CONFIG.address.streetAddress}, {SITE_CONFIG.address.addressLocality}, {SITE_CONFIG.address.addressRegion}, Nepal</p>
+                                <p>Postal Code: {SITE_CONFIG.address.postalCode}</p>
+                            </div>
+                            <div className="contact-info-item">
+                                <h3>Phone & WhatsApp</h3>
+                                <p>Phone: {SITE_CONFIG.phone}</p>
+                                <p>WhatsApp: {SITE_CONFIG.whatsappDisplay}</p>
+                            </div>
+                            <div className="contact-info-item">
+                                <h3>Store Hours</h3>
+                                <p>Monday - Friday & Sunday: 10:00 AM - 8:00 PM</p>
+                                <p>Saturday: 10:00 AM - 3:00 PM</p>
+                            </div>
+                            <div className="contact-info-item">
+                                <h3>Email</h3>
+                                <p>{SITE_CONFIG.supportEmail}</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
 
                 {/* FREQUENTLY ASKED QUESTIONS */}
                 <section className="home-faq-shell">

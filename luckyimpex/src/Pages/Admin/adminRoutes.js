@@ -4,7 +4,6 @@ import {
     FaHome,
     FaStar,
     FaUsers,
-    FaWhatsapp,
     FaBox,
     FaArrowRight,
     FaArrowDown,
@@ -122,12 +121,6 @@ export const adminRoutes = [
         path: "/admin/reviews",
         icon: FaStar,
         description: "Customer reviews and feedback",
-    },
-    {
-        label: "WhatsApp",
-        path: "/admin/whatsapp",
-        icon: FaWhatsapp,
-        description: "WhatsApp agent & live messages",
     },
 ];
 
