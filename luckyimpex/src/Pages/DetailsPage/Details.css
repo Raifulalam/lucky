@@ -1,7 +1,7 @@
 .details-page {
     background:
-        radial-gradient(circle at top right, rgba(13, 99, 192, 0.08), transparent 26%),
-        linear-gradient(180deg, #f6f9fc 0%, #fbfdff 42%, #ffffff 100%);
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 26%),
+        linear-gradient(180deg, var(--color-slate-50) 0%, #fbfdff 42%, #ffffff 100%);
 }
 
 .product-detail-container {

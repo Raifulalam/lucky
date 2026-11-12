@@ -95,25 +95,25 @@ function App() {
                   minHeight: '100vh',
                   display: 'grid',
                   placeItems: 'center',
-                  background: 'linear-gradient(180deg, #f7f9fc 0%, #eef3f8 100%)',
-                  color: '#17324d',
-                  fontFamily: 'system-ui, sans-serif'
+                  background: 'var(--color-background)',
+                  color: 'var(--color-text-primary)',
+                  fontFamily: 'var(--font-family-sans)'
                 }}>
                   <div style={{
                     width: 'min(720px, calc(100vw - 40px))',
-                    padding: '28px',
-                    borderRadius: '24px',
-                    background: '#fff',
-                    boxShadow: '0 18px 40px rgba(16, 33, 58, 0.08)',
-                    border: '1px solid rgba(217, 225, 232, 0.9)'
+                    padding: 'var(--space-7)',
+                    borderRadius: 'var(--radius-3xl)',
+                    background: 'var(--color-surface)',
+                    boxShadow: 'var(--shadow-lg)',
+                    border: '1px solid var(--color-border)'
                   }}>
-                    <div style={{ display: 'grid', gap: '16px' }}>
-                      <div style={{ width: '48%', height: '18px', borderRadius: '999px', background: '#e9eef4' }} />
-                      <div style={{ width: '72%', height: '34px', borderRadius: '14px', background: '#e9eef4' }} />
-                      <div style={{ display: 'grid', gap: '12px', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
-                        <div style={{ height: '120px', borderRadius: '18px', background: '#eef3f8' }} />
-                        <div style={{ height: '120px', borderRadius: '18px', background: '#eef3f8' }} />
-                        <div style={{ height: '120px', borderRadius: '18px', background: '#eef3f8' }} />
+                    <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
+                      <div style={{ width: '48%', height: '18px', borderRadius: 'var(--radius-full)', background: 'var(--color-slate-200)' }} />
+                      <div style={{ width: '72%', height: '34px', borderRadius: 'var(--radius-xl)', background: 'var(--color-slate-200)' }} />
+                      <div style={{ display: 'grid', gap: 'var(--space-3)', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
+                        <div style={{ height: '120px', borderRadius: 'var(--radius-2xl)', background: 'var(--color-slate-100)' }} />
+                        <div style={{ height: '120px', borderRadius: 'var(--radius-2xl)', background: 'var(--color-slate-100)' }} />
+                        <div style={{ height: '120px', borderRadius: 'var(--radius-2xl)', background: 'var(--color-slate-100)' }} />
                       </div>
                     </div>
                   </div>

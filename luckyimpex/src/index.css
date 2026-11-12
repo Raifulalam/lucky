@@ -1,13 +1,5 @@
 @import "./styles/design-system.css";
 
-:root {
-  --app-bg: #f8fafc;
-  --app-text: #0f172a;
-  --app-muted: #64748b;
-  --app-border: #e2e8f0;
-  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
 *,
 *::before,
 *::after {
@@ -23,7 +15,7 @@ body {
   color: var(--color-text-primary);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
-  font-family: var(--font-family-base);
+  font-family: var(--font-family-sans);
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;

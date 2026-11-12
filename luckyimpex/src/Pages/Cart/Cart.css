@@ -1,7 +1,7 @@
 .cart-page {
     background:
-        radial-gradient(circle at top right, rgba(14, 99, 191, 0.08), transparent 26%),
-        linear-gradient(180deg, #f6f9fc 0%, #fbfdff 44%, #ffffff 100%);
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 26%),
+        linear-gradient(180deg, var(--color-slate-50) 0%, #fbfdff 44%, #ffffff 100%);
 }
 
 .cart-main {
@@ -286,15 +286,28 @@
     align-items: center;
     justify-content: center;
     min-height: 50px;
-    padding: 0 20px;
+    padding: 0 var(--space-5);
     border: none;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #0d63c0 0%, #1591dc 100%);
+    border-radius: var(--radius-2xl);
+    background: var(--btn-primary-bg);
     color: #fff;
     text-decoration: none;
     cursor: pointer;
-    font-weight: 700;
-    box-shadow: 0 14px 30px rgba(13, 99, 192, 0.18);
+    font-weight: var(--font-weight-bold);
+    box-shadow: var(--btn-primary-shadow);
+    transition: all var(--transition-base);
+}
+
+.place-order:hover,
+.cart-primary-btn:hover {
+    background: var(--btn-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--btn-primary-shadow-hover);
+}
+
+.place-order:focus-visible,
+.cart-primary-btn:focus-visible {
+    box-shadow: var(--focus-ring);
 }
 
 .cart-mobile-checkout {

@@ -1,17 +1,17 @@
 :root {
-    --catalog-bg: #f5f7fb;
-    --catalog-surface: #ffffff;
-    --catalog-surface-2: #f8fafc;
-    --catalog-text: #122033;
-    --catalog-muted: #64748b;
-    --catalog-line: #e2e8f0;
-    --catalog-primary: #0f5bd8;
-    --catalog-primary-strong: #0b4bb2;
-    --catalog-accent: #16a34a;
-    --catalog-warning: #d97706;
-    --catalog-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
-    --catalog-radius: 22px;
-    --catalog-radius-sm: 14px;
+    --catalog-bg: var(--color-slate-50);
+    --catalog-surface: var(--color-surface);
+    --catalog-surface-2: var(--color-slate-50);
+    --catalog-text: var(--color-text-primary);
+    --catalog-muted: var(--color-text-muted);
+    --catalog-line: var(--color-border);
+    --catalog-primary: var(--color-primary-600);
+    --catalog-primary-strong: var(--color-primary-700);
+    --catalog-accent: var(--color-emerald-600);
+    --catalog-warning: var(--color-amber-600);
+    --catalog-shadow: var(--shadow-lg);
+    --catalog-radius: var(--radius-2xl);
+    --catalog-radius-sm: var(--radius-lg);
 }
 
 html {
@@ -236,20 +236,26 @@ p {
 
 .filter-toggle-btn,
 .clear-filters-btn {
-    border-radius: 12px;
-    padding: 10px 14px;
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
     border: 1px solid var(--catalog-line);
     background: #fff;
-    color: #1e2a3b;
-    font-weight: 700;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-bold);
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-base);
 }
 
 .filter-toggle-btn:hover,
 .clear-filters-btn:hover {
-    border-color: #c5d0df;
-    background: #f8fafc;
+    border-color: var(--color-slate-300);
+    background: var(--color-slate-50);
     transform: translateY(-1px);
+}
+
+.filter-toggle-btn:focus-visible,
+.clear-filters-btn:focus-visible {
+    box-shadow: var(--focus-ring);
 }
 
 .category-chip-row,
@@ -748,24 +754,32 @@ p {
 .quick-view-add-btn,
 .primary-btn {
     border: 1px solid transparent;
-    background: linear-gradient(135deg, #0f5bd8 0%, #0b4bb2 100%);
+    background: var(--btn-primary-bg);
     color: #fff;
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-weight: 700;
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    font-weight: var(--font-weight-bold);
     letter-spacing: 0.01em;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(15, 91, 216, 0.25);
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+    box-shadow: var(--btn-primary-shadow);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-base);
 }
 
 .add-to-cart-button:hover,
 .details-primary-btn:hover,
 .quick-view-add-btn:hover,
 .primary-btn:hover {
+    background: var(--btn-primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(15, 91, 216, 0.35);
+    box-shadow: var(--btn-primary-shadow-hover);
+}
+
+.add-to-cart-button:focus-visible,
+.details-primary-btn:focus-visible,
+.quick-view-add-btn:focus-visible,
+.primary-btn:focus-visible {
+    box-shadow: var(--focus-ring);
 }
 
 .cart-btn-icon {
@@ -805,15 +819,16 @@ p {
 .details-btn,
 .details-secondary-btn,
 .secondary-btn {
-    border: 1px solid #d3dbe6;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    color: #1e2a3b;
-    border-radius: 14px;
-    padding: 10px 14px;
-    font-weight: 700;
+    border: 1px solid var(--btn-secondary-border);
+    background: var(--btn-secondary-bg);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-3) var(--space-4);
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
-    font-size: 0.92rem;
+    box-shadow: var(--shadow-sm);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-base);
 }
 
 .details-btn:hover,
@@ -821,7 +836,13 @@ p {
 .secondary-btn:hover {
     background: #fff;
     transform: translateY(-1px);
-    border-color: #b8c4d4;
+    border-color: var(--btn-secondary-hover-border);
+}
+
+.details-btn:focus-visible,
+.details-secondary-btn:focus-visible,
+.secondary-btn:focus-visible {
+    box-shadow: var(--focus-ring);
 }
 
 .edit-btn {

@@ -1,10 +1,10 @@
 .auth-page {
     min-height: calc(100vh - 72px);
-    padding: 32px 20px 48px;
+    padding: var(--space-8) var(--space-5) var(--space-12);
     background:
-        radial-gradient(circle at top left, rgba(6, 94, 169, 0.16), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(255, 184, 0, 0.18), transparent 28%),
-        linear-gradient(135deg, #f4f7fb 0%, #eef3f8 45%, #f9fbfd 100%);
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.18), transparent 28%),
+        linear-gradient(135deg, var(--color-slate-50) 0%, var(--color-slate-100) 45%, #f9fbfd 100%);
 }
 
 .auth-shell {
@@ -215,24 +215,31 @@
     width: 100%;
     min-height: 54px;
     border: none;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #0b67c8 0%, #0d85d8 100%);
+    border-radius: var(--radius-2xl);
+    background: var(--btn-primary-bg);
     color: #fff;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-    box-shadow: 0 16px 34px rgba(13, 103, 191, 0.25);
+    transition: all var(--transition-base);
+    box-shadow: var(--btn-primary-shadow);
 }
 
 .submit-button:hover {
+    background: var(--btn-primary-hover);
     transform: translateY(-1px);
+    box-shadow: var(--btn-primary-shadow-hover);
 }
 
 .submit-button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
+}
+
+.submit-button:focus-visible {
+    box-shadow: var(--focus-ring);
 }
 
 .error-message {
