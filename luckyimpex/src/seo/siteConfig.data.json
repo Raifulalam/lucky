@@ -1,6 +1,6 @@
 {
   "name": "Lucky Impex",
-  "description": "Shop genuine electronics & home appliances at Lucky Impex, Birgunj. Official retailer & wholesale distributor in Nepal with warranty, EMI & store pickup.",
+  "description": "Shop 100% genuine electronics & home appliances at Lucky Impex, Birgunj. Authorized dealer for LG, Samsung, Whirlpool, Haier, CG, Bajaj, Yasuda in Parsa & Madhesh Province. AC, fridge, washing machine, microwave, chimney, air fryer, purifier, mixer, vacuum, deep freezer, showcase & more. Official warranty, EMI & store pickup.",
   "siteUrl": "https://luckyimpex4u.com",
   "defaultImage": "/lucky-logo.png",
   "themeColor": "#0f5bd8",
@@ -10,7 +10,7 @@
   "whatsappDisplay": "+977 9802594022",
   "googleAnalyticsId": "G-N8H0F7KBS1",
   "googleSiteVerification": "",
-  "keywords": "0% interest emi birgunj, 40% down payment emi nepal, zero interest electronics emi birgunj, electronics shop birgunj, home appliances nepal, refrigerator price nepal, air conditioner birgunj, washing machine price in nepal, led tv price birgunj, wholesale electronics nepal, lg dealer birgunj, samsung electronics nepal, kitchen appliances nepal, ac shop birgunj, best electronics store birgunj, electronics near me, appliance store birgunj, lucky impex, electronics store birgunj, ac price nepal, fridge price birgunj, tv price nepal, washing machine birgunj, air cooler nepal, chest freezer nepal, kitchen chimney nepal, home theater nepal, madhesh province electronics, nepal electronics online, electronics discount birgunj, branded electronics nepal, genuine appliances nepal, warranty electronics birgunj, emi electronics nepal, home delivery appliances birgunj, authorized dealer birgunj, cg digital birgunj, cg electronic birgunj, samsung plaza birgunj, whirlpool neoteric birgunj, authorized dealer parsa, authorized dealer madhesh province, 100% genuine products, official brand warranty, certified electronics dealer, genuine home appliances birgunj",
+  "keywords": "0% interest emi birgunj, 40% down payment emi nepal, zero interest electronics emi birgunj, electronics shop birgunj, home appliances nepal, refrigerator price nepal, air conditioner birgunj, washing machine price in nepal, led tv price birgunj, wholesale electronics nepal, lg dealer birgunj, samsung electronics nepal, kitchen appliances nepal, ac shop birgunj, best electronics store birgunj, electronics near me, appliance store birgunj, lucky impex, electronics store birgunj, ac price nepal, fridge price birgunj, tv price nepal, washing machine birgunj, air cooler nepal, chest freezer nepal, kitchen chimney nepal, home theater nepal, madhesh province electronics, nepal electronics online, electronics discount birgunj, branded electronics nepal, genuine appliances nepal, warranty electronics birgunj, emi electronics nepal, home delivery appliances birgunj, authorized dealer birgunj, cg digital birgunj, cg electronic birgunj, samsung plaza birgunj, whirlpool neoteric birgunj, authorized dealer parsa, authorized dealer madhesh province, 100% genuine products, official brand warranty, certified electronics dealer, genuine home appliances birgunj, lg air conditioner birgunj, lg refrigerator birgunj, lg washing machine birgunj, haier ac birgunj, haier fridge birgunj, haier washing machine birgunj, bajaj appliances birgunj, bajaj fan birgunj, yasuda refrigerator birgunj, yasuda ac birgunj, front load washing machine birgunj, top load washing machine birgunj, fully automatic washing machine birgunj, semi automatic washing machine birgunj, air cooler birgunj, ceiling fan birgunj, table fan birgunj, dj sound system birgunj, home theater system birgunj, kitchen chimney birgunj, air fryer birgunj, microwave oven birgunj, electric oven birgunj, air purifier birgunj, water purifier birgunj, mixer grinder birgunj, vacuum cleaner birgunj, deep freezer birgunj, chest freezer birgunj, showcase refrigerator birgunj, glass showcase birgunj, commercial refrigerator birgunj",
   "address": {
     "streetAddress": "Ghantaghar Link Road",
     "addressLocality": "Birgunj",
@@ -79,7 +79,8 @@
     "Videocon",
     "Skyworth",
     "Symphony",
-    "Bajaj"
+    "Bajaj",
+    "Yasuda"
   ],
   "faqs": [
     {
@@ -100,7 +101,11 @@
     },
     {
       "question": "What brands of electronics do you sell?",
-      "answer": "Lucky Impex sells LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Symphony, Bajaj and other premium brands of electronics and home appliances."
+      "answer": "Lucky Impex sells LG, Samsung, Whirlpool, Haier, CG, Videocon, Skyworth, Symphony, Bajaj, Yasuda and other premium brands of electronics and home appliances."
+    },
+    {
+      "question": "What types of home appliances do you sell?",
+      "answer": "We deal in air conditioners (AC), refrigerators, deep freezers, chest freezers, showcase refrigerators, washing machines (front load, top load, fully automatic, semi automatic), air coolers, fans, DJ sound systems, home theater systems, kitchen chimneys, air fryers, electric ovens, microwave ovens, air purifiers, water purifiers, mixer grinders, vacuum cleaners, and other home appliances."
     },
     {
       "question": "Do you offer 0% interest EMI options for appliances and electronics?",

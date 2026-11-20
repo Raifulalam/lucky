@@ -59,6 +59,22 @@ const AuthorizedDealerCertification = () => {
         { icon: <Building2 size={20} />, text: "Certified Showroom" },
     ];
 
+    const productCategories = [
+        "Air Conditioners (AC)",
+        "Refrigerators & Deep Freezers",
+        "Washing Machines (Front Load, Top Load, Fully Auto, Semi Auto)",
+        "Air Coolers & Fans",
+        "DJ & Sound Systems",
+        "Kitchen Chimneys",
+        "Air Fryers & Ovens",
+        "Microwave Ovens",
+        "Air & Water Purifiers",
+        "Mixer Grinders",
+        "Vacuum Cleaners",
+        "Chest Freezers",
+        "Showcase Refrigerators",
+    ];
+
     return (
         <section className="dealer-certification-section" aria-label="Authorized Dealer Certifications">
             <div className="dealer-certification-inner">
@@ -121,14 +137,34 @@ const AuthorizedDealerCertification = () => {
                     ))}
                 </div>
 
+                {/* Product Categories */}
+                <div className="product-categories-section">
+                    <h3 className="categories-title">Products We Deal In</h3>
+                    <div className="categories-grid">
+                        {productCategories.map((category, idx) => (
+                            <div key={idx} className="category-item">
+                                <CheckCircle2 size={16} />
+                                <span>{category}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 {/* SEO Text */}
                 <div className="seo-content">
                     <p className="seo-text">
                         <strong>Authorized Dealer Certification:</strong> Lucky Impex operates as an officially
-                        authorized dealer for CG Digital, CG Electronic, Samsung Plaza, and Whirlpool Neoteric.
-                        Our showroom in Birgunj is certified to sell genuine electronics and home appliances
-                        with full manufacturer warranty. We serve customers across Parsa District and Madhesh
-                        Province with authentic products and professional service.
+                        authorized dealer for CG Digital, CG Electronic, Samsung Plaza, Whirlpool Neoteric, LG,
+                        Haier, Bajaj, and Yasuda. Our showroom in Birgunj is certified to sell genuine electronics
+                        and home appliances with full manufacturer warranty. We serve customers across Parsa District
+                        and Madhesh Province with authentic products and professional service.
+                    </p>
+                    <p className="seo-text" style={{ marginTop: 'var(--space-4)' }}>
+                        <strong>Complete Product Range:</strong> We deal in air conditioners (AC), refrigerators,
+                        deep freezers, chest freezers, showcase refrigerators, washing machines (front load, top load,
+                        fully automatic, semi automatic), air coolers, fans (ceiling, table), DJ sound systems,
+                        home theater systems, kitchen chimneys, air fryers, electric ovens, microwave ovens, air purifiers,
+                        water purifiers, mixer grinders, vacuum cleaners, and other home appliances.
                     </p>
                 </div>
             </div>

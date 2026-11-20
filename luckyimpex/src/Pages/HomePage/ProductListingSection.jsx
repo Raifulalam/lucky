@@ -247,7 +247,7 @@ const ProductListingSection = () => {
                         <p className="section-desc">
                             {isWholesale
                                 ? "Wholesale pricing is quoted per order. Send us a quote request with the models and quantities you need."
-                                : "Current prices and availability from the Lucky Impex showroom in Birgunj. Authorized dealer for CG Digital, CG Electronic, Samsung Plaza & Whirlpool Neoteric."}
+                                : "Current prices and availability from the Lucky Impex showroom in Birgunj. Authorized dealer for LG, Samsung, Whirlpool, Haier, CG, Bajaj, Yasuda & more."}
                         </p>
                     </div>
 

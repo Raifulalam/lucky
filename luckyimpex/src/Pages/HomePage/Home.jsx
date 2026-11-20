@@ -39,8 +39,8 @@ const HomeContent = () => {
         <div className="home-page">
             {/* SEO Metadata */}
             <PageSeo
-                title="Lucky Impex | Authorized Dealer Birgunj | CG Digital, Samsung Plaza, Whirlpool Neoteric"
-                description="Shop 100% genuine electronics & home appliances at Lucky Impex, Birgunj. Authorized dealer for CG Digital, CG Electronic, Samsung Plaza & Whirlpool Neoteric in Parsa & Madhesh Province. Official warranty, EMI & store pickup."
+                title="Lucky Impex | Authorized Dealer Birgunj | LG, Samsung, Whirlpool, Haier, CG, Bajaj, Yasuda"
+                description="Shop 100% genuine electronics & home appliances at Lucky Impex, Birgunj. Authorized dealer for LG, Samsung, Whirlpool, Haier, CG, Bajaj, Yasuda in Parsa & Madhesh Province. AC, fridge, washing machine, microwave, chimney, air fryer, purifier, mixer, vacuum, deep freezer, showcase & more. Official warranty, EMI & store pickup."
                 canonicalPath="/"
                 localBusiness
                 faq={SITE_CONFIG.faqs}
