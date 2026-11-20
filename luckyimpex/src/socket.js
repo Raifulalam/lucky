@@ -8,7 +8,7 @@ const getSocketAuth = () => {
     }
 };
 
-const socket = io("https://lucky-1-6ma5.onrender.com", {
+const socket = io("https://lucky-production-fbbefe81.up.railway.app", {
     transports: ["websocket"],
     withCredentials: true,
     auth: getSocketAuth(),

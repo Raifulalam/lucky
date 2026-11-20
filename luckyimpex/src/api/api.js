@@ -1,4 +1,4 @@
-const API_ROOT = process.env.REACT_APP_API_BASE_URL || "https://lucky-1-6ma5.onrender.com/api";
+const API_ROOT = process.env.REACT_APP_API_BASE_URL || "https://lucky-production-fbbefe81.up.railway.app/api";
 const COOKIE_CONSENT_KEY = "luckyimpex.cookieConsent.v1";
 
 export const BASE_URL = API_ROOT;

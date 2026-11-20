@@ -7,7 +7,7 @@ const fs = require("fs");
 const path = require("path");
 
 const CACHE_FILE = path.resolve(__dirname, "..", ".seo-catalog.json");
-const DEFAULT_API = "https://lucky-1-6ma5.onrender.com/api";
+const DEFAULT_API = "https://lucky-production-fbbefe81.up.railway.app/api";
 
 const apiBase = () =>
   (process.env.SEO_API_BASE_URL || process.env.REACT_APP_API_BASE_URL || DEFAULT_API).replace(/\/+$/, "");
