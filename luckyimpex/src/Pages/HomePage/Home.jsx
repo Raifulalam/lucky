@@ -9,8 +9,10 @@ import { SITE_CONFIG } from "../../seo/siteConfig";
 import HeroSlider from "./HeroSlider";
 import TrustBadgesStrip from "./TrustBadgesStrip";
 import CategoryGrid from "./CategoryGrid";
+import HotDealsSection from "./HotDealsSection";
 import ProductListingSection from "./ProductListingSection";
 import AuthorizedDealerCertification from "./AuthorizedDealerCertification";
+import StoreInformation from "./StoreInformation";
 import WholesaleRFQBanner from "./WholesaleRFQBanner";
 import ShowroomHub from "./ShowroomHub";
 import BrandsCarousel from "./BrandsCarousel";
@@ -65,11 +67,17 @@ const HomeContent = () => {
                 {/* 4. VISUAL CATEGORY GRID (2x4) */}
                 <CategoryGrid />
 
+                {/* 4.5 HOT DEALS SECTION */}
+                <HotDealsSection />
+
                 {/* 5. HYBRID PRODUCT LISTING CARDS (Dynamic Retail / Wholesale Pricing) */}
                 <ProductListingSection />
 
                 {/* 5.5 AUTHORIZED DEALER CERTIFICATION */}
                 <AuthorizedDealerCertification />
+
+                {/* 5.6 STORE INFORMATION */}
+                <StoreInformation />
 
                 {/* 6. INTERACTIVE B2B / WHOLESALE RFQ BANNER */}
                 <WholesaleRFQBanner />

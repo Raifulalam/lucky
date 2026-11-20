@@ -23,8 +23,60 @@ import ProductQuickViewModal from "./ProductQuickViewModal";
 import { Eye, Search, X, SlidersHorizontal, Check, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { trackAddToCart, trackSearch } from "../../Components/GoogleAnalytics";
+import PromotionalBanner from "../HomePage/PromotionalBanner";
 
 const HERO_IMAGES = [backimg, back01, back02, back03, luckyImage];
+
+const PRODUCT_PAGE_BANNERS = [
+    {
+        id: "products-promo-1",
+        title: "Special Offer - 25% OFF on Air Conditioners",
+        description: "Beat the heat with our special AC offers. Professional installation included!",
+        badge: "LIMITED TIME",
+        category: "Seasonal Sale",
+        image: "/guest2.jpg",
+        ctaText: "Shop ACs",
+        ctaLink: "/products/AirConditioners",
+        theme: "theme-red",
+        offers: [
+            { icon: "percent", text: "25% OFF on Select Models" },
+            { icon: "truck", text: "Free Installation" },
+            { icon: "zap", text: "0% EMI Available" },
+        ],
+    },
+    {
+        id: "products-promo-2",
+        title: "Refrigerator Festival",
+        description: "Upgrade your kitchen with the latest refrigerators. Best prices guaranteed!",
+        badge: "FESTIVAL",
+        category: "Home Appliances",
+        image: "/guest1.jpg",
+        ctaText: "Shop Fridges",
+        ctaLink: "/products/Refrigerators",
+        theme: "theme-green",
+        offers: [
+            { icon: "percent", text: "Up to 30% OFF" },
+            { icon: "truck", text: "Free Delivery" },
+            { icon: "zap", text: "Exchange Old Fridge" },
+        ],
+    },
+    {
+        id: "products-promo-3",
+        title: "Washing Machine Special",
+        description: "Fully automatic washing machines at unbeatable prices. Front load & top load available.",
+        badge: "SPECIAL",
+        category: "Laundry Appliances",
+        image: "/guest3.jpg",
+        ctaText: "Shop Washing Machines",
+        ctaLink: "/products/WashingMachines",
+        theme: "theme-orange",
+        offers: [
+            { icon: "percent", text: "Starting from ₨ 20,000" },
+            { icon: "truck", text: "Free Installation" },
+            { icon: "zap", text: "Easy EMI Options" },
+        ],
+    },
+];
 
 const getImageSrc = (src, fallbackSrc) => {
     return src ? `${src}` : fallbackSrc;
@@ -642,6 +694,27 @@ const addProductToQueries = useCallback(
         [selectedCategory, selectedBrand, debouncedSearch, minPrice, maxPrice, showInStockOnly]
     );
 
+    // Function to intersperse banners between products (like Flipkart)
+    const getProductsWithBanners = () => {
+        const items = [];
+        const bannerInterval = 8; // Insert banner after every 8 products
+        let bannerIndex = 0;
+
+        sortedProducts.forEach((product, index) => {
+            items.push({ type: 'product', data: product });
+
+            // Insert banner after every bannerInterval products
+            if ((index + 1) % bannerInterval === 0 && bannerIndex < PRODUCT_PAGE_BANNERS.length) {
+                items.push({ type: 'banner', data: PRODUCT_PAGE_BANNERS[bannerIndex] });
+                bannerIndex++;
+            }
+        });
+
+        return items;
+    };
+
+    const itemsWithBanners = getProductsWithBanners();
+
     const pageTitle = selectedCategory
         ? `${formatCategoryLabel(selectedCategory)} Price in Nepal | Lucky Impex`
         : "Electronics & Appliances | Lucky Impex Birgunj";
@@ -1148,7 +1221,17 @@ if (isError) {
             {!isLoading && (
                 <div className="product-grid">
                     {sortedProducts.length > 0 ? (
-                        sortedProducts.map((product) => {
+                        itemsWithBanners.map((item, index) => {
+                            if (item.type === 'banner') {
+                                return (
+                                    <PromotionalBanner
+                                        key={`banner-${item.data.id}`}
+                                        banner={item.data}
+                                    />
+                                );
+                            }
+
+                            const product = item.data;
                             const savings = getSavings(product.mrp, product.price);
                             const isOutOfStock = Number(product.stock) <= 0;
                             const isAdding = addingItems[product._id];
@@ -1270,7 +1353,7 @@ if (isError) {
                                                     aria-label="Know more"
                                                 >
                                                     <Eye size={16} className="details-btn-icon" />
-                                                    
+
                                                 </button>
                                                 <button
                                                     className="add-to-cart-button button-primary action-btn"
@@ -1286,7 +1369,7 @@ if (isError) {
                                                     ) : (
                                                         <>
                                                             <ShoppingCart size={16} className="cart-btn-icon" />
-                                                            
+
                                                         </>
                                                     )}
                                                 </button>

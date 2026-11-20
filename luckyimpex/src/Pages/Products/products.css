@@ -480,6 +480,11 @@ p {
     margin-top: 20px;
 }
 
+/* Banner spans full width in product grid */
+.product-grid .promo-banner-card {
+    grid-column: 1 / -1;
+}
+
 .product-container,
 .skeleton-card {
     background: #ffffff;
@@ -1458,6 +1463,12 @@ p {
         margin-top: 16px;
     }
 
+    /* Banners on mobile */
+    .product-grid .promo-banner-card {
+        grid-column: 1 / -1;
+        margin: 16px 0;
+    }
+
     .filter-section,
     .product-visual-card,
     .details-product-info-container,
@@ -1466,8 +1477,6 @@ p {
         padding: 18px;
     }
 
-    .product-grid,
-    .skeleton-grid,
     .brand-summary-grid,
     .brand-proof-strip {
         grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -1634,6 +1643,11 @@ p {
     .skeleton-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+    }
+
+    .product-grid .promo-banner-card {
+        grid-column: 1 / -1;
+        margin: 12px 0;
     }
 
     .product-image-container {
