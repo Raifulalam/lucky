@@ -7,6 +7,7 @@ import { WholesaleProvider } from "../../Components/WholesaleContext";
 import { SITE_CONFIG } from "../../seo/siteConfig";
 
 import HeroSlider from "./HeroSlider";
+import KeyHighlights from "./KeyHighlights";
 import TrustBadgesStrip from "./TrustBadgesStrip";
 import CategoryGrid from "./CategoryGrid";
 import HotDealsSection from "./HotDealsSection";
@@ -60,6 +61,9 @@ const HomeContent = () => {
             <main className="home-main">
                 {/* 2. DYNAMIC DUAL-TRACK HERO SECTION */}
                 <HeroSlider />
+
+                {/* 2.5 KEY HIGHLIGHTS - Information after carousel */}
+                <KeyHighlights />
 
                 {/* 3. TRUST BADGES STRIP */}
                 <TrustBadgesStrip />
