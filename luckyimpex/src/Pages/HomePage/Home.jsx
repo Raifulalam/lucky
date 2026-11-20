@@ -10,6 +10,7 @@ import HeroSlider from "./HeroSlider";
 import TrustBadgesStrip from "./TrustBadgesStrip";
 import CategoryGrid from "./CategoryGrid";
 import ProductListingSection from "./ProductListingSection";
+import AuthorizedDealerCertification from "./AuthorizedDealerCertification";
 import WholesaleRFQBanner from "./WholesaleRFQBanner";
 import ShowroomHub from "./ShowroomHub";
 import BrandsCarousel from "./BrandsCarousel";
@@ -38,8 +39,8 @@ const HomeContent = () => {
         <div className="home-page">
             {/* SEO Metadata */}
             <PageSeo
-                title="Lucky Impex | Birgunj Home Appliances | CG, LG, Haier"
-                description="Shop genuine electronics & home appliances at Lucky Impex, Birgunj. Official retailer & wholesale distributor in Nepal with warranty, EMI & store pickup."
+                title="Lucky Impex | Authorized Dealer Birgunj | CG Digital, Samsung Plaza, Whirlpool Neoteric"
+                description="Shop 100% genuine electronics & home appliances at Lucky Impex, Birgunj. Authorized dealer for CG Digital, CG Electronic, Samsung Plaza & Whirlpool Neoteric in Parsa & Madhesh Province. Official warranty, EMI & store pickup."
                 canonicalPath="/"
                 localBusiness
                 faq={SITE_CONFIG.faqs}
@@ -66,6 +67,9 @@ const HomeContent = () => {
 
                 {/* 5. HYBRID PRODUCT LISTING CARDS (Dynamic Retail / Wholesale Pricing) */}
                 <ProductListingSection />
+
+                {/* 5.5 AUTHORIZED DEALER CERTIFICATION */}
+                <AuthorizedDealerCertification />
 
                 {/* 6. INTERACTIVE B2B / WHOLESALE RFQ BANNER */}
                 <WholesaleRFQBanner />

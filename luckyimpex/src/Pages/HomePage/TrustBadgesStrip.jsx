@@ -1,11 +1,16 @@
 import React from "react";
-import { CreditCard, ShieldCheck, Store, Truck } from "lucide-react";
+import { Award, CreditCard, ShieldCheck, Store, Truck } from "lucide-react";
 import "./TrustBadgesStrip.css";
 
 const TRUST_ITEMS = [
     {
+        icon: <Award size={26} className="trust-icon text-amber" />,
+        title: "Authorized Dealer",
+        description: "CG Digital, CG Electronic, Samsung Plaza & Whirlpool Neoteric",
+    },
+    {
         icon: <ShieldCheck size={26} className="trust-icon text-amber" />,
-        title: "100% Authorized Warranty",
+        title: "100% Genuine Products",
         description: "Official manufacturer warranty on all major brands",
     },
     {

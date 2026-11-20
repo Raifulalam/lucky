@@ -1,0 +1,288 @@
+/* =========================================================
+   AUTHORIZED DEALER CERTIFICATION SECTION
+========================================================= */
+
+.dealer-certification-section {
+    padding: var(--space-10) var(--space-4);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dealer-certification-inner {
+    width: min(var(--container-2xl), 100%);
+    margin: 0 auto;
+}
+
+/* Header */
+.cert-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.cert-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wider);
+    margin-bottom: var(--space-4);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.cert-title {
+    font-size: clamp(var(--font-size-2xl), 3vw, var(--font-size-4xl));
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-tight);
+    margin: 0 0 var(--space-4) 0;
+}
+
+.cert-description {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Location Coverage */
+.location-coverage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    background: white;
+    padding: var(--space-5);
+    border-radius: var(--radius-2xl);
+    margin-bottom: var(--space-8);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.location-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: var(--radius-xl);
+    flex-shrink: 0;
+}
+
+.location-text h3 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.location-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.location-item {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent);
+}
+
+.separator {
+    color: var(--color-slate-300);
+    font-weight: var(--font-weight-normal);
+}
+
+/* Brand Partners Grid */
+.brand-partners-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
+    margin-bottom: var(--space-8);
+}
+
+.brand-partners-grid.eight-items {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.partner-card {
+    background: white;
+    padding: var(--space-5);
+    border-radius: var(--radius-xl);
+    border: 2px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: var(--transition-base);
+}
+
+.partner-card:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.partner-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: #ecfdf5;
+    color: #10b981;
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-3);
+}
+
+.partner-info {
+    flex: 1;
+}
+
+.partner-name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-extrabold);
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-1) 0;
+}
+
+.partner-type {
+    display: inline-block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wider);
+    margin-bottom: var(--space-2);
+}
+
+.partner-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+    margin: 0;
+}
+
+/* Trust Certifications */
+.trust-certifications {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    background: white;
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+}
+
+.trust-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+}
+
+.trust-text {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-primary);
+}
+
+/* SEO Content */
+.seo-content {
+    background: white;
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+    border-left: 4px solid var(--color-accent);
+}
+
+.seo-text {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-relaxed);
+    margin: 0;
+}
+
+.seo-text strong {
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .brand-partners-grid,
+    .brand-partners-grid.eight-items {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .trust-certifications {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dealer-certification-section {
+        padding: var(--space-8) var(--space-4);
+    }
+
+    .cert-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .cert-description {
+        font-size: var(--font-size-base);
+    }
+
+    .location-coverage {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-3);
+    }
+
+    .location-list {
+        justify-content: center;
+    }
+
+    .brand-partners-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    .trust-certifications {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .seo-content {
+        padding: var(--space-5);
+    }
+}
+
+@media (max-width: 480px) {
+    .trust-certifications {
+        grid-template-columns: 1fr;
+    }
+
+    .location-item {
+        font-size: var(--font-size-base);
+    }
+}

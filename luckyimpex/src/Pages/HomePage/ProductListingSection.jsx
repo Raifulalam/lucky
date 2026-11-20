@@ -15,7 +15,59 @@ import { Link } from "react-router-dom";
 import { useWholesale } from "../../Components/WholesaleContext";
 import { useCartDispatch } from "../../Components/CreateReducer";
 import { getData } from "../../api/api";
+import PromotionalBanner from "./PromotionalBanner";
 import "./ProductListingSection.css";
+
+const PROMOTIONAL_BANNERS = [
+    {
+        id: "promo-1",
+        title: "Summer Sale - Up to 40% OFF",
+        description: "Beat the heat with amazing deals on Air Conditioners, Coolers & Refrigerators. Limited time offer!",
+        badge: "HOT DEAL",
+        category: "Seasonal Sale",
+        image: "/guest2.jpg",
+        ctaText: "Shop ACs & Coolers",
+        ctaLink: "/products/AirConditioners",
+        theme: "theme-red",
+        offers: [
+            { icon: "percent", text: "Up to 40% OFF on ACs" },
+            { icon: "truck", text: "Free Installation" },
+            { icon: "zap", text: "0% EMI Available" },
+        ],
+    },
+    {
+        id: "promo-2",
+        title: "Smart TV Festival",
+        description: "Upgrade your entertainment with the latest Smart TVs. Premium brands at unbeatable prices.",
+        badge: "FESTIVAL",
+        category: "Electronics",
+        image: "/guest1.jpg",
+        ctaText: "Explore Smart TVs",
+        ctaLink: "/products/Televisions",
+        theme: "theme-green",
+        offers: [
+            { icon: "percent", text: "Starting from ₨ 25,000" },
+            { icon: "zap", text: "Easy EMI Options" },
+            { icon: "truck", text: "Free Delivery" },
+        ],
+    },
+    {
+        id: "promo-3",
+        title: "Kitchen Appliances Special",
+        description: "Complete your dream kitchen with our range of refrigerators, washing machines & more.",
+        badge: "SPECIAL",
+        category: "Home Appliances",
+        image: "/guest3.jpg",
+        ctaText: "Shop Kitchen Essentials",
+        ctaLink: "/products/Refrigerators",
+        theme: "theme-orange",
+        offers: [
+            { icon: "percent", text: "Bundle Discounts" },
+            { icon: "truck", text: "Free Installation" },
+            { icon: "zap", text: "Exchange Old Appliances" },
+        ],
+    },
+];
 
 const ProductListingSection = () => {
     const { isWholesale, openRfqModal, currency } = useWholesale();
@@ -69,6 +121,27 @@ const ProductListingSection = () => {
     }, [attempt]);
 
     const filteredProducts = products;
+
+    // Function to intersperse banners between products (like Flipkart)
+    const getProductsWithBanners = () => {
+        const items = [];
+        const bannerInterval = 6; // Insert banner after every 6 products
+        let bannerIndex = 0;
+
+        filteredProducts.forEach((product, index) => {
+            items.push({ type: 'product', data: product });
+
+            // Insert banner after every bannerInterval products
+            if ((index + 1) % bannerInterval === 0 && bannerIndex < PROMOTIONAL_BANNERS.length) {
+                items.push({ type: 'banner', data: PROMOTIONAL_BANNERS[bannerIndex] });
+                bannerIndex++;
+            }
+        });
+
+        return items;
+    };
+
+    const itemsWithBanners = getProductsWithBanners();
 
     const scrollLeft = () => {
         if (scrollContainerRef.current) {
@@ -174,7 +247,7 @@ const ProductListingSection = () => {
                         <p className="section-desc">
                             {isWholesale
                                 ? "Wholesale pricing is quoted per order. Send us a quote request with the models and quantities you need."
-                                : "Current prices and availability from the Lucky Impex showroom in Birgunj."}
+                                : "Current prices and availability from the Lucky Impex showroom in Birgunj. Authorized dealer for CG Digital, CG Electronic, Samsung Plaza & Whirlpool Neoteric."}
                         </p>
                     </div>
 
@@ -205,96 +278,108 @@ const ProductListingSection = () => {
                     </div>
                 </div>
 
-                {/* Hybrid Products Grid / Horizontal Scroll Track */}
+                {/* Hybrid Products Grid / Horizontal Scroll Track with Banners */}
                 <div className="products-scroll-track" ref={scrollContainerRef}>
-                    {filteredProducts.map((product) => (
-                        <article key={product.id} className="hybrid-product-card">
-                            {/* Card Image Wrap */}
-                            <div className="prod-img-box">
-                                <img
-                                    src={product.image}
-                                    alt={product.title}
-                                    loading="lazy"
-                                    onError={(e) => {
-                                        e.target.onerror = null;
-                                        e.target.src = product.fallback;
-                                    }}
-                                    className="prod-img"
+                    {itemsWithBanners.map((item, index) => {
+                        if (item.type === 'banner') {
+                            return (
+                                <PromotionalBanner
+                                    key={`banner-${item.data.id}`}
+                                    banner={item.data}
                                 />
+                            );
+                        }
 
-                                {/* Stock & Mode Badges */}
-                                <div className="prod-badges-row">
-                                    {product.inStock && (
-                                        <span className="stock-badge">
-                                            <CheckCircle size={11} /> In Stock
-                                        </span>
-                                    )}
-                                    {!isWholesale && product.retail.discount && (
-                                        <span className="discount-badge-tag">
-                                            {product.retail.discount}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
+                        const product = item.data;
+                        return (
+                            <article key={product.id} className="hybrid-product-card">
+                                {/* Card Image Wrap */}
+                                <div className="prod-img-box">
+                                    <img
+                                        src={product.image}
+                                        alt={product.title}
+                                        loading="lazy"
+                                        onError={(e) => {
+                                            e.target.onerror = null;
+                                            e.target.src = product.fallback;
+                                        }}
+                                        className="prod-img"
+                                    />
 
-                            {/* Card Content */}
-                            <div className="prod-card-body">
-                                <div className="prod-meta-row">
-                                    <span className="prod-brand">{product.brand}</span>
-                                </div>
-
-                                <h3 className="prod-title" title={product.title}>
-                                    <Link to={`/product/${encodeURIComponent(product.slug)}`}>
-                                        {product.title}
-                                    </Link>
-                                </h3>
-
-                                {/* PRICE (real catalogue price; wholesale is quoted, never estimated) */}
-                                <div className="prod-pricing-block">
-                                    <div className="retail-price-wrap">
-                                        <div className="price-main-row">
-                                            <span className="price-current">
-                                                {product.retail.price > 0 ? formatPrice(product.retail.price) : "Ask for price"}
+                                    {/* Stock & Mode Badges */}
+                                    <div className="prod-badges-row">
+                                        {product.inStock && (
+                                            <span className="stock-badge">
+                                                <CheckCircle size={11} /> In Stock
                                             </span>
-                                            {product.retail.mrp > 0 && (
-                                                <span className="price-mrp">
-                                                    {formatPrice(product.retail.mrp)}
-                                                </span>
-                                            )}
-                                        </div>
-                                        {isWholesale && (
-                                            <div className="bulk-tiered-info">
-                                                <Building2 size={12} />
-                                                <span>Wholesale rate on request</span>
-                                            </div>
+                                        )}
+                                        {!isWholesale && product.retail.discount && (
+                                            <span className="discount-badge-tag">
+                                                {product.retail.discount}
+                                            </span>
                                         )}
                                     </div>
                                 </div>
 
-                                {/* ACTION BUTTONS */}
-                                <div className="prod-card-actions">
-                                    <button
-                                        type="button"
-                                        className={`btn-add-cart ${addedId === product.id ? "added" : ""}`}
-                                        onClick={() => handleAddToCart(product)}
-                                    >
-                                        <ShoppingCart size={15} />
-                                        <span>{addedId === product.id ? "Added to Cart!" : "Add to Cart"}</span>
-                                    </button>
+                                {/* Card Content */}
+                                <div className="prod-card-body">
+                                    <div className="prod-meta-row">
+                                        <span className="prod-brand">{product.brand}</span>
+                                    </div>
 
-                                    <button
-                                        type="button"
-                                        className="btn-bulk-quote"
-                                        onClick={() => openRfqModal(product)}
-                                        title="Request a wholesale quote"
-                                    >
-                                        <FileText size={15} />
-                                        <span>Bulk Quote</span>
-                                    </button>
+                                    <h3 className="prod-title" title={product.title}>
+                                        <Link to={`/product/${encodeURIComponent(product.slug)}`}>
+                                            {product.title}
+                                        </Link>
+                                    </h3>
+
+                                    {/* PRICE (real catalogue price; wholesale is quoted, never estimated) */}
+                                    <div className="prod-pricing-block">
+                                        <div className="retail-price-wrap">
+                                            <div className="price-main-row">
+                                                <span className="price-current">
+                                                    {product.retail.price > 0 ? formatPrice(product.retail.price) : "Ask for price"}
+                                                </span>
+                                                {product.retail.mrp > 0 && (
+                                                    <span className="price-mrp">
+                                                        {formatPrice(product.retail.mrp)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {isWholesale && (
+                                                <div className="bulk-tiered-info">
+                                                    <Building2 size={12} />
+                                                    <span>Wholesale rate on request</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* ACTION BUTTONS */}
+                                    <div className="prod-card-actions">
+                                        <button
+                                            type="button"
+                                            className={`btn-add-cart ${addedId === product.id ? "added" : ""}`}
+                                            onClick={() => handleAddToCart(product)}
+                                        >
+                                            <ShoppingCart size={15} />
+                                            <span>{addedId === product.id ? "Added to Cart!" : "Add to Cart"}</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="btn-bulk-quote"
+                                            onClick={() => openRfqModal(product)}
+                                            title="Request a wholesale quote"
+                                        >
+                                            <FileText size={15} />
+                                            <span>Bulk Quote</span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
-                    ))}
+                            </article>
+                        );
+                    })}
                 </div>
 
                 {/* Mobile Swipe Hint */}
